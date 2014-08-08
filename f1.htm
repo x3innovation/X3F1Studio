@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Projects - F1</title>
+        <!-- start: META -->
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <!-- end: META -->
+
+        <!-- start: 3RD PARTY CSS -->
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/bootstrap-alert.css">
+        <link rel="stylesheet" href="css/bootstrap-grid.css">
+        <link rel="stylesheet" href="css/bootstrap-form.css">
+        <link rel="stylesheet" href="css/bootstrap-well.css">
+        <link rel="stylesheet" href="css/bootstrap-button.css">
+        <link rel="stylesheet" href="css/bootstrap-panel.css">
+        <link rel="stylesheet" href="css/bootstrap-breadcrumbs.css">
+        <link rel="stylesheet" href="css/bootstrap-glyphicon.css">
+        <link rel="stylesheet" href="css/font-awesome.min.css">
+        <link rel="stylesheet" href="css/selectize.bootstrap3.css" />
+        <link rel="stylesheet" href="css/list.css">
+        <link rel="stylesheet" href="css/projectlist.css">
+        <!-- <link rel="stylesheet" href="css/chart-base.css">
+        <link rel="stylesheet" href="css/chart.css"> -->
+        <link rel="stylesheet" href="css/leanModal.css">
+        <!-- end: 3RD PARTY CSS -->
+
+        <!-- start: F1 CSS -->
+        <link rel="icon" type="image/png" href="./logo.png">
+        <link rel="stylesheet" href="css/f1.css">
+        <link rel="stylesheet" href="css/ball.css">
+        <!-- end: F1 CSS -->
+    </head>
+    <body>
+        <div id="changeNameModal" style="display: none; width: 600px;">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <!-- start: PAGE HEADER -->
+                    <div class="row" style="padding: 10px;">
+                        <div class="col-sm-12">
+                            <b>Rename Project</b>
+                        </div>
+                    </div>
+                    <div class="row" style="padding: 10px;">
+                        <div class="col-sm-12">
+                            Enter a new project name:
+                        </div>
+                    </div>
+                    <div class="row" style="padding: 10px;">
+                        <div class="col-sm-12">
+                            <input style="width: 100%" id="projectNameEdit" name="projectNameEdit" type="text" class="form-control"/>
+                            <div id="renameAlertMsg" class="alert alert-danger" style="display: none;">
+                                <span class="glyphicon glyphicon-warning-sign"></span>
+                                Project name must start with a letter and contain only alphanumerics
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="padding: 5px;">
+                        <div class="col-sm-12">
+                            <button id="saveChangeNameModal" class="btn btn-primary rp-button rp-button-submit">
+                                OK
+                            </button>
+                            <button id="closeChangeNameModal" class="btn btn-primary rp-button rp-button-submit">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="nameDataModal" style="display: none; width: 600px;">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <!-- start: PAGE HEADER -->
+                    <div class="row" style="padding: 10px;">
+                        <div class="col-sm-12">
+                            <b>New Data</b>
+                        </div>
+                    </div>
+                    <div class="row" style="padding: 10px;">
+                        <div class="col-sm-12">
+                            Enter a name for the new data:
+                        </div>
+                    </div>
+                    <div class="row" style="padding: 10px;">
+                        <div class="col-sm-12">
+                            <input style="width: 100%" id="newDataName" name="newDataName" type="text" class="form-control"/>
+                        </div>
+                        <div class="col-sm-12">
+                            <div id="dataNameError" class="alert alert-danger" style="display: none;">
+                                <span class="glyphicon glyphicon-warning-sign"></span>
+                                Data name must start with a letter and contain only alphanumerics
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="padding: 10px;">
+                        <div class="col-sm-12">
+                            Select a data type:
+                        </div>
+                    </div>
+                    <div class="row" style="padding: 10px;">
+                        <div class="col-sm-12">
+                            <select id="dataType" name="dataType">
+                                <option value="persisted">Persistent Data</option>
+                                <option value="applicationState">Application State</option>
+                                <option value="event">Event</option>
+                                <option value="enumeration">Enumeration</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding: 5px;">
+                        <div class="col-sm-12">
+                            <button id="saveNewDataName" class="btn btn-primary rp-button rp-button-submit">
+                                OK
+                            </button>
+                            <button id="closeNameDataModal" class="btn btn-primary rp-button rp-button-submit">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="nameFlowModal" style="display: none; width: 600px;">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <!-- start: PAGE HEADER -->
+                    <div class="row" style="padding: 10px;">
+                        <div class="col-sm-12">
+                            <b>New Flow</b>
+                        </div>
+                    </div>
+                    <div class="row" style="padding: 10px;">
+                        <div class="col-sm-12">
+                            Enter a name for the new flow:
+                        </div>
+                    </div>
+                    <div class="row" style="padding: 10px;">
+                        <div class="col-sm-12">
+                            <input style="width: 100%" id="newFlowName" name="newFlowName" type="text" class="form-control"/>
+                        </div>
+                        <div class="col-sm-12">
+                            <div id="flowNameError" class="alert alert-danger" style="display: none;">
+                                <span class="glyphicon glyphicon-warning-sign"></span>
+                                Flow name must start with a letter and contain only alphanumerics
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="padding: 5px;">
+                        <div class="col-sm-12">
+                            <button id="saveNewFlowName" class="btn btn-primary rp-button rp-button-submit">
+                                OK
+                            </button>
+                            <button id="closeNameFlowModal" class="btn btn-primary rp-button rp-button-submit">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <!-- start: PAGE HEADER -->
+            <div class="row">
+                <div class="col-sm-12">
+                    <!-- start: PAGE TITLE & BREADCRUMB -->
+                    <ol class="breadcrumb">
+                        <li>
+                            <i class="clip-barcode openSans300"></i><a href="./f1.htm"><img height="16px" src="logo.svg"></img></a>
+                        </li>
+                        <li class="active openSans300">
+                            Project <a id="f1link" href="f1.htm"></a>
+                        </li>
+                    </ol>
+                    <div id="collaborators" class="pull-right"></div>
+                    <div class="page-header">
+                        <h1 class="openSans300" id="projectName" herf="changeNameModal">Project <small>beta</small></h1>
+                    </div>
+                    <!-- end: PAGE TITLE & BREADCRUMB -->
+                </div>
+            </div>
+            <!-- end: PAGE HEADER -->
+            <!-- start: PAGE CONTENT -->
+            <div id="leftContainer" class="col-sm-9">
+                <div class="col-sm-12">
+                    <!-- start: PROGRESS BAR PANEL -->
+                    <div id="progressBarGroup">
+                        <span class="openSans300">Loading ...</span>
+                        <progress id="progressbar" value="0" max="100"></progress>
+                        <span class="progress-value">0%</span>
+                    </div>
+                    <!-- end: PROGRESS BAR PANEL -->
+                    <!-- start: TEXT FIELDS PANEL -->
+                    <div class="panel panel-default" id="authorizeButtonGroup" style="display: none;">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <div class="rp-section-content openSans300">
+                                    To use this tool,
+                                    <button id="authorizeButton" class="btn btn-primary rp-button rp-button-submit">
+                                        Authorize
+                                    </button>
+                                    it to read and write DMX data on your Google Drive.
+                                    <div id="authorizedMessage" style="display:none; padding-top: 10px;">
+                                        <span style="font-size: 20px; color: green;">&#10003;</span>
+                                        DMX is authorized!
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default" id="docButtonGroup" style="display: none;">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <div class="rp-section-content">
+                                    <button id="createNew" class="btn btn-primary">
+                                        Create
+                                    </button>
+                                    a new project or
+                                    <button id="openExisting" class="btn btn-primary">
+                                        Open
+                                    </button>
+                                    an existing one.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default" id="sharingButtonGroup" style="display: none;">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <button id="shareProject" class="btn btn-primary">
+                                        Share
+                                    </button>
+                                    <a class="btn btn-primary" id="generateXML"><i class="fa fa-file-text-o"></i> Export XML</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default" id="contentGroup" style="display: none;">
+                        <div class="panel-body">
+                            <div id="docButtonGroupDMX" style="display: none;">
+                                <div class="rp-section-content">
+                                    <button id="createNewDMX" class="btn btn-primary">
+                                        New Data
+                                    </button>
+                                    <button id="createNewFMX" class="btn btn-primary">
+                                        New Flow
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div id="fileList">
+                                <div style="float: right;">
+                                    Filter:
+                                    <input class="search" />
+                                </div>
+                                <ul class="list" style="clear: both;"></ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="panel panel-default" id="xmlOutputGroup" style="display: none;">
+                                <div class="panel-body">
+                                    <pre id="xmlOutput"></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div id="rightContainer" class="col-sm-3">
+                <div class="col-sm-12">
+                    <div class="panel panel-default" id="collaborationGroup" style="display: none;">
+                        <div class="panel-body">
+                            Collaborators
+                            <div id="collaborators"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- end: PAGE CONTENT-->
+
+        <!-- start: JQUERY -->
+        <script src='js/jquery-1.11.0.min.js'></script>
+        <!-- end: JQUERY -->
+
+        <!-- start: OTHER THIRD PARTY LIBRARIES -->
+        <script src="js/selectize.neo.js"></script>
+        <script src="js/vkbeautify.js"></script>
+        <script src="js/xml2json.js"></script>
+        <script src="js/list.js"></script>
+        <script src="js/jquery.leanModal.js"></script>
+        <!-- end: OTHER THIRD PARTY LIBRARIES -->
+
+        <!-- start: GOOGLE DRIVE SDK -->
+        <script src="//www.google.com/jsapi?autoload=%7B%22modules%22%3A%5B%7B%22name%22%3A%22picker%22%2C%22version%22%3A%221%22%7D%5D%7D"></script>
+        <script src="//apis.google.com/js/api.js"></script>
+        <!-- end: GOOGLE DRIVE SDK -->
+
+        <!-- start: F1 -->
+        <script src="js/ball.js"></script>
+        <script src="js/cat.js"></script>
+        <script src="js/dog.js"></script>
+        <script src='js/f1.js'></script>
+        <!-- end: F1 -->
+    </body>
+</html>
