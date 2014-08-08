@@ -1,0 +1,55 @@
+<polymer-element name="fmx-node-editor" class="modal-content">
+    <template>
+        <h1>Edit task</h1>
+        <form>
+            <label> Task name
+                <input type="text" value="{{ name }}" required>
+            </label>
+            <label> Description 				<textarea value="{{ description }}"></textarea> </label>
+            <div class="toolbar">
+                <button on-click="{{ send }}" class="{{ { disabled: !canSend } | tokenList }}">
+                    Save
+                </button>
+                <a on-click="{{ close }}">Cancel</a>
+            </div>
+        </form>
+    </template>
+    <script>
+        Polymer('fmx-node-editor', {
+            graph: null,
+            node: null,
+            name: '',
+            description: '',
+            attached: function() {
+                this.name = this.node.metadata.label;
+                this.description = this.node.metadata.description;
+            },
+            nameChanged: function() {
+                if (!this.name) {
+                    this.canSend = false;
+                    return;
+                }
+                this.canSend = true;
+            },
+            send: function(event) {
+                if (event) {
+                    event.preventDefault();
+                }
+                if (!this.name) {
+                    return;
+                }
+                this.graph.setNodeMetadata(this.node.id, {
+                    label: this.name,
+                    description: this.description
+                });
+                this.close();
+            },
+            close: function() {
+                if (!this.parentNode) {
+                    return;
+                }
+                this.parentNode.removeChild(this);
+            }
+        });
+    </script>
+</polymer-element>

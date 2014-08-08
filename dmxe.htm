@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Data Model eXtension Enum - F1</title>
+		<!-- start: META -->
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!-- end: META -->
+
+		<!-- start: 3RD PARTY CSS -->
+		<link rel="stylesheet" href="css/normalize.css">
+		<link rel="stylesheet" href="css/bootstrap-grid.css">
+		<link rel="stylesheet" href="css/bootstrap-form.css">
+		<link rel="stylesheet" href="css/bootstrap-well.css">
+		<link rel="stylesheet" href="css/bootstrap-button.css">
+		<link rel="stylesheet" href="css/bootstrap-panel.css">
+		<link rel="stylesheet" href="css/bootstrap-breadcrumbs.css">
+		<link rel="stylesheet" href="css/font-awesome.min.css">
+		<link rel="stylesheet" href="css/list.css">
+		<link rel="stylesheet" href="css/chart-base.css">
+		<link rel="stylesheet" href="css/chart.css">
+		<link rel="stylesheet" href="css/datatables.css">
+		<link rel="stylesheet" href="css/leanModal.css">
+		<!-- end: 3RD PARTY CSS -->
+
+		<!-- start: DMX CSS -->
+		<link rel="icon" type="image/png" href="./logo.png">
+		<link rel="stylesheet" href="css/ball.css">
+		<!-- end: DMX CSS -->
+	</head>
+	<body>
+		<div id="changeNameModal" style="display: none; width: 600px;">
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<!-- start: PAGE HEADER -->
+					<div class="row" style="padding: 10px;">
+						<div class="col-sm-12">
+							<b>Rename Data</b>
+						</div>
+					</div>
+					<div class="row" style="padding: 10px;">
+						<div class="col-sm-12">
+							Enter a new name:
+						</div>
+					</div>
+					<div class="row" style="padding: 10px;">
+						<div class="col-sm-12">
+							<input style="width: 100%" id="dataNameEdit" name="dataNameEdit" type="text" class="form-control"/>
+							<div id="renameAlertMsg" class="alert alert-danger" style="display: none;">
+								<span class="glyphicon glyphicon-warning-sign"></span>
+								Data name must start with a letter and contain only alphanumerics
+							</div>
+						</div>
+					</div>
+					<div class="row" style="padding: 5px;">
+						<div class="col-sm-12">
+							<button id="saveChangeNameModal" class="btn btn-primary rp-button rp-button-submit">
+								OK
+							</button>
+							<button id="closeChangeNameModal" class="btn btn-primary rp-button rp-button-submit">
+								Cancel
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="container-fluid">
+			<!-- start: PAGE HEADER -->
+			<div class="row">
+				<div class="col-sm-12">
+					<!-- start: PAGE TITLE & BREADCRUMB -->
+					<ol class="breadcrumb">
+						<li>
+							<i class="clip-barcode"></i><a href="./f1.htm"><img height="16px" src="logo.svg"></img></a>
+						</li>
+						<li>
+							Project <a id="f1link" href="f1.htm"></a>
+						</li>
+						<li class="active">
+							Enum <a id="dmxelink" href="dmxe.htm"></a>
+						</li>
+					</ol>
+					<div id="collaborators" class="pull-right"></div>
+					<div class="page-header">
+						<h1 id="docName">Data Model eXtension Enum<small>beta</small></h1>
+					</div>
+					<!-- end: PAGE TITLE & BREADCRUMB -->
+				</div>
+			</div>
+			<!-- end: PAGE HEADER -->
+			<!-- start: PAGE CONTENT -->
+			<div id="leftContainer" class="col-sm-9">
+
+				<!-- start: PROGRESS BAR PANEL -->
+				<div id="progressBarGroup">
+					<span>Loading ...</span>
+					<progress id="progressbar" value="0" max="100"></progress>
+					<span class="progress-value">0%</span>
+				</div>
+				<!-- end: PROGRESS BAR PANEL -->
+				<!-- start: TEXT FIELDS PANEL -->
+				<div class="panel panel-default" id="contentGroup" style="display: none;">
+					<div class="panel-body">
+
+						<div class="row">
+							<div class="col-sm-2">
+								<label for="enumId">Id
+									<br/>
+									<input id="enumId" name="enumId" type="text" class="form-control"/>
+								</label>
+							</div>
+							<div class="col-sm-10">
+								<div class="form-group">
+									<label for="enumDesc" class="col-sm-12" >Description
+										<br/>
+										<textarea type="text" placeholder="" id="enumDesc" name="enumDesc" class="form-control"></textarea> </label>
+								</div>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-sm-12">
+
+								<a class="btn btn-lg" id="dataTableAddRow"><i class="fa fa-plus-circle"> Add</i></a>
+								<a class="btn btn-lg disabled" id="dataTableDeleteRow"><i class="fa fa-minus-circle"> Delete</i></a>
+								<table cellpadding="0" cellspacing="0" border="0" class="display" id="enumElementTable">
+									<thead>
+										<tr>
+											<th></th>
+											<th>Id</th>
+											<th>Element</th>
+											<th>Description</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+										</tr>
+									</tbody>
+								</table>
+
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-sm-12">
+								<p>
+									<a class="btn btn-primary" id="generateXML"><i class="fa fa-file-text-o"></i> Generate XML</a>
+								</p>
+							</div>
+						</div>
+
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="panel panel-default" id="xmlOutputGroup" style="display: none;">
+							<div class="panel-body">
+								<pre id="xmlOutput"></pre>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div id="rightContainer" class="col-sm-3">
+				<div class="col-sm-12">
+					<div class="panel panel-default" id="collaborationGroup">
+						<div class="panel-body">
+							Collaborators
+							<div id="collaborators"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+		<!-- end: PAGE CONTENT-->
+
+		<!-- start: JQUERY -->
+		<script src='js/jquery-1.11.0.min.js'></script>
+		<!-- end: JQUERY -->
+
+		<!-- start: OTHER THIRD PARTY LIBRARIES -->
+		<script src="js/list.js"></script>
+		<script src="js/vkbeautify.js"></script>
+		<script src="js/xml2json.js"></script>
+		<script src="js/jquery.jeditable.js"></script>
+		<script src="js/jquery.dataTables.js"></script>
+		<script src="js/jquery.leanModal.js"></script>
+		<!-- end: OTHER THIRD PARTY LIBRARIES -->
+
+		<!-- start: GOOGLE DRIVE SDK -->
+		<script src="//www.google.com/jsapi"></script>
+		<script src="//apis.google.com/js/api.js"></script>
+		<!-- end: GOOGLE DRIVE SDK -->
+
+		<!-- start: DMX -->
+		<script src="js/ball.js"></script>
+		<script src="js/cat.js"></script>
+		<script src="js/dog.js"></script>
+		<script src='js/dmxe.js'></script>
+		<!-- end: DMX -->
+	</body>
+</html>

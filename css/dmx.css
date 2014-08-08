@@ -1,0 +1,8 @@
+/*.datatable_red_bg {
+ background-color: red !important;
+ }*/
+
+.datatable_red_bg td i {
+	display: inline-block !important;
+	padding: 3px;
+}

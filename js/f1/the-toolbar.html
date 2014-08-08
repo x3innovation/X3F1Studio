@@ -1,0 +1,123 @@
+<link rel="import" href="../the-card/the-card/the-card.html">
+<link rel="import" href="../paper-toast/paper-toast.html">
+<polymer-element name="the-toolbar" attributes="">
+	<template>
+		<style>
+			.toolbar {
+				font-family: 'Open Sans';
+				font-weight: 300;
+				font-size: 14px;
+				margin: 0;
+				border-radius: 5px;
+				padding: 15px;
+				border: 1px solid #C8C7CC;
+				height: 30px;
+				position: absolute;
+				top: 70px;
+				left: 10px;
+				background-color: #FFFFFF;
+			}
+			.btn {
+				display: inline-block;
+				margin-bottom: 0;
+				font-weight: normal;
+				text-align: center;
+				vertical-align: middle;
+				cursor: pointer;
+				background-image: none;
+				border: 1px solid transparent;
+				white-space: nowrap;
+				padding: 6px 12px;
+				font-size: 14px;
+				line-height: 1.42857143;
+				border-radius: 4px;
+				-webkit-user-select: none;
+				color: #ffffff;
+				background-color: #428bca;
+				border-color: #357ebd;
+			}
+			.btn:hover, .btn:focus, .btn:active, .btn.active {
+				color: #ffffff;
+				background-color: #3276b1;
+				border-color: #285e8e;
+				text-decoration: none;
+			}
+		</style>
+		<div class="toolbar">
+			<button on-click="{{addNode}}" class="btn">
+				Add
+			</button>
+			<button on-click="{{deleteNodes}}" class="btn" id="deleteNodes">
+				Delete
+			</button>
+			<button on-click="{{exportXML}}" class="btn">
+				Export
+			</button>
+		</div>
+		<paper-toast id="paper-toast" text="Please first select the nodes you wanna get rid of, then click me."></paper-toast>
+	</template>
+	<script>
+		Polymer('the-toolbar', {
+			editor : null,
+			graph : null,
+			nodes : [],
+
+			nodesChanged : function() {
+				console.log("toolbar nodesChanged");
+
+				if ( typeof this.nodes !== 'undefined') {
+					if (this.nodes.length) {
+						// enable delete button
+
+					} else {
+						// disable delete button
+					}
+				}
+			},
+
+			// Add node button
+			addNode : function() {
+				var id = Math.round(Math.random() * 100000).toString(36);
+				var component = {
+					name : 'another',
+					description : 'another type of component',
+					inports : [],
+					outports : []
+				};
+				var metadata = {
+					label : 'label',
+					x : 340,
+					y : 130
+				};
+				var newNode = document.querySelector('#editor').nofloGraph.addNode(id, component, metadata);
+				console.log(newNode);
+			},
+			//Delete selected nodes
+			deleteNodes : function() {
+				graph = document.querySelector('#editor').graph;
+				if ( typeof this.nodes !== 'undefined' && this.nodes.length) {
+					console.log("delete selected nodes.");
+					for (var i = 0; i < this.nodes.length; i++) {
+						console.log("remove node: ");
+						console.log(this.nodes[i]);
+						graph.removeNode(this.nodes[i].id);
+					}
+				} else {
+					console.log("node is not selected. do nothing.");
+					document.querySelector('#paper-toast').show();
+				}
+				//1. get selected nodes
+				//2. delete them
+
+			},
+			// Export to XML
+			exportXML : function() {
+				console.log("exportXML");
+				console.log(JSON.stringify(window.editor.nofloGraph, null, 4));
+			},
+			noflo2fmx : function() {
+
+			}
+		});
+	</script>
+</polymer-element>

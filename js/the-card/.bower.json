@@ -1,0 +1,28 @@
+{
+  "name": "the-cards",
+  "authors": [
+    "Henri Bergius <henri.bergius@iki.fi>"
+  ],
+  "description": "Polymer components for UI cards",
+  "license": "MIT",
+  "dependencies": {
+    "polymer": "Polymer/polymer#0.2.4"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "homepage": "https://github.com/the-grid/the-card",
+  "_release": "dfdfaea8e5",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "dfdfaea8e51dd47a8521f58a6fb494d62768ab31"
+  },
+  "_source": "git://github.com/the-grid/the-card.git",
+  "_target": "*",
+  "_originalSource": "the-card"
+}

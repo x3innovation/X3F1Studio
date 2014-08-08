@@ -1,0 +1,82 @@
+<polymer-element name="fmx-outport-editor" class="modal-content">
+    <template>
+        <h1>{{ action }} outport</h1>
+        <form>
+            <label> Port name
+                <input type="text" value="{{ name }}" required>
+            </label>
+            <label> Description 				<textarea value="{{ description }}"></textarea> </label>
+            <label>Access
+                <select>
+                    <option value="readOnly">Read Only</option><option value="function">Function</option>
+                </select> </label>
+
+            <label>Type
+                <select>
+                    <option value="readOnly">DMX Data 1</option><option value="function">DMX Data 2</option>
+                </select></label>
+
+            <label>Lookup field
+                <select>
+                    <option value="readOnly">Field from input</option><option value="function">Field from input</option>
+                </select></label>
+
+            <label>Lookup value
+                <select>
+                    <option value="readOnly">Field from event</option><option value="function">Field from event</option>
+                </select></label>
+
+            <div class="toolbar">
+                <button on-click="{{ send }}" class="{{ { disabled: !canSend } | tokenList }}">
+                    {{ addOrSave }}
+                </button>
+                <a on-click="{{ close }}">Cancel</a>
+            </div>
+        </form>
+    </template>
+    <script>
+        Polymer('fmx-outport-editor', {
+            action: null,
+            graph: null,
+            node: null,
+            addOrSave: '',
+            name: '',
+            description: '',
+            attached: function() {
+                if (this.action == 'Add') {
+                    this.addOrSave = 'Add';
+                } else if (this.action == 'Edit') {
+                    this.addOrSave = 'Save';
+                }
+                this.name = this.node.metadata.label;
+                this.description = this.node.metadata.description;
+            },
+            nameChanged: function() {
+                if (!this.name) {
+                    this.canSend = false;
+                    return;
+                }
+                this.canSend = true;
+            },
+            send: function(event) {
+                if (event) {
+                    event.preventDefault();
+                }
+                if (!this.name) {
+                    return;
+                }
+
+                var node = this.graph.addNodeOutport(this.node.id, this.name, 'all');
+                fmx.doc.tasks.set(this.node.id, this.node);
+
+                this.close();
+            },
+            close: function() {
+                if (!this.parentNode) {
+                    return;
+                }
+                this.parentNode.removeChild(this);
+            }
+        });
+    </script>
+</polymer-element>

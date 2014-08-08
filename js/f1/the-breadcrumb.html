@@ -1,0 +1,75 @@
+<polymer-element name="the-breadcrumb" attributes="f1Url f1Label docUrl docLabel" noscript>
+    <template>
+        <style>
+            a {
+                color: #428bca;
+                text-decoration: none;
+            }
+            a:hover, a:focus {
+                color: #2a6496;
+                text-decoration: underline;
+            }
+            a:focus {
+                outline: thin dotted;
+                outline: 5px auto -webkit-focus-ring-color;
+                outline-offset: -2px;
+            }
+            .breadcrumb {
+                font-family: 'Open Sans';
+                font-weight: 300;
+                font-size: 14px;
+                line-height: 1.42857143;
+                list-style: none;
+                margin: 0;
+                border-radius: 0;
+                padding: 0 15px 0 15px;
+                border-bottom: 1px solid #C8C7CC;
+                border-right: 1px solid #C8C7CC;
+                height: 31px;
+                width: auto;
+                position: absolute;
+                top: 0;
+                left: 116px;
+                background-color: rgba(246, 246, 246, 0.7);
+            }
+            .breadcrumb > li {
+                display: inline-block;
+                vertical-align: middle;
+                line-height: 31px;
+            }
+            .breadcrumb > li + li:before {
+                content: "/\00a0";
+                padding: 0 5px;
+                color: #cccccc;
+            }
+            .breadcrumb > .active {
+                color: #999999;
+            }
+            .logo {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 116;
+                height: 32px;
+            }
+        </style>
+        <div class="logo">
+            <a href="../../f1.htm"> <img height="32px" src="../../logo.svg"></img> </a>
+        </div>
+        <ol class="breadcrumb" on-dblclick="{{onDoubleClick}}">
+            <li>
+                Project <a id="f1link" href="{{ f1Url }}">{{ f1Label }}</a>
+            </li>
+            <li class="active">
+                Flow <a id="fmxlink" href="{{ docUrl }}">{{ docLabel }}</a>
+            </li>
+        </ol>
+    </template>
+    <script>
+        Polymer('the-breadcrumb', {
+            onDoubleClick: function(event, detail, sender) {
+                console.log("onDoubleClick");
+            }
+        });
+    </script>
+</polymer-element>

@@ -1,0 +1,71 @@
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+`f1-item` is a simple line-item object: a label and/or an icon that can also 
+act as a link.
+
+Example:
+
+    <f1-item icon="settings" label="Settings"></f1-item>
+    
+To use as a link, put &lt;a&gt; element in the item.
+
+Example:
+
+    <f1-item icon="settings" label="Settings">
+      <a href="#settings" target="_self"></a>
+    </f1-item>
+
+@group Polymer Core Elements
+@element f1-item
+@homepage github.io
+-->
+
+<link rel="import" href="../core-icon/core-icon.html">
+
+<link rel="stylesheet" href="f1-item.css" shim-shadowdom>
+
+<polymer-element name="f1-item" attributes="label data icon src" horizontal center layout>
+    <template>
+
+        <core-icon src="{{src}}" icon="{{icon}}" hidden?="{{!src && !icon}}" data="{{data}}"></core-icon>{{label}}
+
+    </template>
+    <script>
+
+        Polymer('f1-item', {
+            /**
+             * The URL of an image for the icon.
+             *
+             * @attribute src
+             * @type string
+             * @default ''
+             */
+
+            /**
+             * Specifies the icon from the Polymer icon set.
+             *
+             * @attribute icon
+             * @type string
+             * @default ''
+             */
+
+            /**
+             * Specifies the label for the menu item.
+             *
+             * @attribute label
+             * @type string
+             * @default ''
+             */
+
+        });
+
+    </script>
+</polymer-element>
