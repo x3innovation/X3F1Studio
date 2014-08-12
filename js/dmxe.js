@@ -19,8 +19,8 @@ dmxe.onAuthResult = function(authResult) {
 
 		$('#contentGroup').hide();
 		dog.loadParamsToBall(function() {
-			$("#f1link").attr("href", cat.getRedirectStr("./f1.htm"));
-			$("#f1link").html(ball.projectFile.title);
+			document.getElementById("the-breadcrumb").f1Url = cat.getRedirectStr("./f1.htm");
+                        document.getElementById("the-breadcrumb").f1Label = ball.projectFile.title;
 
 			ball.registerDMXE();
 
@@ -85,8 +85,9 @@ dmxe.onFileLoaded = function(rtDoc) {
 		console.log(dmxe.doc);
 		$('#docName').html("<span>" + dmxe.doc.name + "</span>");
 
-		$("#dmxelink").attr("href", cat.getRedirectStr("./dmxe.htm", "&dmxFileId=" + dmxe.fileId));
-		$("#dmxelink").html(dmxe.doc.name);
+		document.getElementById("the-breadcrumb").docUrl = cat.getRedirectStr("./dmxe.htm", "&dmxeFileId=" + dmxe.fileId);
+                document.getElementById("the-breadcrumb").docLabel = dmxe.doc.name;
+                document.getElementById("the-breadcrumb").docType = ball.DMXE_TYPE;
 
 		$("#docName span").leanModal({
 			modal : "#changeNameModal",

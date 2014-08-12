@@ -83,6 +83,7 @@ fmx.onFileLoaded = function(rtDoc) {
 
         document.getElementById("the-breadcrumb").docUrl = cat.getRedirectStr("./fmx.htm", "&dmxFileId=" + fmx.fileId);
         document.getElementById("the-breadcrumb").docLabel = fmx.doc.name;
+        document.getElementById("the-breadcrumb").docType = ball.FMX_TYPE;
     });
 
     fmx.updateNameAndDesc();

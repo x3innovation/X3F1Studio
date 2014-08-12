@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <script src="./js/platform/platform.js"></script>
+        <link rel="import" href="./js/polymer/polymer.html">
         <title>Projects - F1</title>
         <!-- start: META -->
         <meta charset="utf-8" />
@@ -33,6 +35,7 @@
         <link rel="stylesheet" href="css/f1.css">
         <link rel="stylesheet" href="css/ball.css">
         <!-- end: F1 CSS -->
+        <link rel="import" href="./js/f1/the-breadcrumb.html">
     </head>
     <body>
         <div id="changeNameModal" style="display: none; width: 600px;">
@@ -165,23 +168,20 @@
         </div>
 
         <div class="container-fluid">
+            <!-- start: BREADCRUMB -->
+            <the-breadcrumb id="the-breadcrumb"></the-breadcrumb>
+            <!-- end: BREADCRUMB -->
+           
             <!-- start: PAGE HEADER -->
             <div class="row">
-                <div class="col-sm-12">
-                    <!-- start: PAGE TITLE & BREADCRUMB -->
-                    <ol class="breadcrumb">
-                        <li>
-                            <i class="clip-barcode openSans300"></i><a href="./f1.htm"><img height="16px" src="logo.svg"></img></a>
-                        </li>
-                        <li class="active openSans300">
-                            Project <a id="f1link" href="f1.htm"></a>
-                        </li>
-                    </ol>
+                <div class="col-sm-12 col-sm-12-header">
+                    <!-- start: PAGE TITLE  -->
+                    
                     <div id="collaborators" class="pull-right"></div>
                     <div class="page-header">
                         <h1 class="openSans300" id="projectName" herf="changeNameModal">Project <small>beta</small></h1>
                     </div>
-                    <!-- end: PAGE TITLE & BREADCRUMB -->
+                    <!-- end: PAGE TITLE -->
                 </div>
             </div>
             <!-- end: PAGE HEADER -->

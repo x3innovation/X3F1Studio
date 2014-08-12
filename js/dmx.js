@@ -19,8 +19,8 @@ dmx.onAuthResult = function(authResult) {
 
 		$('#contentGroup').hide();
 		dog.loadParamsToBall(function() {
-			$("#f1link").attr("href", cat.getRedirectStr("./f1.htm"));
-			$("#f1link").html(ball.projectFile.title);
+			 document.getElementById("the-breadcrumb").f1Url = cat.getRedirectStr("./f1.htm");
+                         document.getElementById("the-breadcrumb").f1Label = ball.projectFile.title;
 
 			ball.registerDMX();
 
@@ -87,8 +87,10 @@ dmx.onFileLoaded = function(rtDoc) {
 	dog.getFile(dmx.fileId, function(file) {
 		dmx.file = file;
 		$('#docName').html("<span>" + dmx.doc.name + "</span>");
-		$("#dmxlink").attr("href", cat.getRedirectStr("./dmx.htm", "&dmxFileId=" + dmx.fileId));
-		$("#dmxlink").html(file.title);
+		
+		document.getElementById("the-breadcrumb").docUrl = cat.getRedirectStr("./dmx.htm", "&dmxFileId=" + dmx.fileId);
+                document.getElementById("the-breadcrumb").docLabel = dmx.doc.name;
+                document.getElementById("the-breadcrumb").docType = ball.DMX_TYPE;
 
 		$("#docName span").leanModal({
 			modal : "#changeNameModal",
