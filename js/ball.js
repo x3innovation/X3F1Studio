@@ -59,7 +59,8 @@ ball.registerF1 = function() {
     custom.setInitializer(ball.f1Model, ball.f1Model.prototype.initialize);
 };
 
-ball.f1ModelUpgrade = function(f1Doc) {
+ball.f1ModelUpgrade = function(rtDoc) {
+    var f1Doc = rtDoc.getModel().getRoot().get(ball.F1_MODEL);
     if (f1Doc.version == null) {
         f1Doc.version = 1;
     }
@@ -67,7 +68,7 @@ ball.f1ModelUpgrade = function(f1Doc) {
         f1Doc.nextId = 10;
     }
     if (f1Doc.announcement == null) {
-        f1Doc.prototype.announcement = custom.collaborativeField('announcement');
+        f1Doc.announcement = rtDoc.getModel().createList();
     }
 };
 
@@ -77,7 +78,7 @@ ball.getF1Model = function(F1FileId, callback) {
         console.log("in ball.getF1Model .. onFileLoaded");
         f1Doc = rtDoc.getModel().getRoot().get(ball.F1_MODEL);
 
-        //ball.f1ModelUpgrade(f1Doc);
+        ball.f1ModelUpgrade(rtDoc);
 
         console.log("f1Doc.version:");
         console.log(f1Doc.version);
