@@ -2,6 +2,10 @@
 
 var ball = ball || {};
 
+ball.DMX_TYPE ='data';
+ball.FMX_TYPE ='flow';
+ball.DMXE_TYPE ='enum';
+
 ball.DMX_MIMETYPE = 'application/dmx';
 ball.DMXE_MIMETYPE = 'application/dmxe';
 ball.FMX_MIMETYPE = 'application/fmx';

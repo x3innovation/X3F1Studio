@@ -6,3 +6,8 @@
 	display: inline-block !important;
 	padding: 3px;
 }
+
+.col-sm-12-header {
+    
+    margin-top: 40px;
+}

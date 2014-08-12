@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 	<head>
+                <script src="./js/platform/platform.js"></script>
+                <link rel="import" href="./js/polymer/polymer.html">
 		<title>Data Model eXtension Enum - F1</title>
 		<!-- start: META -->
 		<meta charset="utf-8" />
@@ -28,7 +30,9 @@
 		<!-- start: DMX CSS -->
 		<link rel="icon" type="image/png" href="./logo.png">
 		<link rel="stylesheet" href="css/ball.css">
+                <link rel="stylesheet" href="css/dmxe.css">
 		<!-- end: DMX CSS -->
+                <link rel="import" href="./js/f1/the-breadcrumb.html">
 	</head>
 	<body>
 		<div id="changeNameModal" style="display: none; width: 600px;">
@@ -68,26 +72,21 @@
 			</div>
 		</div>
 		<div class="container-fluid">
+                     <!-- start: BREADCRUMB -->
+                     <the-breadcrumb id="the-breadcrumb"></the-breadcrumb>
+                     <!-- end: BREADCRUMB -->
 			<!-- start: PAGE HEADER -->
 			<div class="row">
-				<div class="col-sm-12">
-					<!-- start: PAGE TITLE & BREADCRUMB -->
-					<ol class="breadcrumb">
-						<li>
-							<i class="clip-barcode"></i><a href="./f1.htm"><img height="16px" src="logo.svg"></img></a>
-						</li>
-						<li>
-							Project <a id="f1link" href="f1.htm"></a>
-						</li>
-						<li class="active">
-							Enum <a id="dmxelink" href="dmxe.htm"></a>
-						</li>
-					</ol>
-					<div id="collaborators" class="pull-right"></div>
+				<div class="col-sm-12 col-sm-12-header">
+					<!-- start: PAGE TITLE -->
+					
+					<!-- OLD BREADCRUMB WAS HERE -->
+                                        
+                                        <div id="collaborators" class="pull-right"></div>
 					<div class="page-header">
 						<h1 id="docName">Data Model eXtension Enum<small>beta</small></h1>
 					</div>
-					<!-- end: PAGE TITLE & BREADCRUMB -->
+					<!-- end: PAGE TITLE  -->
 				</div>
 			</div>
 			<!-- end: PAGE HEADER -->

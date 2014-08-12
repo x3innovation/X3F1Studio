@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <script src="./js/platform/platform.js"></script>
+        <link rel="import" href="./js/polymer/polymer.html">
         <title>Data Model eXtension - F1</title>
         <!-- start: META -->
         <meta charset="utf-8" />
@@ -32,8 +34,11 @@
         <link rel="stylesheet" href="css/ball.css">
         <link rel="stylesheet" href="css/dmx.css">
         <!-- end: DMX CSS -->
+        <link rel="import" href="./js/f1/the-breadcrumb.html">
+                
     </head>
     <body>
+        
         <div id="changeNameModal" style="display: none; width: 600px;">
             <div class="panel panel-default">
                 <div class="panel-body">
@@ -72,25 +77,12 @@
         </div>
         <div class="container-fluid">
             <!-- start: BREADCRUMB -->
-            <div class="row">
-                <div class="col-sm-12">
-                    <ol class="breadcrumb">
-                        <li>
-                            <i class="clip-barcode"></i><a href="./f1.htm"><img height="16px" src="logo.svg"></img></a>
-                        </li>
-                        <li>
-                            Project <a id="f1link" href="f1.htm"></a>
-                        </li>
-                        <li class="active">
-                            Data <a id="dmxlink" href="dmx.htm"></a>
-                        </li>
-                    </ol>
-                </div>
-            </div>
+         <the-breadcrumb id="the-breadcrumb"></the-breadcrumb>
+            
             <!-- end: BREADCRUMB -->
             <!-- start: PAGE HEADER -->
             <div class="row">
-                <div class="col-sm-12">
+                <div class="col-sm-12 col-sm-12-header">
                     <div class="page-header">
                         <h1 id="docName" herf="changeNameModal">Data Model eXtension</h1>
                     </div>
