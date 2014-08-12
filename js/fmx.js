@@ -8,6 +8,12 @@ fmx.rtDoc = null;
 fmx.doc = null;
 fmx.noflo = null;
 fmx.editor = null;
+fmx.f1Doc = null;
+
+fmx.onAnnouncement = function() {
+    console.log("fmx.onAnnouncement");
+    console.log(fmx.f1Doc.announcement);
+}
 
 fmx.onAuthResult = function(authResult) {
     console.log("begin onAuthResult()");
@@ -25,9 +31,12 @@ fmx.onAuthResult = function(authResult) {
             if (fmx.fileId) {
                 fmx.loadFile();
             }
+            ball.getF1Model(ball.projectFile.id, function(f1Doc) {
+                fmx.f1Doc = f1Doc;
+                ball.registerAnnouncement(fmx.f1Doc, fmx.onAnnouncement);
+            });
         });
     } else {
-
         // Remove loading message
         document.body.removeChild(document.getElementById("loading"));
 
@@ -81,7 +90,7 @@ fmx.onFileLoaded = function(rtDoc) {
         console.log("fmx.doc:");
         console.log(fmx.doc);
 
-        document.getElementById("the-breadcrumb").docUrl = cat.getRedirectStr("./fmx.htm", "&dmxFileId=" + fmx.fileId);
+        document.getElementById("the-breadcrumb").docUrl = cat.getRedirectStr("./fmx.htm", "&fmxFileId=" + fmx.fileId);
         document.getElementById("the-breadcrumb").docLabel = fmx.doc.name;
     });
 
