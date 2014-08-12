@@ -30,16 +30,16 @@ ball.projectFile = null;
 ball.projectFolder = null;
 ball.user = null;
 
-ball.f1Model = function () {
+ball.f1Model = function() {
 };
 
-ball.f1Model.prototype.initialize = function () {
+ball.f1Model.prototype.initialize = function() {
     this.version = 1;
     this.nextId = 0;
 };
 
 ball.f1Registered = false;
-ball.registerF1 = function () {
+ball.registerF1 = function() {
     console.log("in ball.registerF1");
     if (ball.f1Registered) {
         console.log("F1 is already registered. Do nothing");
@@ -55,18 +55,21 @@ ball.registerF1 = function () {
     custom.setInitializer(ball.f1Model, ball.f1Model.prototype.initialize);
 };
 
-ball.f1ModelUpgrade = function (f1Doc) {
+ball.f1ModelUpgrade = function(f1Doc) {
     if (f1Doc.version == null) {
         f1Doc.version = 1;
     }
     if (f1Doc.nextId == null) {
         f1Doc.nextId = 10;
     }
+    if (f1Doc.announcement == null) {
+        f1Doc.prototype.announcement = custom.collaborativeField('announcement');
+    }
 };
 
-ball.getF1Model = function (F1FileId, callback) {
+ball.getF1Model = function(F1FileId, callback) {
     var f1Doc;
-    var onFileLoaded = function (rtDoc) {
+    var onFileLoaded = function(rtDoc) {
         console.log("in ball.getF1Model .. onFileLoaded");
         f1Doc = rtDoc.getModel().getRoot().get(ball.F1_MODEL);
 
@@ -78,7 +81,7 @@ ball.getF1Model = function (F1FileId, callback) {
         console.log(f1Doc.nextId);
         callback(f1Doc);
     };
-    var initializeModel = function (model) {
+    var initializeModel = function(model) {
         console.log("init model");
         var field = model.create(ball.f1Model);
         field.announcement = model.createList();
@@ -117,19 +120,35 @@ var addDMXEAttributeAnnouncement = {
     fileName: 'NewData1'
 };
 
-
-ball.announce = function (projectFileId, announcement) {
-    ball.getF1Model(projectFileId, function (f1Doc) {
-        f1Doc.clear();
-        f1Doc.announcement.push(announcement);
-    });
+var updateDMXEAttributeAnnouncement = {
+    action: 'addDMXEAttribute',
+    fileType: 'dmxe',
+    fileId: '(#@*$@#',
+    fileName: 'NewData1'
 };
 
-ball.getNextId = function (projectFileId, callback, step) {
-    step = ( typeof step !== 'undefined') ? step : 1;
+var delDMXEAttributeAnnouncement = {
+    action: 'addDMXEAttribute',
+    fileType: 'dmxe',
+    fileId: '(#@*$@#',
+    fileName: 'NewData1'
+};
+
+ball.announce = function(f1Doc, announcement) {
+    f1Doc.announcement.clear();
+    f1Doc.announcement.push(announcement);
+};
+
+ball.registerAnnouncement = function(f1Doc, callback) {
+    console.log("ball.registerAnnouncement");
+    f1Doc.announcement.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, callback);
+};
+
+ball.getNextId = function(projectFileId, callback, step) {
+    step = (typeof step !== 'undefined') ? step : 1;
     console.log("step: " + step);
 
-    ball.getF1Model(projectFileId, function (f1Doc) {
+    ball.getF1Model(projectFileId, function(f1Doc) {
         if (typeof f1Doc.nextId === 'undefined') {
             f1Doc.nextId = 0;
         }
@@ -139,15 +158,15 @@ ball.getNextId = function (projectFileId, callback, step) {
     });
 };
 
-ball.dmxeModel = function () {
+ball.dmxeModel = function() {
 };
 
-ball.dmxeModel.prototype.initialize = function () {
+ball.dmxeModel.prototype.initialize = function() {
     this.version = 1;
 };
 
 ball.dmxeRegistered = false;
-ball.registerDMXE = function () {
+ball.registerDMXE = function() {
     console.log("in ball.registerDMXE");
     if (ball.dmxeRegistered) {
         console.log("DMXE is already registered. Do nothing");
@@ -165,7 +184,7 @@ ball.registerDMXE = function () {
     custom.setInitializer(ball.dmxeModel, ball.dmxeModel.prototype.initialize);
 };
 
-ball.dmxeModelUpgrade = function (doc) {
+ball.dmxeModelUpgrade = function(doc) {
     console.log("in ball.dmxeModelUpgrade()");
     if (doc.version == null) {
         doc.version = 1;
@@ -175,17 +194,17 @@ ball.dmxeModelUpgrade = function (doc) {
     }
 };
 
-ball.getDMXEModel = function (enumFileId, callback) {
+ball.getDMXEModel = function(enumFileId, callback) {
 
     var dmxeDoc;
-    var onFileLoaded = function (rtDoc) {
+    var onFileLoaded = function(rtDoc) {
         dmxeDoc = rtDoc.getModel().getRoot().get(ball.DMXE_MODEL);
 
         //ball.dmxeModelUpgrade(dmxeDoc);
 
         callback(dmxeDoc);
     };
-    var initializeModel = function (model) {
+    var initializeModel = function(model) {
         console.log("init model");
         var field = model.create(ball.dmxeModel);
         model.getRoot().set(ball.DMXE_MODEL, field);
@@ -195,15 +214,15 @@ ball.getDMXEModel = function (enumFileId, callback) {
     gapi.drive.realtime.load(enumFileId, onFileLoaded, initializeModel, dog.handleErrors);
 };
 
-ball.dmxModel = function () {
+ball.dmxModel = function() {
 };
 
-ball.dmxModel.prototype.initialize = function () {
+ball.dmxModel.prototype.initialize = function() {
     this.version = 1;
 };
 
 ball.dmxRegistered = false;
-ball.registerDMX = function () {
+ball.registerDMX = function() {
     console.log("in ball.registerDMX");
     if (ball.dmxRegistered) {
         console.log("DMX is already registered. Do nothing");
@@ -222,7 +241,7 @@ ball.registerDMX = function () {
     custom.setInitializer(ball.dmxModel, ball.dmxModel.prototype.initialize);
 };
 
-ball.dmxModelUpgrade = function (doc) {
+ball.dmxModelUpgrade = function(doc) {
     console.log("in ball.dmxModelUpgrade()");
     if (doc.version == null) {
         doc.version = 1;
@@ -233,16 +252,16 @@ ball.dmxModelUpgrade = function (doc) {
     //doc.type = "persisted";
 };
 
-ball.getDMXModel = function (dataFileId, callback) {
+ball.getDMXModel = function(dataFileId, callback) {
     var dmxDoc;
-    var onFileLoaded = function (rtDoc) {
+    var onFileLoaded = function(rtDoc) {
         dmxDoc = rtDoc.getModel().getRoot().get(ball.DMX_MODEL);
 
         //ball.dmxModelUpgrade(dmxDoc);
 
         callback(dmxDoc);
     };
-    var initializeModel = function (model) {
+    var initializeModel = function(model) {
         console.log("init model");
         var field = model.create(ball.dmxModel);
         model.getRoot().set(ball.DMX_MODEL, field);
@@ -252,14 +271,14 @@ ball.getDMXModel = function (dataFileId, callback) {
     gapi.drive.realtime.load(dataFileId, onFileLoaded, initializeModel, dog.handleErrors);
 };
 
-ball.fmxModel = function () {
+ball.fmxModel = function() {
 };
 
-ball.fmxModel.prototype.initialize = function () {
+ball.fmxModel.prototype.initialize = function() {
 };
 
 ball.fmxRegistered = false;
-ball.registerFMX = function () {
+ball.registerFMX = function() {
     console.log("in ball.registerFMX");
     if (ball.fmxRegistered) {
         console.log("FMX is already registered. Do nothing");
@@ -278,13 +297,13 @@ ball.registerFMX = function () {
     custom.setInitializer(ball.fmxModel, ball.fmxModel.prototype.initialize);
 };
 
-ball.getFMXModel = function (dataFileId, callback) {
+ball.getFMXModel = function(dataFileId, callback) {
     var fmxDoc;
-    var onFileLoaded = function (rtDoc) {
+    var onFileLoaded = function(rtDoc) {
         fmxDoc = rtDoc.getModel().getRoot().get(ball.FMX_MODEL);
         callback(fmxDoc);
     };
-    var initializeModel = function (model) {
+    var initializeModel = function(model) {
         console.log("init model");
     };
 
@@ -292,10 +311,10 @@ ball.getFMXModel = function (dataFileId, callback) {
     gapi.drive.realtime.load(dataFileId, onFileLoaded, initializeModel, dog.handleErrors);
 };
 
-ball.isFileNamePatternValid = function (name) {
+ball.isFileNamePatternValid = function(name) {
     return /^([A-Za-z])([0-9A-Za-z])*$/.test(name);
 };
 
-ball.isVariableNamePatternValid = function (name) {
+ball.isVariableNamePatternValid = function(name) {
     return /^([A-Za-z_])([0-9A-Za-z_])*$/.test(name);
 };
