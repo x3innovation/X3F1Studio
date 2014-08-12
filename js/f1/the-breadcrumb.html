@@ -68,9 +68,11 @@
         </ol>
     </template>
     <script>
-        Polymer('the-breadcrumb', {
+        Polymer('the-breadcrumb', 
+        {
             ready: function() {this.docType = ""},
-            onDoubleClick: function(event, detail, sender) {
+            onDoubleClick: function(event, detail, sender)
+            {
                 console.log("onDoubleClick");
             }
         });
