@@ -251,6 +251,7 @@ f1.onOpenProject = function(projectFile) {
 	dog.getFile(projectFile.id, function(resp) {
 		ball.projectFile = resp;
 		$("#projectName").html("<span>" + ball.projectFile.title + "</span>");
+                document.getElementById("the-breadcrumb").docLabel = ball.projectFile.title;
 		ball.getNextId(ball.projectFile.id, function(currentId) {
 			console.log("Current ID: " + currentId);
 		}, 0);
