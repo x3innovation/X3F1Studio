@@ -274,6 +274,7 @@ f1.onOpenProject = function(projectFile) {
 
 			$("#f1link").attr("href", cat.getRedirectStr("./f1.htm"));
 			$("#f1link").html(ball.projectFile.title);
+                        
                         document.getElementById("the-breadcrumb").f1Url = cat.getRedirectStr("./f1.htm", "&projectFileId=" + ball.projectFile.id);
                         document.getElementById("the-breadcrumb").f1Label = ball.projectFile.title;
 
