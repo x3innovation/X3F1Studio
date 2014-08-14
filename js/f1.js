@@ -251,7 +251,8 @@ f1.onOpenProject = function(projectFile) {
 	dog.getFile(projectFile.id, function(resp) {
 		ball.projectFile = resp;
 		$("#projectName").html("<span>" + ball.projectFile.title + "</span>");
-                document.getElementById("the-breadcrumb").docLabel = ball.projectFile.title;
+               
+
 		ball.getNextId(ball.projectFile.id, function(currentId) {
 			console.log("Current ID: " + currentId);
 		}, 0);
@@ -273,6 +274,8 @@ f1.onOpenProject = function(projectFile) {
 
 			$("#f1link").attr("href", cat.getRedirectStr("./f1.htm"));
 			$("#f1link").html(ball.projectFile.title);
+                        document.getElementById("the-breadcrumb").f1Url = cat.getRedirectStr("./f1.htm", "&projectFileId=" + ball.projectFile.id);
+                        document.getElementById("the-breadcrumb").f1Label = ball.projectFile.title;
 
 			$('#docButtonGroupDMX').show();
 			$('#contentGroup').show();
