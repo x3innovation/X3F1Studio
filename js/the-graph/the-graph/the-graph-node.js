@@ -54,6 +54,7 @@
             this.props.onNodeSelection(this.props.key, this.props.node, toggle);
         },
         onTrackStart: function(event) {
+            console.log("the-graph-node onTrackStart()");
             // Don't drag graph
             event.stopPropagation();
 
@@ -81,6 +82,7 @@
             }
         },
         onTrack: function(event) {
+//            console.log("onTrack");
             // Don't fire on graph
             event.stopPropagation();
 
@@ -142,11 +144,7 @@
             }
 
             console.log("onTrackEnd of a node, update model");
-            console.log(this.props.key);
-
             fmx.doc.tasks.set(this.props.key, this.props.graph.getNode(this.props.key));
-
-            //fmx.doc.tasks.set(this.props.key, this.props.graph.getNode(this.props.key));
 
             // Moving a node should only be a single transaction
             if (this.props.export) {

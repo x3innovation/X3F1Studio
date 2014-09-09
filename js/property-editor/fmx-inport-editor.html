@@ -5,42 +5,40 @@
 
 <polymer-element name="fmx-inport-editor" class="modal-content">
     <template>
-        <h1>{{ action }} inport</h1>
+        <h1>{{ action }} input</h1>
         <form>
-            <label> Port name
-                <input type="text" value="{{ name }}" required>
-            </label>
-            <label> Description 				<textarea value="{{ description }}"></textarea> </label>
+            <!--            <label> Port name
+                            <input type="text" value="{{ name }}" required>
+                        </label>-->
+            <!--            <label> Description 				<textarea value="{{ description }}"></textarea> </label>-->
             <label>Access
-                <select>
+                <select id='access' on-change="{{onAccessChange}}">
                     <option value="readOnly">Read Only</option><option value="function">Function</option>
                 </select> </label>
 
-            <label>Type
-                <select on-click="{{typeButtonClicked}}">
-                    <option value="readOnly">DMX Data 1</option><option value="function">DMX Data 2</option>
-                </select></label>
+            <!--            <label>Type
+                            <select on-click="{{typeButtonClicked}}">
+                                <option value="readOnly">DMX Data 1</option><option value="function">DMX Data 2</option>
+                            </select></label>-->
 
             <label>Type
-                <f1-menu>
-                    <f1-submenu label="">
-                        <f1-item label="Topic 1"></f1-item>
-                        <f1-item label="Topic 2"></f1-item>
+                <f1-menu id='f1menu' on-core-select="{{onTypeSelect}}">
+                    <f1-submenu id='f1submenu' label="">
                     </f1-submenu>
                 </f1-menu>
             </label>
 
-            <label>Lookup field
-                <select>
-                    <option value="readOnly">Field from input</option><option value="function">Field from input</option>
-                </select></label>
-
-
-
-            <label>Lookup value
-                <select>
-                    <option value="readOnly">Field from event</option><option value="function">Field from event</option>
-                </select></label>
+            <!--            <label>Lookup field
+                            <select>
+                                <option value="readOnly">Field from input</option><option value="function">Field from input</option>
+                            </select></label>
+            
+            
+            
+                        <label>Lookup value
+                            <select>
+                                <option value="readOnly">Field from event</option><option value="function">Field from event</option>
+                            </select></label>-->
 
             <div class="toolbar">
                 <button on-click="{{ send }}" class="{{ { disabled: !canSend } | tokenList }}">
@@ -54,18 +52,36 @@
         Polymer('fmx-inport-editor', {
             action: null,
             graph: null,
-            node: null,
+            port: null,
             addOrSave: '',
             name: '',
-            description: '',
+            //description: '',
             attached: function() {
                 if (this.action == 'Add') {
                     this.addOrSave = 'Add';
                 } else if (this.action == 'Edit') {
                     this.addOrSave = 'Save';
                 }
-                this.name = this.node.metadata.label;
-                this.description = this.node.metadata.description;
+                console.log(this.port);
+                this.name = this.port.name;
+
+                console.log(this.$.f1menu.selectedItem);
+                //this.type = this.port.name;
+            },
+            onAccessChange: function() {
+                console.log('onAccessChange');
+                this.canSend = true;
+            },
+            onTypeSelect: function() {
+                console.log('onTypeSelect');
+                if (this.$.f1submenu.selectedItem == null) {
+                    console.log('nothing selected.');
+                    return;
+                }
+                console.log(this.$.f1submenu.selectedItem);
+                console.log(this.$.f1submenu.selectedItem.data);
+                console.log(this.$.f1submenu.selectedItem.label);
+                this.canSend = true;
             },
             nameChanged: function() {
                 if (!this.name) {
@@ -78,12 +94,24 @@
                 if (event) {
                     event.preventDefault();
                 }
-                if (!this.name) {
-                    return;
-                }
+                var e = this.$.access;
+                var accessVal = e.options[e.selectedIndex].value;
 
-                var node = this.graph.addNodeInport(this.node.id, this.name, 'all');
-                fmx.doc.tasks.set(this.node.id, this.node);
+                console.log(accessVal);
+                console.log(this.$.f1submenu.selectedItem.data);
+                console.log(this.$.f1submenu.selectedItem.label);
+
+                var nodeId = this.port.process;
+                var node = this.graph.getNode(nodeId);
+                node.metadata.inports = [];
+                node.metadata.inports.push({
+                    access: accessVal,
+                    type: {
+                        label: this.$.f1submenu.selectedItem.label,
+                        fileId: this.$.f1submenu.selectedItem.data
+                    }
+                });
+                fmx.doc.tasks.set(node.id, node);
 
                 this.close();
             },
@@ -92,11 +120,7 @@
                     return;
                 }
                 this.parentNode.removeChild(this);
-            },
-            typeButtonClicked: function(event, detail, sender) {
-                event.stopPropagation();
-                console.log("typeButtonClicked:");
-            },
+            }
         });
     </script>
 </polymer-element>

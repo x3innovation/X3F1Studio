@@ -35,10 +35,10 @@
         <link rel="stylesheet" href="css/dmx.css">
         <!-- end: DMX CSS -->
         <link rel="import" href="./js/f1/the-breadcrumb.html">
-                
+
     </head>
     <body>
-        
+
         <div id="changeNameModal" style="display: none; width: 600px;">
             <div class="panel panel-default">
                 <div class="panel-body">
@@ -77,8 +77,8 @@
         </div>
         <div class="container-fluid">
             <!-- start: BREADCRUMB -->
-         <the-breadcrumb id="the-breadcrumb"></the-breadcrumb>
-            
+            <the-breadcrumb id="the-breadcrumb"></the-breadcrumb>
+
             <!-- end: BREADCRUMB -->
             <!-- start: PAGE HEADER -->
             <div class="row">
@@ -324,6 +324,147 @@
                                                     </div>
                                                 </div>
 
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="panel panel-default" id="persistedEventsGroup" style="display: none">
+                                            <div class="panel-body">
+
+                                                <div class="row">
+                                                    <div class="col-sm-1">
+                                                        <div class="form-group">
+                                                            <label for="UpdatePersistenceEventTypeId" class="col-sm-12" >Type Id
+                                                                <br/>
+                                                                <input type="text" placeholder="" id="UpdatePersistenceEventTypeId" name="UpdatePersistenceEventTypeId" class="form-control" readonly/> </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <label for="UpdatePersistenceEventName">Update Persistence Event
+                                                            <br/>
+                                                            <input id="UpdatePersistenceEventName" name="UpdatePersistenceEventName" type="text" class="form-control" readonly/>
+                                                        </label>
+                                                    </div>
+
+                                                    <div class="col-sm-1">
+                                                        <div class="form-group">
+                                                            <label for="CreatePersistenceEventTypeId" class="col-sm-12" >Type Id
+                                                                <br/>
+                                                                <input type="text" placeholder="" id="CreatePersistenceEventTypeId" name="CreatePersistenceEventTypeId" class="form-control" readonly/> </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <label for="CreatePersistenceEventName">Create Persistence Event
+                                                            <br/>
+                                                            <input id="CreatePersistenceEventName" name="CreatePersistenceEventName" type="text" class="form-control" readonly/>
+                                                        </label>
+                                                    </div>
+
+                                                    <div class="col-sm-1">
+                                                        <div class="form-group">
+                                                            <label for="RemovePersistenceEventTypeId" class="col-sm-12" >Type Id
+                                                                <br/>
+                                                                <input type="text" placeholder="" id="RemovePersistenceEventTypeId" name="RemovePersistenceEventTypeId" class="form-control" readonly/> </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <label for="RemovePersistenceEventName">Remove Persistence Event
+                                                            <br/>
+                                                            <input id="RemovePersistenceEventName" name="RemovePersistenceEventName" type="text" class="form-control" readonly/>
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-sm-1">
+                                                        <div class="form-group">
+                                                            <label for="UpdatedPersistenceEventTypeId" class="col-sm-12" >Type Id
+                                                                <br/>
+                                                                <input type="text" placeholder="" id="UpdatedPersistenceEventTypeId" name="UpdatedPersistenceEventTypeId" class="form-control" readonly/> </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <label for="UpdatedPersistenceEventName">Updated Persistence Event
+                                                            <br/>
+                                                            <input id="UpdatedPersistenceEventName" name="UpdatedPersistenceEventName" type="text" class="form-control" readonly/>
+                                                        </label>
+                                                    </div>
+
+                                                    <div class="col-sm-1">
+                                                        <div class="form-group">
+                                                            <label for="CreatedPersistenceEventTypeId" class="col-sm-12" >Type Id
+                                                                <br/>
+                                                                <input type="text" placeholder="" id="CreatedPersistenceEventTypeId" name="CreatedPersistenceEventTypeId" class="form-control" readonly/> </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <label for="CreatedPersistenceEventName">Created Persistence Event
+                                                            <br/>
+                                                            <input id="CreatedPersistenceEventName" name="CreatedPersistenceEventName" type="text" class="form-control" readonly/>
+                                                        </label>
+                                                    </div>
+
+                                                    <div class="col-sm-1">
+                                                        <div class="form-group">
+                                                            <label for="RemovedPersistenceEventTypeId" class="col-sm-12" >Type Id
+                                                                <br/>
+                                                                <input type="text" placeholder="" id="RemovedPersistenceEventTypeId" name="RemovedPersistenceEventTypeId" class="form-control" readonly/> </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <label for="RemovedPersistenceEventName">Removed Persistence Event
+                                                            <br/>
+                                                            <input id="RemovedPersistenceEventName" name="RemovedPersistenceEventName" type="text" class="form-control" readonly/>
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-sm-1">
+                                                        <div class="form-group">
+                                                            <label for="RejectUpdatePersistenceEventTypeId" class="col-sm-12" >Type Id
+                                                                <br/>
+                                                                <input type="text" placeholder="" id="RejectUpdatePersistenceEventTypeId" name="RejectUpdatePersistenceEventTypeId" class="form-control" readonly/> </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <label for="RejectUpdatePersistenceEventName">Reject Update Persistence Event
+                                                            <br/>
+                                                            <input id="RejectUpdatePersistenceEventName" name="RejectUpdatePersistenceEventName" type="text" class="form-control" readonly/>
+                                                        </label>
+                                                    </div>
+
+                                                    <div class="col-sm-1">
+                                                        <div class="form-group">
+                                                            <label for="RejectCreatePersistenceEventTypeId" class="col-sm-12" >Type Id
+                                                                <br/>
+                                                                <input type="text" placeholder="" id="RejectCreatePersistenceEventTypeId" name="RejectCreatePersistenceEventTypeId" class="form-control" readonly/> </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <label for="RejectCreatePersistenceEventName">Reject Create Persistence Event
+                                                            <br/>
+                                                            <input id="RejectCreatePersistenceEventName" name="RejectCreatePersistenceEventName" type="text" class="form-control" readonly/>
+                                                        </label>
+                                                    </div>
+
+                                                    <div class="col-sm-1">
+                                                        <div class="form-group">
+                                                            <label for="RejectRemovePersistenceEventTypeId" class="col-sm-12" >Type Id
+                                                                <br/>
+                                                                <input type="text" placeholder="" id="RejectRemovePersistenceEventTypeId" name="RejectRemovePersistenceEventTypeId" class="form-control" readonly/> </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <label for="RejectRemovePersistenceEventName">Reject Remove Persistence Event
+                                                            <br/>
+                                                            <input id="RejectRemovePersistenceEventName" name="RejectRemovePersistenceEventName" type="text" class="form-control" readonly/>
+                                                        </label>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

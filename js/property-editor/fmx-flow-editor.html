@@ -1,8 +1,8 @@
-<polymer-element name="fmx-node-editor" class="modal-content">
+<polymer-element name="fmx-flow-editor" class="modal-content">
     <template>
-        <h1>Edit task</h1>
+        <h1>Edit flow</h1>
         <form>
-            <label> Task name
+            <label> Flow name
                 <input type="text" value="{{ name }}" required>
             </label>
             <label> Description 				<textarea value="{{ description }}"></textarea> </label>
@@ -15,14 +15,14 @@
         </form>
     </template>
     <script>
-        Polymer('fmx-node-editor', {
+        Polymer('fmx-flow-editor', {
             graph: null,
-            node: null,
+            edge: null,
             name: '',
             description: '',
             attached: function() {
-                this.name = this.node.metadata.label;
-                this.description = this.node.metadata.description;
+                this.name = this.edge.metadata.label;
+                this.description = this.edge.metadata.description;
             },
             nameChanged: function() {
                 if (!this.name) {
@@ -38,10 +38,16 @@
                 if (!this.name) {
                     return;
                 }
-                this.graph.setNodeMetadata(this.node.id, {
+                this.graph.setEdgeMetadata(this.edge.from.node, this.edge.from.port, this.edge.to.node, this.edge.to.port, {
                     label: this.name,
                     description: this.description
                 });
+
+                var getEdgeId = function(edge) {
+                    return (edge.from.node + '_' + edge.from.port + '_' + edge.to.node + '_' + edge.to.port).toLowerCase();
+                };
+
+                fmx.doc.flows.set(getEdgeId(this.edge), this.edge);
                 this.close();
             },
             close: function() {

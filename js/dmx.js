@@ -18,10 +18,10 @@ dmx.onAuthResult = function(authResult) {
     if (authResult && !authResult.error) {
         console.log("authorized.");
 
-		$('#contentGroup').hide();
-		dog.loadParamsToBall(function() {
-			 document.getElementById("the-breadcrumb").f1Url = cat.getRedirectStr("./f1.htm");
-                         document.getElementById("the-breadcrumb").f1Label = ball.projectFile.title;
+        $('#contentGroup').hide();
+        dog.loadParamsToBall(function() {
+            document.getElementById("the-breadcrumb").f1Url = cat.getRedirectStr("./f1.htm");
+            document.getElementById("the-breadcrumb").f1Label = ball.projectFile.title;
 
             ball.registerDMX();
 
@@ -94,14 +94,14 @@ dmx.onFileLoaded = function(rtDoc) {
         dmx.doc.version = '1';
     }
 
-	dmx.connectUi();
-	dog.getFile(dmx.fileId, function(file) {
-		dmx.file = file;
-		$('#docName').html("<span>" + dmx.doc.name + "</span>");
-		
-		document.getElementById("the-breadcrumb").docUrl = cat.getRedirectStr("./dmx.htm", "&dmxFileId=" + dmx.fileId);
-                document.getElementById("the-breadcrumb").docLabel = dmx.doc.name;
-                document.getElementById("the-breadcrumb").docType = ball.DMX_TYPE;
+    dmx.connectUi();
+    dog.getFile(dmx.fileId, function(file) {
+        dmx.file = file;
+        $('#docName').html("<span>" + dmx.doc.name + "</span>");
+
+        document.getElementById("the-breadcrumb").docUrl = cat.getRedirectStr("./dmx.htm", "&dmxFileId=" + dmx.fileId);
+        document.getElementById("the-breadcrumb").docLabel = dmx.doc.name;
+        document.getElementById("the-breadcrumb").docType = ball.DMX_TYPE;
 
         $("#docName span").leanModal({
             modal: "#changeNameModal",
@@ -134,7 +134,17 @@ dmx.initializeModel = function(model) {
         ball.getNextId(ball.projectFile.id, function(nextId) {
             console.log("nextId: " + nextId);
             field.id = nextId;
-        }, 7);
+            var incrementalId = nextId;
+            field.UpdatePersistenceEventTypeId = ++incrementalId;
+            field.CreatePersistenceEventTypeId = ++incrementalId;
+            field.RemovePersistenceEventTypeId = ++incrementalId;
+            field.UpdatedPersistenceEventTypeId = ++incrementalId;
+            field.CreatedPersistenceEventTypeId = ++incrementalId;
+            field.RemovedPersistenceEventTypeId = ++incrementalId;
+            field.RejectUpdatePersistenceEventTypeId = ++incrementalId;
+            field.RejectCreatePersistenceEventTypeId = ++incrementalId;
+            field.RejectRemovePersistenceEventTypeId = ++incrementalId;
+        }, 11);
     } else {
         ball.getNextId(ball.projectFile.id, function(nextId) {
             console.log("nextId: " + nextId);
@@ -215,6 +225,37 @@ dmx.updateUi = function() {
 
     //dmx.oTable.oScroller.fnRowToPixels(dmx.lastRowToPixels);
     dmx.highlightDuplicatedAttrNames();
+
+    dmx.updatePersistedEvents();
+};
+
+dmx.updatePersistedEvents = function() {
+    if (dmx.doc.type == 'persisted') {
+        $("#UpdatePersistenceEventTypeId").val(dmx.doc.UpdatePersistenceEventTypeId);
+        $("#UpdatePersistenceEventName").val("Update" + dmx.doc.name.charAt(0).toUpperCase() + dmx.doc.name.slice(1));
+        $("#CreatePersistenceEventTypeId").val(dmx.doc.CreatePersistenceEventTypeId);
+        $("#CreatePersistenceEventName").val("Create" + dmx.doc.name.charAt(0).toUpperCase() + dmx.doc.name.slice(1));
+        $("#RemovePersistenceEventTypeId").val(dmx.doc.RemovePersistenceEventTypeId);
+        $("#RemovePersistenceEventName").val("Remove" + dmx.doc.name.charAt(0).toUpperCase() + dmx.doc.name.slice(1));
+
+        $("#UpdatedPersistenceEventTypeId").val(dmx.doc.UpdatedPersistenceEventTypeId);
+        $("#UpdatedPersistenceEventName").val(dmx.doc.name.charAt(0).toUpperCase() + dmx.doc.name.slice(1) + "Updated");
+        $("#CreatedPersistenceEventTypeId").val(dmx.doc.CreatedPersistenceEventTypeId);
+        $("#CreatedPersistenceEventName").val(dmx.doc.name.charAt(0).toUpperCase() + dmx.doc.name.slice(1) + "Created");
+        $("#RemovedPersistenceEventTypeId").val(dmx.doc.RemovedPersistenceEventTypeId);
+        $("#RemovedPersistenceEventName").val(dmx.doc.name.charAt(0).toUpperCase() + dmx.doc.name.slice(1) + "Removed");
+
+        $("#RejectUpdatePersistenceEventTypeId").val(dmx.doc.RejectUpdatePersistenceEventTypeId);
+        $("#RejectUpdatePersistenceEventName").val("RejectUpdate" + dmx.doc.name.charAt(0).toUpperCase() + dmx.doc.name.slice(1));
+        $("#RejectCreatePersistenceEventTypeId").val(dmx.doc.RejectCreatePersistenceEventTypeId);
+        $("#RejectCreatePersistenceEventName").val("RejectCreate" + dmx.doc.name.charAt(0).toUpperCase() + dmx.doc.name.slice(1));
+        $("#RejectRemovePersistenceEventTypeId").val(dmx.doc.RejectRemovePersistenceEventTypeId);
+        $("#RejectRemovePersistenceEventName").val("RejectRemove" + dmx.doc.name.charAt(0).toUpperCase() + dmx.doc.name.slice(1));
+
+        $("#persistedEventsGroup").show();
+    } else {
+        $("#persistedEventsGroup").hide();
+    }
 };
 
 dmx.clearDefaultValue = function() {
@@ -296,8 +337,70 @@ dmx.generateXML = function() {
                     "_svalue": dataType
                 }],
             Field: []
-        }
+        },
     };
+
+    if (dataType == 'persisted') {
+        jsonObj1 = {
+            Data: {
+                _name: dataName,
+                _typeId: dataId,
+                Annotation: [{
+                        "_name": "description",
+                        "_svalue": dataDesc
+                    }, {
+                        "_name": "type",
+                        "_svalue": dataType
+                    }],
+                Field: []
+            },
+            UpdatePersistenceEvent: {
+                _name: "Update" + dataName.charAt(0).toUpperCase() + dataName.slice(1),
+                _typeId: dmx.doc.UpdatePersistenceEventTypeId,
+                _persistedData: dataName
+            },
+            CreatePersistenceEvent: {
+                _name: "Create" + dataName.charAt(0).toUpperCase() + dataName.slice(1),
+                _typeId: dmx.doc.CreatePersistenceEventTypeId,
+                _persistedData: dataName
+            },
+            RemovePersistenceEvent: {
+                _name: "Remove" + dataName.charAt(0).toUpperCase() + dataName.slice(1),
+                _typeId: dmx.doc.RemovePersistenceEventTypeId,
+                _persistedData: dataName
+            },
+            UpdatedPersistenceEvent: {
+                _name: dataName.charAt(0).toUpperCase() + dataName.slice(1) + "Updated",
+                _typeId: dmx.doc.UpdatedPersistenceEventTypeId,
+                _persistedData: dataName
+            },
+            CreatedPersistenceEvent: {
+                _name: dataName.charAt(0).toUpperCase() + dataName.slice(1) + "Created",
+                _typeId: dmx.doc.CreatedPersistenceEventTypeId,
+                _persistedData: dataName
+            },
+            RemovedPersistenceEvent: {
+                _name: dataName.charAt(0).toUpperCase() + dataName.slice(1) + "Removed",
+                _typeId: dmx.doc.RemovedPersistenceEventTypeId,
+                _persistedData: dataName
+            },
+            RejectUpdatePersistenceEvent: {
+                _name: "RejectUpdate" + dataName.charAt(0).toUpperCase() + dataName.slice(1),
+                _typeId: dmx.doc.RejectUpdatePersistenceEventTypeId,
+                _persistedData: dataName
+            },
+            RejectCreatePersistenceEvent: {
+                _name: "RejectCreate" + dataName.charAt(0).toUpperCase() + dataName.slice(1),
+                _typeId: dmx.doc.RejectCreatePersistenceEventTypeId,
+                _persistedData: dataName
+            },
+            RejectRemovePersistenceEvent: {
+                _name: "RejectRemove" + dataName.charAt(0).toUpperCase() + dataName.slice(1),
+                _typeId: dmx.doc.RejectRemovePersistenceEventTypeId,
+                _persistedData: dataName
+            },
+        };
+    }
 
     var keys = dmx.doc.attributes.keys();
     keys.sort();

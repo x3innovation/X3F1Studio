@@ -248,7 +248,7 @@
 			// this.props.onNodeSelection(this.props.key, this.props.node, toggle);
 		},
 		render : function() {
-			console.log("TheGraph.TextBG render");
+//			console.log("TheGraph.TextBG render");
 			var text = this.props.text;
 			if (!text) {
 				text = "";

@@ -132,11 +132,13 @@
             this.pinching = false;
         },
         onTrackStart: function(event) {
+            console.log("the-graph-app onTrackStart()");
             event.preventTap();
             this.getDOMNode().addEventListener("track", this.onTrack);
             this.getDOMNode().addEventListener("trackend", this.onTrackEnd);
         },
         onTrack: function(event) {
+            console.log("the-graph-app onTrack()");
             if (this.pinching) {
                 return;
             }
@@ -159,6 +161,7 @@
             }
         },
         showContext: function(options) {
+            console.log("the-graph-app showContext()");
             this.setState({
                 contextMenu: options,
                 tooltipVisible: false
@@ -257,8 +260,8 @@
             document.addEventListener('keyup', this.keyUp);
 
             // Context menu
-            this.getDOMNode().addEventListener("contextmenu", this.showContext1);
-            this.getDOMNode().addEventListener("hold", this.showContext1);
+            this.getDOMNode().addEventListener("contextmenu", this.showCanvasContext);
+            this.getDOMNode().addEventListener("hold", this.showCanvasContext);
 
             // Canvas background
             this.bgCanvas = unwrap(this.refs.canvas.getDOMNode());
@@ -270,8 +273,8 @@
                 this.renderGraph();
             }.bind(this), 500);
         },
-        showContext1: function(event) {
-            console.log("the-graph-app.js showContext1()");
+        showCanvasContext: function(event) {
+            console.log("the-graph-app.js showCanvasContext()");
             // Don't show native context menu
             event.preventDefault();
 
@@ -376,6 +379,8 @@
 
         },
         render: function() {
+            console.log("the-graph-app render()");
+            
             // console.timeEnd("App.render");
             // console.time("App.render");
 
@@ -390,6 +395,7 @@
             var contextMenu, contextModal;
             if (this.state.contextMenu) {
                 var options = this.state.contextMenu;
+                console.log("the-graph-app render():");
                 var menu = this.props.getMenuDef(options);
                 if (menu) {
                     contextMenu = options.element.getContext(menu, options, this.hideContext);

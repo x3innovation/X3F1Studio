@@ -62,6 +62,7 @@ fmx.renameData = function() {
     }
 
     fmx.doc.name = newName;
+    fmx.editor.graph.name = newName;
     dog.renameFile(fmx.file.id, newName, function(dataFile) {
         fmx.loadFile();
         $("#lean_overlay").fadeOut(200);
@@ -144,13 +145,18 @@ fmx.updateTasksAndFlows = function() {
     //this block is for tasks
     {
         var keys = fmx.doc.tasks.keys();
+        console.log(keys.length + " tasks in doc");
         for (var i = 0; i < keys.length; i++) {
             var gdriveNode = fmx.doc.tasks.get(keys[i]);
             var canvasNode = fmx.editor.graph.getNode(keys[i]);
 
             if (canvasNode === null) {
+                console.log('addNode: ' + keys[i]);
                 fmx.editor.graph.addNode(keys[i], gdriveNode.component, gdriveNode.metadata);
             } else {
+                console.log('updateNode: ' + keys[i]);
+                console.log(gdriveNode.metadata);
+                console.log(canvasNode.metadata);
                 //update
                 if (JSON.stringify(gdriveNode.metadata) !== JSON.stringify(canvasNode.metadata)) {
                     fmx.editor.graph.setNodeMetadata(keys[i], gdriveNode.metadata);
@@ -166,6 +172,7 @@ fmx.updateTasksAndFlows = function() {
                 var canvasNode = fmx.editor.graph.nodes[i];
                 var key = canvasNode.id;
                 if (!fmx.doc.tasks.has(key)) {
+                    console.log('removeNode: ' + key);
                     fmx.editor.graph.removeNode(key);
                 }
             }
@@ -175,23 +182,41 @@ fmx.updateTasksAndFlows = function() {
 
 
     {
-        var flows = fmx.doc.flows.values();
-        var len = flows.length;
-        for (var i = 0; i < len; i++) {
-            var flow = flows[i];
+        var keys = fmx.doc.flows.keys();
+        console.log(keys.length + " flows in doc");
+        console.log("keys:");
+        console.log(keys);
+        for (var i = 0; i < keys.length; i++) {
+            var flow = fmx.doc.flows.get(keys[i]);
+            console.log("flow:");
+            console.log(flow);
             var metadata = flow.metadata ? flow.metadata : {};
             if (flow.data !== void 0) {
-                if (typeof flow.tgt.index === 'number') {
-                    fmx.editor.graph.addInitialIndex(flow.data, flow.tgt.process, flow.tgt.port.toLowerCase(), flow.tgt.index, metadata);
+                if (typeof flow.to.index === 'number') {
+                    fmx.editor.graph.addInitialIndex(flow.data, flow.to.node, flow.to.port.toLowerCase(), flow.to.index, metadata);
                 }
-                fmx.editor.graph.addInitial(flow.data, flow.tgt.process, flow.tgt.port.toLowerCase(), metadata);
+                fmx.editor.graph.addInitial(flow.data, flow.to.node, flow.to.port.toLowerCase(), metadata);
                 continue;
             }
-            if (typeof flow.src.index === 'number' || typeof flow.tgt.index === 'number') {
-                fmx.editor.graph.addEdgeIndex(flow.src.process, flow.src.port.toLowerCase(), flow.src.index, flow.tgt.process, flow.tgt.port.toLowerCase(), flow.tgt.index, metadata);
-                continue;
+//            if (typeof flow.from.index === 'number' || typeof flow.to.index === 'number') {
+//                fmx.editor.graph.addEdgeIndex(flow.from.node, flow.from.port.toLowerCase(), flow.from.index, flow.to.node, flow.to.port.toLowerCase(), flow.to.index, metadata);
+//                continue;
+//            }
+            fmx.editor.graph.addEdge(flow.from.node, flow.from.port, flow.to.node, flow.to.port, metadata);
+        }
+        //if true, means there are flows have been deleted
+        if (fmx.editor.graph.edges.length > keys.length) {
+            console.log("some flow has been deleted");
+            for (var i = 0; i < fmx.editor.graph.edges.length; i++) {
+                var canvasFlow = fmx.editor.graph.edges[i];
+                console.log(canvasFlow);
+                var canvasFlowId = (canvasFlow.from.node + '_' + canvasFlow.from.port + '_' + canvasFlow.to.node + '_' + canvasFlow.to.port).toLowerCase();
+                
+                if (!fmx.doc.flows.has(canvasFlowId)) {
+                    console.log('removeFlow: ' + canvasFlowId);
+                    fmx.editor.graph.removeEdge(canvasFlow.from.node, canvasFlow.from.port, canvasFlow.to.node, canvasFlow.to.port);
+                }
             }
-            fmx.editor.graph.addEdge(flow.src.process, flow.src.port.toLowerCase(), flow.tgt.process, flow.tgt.port.toLowerCase(), metadata);
         }
     }
 
@@ -200,7 +225,7 @@ fmx.updateTasksAndFlows = function() {
 //        "inports": {},
 //        "outports": {},
 //        "groups": [],
-//        "processes": tasks,
+//        "nodees": tasks,
 //        "connections": flows
 //    };
 //
@@ -213,49 +238,76 @@ fmx.updateTasksAndFlows = function() {
 
 fmx.updateNameAndDesc = function() {
     console.log('begin fmx.updateUi()');
+    fmx.editor.graph.name = fmx.doc.name;
 };
 
 fmx.generateXML = function() {
     console.log('in fmx.generateXML()');
-
-    var x2js = new X2JS();
-    var enumName = fmx.doc.name;
-    var enumId = fmx.doc.id;
-    var enumDesc = fmx.doc.description;
+    var graphJSON = document.getElementById("editor").nofloGraph.toJSON();
+    console.log(graphJSON);
     var jsonObj1 = {
-        Enum: {
-            _name: enumName,
-            _typeId: enumId,
+        Flow: {
+            _name: graphJSON.properties.name,
             Annotation: [{
                     "_name": "description",
-                    "_svalue": enumDesc
+                    "_svalue": "description of the flow"
                 }],
-            Choice: []
+            Task: [],
+            EventFlow: [],
+            TaskFlow: []
         }
     };
 
-    var elements = fmx.doc.attributes.asArray();
-    var l = elements.length;
+    {
+        var i = 0;
+        for (var taskId in graphJSON.tasks) {
+            if (graphJSON.tasks.hasOwnProperty(taskId)) {
+                jsonObj1.Flow.Task[i] = {
+                    _name: graphJSON.tasks[taskId].metadata.label,
+                    _description: graphJSON.tasks[taskId].metadata.description, //should be metadata.description
+                    _taskId: taskId,
+                    EventData: {
+                        _type: graphJSON.tasks[taskId].metadata.inports[0].type.label,
+                        _access: graphJSON.tasks[taskId].metadata.inports[0].access
+                    },
+                    TaskOutput: []
+                };
 
-    for (var i = 0; i < l; i++) {
-        var array = fmx.doc.attributes.get(i).split("|");
-        var id = array[0];
-        var name = array[1];
-        var desc = array[2];
+                for (var j = 0, l = graphJSON.tasks[taskId].component.outports.length; j < l; j++) {
+                    var outport = graphJSON.tasks[taskId].component.outports[j];
+                    jsonObj1.Flow.Task[i].TaskOutput.push({
+                        _name: outport.name,
+                        EventData: {
+                            _type: outport.type.label,
+                            _access: outport.access
+                        }
+                    });
+                }
 
-        jsonObj1.Enum.Choice[i] = {
-            _name: name,
-            _value: id,
-            "Annotation": {
-                "_name": "description",
-                "_svalue": desc
+                i++;
             }
-        };
+        }
     }
 
+    {
+        var i = 0;
+        for (var flowId in graphJSON.flows) {
+            if (graphJSON.flows.hasOwnProperty(flowId)) {
+                console.log(graphJSON.flows[flowId]);
+                var flowName = (graphJSON.flows[flowId].metadata || {}).label || '';
+                var flowDescription = (graphJSON.flows[flowId].metadata || {}).description || '';
+                jsonObj1.Flow.TaskFlow[i] = {
+                    _name: flowName,
+                    _description: flowDescription,
+                    _flowId: flowId
+                };
+                i++;
+            }
+        }
+    }
+    var x2js = new X2JS();
     var xmlAsStr = x2js.json2xml_str(jsonObj1);
-    $('#xmlOutputGroup').show();
-    $('#xmlOutput').text(vkbeautify.xml(xmlAsStr));
+    return vkbeautify.xml(xmlAsStr);
 };
 
 // The entry point of the module

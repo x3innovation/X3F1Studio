@@ -1,5 +1,6 @@
 <link rel="import" href="../the-graph/the-graph.html">
-<link rel="import" href="../../property-editor/fmx-node-editor.html">
+<link rel="import" href="../../property-editor/fmx-task-editor.html">
+<link rel="import" href="../../property-editor/fmx-flow-editor.html">
 <link rel="import" href="../../property-editor/fmx-inport-editor.html">
 <link rel="import" href="../../property-editor/fmx-outport-editor.html">
 
@@ -44,34 +45,36 @@
                         app: {
                             n4: {// add node
                                 icon: "plus-circle",
-                                iconLabel: "add",
+                                iconLabel: "Add",
                                 action: function(graph, itemKey, item) {
                                     var maxIdx = 0;
                                     var keys = fmx.doc.tasks.keys();
                                     for (var i = 0; i < keys.length; i++) {
-                                        if (keys[i].match(/^task[0-9]+$/i)) {
-                                            var idx = parseInt(keys[i].substr(4));
-                                            if (idx > maxIdx) {
-                                                maxIdx = idx;
-                                            }
+                                        var idx = parseInt(keys[i]);
+                                        if (idx > maxIdx) {
+                                            maxIdx = idx;
                                         }
                                     }
                                     maxIdx++;
-                                    var id = 'Task' + maxIdx;
+                                    var id = maxIdx;
                                     var component = {
-                                        name: 'another',
-                                        description: 'another type of component',
-                                        inports: [],
+                                        inports: [{name: 'EventData', type: 'all'}],
                                         outports: []
                                     };
                                     var metadata = {
-                                        label: 'label',
+                                        label: 'Task_' + id,
+                                        description: 'Description of Task_' + id,
                                         x: item.x - 70,
-                                        y: item.y - 100
+                                        y: item.y - 100,
+                                        inports: [{access: 'readonly',
+                                                type: {
+                                                    label: '',
+                                                    fileId: ''
+                                                }}]
                                     };
                                     //var newNode = document.getElementById("editor").nofloGraph.addNode(id, component, metadata);
                                     console.log(id);
-                                    fmx.doc.tasks.set(id, {
+                                    fmx.doc.tasks.set(id.toString(), {
                                         id: id,
                                         component: component,
                                         metadata: metadata
@@ -80,69 +83,76 @@
                             },
                             s4: {
                                 icon: "truck",
-                                iconLabel: "export",
+                                iconLabel: "Export",
                                 action: function(graph, itemKey, item) {
                                     console.log("export this FMX document");
-                                    console.log(JSON.stringify(document.getElementById("editor").nofloGraph, null, 4));
+                                    var dialog = document.getElementById('exportXMLdialog');
+                                    dialog.querySelector('pre').textContent = fmx.generateXML();
+                                    dialog.toggle();
                                 }
                             }
                         },
                         edge: {
-                            icon: "long-arrow-right",
                             n4: {
                                 icon: "pencil-square-o",
-                                iconLabel: "editEdge",
+                                iconLabel: "Edit",
                                 action: function(graph, itemKey, item) {
                                     //graph.removeEdge(item.from.node, item.from.port, item.to.node, item.to.port);
-                                    var dialog = document.createElement('fmx-node-editor');
+                                    var dialog = document.createElement('fmx-flow-editor');
                                     dialog.graph = graph;
+                                    dialog.edge = item;
                                     document.body.appendChild(dialog);
                                 }
                             },
                             s4: {
                                 icon: "trash-o",
-                                iconLabel: "deleteEdge",
+                                iconLabel: "Delete",
                                 action: function(graph, itemKey, item) {
-                                    graph.removeEdge(item.from.node, item.from.port, item.to.node, item.to.port);
+                                    //graph.removeEdge(item.from.node, item.from.port, item.to.node, item.to.port);
+
+                                    var getEdgeId = function(edge) {
+                                        return (edge.from.node + '_' + edge.from.port + '_' + edge.to.node + '_' + edge.to.port).toLowerCase();
+                                    };
+                                    var edgeId = getEdgeId(item);
+                                    console.log("delete edge: " + edgeId);
+                                    fmx.doc.flows.delete(edgeId);
                                 }
                             }
                         },
                         node: {
                             n4: {
                                 icon: "pencil-square-o",
-                                iconLabel: "edit",
+                                iconLabel: "Edit",
                                 action: function(graph, itemKey, item) {
-                                    var dialog = document.createElement('fmx-node-editor');
+                                    var dialog = document.createElement('fmx-task-editor');
+                                    console.log(graph);
                                     dialog.graph = graph;
                                     dialog.node = item;
                                     document.body.appendChild(dialog);
                                 }
                             },
-                            w4: {
-                                icon: "sign-in",
-                                iconLabel: "add",
-                                action: function(graph, itemKey, item) {
-                                    var dialog = document.createElement('fmx-inport-editor');
-                                    dialog.action = 'Add';
-                                    dialog.graph = graph;
-                                    dialog.node = item;
-                                    document.body.appendChild(dialog);
-                                }
-                            },
+//                            w4: {
+//                                icon: "sign-in",
+//                                iconLabel: "Add",
+//                                action: function(graph, itemKey, item) {
+//                                    var dialog = document.createElement('fmx-inport-editor');
+//                                    dialog.action = 'Add';
+//                                    dialog.graph = graph;
+//                                    dialog.port = item;
+//                                    document.body.appendChild(dialog);
+//                                }
+//                            },
                             e4: {
                                 icon: "sign-out",
-                                iconLabel: "add",
+                                iconLabel: "Add",
                                 action: function(graph, itemKey, item) {
-                                    var dialog = document.createElement('fmx-outport-editor');
-                                    dialog.action = 'Add';
-                                    dialog.graph = graph;
-                                    dialog.node = item;
-                                    document.body.appendChild(dialog);
+                                    graph.addNodeOutport(itemKey, 'Output', 'all');
+                                    fmx.doc.tasks.set(itemKey, item);
                                 }
                             },
                             s4: {// delete node
                                 icon: "trash-o",
-                                iconLabel: "delete",
+                                iconLabel: "Delete",
                                 action: function(graph, itemKey, item) {
                                     console.log("itemKey: " + itemKey);
                                     console.log(item);
@@ -158,10 +168,11 @@
                                 iconLabel: "edit",
                                 action: function(graph, itemKey, item) {
                                     //graph.removeEdge(item.from.node, item.from.port, item.to.node, item.to.port);
+                                    console.log(graph);
                                     var dialog = document.createElement('fmx-inport-editor');
                                     dialog.action = 'Edit';
                                     dialog.graph = graph;
-                                    dialog.node = item;
+                                    dialog.port = item;
                                     document.body.appendChild(dialog);
                                 }
                             },
@@ -182,7 +193,7 @@
                                     var dialog = document.createElement('fmx-outport-editor');
                                     dialog.action = 'Edit';
                                     dialog.graph = graph;
-                                    dialog.node = item;
+                                    dialog.port = item;
                                     document.body.appendChild(dialog);
                                 }
                             },
