@@ -9,6 +9,13 @@ dmx.doc = null;
 dmx.oTable = null;
 dmx.f1Doc = null;
 
+
+dmx.onAnnouncement = function() {
+    console.log("dmx.onAnnouncement");
+    console.log(dmx.f1Doc.announcement);
+}
+
+
 dmx.hideProgressBarGroup = function() {
     $("#progressBarGroup").hide();
 };
@@ -18,10 +25,10 @@ dmx.onAuthResult = function(authResult) {
     if (authResult && !authResult.error) {
         console.log("authorized.");
 
-		$('#contentGroup').hide();
-		dog.loadParamsToBall(function() {
-			 document.getElementById("the-breadcrumb").f1Url = cat.getRedirectStr("./f1.htm");
-                         document.getElementById("the-breadcrumb").f1Label = ball.projectFile.title;
+        $('#contentGroup').hide();
+        dog.loadParamsToBall(function() {
+            document.getElementById("the-breadcrumb").f1Url = cat.getRedirectStr("./f1.htm");
+            document.getElementById("the-breadcrumb").f1Label = ball.projectFile.title;
 
             ball.registerDMX();
 
@@ -31,6 +38,7 @@ dmx.onAuthResult = function(authResult) {
             }
             ball.getF1Model(ball.projectFile.id, function(f1Doc) {
                 dmx.f1Doc = f1Doc;
+                ball.registerAnnouncement(dmx.f1Doc, dmx.onAnnouncement);
             });
         });
     } else {
@@ -41,6 +49,7 @@ dmx.onAuthResult = function(authResult) {
         console.log("not authorized.");
         $('#contentGroup').hide();
     }
+
 };
 
 dmx.renameData = function() {
@@ -78,6 +87,7 @@ dmx.renameData = function() {
 
 dmx.loadFile = function() {
     console.log('begin dmx.loadFile()');
+
     console.log("dmx.fileId:");
     console.log(dmx.fileId);
     gapi.drive.realtime.load(dmx.fileId, dmx.onFileLoaded, dmx.initializeModel, dog.handleErrors);
@@ -94,14 +104,15 @@ dmx.onFileLoaded = function(rtDoc) {
         dmx.doc.version = '1';
     }
 
-	dmx.connectUi();
-	dog.getFile(dmx.fileId, function(file) {
-		dmx.file = file;
-		$('#docName').html("<span>" + dmx.doc.name + "</span>");
-		
-		document.getElementById("the-breadcrumb").docUrl = cat.getRedirectStr("./dmx.htm", "&dmxFileId=" + dmx.fileId);
-                document.getElementById("the-breadcrumb").docLabel = dmx.doc.name;
-                document.getElementById("the-breadcrumb").docType = ball.DMX_TYPE;
+    dmx.connectUi();
+    dog.getFile(dmx.fileId, function(file)
+    {
+        dmx.file = file;
+        $('#docName').html("<span>" + dmx.doc.name + "</span>");
+
+        document.getElementById("the-breadcrumb").docUrl = cat.getRedirectStr("./dmx.htm", "&dmxFileId=" + dmx.fileId);
+        document.getElementById("the-breadcrumb").docLabel = dmx.doc.name;
+        document.getElementById("the-breadcrumb").docType = ball.DMX_TYPE;
 
         $("#docName span").leanModal({
             modal: "#changeNameModal",
@@ -114,12 +125,43 @@ dmx.onFileLoaded = function(rtDoc) {
     $('#contentGroup').show();
 
     dmx.updateUi();
+    dmx.displayUser();
 
+    
+    dmx.rtDoc.addEventListener(gapi.drive.realtime.EventType.COLLABORATOR_LEFT, dmx.displayUser);
+    dmx.rtDoc.addEventListener(gapi.drive.realtime.EventType.COLLABORATOR_JOINED, dmx.displayUser);
     dmx.doc.addEventListener(gapi.drive.realtime.EventType.VALUE_CHANGED, dmx.updateUi);
     dmx.doc.attributes.addEventListener(gapi.drive.realtime.EventType.VALUE_CHANGED, dmx.updateUi);
+
+
 };
 
+dmx.displayUser = function() {
+
+console.log('collaborator  or joined');
+    
+    $('#collaborators').empty();
+    
+    var collabDiv = document.getElementById('collaborators');
+    var collabs = dmx.rtDoc.getCollaborators();
+    console.log('collabs.length  ' + collabs.length);
+    for (var i = 0; i < collabs.length; i++)
+    {
+        var oImg = document.createElement("img");
+        oImg.setAttribute('id', collabs[i].userId);
+        oImg.setAttribute('src', collabs[i].photoUrl);
+        oImg.setAttribute('title', collabs[i].displayName);
+        oImg.setAttribute('class', 'collaboratorImg');
+        collabDiv.appendChild(oImg);
+    }
+
+
+
+}
+
+
 dmx.initializeModel = function(model) {
+
     console.log("begin dmx.initializeModel()");
     var field = model.create(ball.dmxModel);
     field.attributes = model.createMap();
@@ -167,7 +209,7 @@ dmx.onDataTypeInput = function(evt) {
 
 dmx.updateUi = function() {
     console.log('begin dmx.updateUi()');
-
+    
     $('#dataId').val(dmx.doc.id);
     $('#dataDesc').val(dmx.doc.description);
     dmx.dataTypeSelectize[0].selectize.setValueQuiet(dmx.doc.type);
@@ -199,7 +241,7 @@ dmx.updateUi = function() {
         // 'dataAttrMax' : val[9],
         // 'dataAttrRef' : val[10],
         // 'dataAttrRefType' : val[11]
-
+        console.log('val[1] ' + val[1]);
         dmx.oTable.fnAddData([key, "<i class='fa fa-exclamation-triangle' style='display: none;'></i> " + val[0]]);
 
         if (dmx.lastSelectedAttrKey != null && key == dmx.lastSelectedAttrKey) {
@@ -215,6 +257,7 @@ dmx.updateUi = function() {
 
     //dmx.oTable.oScroller.fnRowToPixels(dmx.lastRowToPixels);
     dmx.highlightDuplicatedAttrNames();
+    //dmx.displayUser();
 };
 
 dmx.clearDefaultValue = function() {
@@ -998,6 +1041,8 @@ dmx.start = function() {
     dog.authorize(false, dmx.onAuthResult);
 
     dmx.hideProgressBarGroup();
+
+
 };
 
 $(window).ready(function() {

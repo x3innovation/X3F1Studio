@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html>
     <head>
+
         <script src="./js/platform/platform.js"></script>
         <link rel="import" href="./js/polymer/polymer.html">
+        <script src="./js/react/react.js"></script>
+        <script src="./js/react/JSXTransformer.js"></script>
         <title>Data Model eXtension - F1</title>
         <!-- start: META -->
         <meta charset="utf-8" />
@@ -12,6 +15,7 @@
         <!-- end: META -->
 
         <!-- start: 3RD PARTY CSS -->
+       
         <link rel="stylesheet" href="css/normalize.css">
         <link rel="stylesheet" href="css/bootstrap-grid.css">
         <link rel="stylesheet" href="css/bootstrap-form.css">
@@ -27,6 +31,7 @@
         <link rel="stylesheet" href="css/chart.css">
         <link rel="stylesheet" href="css/datatables.css">
         <link rel="stylesheet" href="css/leanModal.css">
+          <link rel="stylesheet" href="collabTest.css">
         <!-- end: 3RD PARTY CSS -->
 
         <!-- start: DMX CSS -->
@@ -35,10 +40,10 @@
         <link rel="stylesheet" href="css/dmx.css">
         <!-- end: DMX CSS -->
         <link rel="import" href="./js/f1/the-breadcrumb.html">
-                
+
     </head>
     <body>
-        
+
         <div id="changeNameModal" style="display: none; width: 600px;">
             <div class="panel panel-default">
                 <div class="panel-body">
@@ -77,8 +82,8 @@
         </div>
         <div class="container-fluid">
             <!-- start: BREADCRUMB -->
-         <the-breadcrumb id="the-breadcrumb"></the-breadcrumb>
-            
+            <the-breadcrumb id="the-breadcrumb"></the-breadcrumb>
+
             <!-- end: BREADCRUMB -->
             <!-- start: PAGE HEADER -->
             <div class="row">
@@ -86,7 +91,7 @@
                     <div class="page-header">
                         <h1 id="docName" herf="changeNameModal">Data Model eXtension</h1>
                     </div>
-                    <div id="collaborators" class="pull-right"></div>
+                    <!--<div id="collaborators" class="pull-right"></div>-->
                 </div>
             </div>
             <!-- end: PAGE HEADER -->
@@ -348,8 +353,10 @@
                         <div class="col-sm-12">
                             <div class="panel panel-default" id="collaborationGroup">
                                 <div class="panel-body">
-                                    Collaborators
-                                    <div id="collaborators"></div>
+                                   
+                                    <div id="collaborators">
+
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -370,10 +377,12 @@
         <script src="js/xml2json.js"></script>
         <script src="js/jquery.dataTables.js"></script>
         <script src="js/jquery.leanModal.js"></script>
+         <script src="js/bootstrap.min.js"></script>
         <!-- end: OTHER THIRD PARTY LIBRARIES -->
 
         <!-- start: GOOGLE DRIVE SDK -->
         <script src="//www.google.com/jsapi?autoload=%7B%22modules%22%3A%5B%7B%22name%22%3A%22picker%22%2C%22version%22%3A%221%22%7D%5D%7D"></script>
+        <script type="text/javascript" src="//www.google.com/jsapi"></script>
         <script src="//apis.google.com/js/api.js"></script>
         <!-- end: GOOGLE DRIVE SDK -->
 
@@ -382,6 +391,7 @@
         <script src="js/cat.js"></script>
         <script src="js/dog.js"></script>
         <script src='js/dmx.js'></script>
+
         <!-- end: DMX -->
     </body>
 </html>
