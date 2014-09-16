@@ -9,11 +9,54 @@ dmx.doc = null;
 dmx.oTable = null;
 dmx.f1Doc = null;
 
-
+ $('#collaborationGroup').hide();
+ $("#chatBox,#chatTitle,#enterChat").hide();
 dmx.onAnnouncement = function() {
     console.log("dmx.onAnnouncement");
     console.log(dmx.f1Doc.announcement);
+
+    var message = dmx.f1Doc.announcement.get(0).message;
+    var me = dmx.getMe();
+    var cellDivClass = '';
+    var imgDivClass = '';
+    var textDivClass = '';
+     
+
+    if (me.sessionId == dmx.f1Doc.announcement.get(0).sessionId)
+    {
+        cellDivClass = 'chatCellMe';
+        imgDivClass = 'chatImgMe';
+        textDivClass = 'chatTextMe';
+    }
+    else
+    {
+        cellDivClass = 'chatCellOther';
+        imgDivClass = 'chatImgOther';
+        textDivClass = 'chatTextOther';
+    }
+
+    if( message.replace(/\s/g, "").length > 0)
+    {
+    $("#chatBox").append('<br><div class="'+ cellDivClass +'" style=" display: inline-block;">' +
+            '<div class="'+ imgDivClass +'" ><img style="" src="' + me.photoUrl + '" title="' + me.displayName + '"  class="collaboratorImg"></img></div>' +
+            '<div class="'+ textDivClass +'" >' + message + '</div></div>');
+    }
+
+    var objDiv = document.getElementById("chatBox");
+    objDiv.scrollTop = objDiv.scrollHeight;
+
 }
+
+
+dmx.getMe = function() {
+    var collaborators = dmx.rtDoc.getCollaborators();
+    for (var i = 0; i < collaborators.length; i = i + 1) {
+        if (collaborators[i].isMe) {
+            return collaborators[i];
+        }
+    }
+    return null;
+};
 
 
 dmx.hideProgressBarGroup = function() {
@@ -26,6 +69,8 @@ dmx.onAuthResult = function(authResult) {
         console.log("authorized.");
 
         $('#contentGroup').hide();
+        $('#collaborationGroup').hide();
+        $("#chatBox,#chatTitle,#enterChat").hide();
         dog.loadParamsToBall(function() {
             document.getElementById("the-breadcrumb").f1Url = cat.getRedirectStr("./f1.htm");
             document.getElementById("the-breadcrumb").f1Label = ball.projectFile.title;
@@ -39,6 +84,7 @@ dmx.onAuthResult = function(authResult) {
             ball.getF1Model(ball.projectFile.id, function(f1Doc) {
                 dmx.f1Doc = f1Doc;
                 ball.registerAnnouncement(dmx.f1Doc, dmx.onAnnouncement);
+
             });
         });
     } else {
@@ -48,10 +94,26 @@ dmx.onAuthResult = function(authResult) {
 
         console.log("not authorized.");
         $('#contentGroup').hide();
+        $('#collaborationGroup').hide();
+        $("#chatBox,#chatTitle,#enterChat").hide();
     }
 
 };
 
+dmx.createMessage = function()
+{
+    var testString = $("#enterChat").val();
+    $("#enterChat").val('');
+
+    ball.announce(dmx.f1Doc, {
+        action: 'message',
+        fileType: 'dmx',
+        fileId: dmx.fileId,
+        sessionId: dmx.getMe().sessionId,
+        message: testString
+    });
+
+}
 dmx.renameData = function() {
     console.log("begin dmx.renameData()");
 
@@ -87,7 +149,6 @@ dmx.renameData = function() {
 
 dmx.loadFile = function() {
     console.log('begin dmx.loadFile()');
-
     console.log("dmx.fileId:");
     console.log(dmx.fileId);
     gapi.drive.realtime.load(dmx.fileId, dmx.onFileLoaded, dmx.initializeModel, dog.handleErrors);
@@ -123,10 +184,11 @@ dmx.onFileLoaded = function(rtDoc) {
         });
     });
     $('#contentGroup').show();
-
+    $('#collaborationGroup').show();
+    $("#chatBox,#chatTitle,#enterChat").show();
+    $('#chatTitle').html('<center>' + dmx.doc.name + ' Chat </center>');
     dmx.updateUi();
     dmx.displayUser();
-
     
     dmx.rtDoc.addEventListener(gapi.drive.realtime.EventType.COLLABORATOR_LEFT, dmx.displayUser);
     dmx.rtDoc.addEventListener(gapi.drive.realtime.EventType.COLLABORATOR_JOINED, dmx.displayUser);
@@ -136,15 +198,12 @@ dmx.onFileLoaded = function(rtDoc) {
 
 };
 
-dmx.displayUser = function() {
-
-console.log('collaborator  or joined');
-    
+dmx.displayUser = function() { 
     $('#collaborators').empty();
-    
+
     var collabDiv = document.getElementById('collaborators');
     var collabs = dmx.rtDoc.getCollaborators();
-    console.log('collabs.length  ' + collabs.length);
+    //console.log('collabs.length  ' + collabs.length);
     for (var i = 0; i < collabs.length; i++)
     {
         var oImg = document.createElement("img");
@@ -154,9 +213,6 @@ console.log('collaborator  or joined');
         oImg.setAttribute('class', 'collaboratorImg');
         collabDiv.appendChild(oImg);
     }
-
-
-
 }
 
 
@@ -209,7 +265,8 @@ dmx.onDataTypeInput = function(evt) {
 
 dmx.updateUi = function() {
     console.log('begin dmx.updateUi()');
-    
+
+
     $('#dataId').val(dmx.doc.id);
     $('#dataDesc').val(dmx.doc.description);
     dmx.dataTypeSelectize[0].selectize.setValueQuiet(dmx.doc.type);
@@ -826,6 +883,13 @@ dmx.visibilityControl = function() {
 };
 
 dmx.connectUi = function() {
+    $('#enterChat').bind("keypress", function(e) {
+        if (e.keyCode == 13) {
+            dmx.createMessage();
+            return false; // prevent the button click from happening
+        }
+    });
+
     $("#dataDesc").keyup(dmx.onDataDescInput);
     $("#dataType").change(dmx.ondataTypeInput);
 
