@@ -147,6 +147,7 @@ ball.announce = function(f1Doc, announcement) {
 ball.registerAnnouncement = function(f1Doc, callback) {
     console.log("ball.registerAnnouncement");
     f1Doc.announcement.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, callback);
+    console.log('in registerAnnouncement');
 };
 
 ball.getNextId = function(projectFileId, callback, step) {
