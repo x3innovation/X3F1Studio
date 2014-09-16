@@ -8,9 +8,10 @@ dmx.rtDoc = null;
 dmx.doc = null;
 dmx.oTable = null;
 dmx.f1Doc = null;
+dmx.collaboratorlist = [];
 
- $('#collaborationGroup').hide();
- $("#chatBox,#chatTitle,#enterChat").hide();
+$('#collaborationGroup').hide();
+$("#chatBox,#chatTitle,#enterChat").hide();
 dmx.onAnnouncement = function() {
     console.log("dmx.onAnnouncement");
     console.log(dmx.f1Doc.announcement);
@@ -20,7 +21,7 @@ dmx.onAnnouncement = function() {
     var cellDivClass = '';
     var imgDivClass = '';
     var textDivClass = '';
-     
+
 
     if (me.sessionId == dmx.f1Doc.announcement.get(0).sessionId)
     {
@@ -35,18 +36,17 @@ dmx.onAnnouncement = function() {
         textDivClass = 'chatTextOther';
     }
 
-    if( message.replace(/\s/g, "").length > 0)
+    if (message.replace(/\s/g, "").length > 0)
     {
-    $("#chatBox").append('<br><div class="'+ cellDivClass +'" style=" display: inline-block;">' +
-            '<div class="'+ imgDivClass +'" ><img style="" src="' + me.photoUrl + '" title="' + me.displayName + '"  class="collaboratorImg"></img></div>' +
-            '<div class="'+ textDivClass +'" >' + message + '</div></div>');
+        $("#chatBox").append('<br><div class="' + cellDivClass + '" style=" display: inline-block;">' +
+                '<div class="' + imgDivClass + '" ><img style="" src="' + me.photoUrl + '" title="' + me.displayName + '"  class="collaboratorImg"></img></div>' +
+                '<div class="' + textDivClass + '" >' + dmx.f1Doc.announcement.get(0).sessionId + '  ' + message + '</div></div>');
     }
 
     var objDiv = document.getElementById("chatBox");
     objDiv.scrollTop = objDiv.scrollHeight;
 
 }
-
 
 dmx.getMe = function() {
     var collaborators = dmx.rtDoc.getCollaborators();
@@ -187,31 +187,28 @@ dmx.onFileLoaded = function(rtDoc) {
     $('#collaborationGroup').show();
     $("#chatBox,#chatTitle,#enterChat").show();
     $('#chatTitle').html('<center>' + dmx.doc.name + ' Chat </center>');
-    dmx.updateUi();
-    dmx.displayUser();
     
+   
+
     dmx.rtDoc.addEventListener(gapi.drive.realtime.EventType.COLLABORATOR_LEFT, dmx.displayUser);
-    dmx.rtDoc.addEventListener(gapi.drive.realtime.EventType.COLLABORATOR_JOINED, dmx.displayUser);
+    dmx.rtDoc.addEventListener(gapi.drive.realtime.EventType.COLLABORATOR_JOINED,  dmx.displayUser);
     dmx.doc.addEventListener(gapi.drive.realtime.EventType.VALUE_CHANGED, dmx.updateUi);
     dmx.doc.attributes.addEventListener(gapi.drive.realtime.EventType.VALUE_CHANGED, dmx.updateUi);
-
-
+    dmx.updateUi();
+    //dmx.displayUser();
 };
 
-dmx.displayUser = function() { 
-    $('#collaborators').empty();
 
-    var collabDiv = document.getElementById('collaborators');
-    var collabs = dmx.rtDoc.getCollaborators();
-    //console.log('collabs.length  ' + collabs.length);
-    for (var i = 0; i < collabs.length; i++)
+
+dmx.displayUser = function() 
+{
+    $('#collaborators').empty();
+    var collaboratorlist = dmx.rtDoc.getCollaborators();
+    console.log('dmx.collaboratorlist.length  ' + collaboratorlist.length);
+    for (var i = 0; i < collaboratorlist.length; i = i + 1)
     {
-        var oImg = document.createElement("img");
-        oImg.setAttribute('id', collabs[i].userId);
-        oImg.setAttribute('src', collabs[i].photoUrl);
-        oImg.setAttribute('title', collabs[i].displayName);
-        oImg.setAttribute('class', 'collaboratorImg');
-        collabDiv.appendChild(oImg);
+        var user = collaboratorlist[i];
+        $('#collaborators').append('<img src="' + user.photoUrl + '" title="' + user.displayName + '  ' + user.sessionId+ '"  class="collaboratorImg"></img>')
     }
 }
 
