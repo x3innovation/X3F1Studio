@@ -498,6 +498,68 @@ dmx.generateXML = function() {
         };
     }
 
+    if (dataType == 'persisted') {
+        jsonObj1 = {
+            Data: {
+                _name: dataName,
+                _typeId: dataId,
+                Annotation: [{
+                        "_name": "description",
+                        "_svalue": dataDesc
+                    }, {
+                        "_name": "type",
+                        "_svalue": dataType
+                    }],
+                Field: []
+            },
+            UpdatePersistenceEvent: {
+                _name: "Update" + dataName.charAt(0).toUpperCase() + dataName.slice(1),
+                _typeId: dmx.doc.UpdatePersistenceEventTypeId,
+                _persistedData: dataName
+            },
+            CreatePersistenceEvent: {
+                _name: "Create" + dataName.charAt(0).toUpperCase() + dataName.slice(1),
+                _typeId: dmx.doc.CreatePersistenceEventTypeId,
+                _persistedData: dataName
+            },
+            RemovePersistenceEvent: {
+                _name: "Remove" + dataName.charAt(0).toUpperCase() + dataName.slice(1),
+                _typeId: dmx.doc.RemovePersistenceEventTypeId,
+                _persistedData: dataName
+            },
+            UpdatedPersistenceEvent: {
+                _name: dataName.charAt(0).toUpperCase() + dataName.slice(1) + "Updated",
+                _typeId: dmx.doc.UpdatedPersistenceEventTypeId,
+                _persistedData: dataName
+            },
+            CreatedPersistenceEvent: {
+                _name: dataName.charAt(0).toUpperCase() + dataName.slice(1) + "Created",
+                _typeId: dmx.doc.CreatedPersistenceEventTypeId,
+                _persistedData: dataName
+            },
+            RemovedPersistenceEvent: {
+                _name: dataName.charAt(0).toUpperCase() + dataName.slice(1) + "Removed",
+                _typeId: dmx.doc.RemovedPersistenceEventTypeId,
+                _persistedData: dataName
+            },
+            RejectUpdatePersistenceEvent: {
+                _name: "RejectUpdate" + dataName.charAt(0).toUpperCase() + dataName.slice(1),
+                _typeId: dmx.doc.RejectUpdatePersistenceEventTypeId,
+                _persistedData: dataName
+            },
+            RejectCreatePersistenceEvent: {
+                _name: "RejectCreate" + dataName.charAt(0).toUpperCase() + dataName.slice(1),
+                _typeId: dmx.doc.RejectCreatePersistenceEventTypeId,
+                _persistedData: dataName
+            },
+            RejectRemovePersistenceEvent: {
+                _name: "RejectRemove" + dataName.charAt(0).toUpperCase() + dataName.slice(1),
+                _typeId: dmx.doc.RejectRemovePersistenceEventTypeId,
+                _persistedData: dataName
+            },
+        };
+    }
+
     var keys = dmx.doc.attributes.keys();
     keys.sort();
     var l = keys.length;
