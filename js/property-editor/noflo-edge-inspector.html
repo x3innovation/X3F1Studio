@@ -136,12 +136,12 @@
 				}
 			},
 			edgeChanged : function() {
-				var src = this.edge.from;
-				var tgt = this.edge.to;
-				this.sourceNode = this.nodeLabel(src.node);
-				this.sourcePort = src.port;
-				this.targetNode = this.nodeLabel(tgt.node);
-				this.targetPort = tgt.port;
+				var from = this.edge.from;
+				var to = this.edge.to;
+				this.sourceNode = this.nodeLabel(from.node);
+				this.sourcePort = from.port;
+				this.targetNode = this.nodeLabel(to.node);
+				this.targetPort = to.port;
 				this.route = this.edge.metadata.route;
 				this.animate();
 			},

@@ -129,8 +129,8 @@ dog.getFiles = function(folderId, mimeTypes, callback) {
         });
 
         request.execute(function(resp) {
-            //console.log("Got " + resp.items.length + " files.");
-            if (!resp.items) {
+            console.log("Got " + resp.items.length + " files.");
+            if (resp.items.length == 0) {
                 callback(null, 0);
             }
             for (var i = 0; i < resp.items.length; i++) {

@@ -1,30 +1,37 @@
+<link rel="import" href="../core-icons/core-icons.html">
+<link rel="import" href="../f1-menu/f1-menu.html">
+<link rel="import" href="../f1-menu/f1-submenu.html">
+<link rel="import" href="../f1-menu/f1-item.html">
+
 <polymer-element name="fmx-outport-editor" class="modal-content">
     <template>
-        <h1>{{ action }} outport</h1>
+        <h1>{{ action }} output</h1>
         <form>
-            <label> Port name
+            <label>Name
                 <input type="text" value="{{ name }}" required>
             </label>
-            <label> Description 				<textarea value="{{ description }}"></textarea> </label>
+            <!--            <label> Description 				<textarea value="{{ description }}"></textarea> </label>-->
             <label>Access
-                <select>
+                <select id='access' on-change="{{onAccessChange}}">
                     <option value="readOnly">Read Only</option><option value="function">Function</option>
                 </select> </label>
 
             <label>Type
-                <select>
-                    <option value="readOnly">DMX Data 1</option><option value="function">DMX Data 2</option>
-                </select></label>
+                <f1-menu id='f1menu' on-core-select="{{onTypeSelect}}">
+                    <f1-submenu id='f1submenu' label="">
+                    </f1-submenu>
+                </f1-menu>
+            </label>
 
-            <label>Lookup field
-                <select>
-                    <option value="readOnly">Field from input</option><option value="function">Field from input</option>
-                </select></label>
-
-            <label>Lookup value
-                <select>
-                    <option value="readOnly">Field from event</option><option value="function">Field from event</option>
-                </select></label>
+            <!--            <label>Lookup field
+                            <select>
+                                <option value="readOnly">Field from input</option><option value="function">Field from input</option>
+                            </select></label>
+            
+                        <label>Lookup value
+                            <select>
+                                <option value="readOnly">Field from event</option><option value="function">Field from event</option>
+                            </select></label>-->
 
             <div class="toolbar">
                 <button on-click="{{ send }}" class="{{ { disabled: !canSend } | tokenList }}">
@@ -38,18 +45,33 @@
         Polymer('fmx-outport-editor', {
             action: null,
             graph: null,
-            node: null,
+            port: null,
             addOrSave: '',
             name: '',
-            description: '',
+//            description: '',
             attached: function() {
                 if (this.action == 'Add') {
                     this.addOrSave = 'Add';
                 } else if (this.action == 'Edit') {
                     this.addOrSave = 'Save';
                 }
-                this.name = this.node.metadata.label;
-                this.description = this.node.metadata.description;
+                this.name = this.port.name;
+//                this.description = this.port.metadata.description;
+            },
+            onAccessChange: function() {
+                console.log('onAccessChange');
+                this.canSend = true;
+            },
+            onTypeSelect: function() {
+                console.log('onTypeSelect');
+                if (this.$.f1submenu.selectedItem == null) {
+                    console.log('nothing selected.');
+                    return;
+                }
+                console.log(this.$.f1submenu.selectedItem);
+                console.log(this.$.f1submenu.selectedItem.data);
+                console.log(this.$.f1submenu.selectedItem.label);
+                this.canSend = true;
             },
             nameChanged: function() {
                 if (!this.name) {
@@ -66,8 +88,34 @@
                     return;
                 }
 
-                var node = this.graph.addNodeOutport(this.node.id, this.name, 'all');
-                fmx.doc.tasks.set(this.node.id, this.node);
+                var e = this.$.access;
+                var accessVal = e.options[e.selectedIndex].value;
+
+                console.log(accessVal);
+                console.log(this.$.f1submenu.selectedItem.data);
+                console.log(this.$.f1submenu.selectedItem.label);
+
+                var nodeId = this.port.process;
+                var node = this.graph.getNode(nodeId);
+                //node.metadata.outports = [];
+                console.log("port:");
+                console.log(this.port);
+                console.log("node:");
+                console.log(node);
+                //get id in the array
+                for (var i = 0, l = node.component.outports.length; i < l; i++) {
+                    var outport = node.component.outports[i];
+                    if (outport.name === this.port.port) {
+                        outport.name = this.name;
+                        outport.access = accessVal;
+                        outport.type = {
+                            label: this.$.f1submenu.selectedItem.label,
+                            fileId: this.$.f1submenu.selectedItem.data
+                        };
+                        break;
+                    }
+                }
+                fmx.doc.tasks.set(node.id, node);
 
                 this.close();
             },

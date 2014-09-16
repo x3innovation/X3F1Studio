@@ -19,6 +19,9 @@
         <link rel="import" href="./js/f1/the-breadcrumb.html">
         <link rel="import" href="./js/paper-toast/paper-toast.html">
         <link rel="import" href="./js/f1/google-client-api.html">
+        <link rel="import" href="./js/paper-dialog/paper-dialog.html">
+        <link rel="import" href="./js/paper-dialog/paper-dialog-transition.html">
+        <link rel="import" href="./js/paper-button/paper-button.html">
 
         <!-- Fonts -->
         <link rel="icon" type="image/png" href="./logo.png">
@@ -68,6 +71,11 @@
 
     </head>
     <body>
+    <paper-dialog id='exportXMLdialog' heading="Export" transition="paper-dialog-transition-bottom">
+        <pre contenteditable='true'></pre>
+        <paper-button label="Close" affirmative autofocus></paper-button>
+    </paper-dialog>
+
     <the-graph-editor id="editor"
                       width="800" height="600"
                       grid="72"
@@ -77,6 +85,7 @@
     <the-graph-nav id="nav" width="216" height="162"></the-graph-nav>
     <paper-toast id="paper-toast" text="Please first select the nodes you wanna get rid of, then click me."></paper-toast>
     <google-client-api></google-client-api>
+
     <div id="loading" style="position:absolute; top:10px; left:10px; background-color:white; padding:10px; border-radius:5px;">
         <img src="./js/the-graph/the-graph-editor/loading.gif"/>
         <div id="loading-message">
@@ -89,6 +98,7 @@
     <!-- end: JQUERY -->
 
     <!-- start: OTHER THIRD PARTY LIBRARIES -->
+    <script src="js/vkbeautify.js"></script>
     <script src="js/xml2json.js"></script>
     <!-- end: OTHER THIRD PARTY LIBRARIES -->
 

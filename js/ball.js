@@ -122,21 +122,24 @@ var addDMXEAttributeAnnouncement = {
     action: 'addDMXEAttribute',
     fileType: 'dmxe',
     fileId: '(#@*$@#',
-    fileName: 'NewData1'
+    fileName: 'NewData1',
+    fieldName: 'someField'
 };
 
 var updateDMXEAttributeAnnouncement = {
-    action: 'addDMXEAttribute',
+    action: 'updateDMXEAttribute',
     fileType: 'dmxe',
     fileId: '(#@*$@#',
-    fileName: 'NewData1'
+    fileName: 'NewData1',
+    fieldName: 'someField'
 };
 
 var delDMXEAttributeAnnouncement = {
-    action: 'addDMXEAttribute',
+    action: 'delDMXEAttribute',
     fileType: 'dmxe',
     fileId: '(#@*$@#',
-    fileName: 'NewData1'
+    fileName: 'NewData1',
+    fieldName: 'someField'
 };
 
 ball.announce = function(f1Doc, announcement) {
@@ -196,7 +199,7 @@ ball.dmxeModelUpgrade = function(doc) {
         doc.version = 1;
     }
     if (doc.id == null) {
-        doc.id = 2;
+        doc.id = -1;
     }
 };
 
@@ -244,6 +247,15 @@ ball.registerDMX = function() {
     ball.dmxModel.prototype.type = custom.collaborativeField('type');
     ball.dmxModel.prototype.description = custom.collaborativeField('description');
     ball.dmxModel.prototype.attributes = custom.collaborativeField('attributes');
+    ball.dmxModel.prototype.UpdatePersistenceEventTypeId = custom.collaborativeField('UpdatePersistenceEventTypeId');
+    ball.dmxModel.prototype.CreatePersistenceEventTypeId = custom.collaborativeField('CreatePersistenceEventTypeId');
+    ball.dmxModel.prototype.RemovePersistenceEventTypeId = custom.collaborativeField('RemovePersistenceEventTypeId');
+    ball.dmxModel.prototype.UpdatedPersistenceEventTypeId = custom.collaborativeField('UpdatedPersistenceEventTypeId');
+    ball.dmxModel.prototype.CreatedPersistenceEventTypeId = custom.collaborativeField('CreatedPersistenceEventTypeId');
+    ball.dmxModel.prototype.RemovedPersistenceEventTypeId = custom.collaborativeField('RemovedPersistenceEventTypeId');
+    ball.dmxModel.prototype.RejectUpdatePersistenceEventTypeId = custom.collaborativeField('RejectUpdatePersistenceEventTypeId');
+    ball.dmxModel.prototype.RejectCreatePersistenceEventTypeId = custom.collaborativeField('RejectCreatePersistenceEventTypeId');
+    ball.dmxModel.prototype.RejectRemovePersistenceEventTypeId = custom.collaborativeField('RejectRemovePersistenceEventTypeId');
     custom.setInitializer(ball.dmxModel, ball.dmxModel.prototype.initialize);
 };
 
@@ -253,7 +265,7 @@ ball.dmxModelUpgrade = function(doc) {
         doc.version = 1;
     }
     if (doc.id == null) {
-        doc.id = 3;
+        doc.id = -1;
     }
     //doc.type = "persisted";
 };

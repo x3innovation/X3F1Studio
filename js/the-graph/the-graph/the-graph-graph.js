@@ -52,26 +52,31 @@
 
                 console.log("adding edge finished");
 
-                var newEdgeId = halfEdge.from.process + '_' + halfEdge.from.port + '_' + halfEdge.to.process + '_' + halfEdge.to.port;
+                var newEdgeId = (halfEdge.from.process + '_' + halfEdge.from.port + '_' + halfEdge.to.process + '_' + halfEdge.to.port).toLowerCase();
                 var newEdge = {
-                    "id" : newEdgeId,
-                    "src": {
-                        "process": halfEdge.from.process,
-                        "port": halfEdge.from.port
+                    "id": newEdgeId,
+                    "from": {
+                        "node": halfEdge.from.process,
+                        "port": halfEdge.from.port,
+                        "type": halfEdge.from.type,
                     },
-                    "tgt": {
-                        "process": halfEdge.to.process,
-                        "port": halfEdge.to.port
+                    "to": {
+                        "node": halfEdge.to.process,
+                        "port": halfEdge.to.port,
+                        "type": halfEdge.to.type,
                     },
-                    "metadata": {}
+                    "isIn": halfEdge.isIn,
                 };
-                
+
                 console.log(newEdgeId);
+                console.log("newEdge:");
                 console.log(newEdge);
+                console.log("halfEdge:");
+                console.log(halfEdge);
 
                 fmx.doc.flows.set(newEdgeId, newEdge);
 
-                this.addEdge(halfEdge);
+//                this.addEdge(newEdge);
                 this.cancelPreviewEdge();
                 return;
             }
@@ -124,7 +129,7 @@
             this.markDirty();
         },
         addEdge: function(edge) {
-            this.state.graph.addEdge(edge.from.process, edge.from.port, edge.to.process, edge.to.port, edge.metadata);
+            this.state.graph.addEdge(edge.from.node, edge.from.port, edge.to.node, edge.to.port, edge.metadata);
         },
         moveGroup: function(nodes, dx, dy) {
             var graph = this.state.graph;
@@ -355,6 +360,7 @@
             d.setAttribute("class", c);
         },
         render: function() {
+            console.log("the-graph-graph render()");
             this.dirty = false;
 
             var self = this;
