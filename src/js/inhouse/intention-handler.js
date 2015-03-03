@@ -1,23 +1,23 @@
 var IntentionType = require('./intention-type.js');
+var googleApiInterface = require('./google-api-interface.js');
+var userStore = require('./user-store.js');
 
 function IntentionHandler()
 {
 	// //////// private members
 	var handlerMap = {};
 	handlerMap[IntentionType.USER_LOG_IN] = handleUserLogIn;
+	handlerMap[IntentionType.RECEIVE_USER_LOG_IN] = handleReceiveUserLogIn;
 
 	function handleUserLogIn(intentionPayload)
 	{
-		var authNetwork = intentionPayload.authNetwork;
+		googleApiInterface.userAuthorize();
+	}
 
-		if (authNetwork === 'google')
-		{
-			toastr.info("Sorry... still working on it. Please use Facebook instead ^_^;", "Google+ Log In");
-		}
-		else
-		{
-			hello(authNetwork).login.bind(hello(authNetwork))();
-		}		
+	function handleReceiveUserLogIn(intentionPayload)
+	{
+		userStore.isLoggedIn = true;
+		Bullet.trigger('App>>user-logged-in');
 	}
 
 	// //////// public members
@@ -25,7 +25,7 @@ function IntentionHandler()
 	{
 		handlerMap[intention.type](intention.payload);
 	}
-	Bullet.on("App>>intention-submitted", 'intention-handler.js>>submit', this.submit);
+	Bullet.on('App>>intention-submitted', 'intention-handler.js>>submit', this.submit);
 }
 
 module.exports = new IntentionHandler();
