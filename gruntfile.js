@@ -163,7 +163,7 @@ module.exports = function(grunt) {
 							'./src/img/**/*.*',
 							'./src/font/**/*.*'
 						],
-				tasks : ['copy:gae']
+				tasks : ['copy:dev']
 			},
 			jsJsx : {
 				files : ['./src/js/inhouse/**/*.js', './src/js/inhouse/**/*.jsx'],
