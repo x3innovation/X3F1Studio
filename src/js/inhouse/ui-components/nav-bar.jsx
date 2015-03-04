@@ -17,7 +17,7 @@ module.exports = React.createClass({
 
             // temporarily disable the buttons until log out is implemented
             $('#user-log-in-out-icon').switchClass('mdi-social-person-outline', 'mdi-social-person');
-            $('#user-log-in-out-btn').off('mouseenter mouseleave');
+            $('#user-log-in-out-btn').trigger('mouseleave').off('mouseenter mouseleave');
             this.transitionTo('project');
         }.bind(this));
     },
@@ -56,7 +56,8 @@ module.exports = React.createClass({
         	background : 'white',
         	boxShadow : '',
         	WebkitBoxShadow : '0 0 0 0 rgba(0, 0, 0, 0.16), 0 0 0 0 rgba(0, 0, 0, 0.12)',
-        	MozBoxShadow : '0 0 0 0 rgba(0, 0, 0, 0.16), 0 0 0 0 rgba(0, 0, 0, 0.12)'
+        	MozBoxShadow : '0 0 0 0 rgba(0, 0, 0, 0.16), 0 0 0 0 rgba(0, 0, 0, 0.12)',
+            boxShadow : '0 0 0 0 rgba(0, 0, 0, 0.16), 0 0 0 0 rgba(0, 0, 0, 0.12)'
         };
 
         var navbarButtonsStyle = {
