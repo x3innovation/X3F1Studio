@@ -41,7 +41,7 @@ module.exports = React.createClass({
 			position : 'absolute',
 			padding : '0',
 			margin : '0',
-			top : '11px',
+			top : '12px',
 			left : '10px',
 			width : '82px',
         	height : '45px',
