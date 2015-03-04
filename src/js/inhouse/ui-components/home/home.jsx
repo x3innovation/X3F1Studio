@@ -1,7 +1,4 @@
 module.exports = React.createClass({
-
-
-
     render: function()
 	{
 		var wrapperStyle = {

@@ -18,6 +18,7 @@ module.exports = React.createClass({
             // temporarily disable the buttons until log out is implemented
             $('#user-log-in-out-icon').switchClass('mdi-social-person-outline', 'mdi-social-person');
             $('#user-log-in-out-btn').off('mouseenter mouseleave');
+            this.transitionTo('project');
         }.bind(this));
     },
 
@@ -66,7 +67,7 @@ module.exports = React.createClass({
 
         return (
 			<nav style={navStyle}>
-				<a href="javascript:void(0)" className="btn waves-effect" style={logoStyle}></a>
+				<a href="/#/" className="btn waves-effect" style={logoStyle}></a>
 
 				<div id="navbarButtons" style={navbarButtonsStyle}>
 					<a id="user-log-in-out-btn" className="btn-floating waves-effect waves-light red tooltipped" data-position="bottom" data-delay="50" data-tooltip="Log In" onClick={this.onLogInBtnClick}>
