@@ -18,7 +18,7 @@ module.exports = React.createClass({
             // temporarily disable the buttons until log out is implemented
             $('#user-log-in-out-icon').switchClass('mdi-social-person-outline', 'mdi-social-person');
             $('#user-log-in-out-btn').trigger('mouseleave').off('mouseenter mouseleave');
-            this.transitionTo('project');
+            this.transitionTo('projects');
         }.bind(this));
     },
 

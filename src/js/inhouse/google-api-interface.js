@@ -19,7 +19,7 @@ function GoogleApiInterface()
 	            		AppConfig.GoogleApi.FileScope,
 	            		AppConfig.GoogleApi.OpenIdScope],
 	            user_id: user == null ? null : user.id,
-	            immediate: false
+	            immediate: true
 	        }, authorizationCallback);
 	    });
 
@@ -30,6 +30,8 @@ function GoogleApiInterface()
 	    	{
 	    		var intention = {};
 	    		intention.type = IntentionType.RECEIVE_USER_LOG_IN;
+	    		intention.payload = {};
+	    		intention.payload.success = true;
 	    		Bullet.trigger('App>>intention-submitted', intention);
 	    	}
 	    }

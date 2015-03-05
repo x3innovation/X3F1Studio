@@ -11,13 +11,21 @@ function IntentionHandler()
 
 	function handleUserLogIn(intentionPayload)
 	{
-		googleApiInterface.userAuthorize();
+		googleApiInterface.userAuthorize(true);
 	}
 
 	function handleReceiveUserLogIn(intentionPayload)
 	{
-		userStore.isLoggedIn = true;
-		Bullet.trigger('App>>user-logged-in');
+		if (intentionPayload.success)
+		{
+			userStore.isLoggedIn = true;
+			Bullet.trigger('App>>user-logged-in');
+		}
+		else
+		{
+			// once immediate authorization fails, do non immediate to bring up log in screen
+			googleApiInterface.userAuthorize(false);
+		}
 	}
 
 	// //////// public members
