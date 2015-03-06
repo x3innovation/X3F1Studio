@@ -68,7 +68,7 @@ module.exports = React.createClass({
 
         return (
 			<nav style={navStyle}>
-				<a href="/#/" className="btn waves-effect" style={logoStyle}></a>
+				<a href="javascript:void(0)" className="btn waves-effect waves-light" style={logoStyle}></a>
 
 				<div id="navbarButtons" style={navbarButtonsStyle}>
 					<a id="user-log-in-out-btn" className="btn-floating waves-effect waves-light red tooltipped" data-position="bottom" data-delay="50" data-tooltip="Log In" onClick={this.onLogInBtnClick}>

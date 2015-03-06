@@ -1,6 +1,6 @@
 var IntentionType = require('./intention-type.js');
-var googleApiInterface = require('./google-api-interface.js');
 var userStore = require('./user-store.js');
+var userService = require('./user-service.js');
 
 function IntentionHandler()
 {
@@ -11,7 +11,7 @@ function IntentionHandler()
 
 	function handleUserLogIn(intentionPayload)
 	{
-		googleApiInterface.userAuthorize(true);
+		userService.logIn();
 	}
 
 	function handleReceiveUserLogIn(intentionPayload)
@@ -23,8 +23,7 @@ function IntentionHandler()
 		}
 		else
 		{
-			// once immediate authorization fails, do non immediate to bring up log in screen
-			googleApiInterface.userAuthorize(false);
+			Bullet.trigger('App>>user-log-in-fail');
 		}
 	}
 

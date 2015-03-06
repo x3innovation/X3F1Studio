@@ -1,5 +1,6 @@
 var IntentionType = require('./intention-type.js');
 var AppConfig = require('./app-config.js');
+var Constants = require('./google-drive-constants.js');
 
 function GoogleApiInterface()
 {
@@ -7,8 +8,33 @@ function GoogleApiInterface()
 	var shareClient;
 	var user;
 
+	function createF1StudioFolderIfNotExist()
+	{
+		/*
+		var request = gapi.client.drive.files.list({
+			corpus : 'DOMAIN',
+			q : 'mimeType="application/vnd.google-apps.folder" and title="' + Constants.F1_STUDIO_FOLDER_NAME + '"',
+			fields : 'items/title'
+		});
+
+		request.execute(function(response){
+			if (response.items.length < 1)
+			{
+				gapi.client.drive.files.insert({
+
+				})
+			}
+		});
+		*/
+	}
+
+	function getFolder = function()
+	{
+
+	}
+
 	// //////// public members
-	this.userAuthorize = function()
+	this.userAuthorize = function(immeidate, successCallback, failCallback)
 	{
 		gapi.load('auth:client,drive-realtime,drive-share', function() {
 	        console.log("Authorizing user with Google");
@@ -19,7 +45,7 @@ function GoogleApiInterface()
 	            		AppConfig.GoogleApi.FileScope,
 	            		AppConfig.GoogleApi.OpenIdScope],
 	            user_id: user == null ? null : user.id,
-	            immediate: true
+	            immediate: immeidate
 	        }, authorizationCallback);
 	    });
 
@@ -28,11 +54,14 @@ function GoogleApiInterface()
 	    {
 	    	if (authResult && !authResult.error)
 	    	{
-	    		var intention = {};
-	    		intention.type = IntentionType.RECEIVE_USER_LOG_IN;
-	    		intention.payload = {};
-	    		intention.payload.success = true;
-	    		Bullet.trigger('App>>intention-submitted', intention);
+	    		// loading Google Drive sdk asynchronously
+	    		gapi.client.load('drive', 'v2', function(){
+	    			successCallback();
+	    		});	    		
+	    	}
+	    	else
+	    	{
+	    		failCallback();
 	    	}
 	    }
 	}
