@@ -1,5 +1,6 @@
-var IntentionType = require('../intention-type.js');
-var userStore = require('../user-store.js');
+var IntentionType = require('../constants/intention-type.js');
+var userStore = require('../stores/user-store.js');
+var EventType = require('../constants/event-type.js');
 
 module.exports = React.createClass({
 	mixins: [Navigation],
@@ -12,7 +13,7 @@ module.exports = React.createClass({
 
     componentDidMount : function()
     {
-        Bullet.on('App>>user-logged-in', 'nav-bar.js>>user-logged-in', function(){
+        Bullet.on(EventType.App.USER_LOGGED_IN, 'nav-bar.js>>user-logged-in', function(){
             this.model.isUserLoggedIn = userStore.isLoggedIn;
 
             // temporarily disable the buttons until log out is implemented
@@ -32,7 +33,7 @@ module.exports = React.createClass({
         {
             var intention = {};
             intention.type = IntentionType.USER_LOG_IN;
-            Bullet.trigger('App>>intention-submitted', intention);
+            Bullet.trigger(EventType.App.SUBMIT_INTENTION, intention);
         }
     },
 

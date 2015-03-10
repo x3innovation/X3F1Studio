@@ -1,5 +1,6 @@
-var googleApiInterface = require('./google-api-interface.js');
-var IntentionType = require('./intention-type.js');
+var googleApiInterface = require('../remote-server-interfaces/google/google-api-interface.js');
+var IntentionType = require('../constants/intention-type.js');
+var EventType = require('../constants/event-type.js');
 
 function UserService()
 {
@@ -17,7 +18,7 @@ function UserService()
     		intention.type = IntentionType.RECEIVE_USER_LOG_IN;
     		intention.payload = {};
     		intention.payload.success = true;
-    		Bullet.trigger('App>>intention-submitted', intention);
+    		Bullet.trigger(EventType.App.SUBMIT_INTENTION, intention);
 		}
 
 		function failCallback()
@@ -30,7 +31,7 @@ function UserService()
 				intention.type = IntentionType.RECEIVE_USER_LOG_IN;
 				intention.payload = {};
 				intention.payload.success = false;
-				Bullet.trigger('App>>intention-submitted', intention);
+				Bullet.trigger(EventType.App.SUBMIT_INTENTION, intention);
 			}
 		}
 	}

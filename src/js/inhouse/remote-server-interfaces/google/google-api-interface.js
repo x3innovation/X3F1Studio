@@ -1,5 +1,5 @@
-var IntentionType = require('./intention-type.js');
-var AppConfig = require('./app-config.js');
+var IntentionType = require('../../constants/intention-type.js');
+var AppConfig = require('../../app-config.js');
 var Constants = require('./google-drive-constants.js');
 
 function GoogleApiInterface()
@@ -28,7 +28,7 @@ function GoogleApiInterface()
 		*/
 	}
 
-	function getFolder = function()
+	function getFolder()
 	{
 
 	}

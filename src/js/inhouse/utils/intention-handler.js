@@ -1,6 +1,7 @@
-var IntentionType = require('./intention-type.js');
-var userStore = require('./user-store.js');
-var userService = require('./user-service.js');
+var IntentionType = require('../constants/intention-type.js');
+var userStore = require('../stores/user-store.js');
+var userService = require('../services/user-service.js');
+var EventType = require('../constants/event-type.js');
 
 function IntentionHandler()
 {
@@ -19,11 +20,11 @@ function IntentionHandler()
 		if (intentionPayload.success)
 		{
 			userStore.isLoggedIn = true;
-			Bullet.trigger('App>>user-logged-in');
+			Bullet.trigger(EventType.App.USER_LOGGED_IN);
 		}
 		else
 		{
-			Bullet.trigger('App>>user-log-in-fail');
+			Bullet.trigger(EventType.App.USER_LOGGED_OUT);
 		}
 	}
 
@@ -32,7 +33,7 @@ function IntentionHandler()
 	{
 		handlerMap[intention.type](intention.payload);
 	}
-	Bullet.on('App>>intention-submitted', 'intention-handler.js>>submit', this.submit);
+	Bullet.on(EventType.App.SUBMIT_INTENTION, 'intention-handler.js>>submit', this.submit);
 }
 
 module.exports = new IntentionHandler();
