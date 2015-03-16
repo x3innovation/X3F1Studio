@@ -1,3 +1,7 @@
+body {
+	background: white;
+}
+
 .nav-dropdown-menu-item:hover {
 	opacity: 0.8;
 }
@@ -52,4 +56,62 @@ select {
 .material-tooltip {
 	min-height: inherit;
 	z-index: 100;
+}
+
+/* override bootscard styling */
+.panel>.list-group:first-child .list-group-item:first-child, .panel>.panel-collapse>.list-group:first-child .list-group-item:first-child{
+	padding-bottom: 0;
+}
+
+.list-group-item-heading:last-child, .list-group-item-text:last-child{
+	font-size: 1.3rem;
+}
+
+.project-card .list-group-item {
+	padding-bottom: 0;
+	border : 0;
+}
+
+.panel-default {
+	border: 0;
+}
+
+/* flip card CSS */
+/* entire container, keeps perspective */
+.flip-container {
+	perspective: 1000;
+}
+
+.flip .flipper{
+	transform: rotateY(180deg);
+}
+
+/* flip speed goes here */
+.flipper {
+	transition: 0.6s;
+	transform-style: preserve-3d;
+	position: relative;
+}
+
+/* hide back of pane during swap */
+.front, .back {
+	backface-visibility: hidden;
+
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+/* front pane, placed above back */
+.front {
+	position: relative;
+	z-index: 2;
+	/* for firefox 31 */
+	transform: rotateY(0deg);
+}
+
+/* back, initially hidden pane */
+.back {
+	width: 100%;
+	transform: rotateY(180deg);
 }

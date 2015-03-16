@@ -6,8 +6,8 @@ function IntentionSubmitter()
 {
 	var functionIdsInUse = {};
 
-	var intentionTypeEventTypeMap = {};
-	// intentionTypeEventTypeMap[IntentionType.USER_LOG_IN] = EventType.App.RECEIVE_DATA_STREAM_PROFILE;
+	var intentionTypeReturnEventTypeMap = {};
+	intentionTypeReturnEventTypeMap[IntentionType.GET_PROJECTS] = EventType.Projects.RECEIVE_GET_PROJECTS;
 
 	function executeCallbackOnceOnResponse(eventType, callback)
 	{
@@ -58,7 +58,8 @@ function IntentionSubmitter()
 
 		if (callback != null)
 		{
-			var intentionId = executeCallbackOnceOnResponse(intentionTypeEventTypeMap[type], callback);
+			var returnEventType = intentionTypeReturnEventTypeMap[type];
+			var intentionId = executeCallbackOnceOnResponse(returnEventType, callback);
 			intention.payload.intentionId = intentionId;
 		}
 

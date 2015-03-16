@@ -30,7 +30,9 @@ module.exports = function(grunt) {
 			'react-router-0.11.6.js',
 			'bullet-1.1.3-Jimin.js',
             'store-1.3.17.js',
-            'jquery.fullPage-2.5.8.js'
+            'jquery.fullPage-2.5.8.js',
+            'anijs-0.9.2.js',
+            'jquery.elastic-1.6.11.js'
 		];
 
 		for (var i = 0; i<vendorLibs.length; ++i)
@@ -114,7 +116,8 @@ module.exports = function(grunt) {
 									'css/**/*.*',
 									'font/**/*.*',
 									'img/**/*.*',
-									'resource/**/*.*'
+									'resource/**/*.*',
+									'*.js' // temporary
 								],
 								dest : './dev'
 							}
