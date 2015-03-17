@@ -31,7 +31,7 @@ function IntentionHandler()
 
 	function handleGetProjects(intentionPayload)
 	{
-		projectService.getProjects(intentionPayload.intentionId);
+		projectService.getProjects(intentionPayload.titleSearchString, intentionPayload.intentionId);
 	}
 
 	function handleReceiveGetProjects(intentionPayload)

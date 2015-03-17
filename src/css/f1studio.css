@@ -100,6 +100,8 @@ select {
 	position: absolute;
 	top: 0;
 	left: 0;
+
+	height: 20em;
 }
 
 /* front pane, placed above back */

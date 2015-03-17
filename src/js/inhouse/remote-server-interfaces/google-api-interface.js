@@ -31,7 +31,7 @@ function GoogleApiInterface()
 	    		// loading Google Drive sdk asynchronously
 	    		gapi.client.load('drive', 'v2', function(){
 	    			successCallback();
-	    		});	    		
+	    		});
 	    	}
 	    	else
 	    	{
@@ -43,9 +43,9 @@ function GoogleApiInterface()
 	this.getProjects = function(successCallback)
 	{
 		var request = gapi.client.drive.files.list({
-			corpus : 'DOMAIN',
+			corpus : 'DEFAULT',
 			q : 'mimeType="' + GapiConstants.PROJECT_MIMETYPE + '"',
-			fields : 'items(id,title)'
+			fields : 'items(id,title,modifiedDate)'
 		});
 
 		request.execute(function(response){

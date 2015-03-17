@@ -19,10 +19,16 @@ module.exports = React.createClass({
 		Bullet.on(EventType.App.USER_LOGGED_IN, 'projects.jsx>>user-logged-in', this.onUserLoggedIn);
 	},
 
+	componentDidMount : function()
+	{
+		// hide placeholder on focus, then display on blur
+		$('#projectSearchInput').focus(function(){$(this).attr('placeholder', '');})
+								.blur(function(){$(this).attr('placeholder', 'search title');});
+	},
+
 	/* ******************************************
             NON LIFE CYCLE FUNCTIONS
     ****************************************** */
-
     onUserLoggedIn : function()
     {
     	intentionSubmitter.submit(IntentionType.GET_PROJECTS, {}, this.onReceiveProjects);
@@ -35,11 +41,32 @@ module.exports = React.createClass({
     	this.forceUpdate();
     },
 
+    onSearchInputChange : function()
+    {
+    	clearTimeout(this.searchTypingTimeout);
+        this.searchTypingTimeout = setTimeout(this.getProjects, 500);
+    },
+
+    getProjects : function()
+    {
+    	this.model.projects = [];
+    	this.forceUpdate();
+
+    	var intentionPayload = {};
+    	intentionPayload.titleSearchString = $('#projectSearchInput').val();
+    	intentionSubmitter.submit(IntentionType.GET_PROJECTS, intentionPayload, this.onReceiveProjects);
+    },
+
     render: function()
 	{
 		var content;
 		if (!this.projectsReceived)
 		{
+			var wrapperStyle = {
+				position : 'relative',
+				height : '20em'
+			};
+
 			var preloaderStyle = {
 				position : 'absolute',
 				top : '50%',
@@ -48,9 +75,11 @@ module.exports = React.createClass({
 				WebkitTransform : 'translate(-50%, -50%)',
 				MozTransform : 'translate(-50%, -50%)',
 				MsTransform : 'translate(-50%, -50%)'
-			}
+			};
 
-			content = <img src="img/loading-spin.svg" style={preloaderStyle} />;
+			content = <div style={wrapperStyle}>
+						<img src="img/loading-spin.svg" style={preloaderStyle} />
+					</div>
 		}
 		else
 		{
@@ -80,7 +109,7 @@ module.exports = React.createClass({
 		                                {
 		                                    rowArray.map(function(project, columnIndex){
 		                                       	return (
-		                                            <div key={columnIndex} className="col s3">
+		                                            <div key={columnIndex} className="col s3 f1-project-card">
 		                                                <ProjectCard title={project.title} 
 		                                                			 fileId={project.id} />
 													</div>
@@ -98,12 +127,29 @@ module.exports = React.createClass({
 			borderBottom : '1px solid #ebebeb'
 		};
 
+		var searchInputStyle = {
+			width : '20em',
+			fontSize : '2em',
+			fontWeight : '200',
+			outline : 'none',
+			margin : '10px 0 10px 0',
+			textAlign : 'center',
+			borderTop : '0',
+			borderRight : '0',
+			borderLeft : '0'
+		}
+
         return (
             <div className="container">
             	<div className="row">
 					<div className="col s12" style={headerStyle}>
 						<h2>Projects</h2>
 					</div>
+    			</div>
+    			<div className="row">
+    				<div className="col s12 center">
+    					<input id="projectSearchInput" style={searchInputStyle} placeholder="search title" onChange={this.onSearchInputChange} />
+    				</div>
     			</div>
     			{content}    			
             </div>

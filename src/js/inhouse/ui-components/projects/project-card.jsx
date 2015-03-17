@@ -10,6 +10,7 @@ module.exports = React.createClass({
     componentDidMount : function()
     {
         gapi.drive.realtime.load(this.props.fileId, this.onFileLoaded, this.initializeModel);
+        this.titleChangeTimeout = null;
     },
 
     componentDidUpdate : function()
@@ -21,6 +22,16 @@ module.exports = React.createClass({
         gapi.drive.realtime.databinding.bindString(this.model.description, descriptionInput);
         resizeDescription();
 
+        // everytime title is changed, need to save it to the underlying file's titles as well
+        // this will help displaying the projects in sorted alphabetical fashion when projects are loaded.
+        var titleChangeTimeout = this.titleChangeTimeout;
+        var onTitleChange = function()
+        {
+            clearTimeout(titleChangeTimeout);
+            titleChangeTimeout = setTimeout(this.saveTitleToFileItself, 500);
+        };
+        this.model.title.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, onTitleChange);
+        this.model.title.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, onTitleChange);
         // everytime there is a change in description, textarea has to be resized
         this.model.description.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, resizeDescription);
         this.model.description.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, resizeDescription);
@@ -32,9 +43,22 @@ module.exports = React.createClass({
         // buttons animation
         $('#' + this.props.fileId + '-wrapper').mouseenter(this.onProjectMouseEnter).mouseleave(this.onProjectMouseLeave);
     },
+
 	/* ******************************************
             NON LIFE CYCLE FUNCTIONS
     ****************************************** */
+    saveTitleToFileItself : function()
+    {
+        var saveTitleRequest = gapi.client.drive.files.patch({
+            'fileId' : this.props.fileId,
+            'resource' : {
+                'title' : $('#' + this.props.fileId + '-title').val()
+            }
+        });
+
+        saveTitleRequest.execute();
+    },
+
     onProjectMouseEnter : function()
     {
         $('#' + this.props.fileId).stop().animate({
@@ -76,7 +100,7 @@ module.exports = React.createClass({
 
         var preloaderStyle = {
             position : 'absolute',
-            top : '50%',
+            top : '45%',
             left : '50%',
             transform : 'translate(-50%, -50%)',
             WebkitTransform : 'translate(-50%, -50%)',
@@ -84,13 +108,7 @@ module.exports = React.createClass({
             MsTransform : 'translate(-50%, -50%)'
         };
 
-        var cardWrapperStyle = {
-            position : 'relative',
-            height : '10em',
-            minHeight : '60px'
-        };
-
-        content = <div className="list-group" style={cardWrapperStyle}>
+        content = <div className="list-group">
                         <img src="img/loading-spin.svg" style={preloaderStyle} />
                     </div>
 
@@ -230,7 +248,7 @@ module.exports = React.createClass({
         };
 
         return (
-            <div id={this.props.fileId + '-wrapper'}className="project-card panel panel-default flip-container" style={wrapperStyle}>
+            <div id={this.props.fileId + '-wrapper'} className="project-card panel panel-default flip-container" style={wrapperStyle}>
                 <div id={this.props.fileId} className="flipper z-depth-1" style={{border:'2px solid white'}}>
                     <div className="front">
                         {content}
