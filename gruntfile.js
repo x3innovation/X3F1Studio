@@ -32,7 +32,8 @@ module.exports = function(grunt) {
             'store-1.3.17.js',
             'jquery.fullPage-2.5.8.js',
             'anijs-0.9.2.js',
-            'jquery.slimscroll.js'
+            'jquery.slimscroll-1.3.0.js',
+            'jquery.flip-1.0.0.js'
 		];
 
 		for (var i = 0; i<vendorLibs.length; ++i)

@@ -2,7 +2,7 @@ module.exports = React.createClass({
 
 	contentFileLoaded : false,
 
-	model : {},
+    model : null,
 
 	/* ******************************************
                 LIFE CYCLE FUNCTIONS
@@ -11,6 +11,9 @@ module.exports = React.createClass({
     {
         gapi.drive.realtime.load(this.props.fileId, this.onFileLoaded, this.initializeModel);
         this.titleChangeTimeout = null;
+
+        this.model = this.props.model;
+        this.model.isCardFront = true;
     },
 
     componentDidUpdate : function()
@@ -42,6 +45,11 @@ module.exports = React.createClass({
 
         // buttons animation
         $('#' + this.props.fileId + '-wrapper').mouseenter(this.onProjectMouseEnter).mouseleave(this.onProjectMouseLeave);
+
+        $('#' + this.props.fileId + '-card').flip({
+            axis : 'y',
+            trigger : 'manual'
+        });
     },
 
 	/* ******************************************
@@ -61,7 +69,7 @@ module.exports = React.createClass({
 
     onProjectMouseEnter : function()
     {
-        $('#' + this.props.fileId).stop().animate({
+        $('#' + this.props.fileId + '-card').stop().animate({
            borderBottomColor: "#f24235",
         }, 0);
 
@@ -73,7 +81,7 @@ module.exports = React.createClass({
 
     onProjectMouseLeave : function()
     {
-        $('#' + this.props.fileId).stop().animate({
+        $('#' + this.props.fileId + '-card').stop().animate({
            borderBottomColor: "white",
         }, 0);
 
@@ -108,7 +116,11 @@ module.exports = React.createClass({
             MsTransform : 'translate(-50%, -50%)'
         };
 
-        content = <div className="list-group">
+        var wrapperStyle = {
+            height : '20em'
+        };
+
+        content = <div className="list-group" style={wrapperStyle}>
                         <img src="img/loading-spin.svg" style={preloaderStyle} />
                     </div>
 
@@ -130,17 +142,20 @@ module.exports = React.createClass({
             outline : 'none'
         };
 
-        var descriptionWrapperStyle = {
-            overflowY : 'hidden',
-            padding : '0'
-        };
+        var cardStyle = {
+            height : '10em'
+        }
 
-        content = <div className="list-group">
-                        <div className="list-group-item">
+        content = <div id={this.props.fileId + '-card'}>
+                        <div className="front z-depth-1" style={cardStyle}>
                             <input type="text" id={this.props.fileId + '-title'} style={titleStyle} />
-                        </div>
-                        <div id={this.props.fileId + '-description-wrapper'} className="list-group-item" style={descriptionWrapperStyle}>
                             <textarea id={this.props.fileId + '-description'} style={descriptionStyle}></textarea>
+                        </div>
+                        <div className="back z-depth-1" style={cardStyle}>
+                            Back side!<br />
+                            Back side!<br />
+                            Back side!<br />
+                            Back side!<br />
                         </div>
                     </div>
         return content;
@@ -220,7 +235,8 @@ module.exports = React.createClass({
 
     onFlipBtnClick : function()
     {
-        $('#' + this.props.fileId + '-wrapper')[0].classList.toggle("flip");
+        $('#' + this.props.fileId + '-card').flip(this.model.isCardFront);
+        this.model.isCardFront = !this.model.isCardFront;
     },
 
     render: function()
@@ -248,18 +264,9 @@ module.exports = React.createClass({
         };
 
         return (
-            <div id={this.props.fileId + '-wrapper'} className="project-card panel panel-default flip-container" style={wrapperStyle}>
-                <div id={this.props.fileId} className="flipper z-depth-1" style={{border:'2px solid white'}}>
-                    <div className="front">
-                        {content}
-                    </div>
-                    <div className="back">
-                        Back side!<br />
-                        Back side!<br />
-                        Back side!<br />
-                        Back side!<br />
-
-                    </div>
+            <div id={this.props.fileId + '-wrapper'} style={wrapperStyle}>
+                <div style={{border:'2px solid white'}}>
+                    {content}
                 </div>
                 {flipButton}
                 {editButton}

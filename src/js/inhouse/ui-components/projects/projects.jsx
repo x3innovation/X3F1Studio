@@ -111,7 +111,8 @@ module.exports = React.createClass({
 		                                       	return (
 		                                            <div key={columnIndex} className="col s3 f1-project-card">
 		                                                <ProjectCard title={project.title} 
-		                                                			 fileId={project.id} />
+		                                                			 fileId={project.id}
+		                                                			 model={{}} />
 													</div>
 		                                       	)
 		                                    })
@@ -123,10 +124,6 @@ module.exports = React.createClass({
 		}
 
 		// styles
-		var headerStyle = {
-			borderBottom : '1px solid #ebebeb'
-		};
-
 		var searchInputStyle = {
 			width : '20em',
 			fontSize : '2em',
@@ -142,7 +139,7 @@ module.exports = React.createClass({
         return (
             <div className="container">
             	<div className="row">
-					<div className="col s12" style={headerStyle}>
+					<div className="col s12">
 						<h2>Projects</h2>
 					</div>
     			</div>
