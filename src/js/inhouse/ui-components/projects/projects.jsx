@@ -102,6 +102,10 @@ module.exports = React.createClass({
 	            }
 	        }
 
+	        var cellStyle = {
+	        	marginBottom : '30px'
+	        };
+
 			content = 	(
 		                    twoDimensionalProjects.map(function(rowArray, rowIndex){
 		                        return (
@@ -109,7 +113,7 @@ module.exports = React.createClass({
 		                                {
 		                                    rowArray.map(function(project, columnIndex){
 		                                       	return (
-		                                            <div key={columnIndex} className="col s3 f1-project-card">
+		                                            <div key={columnIndex} className="col s3 f1-project-card" style={cellStyle}>
 		                                                <ProjectCard title={project.title} 
 		                                                			 fileId={project.id}
 		                                                			 model={{}} />
@@ -133,7 +137,8 @@ module.exports = React.createClass({
 			textAlign : 'center',
 			borderTop : '0',
 			borderRight : '0',
-			borderLeft : '0'
+			borderLeft : '0',
+			marginBottom : '1em'
 		}
 
         return (
