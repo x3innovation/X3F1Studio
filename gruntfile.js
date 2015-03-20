@@ -61,7 +61,10 @@ module.exports = function(grunt) {
 	function getAllInhouseCss()
 	{
 		var inhouseCss = [
-			'main.css'
+			'main.css',
+			'nav-bar.css',
+			'projects/projects.css',
+			'projects/project-card.css'
 		];
 
 		for (var i = 0; i<inhouseCss.length; ++i)
@@ -221,10 +224,9 @@ module.exports = function(grunt) {
 			options : {
 				livereload : true
 			},
-			nonJsJsx : {
+			miscellaneous : {
 				files : [
 							'./src/**/*.html',
-							'./src/css/**/*.*',
 							'./src/img/**/*.*',
 							'./src/font/**/*.*'
 						],
@@ -233,6 +235,10 @@ module.exports = function(grunt) {
 			jsJsx : {
 				files : ['./src/js/inhouse/**/*.js', './src/js/inhouse/**/*.jsx'],
 				tasks : ['browserify:dev']
+			},
+			css : {
+				files : ['./src/css/inhouse/**/*.*'],
+				tasks : ['concat:devInhouseCss']
 			}
 		}
 		
@@ -256,6 +262,7 @@ module.exports = function(grunt) {
 	grunt.registerTask('build-dev', [
 	    'remove:cleanDev',
 	    'concat:devVendorCss',
+	    'concat:devInhouseCss',
         'concat:devJs',
         'browserify:dev',
         'copy:dev'

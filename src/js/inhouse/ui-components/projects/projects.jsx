@@ -22,7 +22,7 @@ module.exports = React.createClass({
 	componentDidMount : function()
 	{
 		// hide placeholder on focus, then display on blur
-		$('#projectSearchInput').focus(function(){$(this).attr('placeholder', '');})
+		$('#project-search-input').focus(function(){$(this).attr('placeholder', '');})
 								.blur(function(){$(this).attr('placeholder', 'search title');});
 	},
 
@@ -53,7 +53,7 @@ module.exports = React.createClass({
     	this.forceUpdate();
 
     	var intentionPayload = {};
-    	intentionPayload.titleSearchString = $('#projectSearchInput').val();
+    	intentionPayload.titleSearchString = $('#project-search-input').val();
     	intentionSubmitter.submit(IntentionType.GET_PROJECTS, intentionPayload, this.onReceiveProjects);
     },
 
@@ -62,23 +62,8 @@ module.exports = React.createClass({
 		var content;
 		if (!this.projectsReceived)
 		{
-			var wrapperStyle = {
-				position : 'relative',
-				height : '20em'
-			};
-
-			var preloaderStyle = {
-				position : 'absolute',
-				top : '50%',
-				left : '50%',
-				transform : 'translate(-50%, -50%)',
-				WebkitTransform : 'translate(-50%, -50%)',
-				MozTransform : 'translate(-50%, -50%)',
-				MsTransform : 'translate(-50%, -50%)'
-			};
-
-			content = <div style={wrapperStyle}>
-						<img src="img/loading-spin.svg" style={preloaderStyle} />
+			content = <div id="projects-cards-wrapper">
+						<img id="projects-cards-wrapper-preloader" src="img/loading-spin.svg" />
 					</div>
 		}
 		else
@@ -127,20 +112,6 @@ module.exports = React.createClass({
 		                );
 		}
 
-		// styles
-		var searchInputStyle = {
-			width : '20em',
-			fontSize : '2em',
-			fontWeight : '200',
-			outline : 'none',
-			margin : '10px 0 10px 0',
-			textAlign : 'center',
-			borderTop : '0',
-			borderRight : '0',
-			borderLeft : '0',
-			marginBottom : '1em'
-		}
-
         return (
             <div className="container">
             	<div className="row">
@@ -150,7 +121,7 @@ module.exports = React.createClass({
     			</div>
     			<div className="row">
     				<div className="col s12 center">
-    					<input id="projectSearchInput" style={searchInputStyle} placeholder="search title" onChange={this.onSearchInputChange} />
+    					<input id="project-search-input" placeholder="search title" onChange={this.onSearchInputChange} />
     				</div>
     			</div>
     			{content}    			

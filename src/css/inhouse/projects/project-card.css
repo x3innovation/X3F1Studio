@@ -1,0 +1,40 @@
+.project-card-preloader-wrapper{
+	height: 20em;
+}
+
+.project-card-preloader{
+	position: absolute;
+	top: 45%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	-webkit-transform: translate(-50%, -50%);
+	-moz-transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+}
+
+.project-card-title{
+	height: 2rem;
+	font-size: 1.3rem;
+	text-align: center;
+}
+
+.project-card-description{
+	border: 0;
+	resize: none;
+	outline: none;
+}
+
+.project-card-face{
+	padding: 10px 10px 0 10px;
+	height: 10em;
+	border-bottom: 2px solid white;
+}
+
+.project-card-description-wrapper{
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.project-card-wrapper{
+	position: relative;
+}

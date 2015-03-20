@@ -121,25 +121,9 @@ module.exports = React.createClass({
 
     getContentBeforeFileLoaded : function()
     {
-        var content;
-
-        var preloaderStyle = {
-            position : 'absolute',
-            top : '45%',
-            left : '50%',
-            transform : 'translate(-50%, -50%)',
-            WebkitTransform : 'translate(-50%, -50%)',
-            MozTransform : 'translate(-50%, -50%)',
-            MsTransform : 'translate(-50%, -50%)'
-        };
-
-        var wrapperStyle = {
-            height : '20em'
-        };
-
-        content = <div className="list-group" style={wrapperStyle}>
-                        <img src="img/loading-spin.svg" style={preloaderStyle} />
-                    </div>
+        var content =   <div className="list-group project-card-preloader-wrapper">
+                            <img className="project-card-preloader" src="img/loading-spin.svg" />
+                        </div>
 
         return content;
     },
@@ -148,39 +132,16 @@ module.exports = React.createClass({
     {
         var content;
 
-        var titleStyle = {
-            height : '2rem',
-            fontSize : '1.3rem',
-            textAlign : 'center'
-        };
-
-        var descriptionStyle = {
-            border : '0',
-            resize : 'none',
-            outline : 'none'
-        };
-
-        var cardFaceStyle = {
-            padding : '10px 10px 0 10px',
-            height : '10em',
-            borderBottom : '2px solid white'
-        };
-
-        var descriptionWrapperStyle = {
-            overflowY : 'auto',
-            overflowX : 'hidden'
-        };
-
         var cardFaceClassName = 'z-depth-1 ' + this.props.fileId + '-card-face';
 
         content = <div id={this.props.fileId + '-card'}>
-                        <div id={this.props.fileId + '-card-front'} className={"front " + cardFaceClassName} style={cardFaceStyle}>
-                            <input type="text" className="project-title" id={this.props.fileId + '-title'} style={titleStyle} disabled="disabled" />
-                            <div id={this.props.fileId + '-description-wrapper'} style={descriptionWrapperStyle}>
-                                <textarea id={this.props.fileId + '-description'} style={descriptionStyle} disabled="disabled"></textarea>
+                        <div id={this.props.fileId + '-card-front'} className={"front project-card-face " + cardFaceClassName}>
+                            <input type="text" className="project-card-title" id={this.props.fileId + '-title'} disabled="disabled" />
+                            <div id={this.props.fileId + '-description-wrapper'} className="project-card-description-wrapper">
+                                <textarea id={this.props.fileId + '-description'} className="project-card-description" disabled="disabled"></textarea>
                             </div>
                         </div>
-                        <div className={"back " + cardFaceClassName} style={cardFaceStyle}>
+                        <div className={"back project-card-face " + cardFaceClassName}>
                             Back side!<br />
                             Back side!<br />
                             Back side!<br />
@@ -214,10 +175,6 @@ module.exports = React.createClass({
     render: function()
 	{
 		var content;
-        var editButton;
-        var removeButton;
-        var flipButton;
-
 		if (!this.contentFileLoaded)
 		{
 			content = this.getContentBeforeFileLoaded();
@@ -227,19 +184,11 @@ module.exports = React.createClass({
             content = this.getContentAfterFileLoaded();
 		}
 
-        // styles
-        var wrapperStyle = {
-            position : 'relative'
-        };
-
         return (
-            <div id={this.props.fileId + '-wrapper'} style={wrapperStyle}>
-                <div style={{border:'2px solid white'}}>
+            <div id={this.props.fileId + '-wrapper'} className="project-card-wrapper">
+                <div>
                     {content}
                 </div>
-                {flipButton}
-                {editButton}
-                {removeButton}
             </div>
         );
     }

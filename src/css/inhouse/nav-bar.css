@@ -6,7 +6,7 @@
 	left: 10px;
 	width: 82px;
 	height: 45px;
-	background: url(img/logo.svg);
+	background: url("../img/logo.svg");
 	background-size: 82px 45px;
 	background-repeat: no-repeat; 
 }
