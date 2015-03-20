@@ -58,6 +58,9 @@ module.exports = React.createClass({
         // need to get rid of 25% width once page is rendered
         var outerWidth = $('.row .col.s3').outerWidth() - 1;
         $('.row .col.s3').css('width', outerWidth);
+
+        // apply single click to flip
+        $('#' + this.props.fileId + '-wrapper').on('click', this.onCardSingleClick);
     },
 
 	/* ******************************************
@@ -77,38 +80,34 @@ module.exports = React.createClass({
 
     onProjectMouseEnter : function()
     {
-        var fadeInDuration = 700;
-        $('.' + this.props.fileId + '-card-face').stop().animate({
-           borderBottomColor: "#f24235",
-        }, fadeInDuration);
-
-        $('#' + this.props.fileId + '-flip').stop().fadeIn({duration:fadeInDuration});
-        $('#' + this.props.fileId + '-edit').stop().fadeIn({duration:fadeInDuration});
-        $('#' + this.props.fileId + '-remove').stop().fadeIn({duration:fadeInDuration});
+        $('#' + this.props.fileId + '-title').stop().animate({
+            borderBottomColor: "#f24235"
+        }, 200);
     },
 
     onProjectMouseLeave : function()
     {
-        var fadeOutDuration = 500;
-        $('.' + this.props.fileId + '-card-face').stop().animate({
-           borderBottomColor: "white",
-        }, fadeOutDuration);
-        
-        $('#' + this.props.fileId + '-flip').stop().fadeOut({duration:fadeOutDuration});
-        $('#' + this.props.fileId + '-edit').stop().fadeOut({duration:fadeOutDuration});
-        $('#' + this.props.fileId + '-remove').stop().fadeOut({duration:fadeOutDuration});
+        $('#' + this.props.fileId + '-title').stop().animate({
+            borderBottomColor: "#9e9e9e"
+        }, 200);
     },
 
     onFileLoaded : function(doc)
     {
-        // title needs to be backwards compatible with legacy F1 Studio
+        // title and description need to be backwards compatible with legacy F1 Studio
         // Delete this section of code once project creation is done that creates
         // properly initialized google drive files.
         var title = doc.getModel().getRoot().get('title');
         if (title == null)
         {
             var titleString = doc.getModel().createString(this.props.title);
-            doc.getModel().set('title', titleString);
+            doc.getModel().getRoot().set('title', titleString);
+        }
+        var description = doc.getModel().getRoot().get('description');
+        if (description == null)
+        {
+            var titleString = doc.getModel().createString('');
+            doc.getModel().getRoot().set('description', titleString);
         }
 
         var gDriveModel = doc.getModel().getRoot();
@@ -151,7 +150,8 @@ module.exports = React.createClass({
 
         var titleStyle = {
             height : '2rem',
-            fontSize : '1.3rem'
+            fontSize : '1.3rem',
+            textAlign : 'center'
         };
 
         var descriptionStyle = {
@@ -175,9 +175,9 @@ module.exports = React.createClass({
 
         content = <div id={this.props.fileId + '-card'}>
                         <div id={this.props.fileId + '-card-front'} className={"front " + cardFaceClassName} style={cardFaceStyle}>
-                            <input type="text" id={this.props.fileId + '-title'} style={titleStyle} />
+                            <input type="text" className="project-title" id={this.props.fileId + '-title'} style={titleStyle} disabled="disabled" />
                             <div id={this.props.fileId + '-description-wrapper'} style={descriptionWrapperStyle}>
-                                <textarea id={this.props.fileId + '-description'} style={descriptionStyle}></textarea>
+                                <textarea id={this.props.fileId + '-description'} style={descriptionStyle} disabled="disabled"></textarea>
                             </div>
                         </div>
                         <div className={"back " + cardFaceClassName} style={cardFaceStyle}>
@@ -190,79 +190,7 @@ module.exports = React.createClass({
         return content;
     },
 
-    getEditButton : function()
-    {
-        var editButton;
-
-        var editButtonId = this.props.fileId + '-edit';
-        var editButtonClassName = "mdi-editor-mode-edit fa-2x z-depth-1";
-        var editIconStyle = {
-            position : 'absolute',
-            right : '35px',
-            bottom : '-18px',
-            display: 'none',
-            background: '#f24235',
-            color: 'white',
-            width : '20px',
-            height : '20px',
-            textAlign : 'center',
-            cursor : 'pointer'
-        };
-
-        editButton = <i id={editButtonId} className={editButtonClassName} style={editIconStyle} />
-
-        return editButton;
-    },
-
-    getRemoveButton : function()
-    {
-        var removeButton;
-
-        var removeButtonId = this.props.fileId + '-remove';
-        var removeButtonClassName = "mdi-navigation-close fa-2x z-depth-1";
-        var removeIconStyle = {
-            position : 'absolute',
-            right : '10px',
-            bottom : '-18px',
-            display: 'none',
-            background: '#f24235',
-            color: 'white',
-            width : '20px',
-            height : '20px',
-            textAlign : 'center',
-            cursor : 'pointer'
-        };
-
-        removeButton = <i id={removeButtonId} className={removeButtonClassName} style={removeIconStyle} />
-
-        return removeButton;
-    },
-
-    getFlipButton : function()
-    {
-        var removeButton;
-
-        var removeButtonId = this.props.fileId + '-flip';
-        var removeButtonClassName = "mdi-image-flip fa-2x z-depth-1";
-        var removeIconStyle = {
-            position : 'absolute',
-            right : '60px',
-            bottom : '-18px',
-            display: 'none',
-            background: '#f24235',
-            color: 'white',
-            width : '20px',
-            height : '20px',
-            textAlign : 'center',
-            cursor : 'pointer'
-        };
-
-        removeButton = <i id={removeButtonId} className={removeButtonClassName} style={removeIconStyle} onClick={this.onFlipBtnClick} />
-
-        return removeButton;
-    },
-
-    onFlipBtnClick : function()
+    onCardSingleClick : function()
     {
         var cardFront = $('#' + this.props.fileId + '-card-front');
         if (this.model.isCardFront)
@@ -297,9 +225,6 @@ module.exports = React.createClass({
 		else
 		{
             content = this.getContentAfterFileLoaded();
-            editButton = this.getEditButton();
-            removeButton = this.getRemoveButton();
-            flipButton = this.getFlipButton();
 		}
 
         // styles

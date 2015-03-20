@@ -38,39 +38,11 @@ module.exports = React.createClass({
 
 	render : function()
 	{
-		var logoStyle = {
-			position : 'absolute',
-			padding : '0',
-			margin : '0',
-			top : '12px',
-			left : '10px',
-			width : '82px',
-        	height : '45px',
-        	background : 'url(img/logo.svg)',
-        	backgroundSize : '82px 45px',
-        	backgroundRepeat : 'no-repeat'
-		};
-
-        var navStyle = {
-        	position : 'relative',
-        	background : 'white',
-        	boxShadow : '',
-        	WebkitBoxShadow : '0 0 0 0 rgba(0, 0, 0, 0.16), 0 0 0 0 rgba(0, 0, 0, 0.12)',
-        	MozBoxShadow : '0 0 0 0 rgba(0, 0, 0, 0.16), 0 0 0 0 rgba(0, 0, 0, 0.12)',
-            boxShadow : '0 0 0 0 rgba(0, 0, 0, 0.16), 0 0 0 0 rgba(0, 0, 0, 0.12)'
-        };
-
-        var navbarButtonsStyle = {
-        	position : 'absolute',
-        	top : '12px',
-        	right : '35px'
-        };
-
         return (
-			<nav style={navStyle}>
-				<a href="javascript:void(0)" className="btn waves-effect waves-light" style={logoStyle}></a>
+			<nav id="menu-nav">
+				<a id="logo" href="javascript:void(0)" className="btn waves-effect waves-light"></a>
 
-				<div id="navbarButtons" style={navbarButtonsStyle}>
+				<div id="navbar-buttons">
 					<a id="user-log-in-out-btn" className="btn-floating waves-effect waves-light red tooltipped" data-position="bottom" data-delay="50" data-tooltip="Log In" onClick={this.onLogInBtnClick}>
                         <i id="user-log-in-out-icon" className="mdi-social-person-outline"></i>
                     </a>

@@ -1,0 +1,33 @@
+body {
+	background: white;
+}
+
+.nav-dropdown-menu-item:hover {
+	opacity: 0.8;
+}
+
+input.cke_dialog_ui_input_text, input.cke_dialog_ui_input_password, textarea.cke_dialog_ui_input_textarea{
+	margin: auto;
+	height: auto;
+}
+
+select {
+	display: inline;
+}
+
+.material-tooltip {
+	min-height: inherit;
+	z-index: 100;
+}
+
+.row {
+	margin-bottom: 0;
+}
+
+.project-title:focus{
+	border-bottom: 1px solid #9e9e9e !important;
+	box-shadow: 0 0 0 0 black !important;
+	-webkit-box-shadow: 0 0 0 0 black !important;
+	-moz-box-shadow: 0 0 0 0 black !important;
+	-ms-box-shadow: 0 0 0 0 black !important;
+}
