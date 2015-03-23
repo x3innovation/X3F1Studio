@@ -1,4 +1,3 @@
-var IntentionType = require('../constants/intention-type.js');
 var GapiConstants = require('../constants/google-drive-constants.js');
 
 function GoogleApiInterface()
@@ -40,16 +39,53 @@ function GoogleApiInterface()
 	    }
 	}
 
-	this.getProjects = function(successCallback)
+	this.getProjects = function(callback)
 	{
 		var request = gapi.client.drive.files.list({
 			corpus : 'DEFAULT',
 			q : 'mimeType="' + GapiConstants.PROJECT_MIMETYPE + '"',
-			fields : 'items(id,title,modifiedDate)'
+			fields : 'items(id,parents/id,title)'
 		});
 
 		request.execute(function(response){
-			successCallback(response.items);
+			callback(response.items);
+		});
+	}
+
+	this.saveTitle = function(fileId, title)
+	{
+		var saveTitleRequest = gapi.client.drive.files.patch({
+            'fileId' : fileId,
+            'resource' : {
+                'title' : title
+            }
+        });
+
+        saveTitleRequest.execute();
+	}
+
+	this.setMimeType = function(fileId, mimeType)
+	{
+		var saveTitleRequest = gapi.client.drive.files.patch({
+            'fileId' : fileId,
+            'resource' : {
+                'mimeType' : mimeType
+            }
+        });
+
+        saveTitleRequest.execute();
+	}
+
+	this.getMimeTypeFiles = function(mimeType, callback)
+	{
+		var request = gapi.client.drive.files.list({
+			corpus : 'DEFAULT',
+			q : 'mimeType="' + mimeType + '"',
+			fields : 'items(id,parents/id,title)'
+		});
+
+		request.execute(function(response){
+			callback(response.items);
 		});
 	}
 }

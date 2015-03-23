@@ -7,15 +7,12 @@ var Route = Router.Route, DefaultRoute = Router.DefaultRoute,
 var App = require('./ui-components/app.jsx');
 var Home = require('./ui-components/home/home.jsx');
 var Projects = require('./ui-components/projects/projects.jsx');
-
-// unfinished
-var Project = require('./ui-components/projects/projects.jsx');
+var Project = require('./ui-components/project/project.jsx');
 
 var routes = (
 	<Route name="home" path="/" handler={App}>
-		<Route name="projects" path="projects" handler={Projects}>
-			<Route path=":projectName" handler={Project} />
-		</Route>
+		<Route name="projects" path="projects" handler={Projects}></Route>
+		<Route name="project" path="/project/:projectTitle/:parentFolderFileId" handler={Project} />
 		<DefaultRoute handler={Home} />
 	</Route>
 );

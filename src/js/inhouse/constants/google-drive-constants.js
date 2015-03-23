@@ -5,9 +5,14 @@ module.exports = {
 	FileScope : 'https://www.googleapis.com/auth/drive',
 	OpenIdScope : 'openid',
 	
-	DMX_MIMETYPE : 'application/f1.dmx',
-	DMXE_MIMETYPE : 'application/f1.dmxe',
-	FMX_MIMETYPE : 'application/f1.fmx',
+	LEGACY_PERSISTENT_DATA_MIMETYPE : 'application/dmx',
+	LEGACY_ENUM_MIMETYPE : 'application/dmxe',
+	LEGACY_FLOW_MIMETYPE : 'application/fmx',
+
+	PERSISTENT_DATA_MIMETYPE : 'application/f1.persistent-data',
+	EVENT_MIMETYPE : 'application/f1.event',
+	ENUM_MIMETYPE : 'application/f1.enum',
+	FLOW_MIMETYPE : 'application/f1.flow',
 	PROJECT_MIMETYPE : 'application/f1.project',
 	FOLDER_MIMETYPE : 'application/vnd.google-apps.folder'
 }

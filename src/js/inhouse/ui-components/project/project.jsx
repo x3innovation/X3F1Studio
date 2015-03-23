@@ -1,21 +1,46 @@
 var UserLoginFailRedirectHome = require('../common/user-login-fail-redirect-home.jsx');
 var EventType = require('../../constants/event-type.js');
-var ProjectCard = require('./project-card.jsx');
-var googleDriveService = require('../../services/google-drive-service.js');
+var userStore = require('../../stores/user-store.js');
 
 module.exports = React.createClass({
-	mixins: [Navigation, UserLoginFailRedirectHome],
+	mixins: [Navigation, UserLoginFailRedirectHome, State],
 
 	projectsReceived : false,
 
-	model : {},
+	model : {
+		buttons : {
+			persistentData : {
+				color : 'indigo',
+				isSearchOn : true
+			},
+			enum : {
+				color : 'red',
+				isSearchOn : true
+			},
+			event : {
+				color : 'orange',
+				isSearchOn : true
+			},
+			flow : {
+				color : 'green',
+				isSearchOn : true
+			}
+		}
+	},
 
 	/* ******************************************
                 LIFE CYCLE FUNCTIONS
     ****************************************** */
 	componentWillMount : function()
 	{
-		Bullet.on(EventType.App.USER_LOGGED_IN, 'projects.jsx>>user-logged-in', this.onUserLoggedIn);
+		// load project objects on user logged in
+		Bullet.on(EventType.App.USER_LOGGED_IN, 'project.jsx>>user-logged-in', this.getProjectObjects);
+
+		// if user is already logged in, initialize
+		if (userStore.isLoggedIn)
+		{
+			this.getProjectObjects();
+		}
 	},
 
 	componentDidMount : function()
@@ -28,14 +53,18 @@ module.exports = React.createClass({
 	/* ******************************************
             NON LIFE CYCLE FUNCTIONS
     ****************************************** */
-    onUserLoggedIn : function()
+    getProjectObjects : function()
     {
-    	googleDriveService.getProjects('', this.onReceiveProjects);
+    	this.model.searchString = $('#search-input').val();
+
+    	this.model.projectObjects = [];
+    	this.forceUpdate();
+    	// intentionSubmitter.submit(IntentionType.GET_PROJECTS, {}, this.onReceiveProjects);
     },
 
-    onReceiveProjects : function(projects)
+    onReceiveProjectObjects : function(event)
     {
-    	this.model.projects = projects;
+    	this.model.projectObjects = event.projectObjects;
     	this.projectsReceived = true;
     	this.forceUpdate();
     },
@@ -43,16 +72,51 @@ module.exports = React.createClass({
     onSearchInputChange : function()
     {
     	clearTimeout(this.searchTypingTimeout);
-        this.searchTypingTimeout = setTimeout(this.getProjects, 500);
+        this.searchTypingTimeout = setTimeout(this.getProjectObjects, 500);
     },
 
-    getProjects : function()
+    onPersistentDataBtnClick : function(event)
     {
-    	this.model.projects = [];
-    	this.forceUpdate();
+    	var button = $(event.currentTarget);
+    	var model = this.model.buttons.persistentData;
+    	this.switchButtonOnOff(button, model);
+    },
 
-    	var titleSearchString = $('#search-input').val();
-    	googleDriveService.getProjects(titleSearchString, this.onReceiveProjects);
+    onEnumBtnClick : function(event)
+    {
+    	var button = $(event.currentTarget);
+    	var model = this.model.buttons.enum;
+    	this.switchButtonOnOff(button, model);
+    },
+
+    onEventBtnClick : function(event)
+    {
+    	var button = $(event.currentTarget);
+    	var model = this.model.buttons.event;
+    	this.switchButtonOnOff(button, model);
+    },
+
+    onFlowBtnClick : function(event)
+    {
+    	var button = $(event.currentTarget);
+    	var model = this.model.buttons.flow;
+    	this.switchButtonOnOff(button, model);
+    },
+
+    switchButtonOnOff : function(button, model)
+    {
+    	if (button.hasClass(model.color))
+    	{
+    		button.switchClass(model.color, 'grey');
+    		model.isSearchOn = false;
+    	}
+    	else if (button.hasClass('grey'))
+    	{
+    		button.switchClass('grey', model.color);
+    		model.isSearchOn = true;
+    	}
+
+    	this.getProjectObjects();
     },
 
     render: function()
@@ -99,7 +163,6 @@ module.exports = React.createClass({
 		                                            <div key={columnIndex} className="col s3 f1-project-card" style={cellStyle}>
 		                                                <ProjectCard title={project.title} 
 		                                                			 fileId={project.id}
-		                                                			 parentFolderFileId={project.parents[0].id}
 		                                                			 model={{}} />
 													</div>
 		                                       	)
@@ -115,7 +178,7 @@ module.exports = React.createClass({
             <div className="container">
             	<div className="row">
 					<div className="col s12">
-						<h2>Projects</h2>
+						<h2>{this.getParams().projectTitle}</h2>
 					</div>
     			</div>
     			<div className="row">
@@ -123,7 +186,15 @@ module.exports = React.createClass({
     					<input id="search-input" placeholder="search title" onChange={this.onSearchInputChange} />
     				</div>
     			</div>
-    			{content}
+    			<div className="row">
+    				<div className="col s12 center">
+    					<a className={"waves-effect waves-light btn " + this.model.buttons.enum.color} onClick={this.onEnumBtnClick}>Enum</a>
+    					<a className={"waves-effect waves-light btn " + this.model.buttons.event.color} onClick={this.onEventBtnClick}>Event</a>
+    					<a className={"waves-effect waves-light btn " + this.model.buttons.flow.color} onClick={this.onFlowBtnClick}>Flow</a>
+    					<a className={"waves-effect waves-light btn " + this.model.buttons.persistentData.color} onClick={this.onPersistentDataBtnClick}>Persistent Data</a>
+    				</div>
+    			</div>
+    			{content}    			
             </div>
         );
     }

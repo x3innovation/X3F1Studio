@@ -1,6 +1,6 @@
-var IntentionType = require('../constants/intention-type.js');
 var userStore = require('../stores/user-store.js');
 var EventType = require('../constants/event-type.js');
+var userService = require('../services/user-service.js');
 
 module.exports = React.createClass({
 	mixins: [Navigation],
@@ -30,9 +30,7 @@ module.exports = React.createClass({
     {
         if (!this.model.isUserLoggedIn)
         {
-            var intention = {};
-            intention.type = IntentionType.USER_LOG_IN;
-            Bullet.trigger(EventType.App.SUBMIT_INTENTION, intention);
+            userService.logIn();
         }
     },
 
