@@ -12,7 +12,7 @@ var Project = require('./ui-components/project/project.jsx');
 var routes = (
 	<Route name="home" path="/" handler={App}>
 		<Route name="projects" path="projects" handler={Projects}></Route>
-		<Route name="project" path="/project/:projectTitle/:parentFolderFileId" handler={Project} />
+		<Route name="project" path="/project/:projectTitle/:projectFolderFileId" handler={Project} />
 		<DefaultRoute handler={Home} />
 	</Route>
 );

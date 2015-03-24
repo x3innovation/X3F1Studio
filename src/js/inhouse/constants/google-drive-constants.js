@@ -5,14 +5,18 @@ module.exports = {
 	FileScope : 'https://www.googleapis.com/auth/drive',
 	OpenIdScope : 'openid',
 	
-	LEGACY_PERSISTENT_DATA_MIMETYPE : 'application/dmx',
-	LEGACY_ENUM_MIMETYPE : 'application/dmxe',
-	LEGACY_FLOW_MIMETYPE : 'application/fmx',
+	MimeType : {
+		DMX : 'application/dmx',
+		FMX : 'application/fmx',
+		PROJECT : 'application/f1.project',
+		FOLDER : 'application/vnd.google-apps.folder'
+	},	
 
-	PERSISTENT_DATA_MIMETYPE : 'application/f1.persistent-data',
-	EVENT_MIMETYPE : 'application/f1.event',
-	ENUM_MIMETYPE : 'application/f1.enum',
-	FLOW_MIMETYPE : 'application/f1.flow',
-	PROJECT_MIMETYPE : 'application/f1.project',
-	FOLDER_MIMETYPE : 'application/vnd.google-apps.folder'
+	ObjectType : {
+		PERSISTENT_DATA : 'persistent-data',
+		ENUM : 'enum',
+		EVENT : 'event',
+		FLOW : 'flow',
+		PROJECT_METADATA : 'project-metadata'
+	}	
 }

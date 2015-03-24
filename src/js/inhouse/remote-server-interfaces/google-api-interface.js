@@ -88,6 +88,33 @@ function GoogleApiInterface()
 			callback(response.items);
 		});
 	}
+
+	this.getAllFilesInFolder = function(folderFileId, callback)
+	{
+		var request = gapi.client.drive.files.list({
+			corpus : 'DEFAULT',
+			q : '"' + folderFileId + '" in parents',
+			fields : 'items(id)'
+		});
+
+		request.execute(function(response){
+			callback(response.items);
+		});
+	}
+
+	this.getProjectMetadataFileForProject = function(projectFolderFileId, callback)
+	{
+		// among the files in the project folder, find the one with properties key=type value=PROJECT_METADATA
+		var request = gapi.client.drive.files.list({
+			corpus : 'DEFAULT',
+			q : '"' + projectFolderFileId + '" in parents and properties has { key="type" and value="' + GapiConstants.ObjectType.PROJECT_METADATA + '" and visibility="PRIVATE" }',
+			fields : 'items(id)'
+		});
+
+		request.execute(function(response){
+			callback(response.items);
+		});
+	}
 }
 
 module.exports = new GoogleApiInterface();

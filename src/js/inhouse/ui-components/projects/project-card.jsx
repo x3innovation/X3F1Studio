@@ -159,7 +159,7 @@ module.exports = React.createClass({
     {
         var params = {
             projectTitle : this.props.title,
-            parentFolderFileId : this.props.parentFolderFileId
+            projectFolderFileId : this.props.projectFolderFileId
         };
         this.transitionTo('project', params);
     },

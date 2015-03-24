@@ -1,6 +1,7 @@
 var UserLoginFailRedirectHome = require('../common/user-login-fail-redirect-home.jsx');
 var EventType = require('../../constants/event-type.js');
 var userStore = require('../../stores/user-store.js');
+var googleDriveService = require('../../services/google-drive-service.js');
 
 module.exports = React.createClass({
 	mixins: [Navigation, UserLoginFailRedirectHome, State],
@@ -59,7 +60,8 @@ module.exports = React.createClass({
 
     	this.model.projectObjects = [];
     	this.forceUpdate();
-    	// intentionSubmitter.submit(IntentionType.GET_PROJECTS, {}, this.onReceiveProjects);
+
+    	googleDriveService.getProjectObjects(this.getParams().projectFolderFileId, null);
     },
 
     onReceiveProjectObjects : function(event)
@@ -188,10 +190,10 @@ module.exports = React.createClass({
     			</div>
     			<div className="row">
     				<div className="col s12 center">
+    					<a className={"waves-effect waves-light btn " + this.model.buttons.persistentData.color} onClick={this.onPersistentDataBtnClick}>Persistent Data</a>
     					<a className={"waves-effect waves-light btn " + this.model.buttons.enum.color} onClick={this.onEnumBtnClick}>Enum</a>
     					<a className={"waves-effect waves-light btn " + this.model.buttons.event.color} onClick={this.onEventBtnClick}>Event</a>
     					<a className={"waves-effect waves-light btn " + this.model.buttons.flow.color} onClick={this.onFlowBtnClick}>Flow</a>
-    					<a className={"waves-effect waves-light btn " + this.model.buttons.persistentData.color} onClick={this.onPersistentDataBtnClick}>Persistent Data</a>
     				</div>
     			</div>
     			{content}    			

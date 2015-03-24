@@ -5,7 +5,6 @@ var Constant = require('../constants/constant.js');
 function GoogleDriveService()
 {
 	// //////// private members
-
 	// //////// public members
 	this.getProjects = function(titleSearchString, callback)
 	{
@@ -55,6 +54,11 @@ function GoogleDriveService()
 	{
 		googleApiInterface.saveTitle(projectFileId, newTitle);
 		googleApiInterface.saveTitle(parentFileId, newTitle);
+	}
+
+	this.getProjectObjects = function(projectFolderFileId, titleSearchString, includeEnum, includeEvent, includeFlow, includePersistentData, callback)
+	{
+		
 	}
 }
 
