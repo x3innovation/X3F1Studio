@@ -43,7 +43,7 @@ function GoogleApiInterface()
 	{
 		var request = gapi.client.drive.files.list({
 			corpus : 'DEFAULT',
-			q : 'mimeType="' + GapiConstants.PROJECT_MIMETYPE + '"',
+			q : 'mimeType="' + GapiConstants.MimeType.PROJECT + '"',
 			fields : 'items(id,parents/id,title)'
 		});
 
@@ -102,13 +102,13 @@ function GoogleApiInterface()
 		});
 	}
 
-	this.getProjectMetadataFileForProject = function(projectFolderFileId, callback)
+	this.getProjectObjects = function(query, callback)
 	{
 		// among the files in the project folder, find the one with properties key=type value=PROJECT_METADATA
 		var request = gapi.client.drive.files.list({
 			corpus : 'DEFAULT',
-			q : '"' + projectFolderFileId + '" in parents and properties has { key="type" and value="' + GapiConstants.ObjectType.PROJECT_METADATA + '" and visibility="PRIVATE" }',
-			fields : 'items(id)'
+			q : query,
+			fields : 'items(id,description,title,properties)'
 		});
 
 		request.execute(function(response){

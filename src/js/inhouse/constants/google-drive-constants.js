@@ -13,10 +13,10 @@ module.exports = {
 	},	
 
 	ObjectType : {
-		PERSISTENT_DATA : 'persistent-data',
-		ENUM : 'enum',
-		EVENT : 'event',
-		FLOW : 'flow',
-		PROJECT_METADATA : 'project-metadata'
+		PERSISTENT_DATA : 'f1-objectType-persistentData',
+		ENUM : 'f1-objectType-enum',
+		EVENT : 'f1-objectType-event',
+		FLOW : 'f1-objectType-flow',
+		PROJECT_METADATA : 'f1-objectType-projectMetadata'
 	}	
 }

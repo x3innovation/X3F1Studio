@@ -2,6 +2,7 @@ var UserLoginFailRedirectHome = require('../common/user-login-fail-redirect-home
 var EventType = require('../../constants/event-type.js');
 var userStore = require('../../stores/user-store.js');
 var googleDriveService = require('../../services/google-drive-service.js');
+var ProjectObjectCard = require('./project-object-card.jsx');
 
 module.exports = React.createClass({
 	mixins: [Navigation, UserLoginFailRedirectHome, State],
@@ -56,17 +57,21 @@ module.exports = React.createClass({
     ****************************************** */
     getProjectObjects : function()
     {
-    	this.model.searchString = $('#search-input').val();
-
     	this.model.projectObjects = [];
     	this.forceUpdate();
 
-    	googleDriveService.getProjectObjects(this.getParams().projectFolderFileId, null);
+    	googleDriveService.getProjectObjects(this.getParams().projectFolderFileId,
+    										 $('#search-input').val(),
+    										 this.model.buttons.persistentData.isSearchOn,
+    										 this.model.buttons.enum.isSearchOn,
+    										 this.model.buttons.event.isSearchOn,
+    										 this.model.buttons.flow.isSearchOn,
+    										 this.onReceiveProjectObjects);
     },
 
-    onReceiveProjectObjects : function(event)
+    onReceiveProjectObjects : function(projectObjects)
     {
-    	this.model.projectObjects = event.projectObjects;
+    	this.model.projectObjects = projectObjects;
     	this.projectsReceived = true;
     	this.forceUpdate();
     },
@@ -135,19 +140,19 @@ module.exports = React.createClass({
 			// need to put search project ids in 2d array with row size 4 elements.
 	        // this is to loop and display project cards, 4 cards in each row.
 	        var twoDimensionalProjects = [];
-	        var projects = this.model.projects;
+	        var projectObjects = this.model.projectObjects;
 	        var rowArray;
-	        for (var i in projects)
+	        for (var i in projectObjects)
 	        {
 	            if (i % 4 == 0)
 	            {
 	                rowArray = [];
-	                rowArray.push(projects[i]);
+	                rowArray.push(projectObjects[i]);
 	                twoDimensionalProjects.push(rowArray);
 	            }
 	            else
 	            {
-	                rowArray.push(projects[i]);
+	                rowArray.push(projectObjects[i]);
 	            }
 	        }
 
@@ -163,9 +168,10 @@ module.exports = React.createClass({
 		                                    rowArray.map(function(project, columnIndex){
 		                                       	return (
 		                                            <div key={columnIndex} className="col s3 f1-project-card" style={cellStyle}>
-		                                                <ProjectCard title={project.title} 
-		                                                			 fileId={project.id}
-		                                                			 model={{}} />
+		                                                <ProjectObjectCard title={project.title} 
+		                                                				   fileId={project.id}
+		                                                				   objectType={project.description}
+		                                                				   model={{}} />
 													</div>
 		                                       	)
 		                                    })
@@ -188,7 +194,7 @@ module.exports = React.createClass({
     					<input id="search-input" placeholder="search title" onChange={this.onSearchInputChange} />
     				</div>
     			</div>
-    			<div className="row">
+    			<div className="row" style={{marginBottom:'10px'}}>
     				<div className="col s12 center">
     					<a className={"waves-effect waves-light btn " + this.model.buttons.persistentData.color} onClick={this.onPersistentDataBtnClick}>Persistent Data</a>
     					<a className={"waves-effect waves-light btn " + this.model.buttons.enum.color} onClick={this.onEnumBtnClick}>Enum</a>

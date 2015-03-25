@@ -1,4 +1,7 @@
+var googleDriveService = require('../../services/google-drive-service.js');
+
 module.exports = React.createClass({
+    mixins: [Navigation],
 
 	contentFileLoaded : false,
 
@@ -9,7 +12,7 @@ module.exports = React.createClass({
     ****************************************** */
     componentDidMount : function()
     {
-        gapi.drive.realtime.load(this.props.fileId, this.onFileLoaded, this.initializeModel);
+        gapi.drive.realtime.load(this.props.fileId, this.onFileLoaded, null);
         this.titleChangeTimeout = null;
 
         this.model = this.props.model;
@@ -23,27 +26,10 @@ module.exports = React.createClass({
 
         var descriptionInput = document.getElementById(this.props.fileId + '-description');
         gapi.drive.realtime.databinding.bindString(this.model.description, descriptionInput);
-        resizeDescription();
+        // resize description text area
+        $(descriptionInput).css('height', 'auto').height(descriptionInput.scrollHeight);
 
-        // everytime title is changed, need to save it to the underlying file's titles as well
-        // this will help displaying the projects in sorted alphabetical fashion when projects are loaded.
-        var titleChangeTimeout = this.titleChangeTimeout;
-        var onTitleChange = function()
-        {
-            clearTimeout(titleChangeTimeout);
-            titleChangeTimeout = setTimeout(this.saveTitleToFileItself, 500);
-        }.bind(this);
-        this.model.title.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, onTitleChange);
-        this.model.title.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, onTitleChange);
-        // everytime there is a change in description, textarea has to be resized
-        this.model.description.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, resizeDescription);
-        this.model.description.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, resizeDescription);
-        function resizeDescription()
-        {
-            $(descriptionInput).css('height', 'auto').height(descriptionInput.scrollHeight);
-        }
-
-        // buttons animation
+        // highlight card animation
         $('#' + this.props.fileId + '-wrapper').mouseenter(this.onProjectMouseEnter).mouseleave(this.onProjectMouseLeave);
 
         // apply card flip
@@ -83,23 +69,14 @@ module.exports = React.createClass({
         .on('dblclick', function(e){
             e.preventDefault();
         });
+
+        // disable select
+        $('#' + this.props.fileId + '-card').disableSelection();
     },
 
 	/* ******************************************
             NON LIFE CYCLE FUNCTIONS
     ****************************************** */
-    saveTitleToFileItself : function()
-    {
-        var saveTitleRequest = gapi.client.drive.files.patch({
-            'fileId' : this.props.fileId,
-            'resource' : {
-                'title' : $('#' + this.props.fileId + '-title').val()
-            }
-        });
-
-        saveTitleRequest.execute();
-    },
-
     onProjectMouseEnter : function()
     {
         $('#' + this.props.fileId + '-title').stop().animate({
@@ -116,22 +93,7 @@ module.exports = React.createClass({
 
     onFileLoaded : function(doc)
     {
-        // title and description need to be backwards compatible with legacy F1 Studio
-        // Delete this section of code once project creation is done that creates
-        // properly initialized google drive files.
-        var title = doc.getModel().getRoot().get('title');
-        if (title == null)
-        {
-            var titleString = doc.getModel().createString(this.props.title);
-            doc.getModel().getRoot().set('title', titleString);
-        }
-        var description = doc.getModel().getRoot().get('description');
-        if (description == null)
-        {
-            var titleString = doc.getModel().createString('');
-            doc.getModel().getRoot().set('description', titleString);
-        }
-
+        // object
         var gDriveModel = doc.getModel().getRoot();
         this.model.title = gDriveModel.get('title');
         this.model.description = gDriveModel.get('description');
@@ -158,9 +120,9 @@ module.exports = React.createClass({
 
         content = <div id={this.props.fileId + '-card'}>
                         <div id={this.props.fileId + '-card-front'} className={"front project-card-face " + cardFaceClassName}>
-                            <input type="text" className="project-card-title" id={this.props.fileId + '-title'} disabled="disabled" />
+                            <input type="text" className="project-card-title noselect" id={this.props.fileId + '-title'} disabled="disabled" />
                             <div id={this.props.fileId + '-description-wrapper'} className="project-card-description-wrapper">
-                                <textarea id={this.props.fileId + '-description'} className="project-card-description" disabled="disabled"></textarea>
+                                <textarea id={this.props.fileId + '-description'} className="project-card-description noselect" disabled="disabled"></textarea>
                             </div>
                         </div>
                         <div className={"back project-card-face " + cardFaceClassName}>
@@ -196,7 +158,11 @@ module.exports = React.createClass({
 
     onCardDoubleClick : function()
     {
-        console.log('card was double clicked!');
+        var params = {
+            projectTitle : this.props.title,
+            projectFolderFileId : this.props.projectFolderFileId
+        };
+        this.transitionTo('project', params);
     },
 
     render: function()
