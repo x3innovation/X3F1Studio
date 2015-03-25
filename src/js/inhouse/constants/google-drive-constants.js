@@ -18,5 +18,12 @@ module.exports = {
 		EVENT : 'f1-objectType-event',
 		FLOW : 'f1-objectType-flow',
 		PROJECT_METADATA : 'f1-objectType-projectMetadata'
-	}	
+	},
+
+	CustomObjectKey : {
+		PERSISTENT_DATA : 'persistent-data-custom-object',
+		ENUM : 'enum-data-custom-object',
+		EVENT : 'event-data-custom-object',
+		FLOW : 'flow-data-custom-object'
+	}
 }

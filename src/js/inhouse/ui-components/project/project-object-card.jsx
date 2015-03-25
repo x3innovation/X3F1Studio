@@ -1,4 +1,5 @@
 var googleDriveService = require('../../services/google-drive-service.js');
+var GDriveConstant = require('../../constants/google-drive-constants.js');
 
 module.exports = React.createClass({
     mixins: [Navigation],
@@ -21,8 +22,9 @@ module.exports = React.createClass({
 
     componentDidUpdate : function()
     {
-        var titleInput = document.getElementById(this.props.fileId + '-title');
-        gapi.drive.realtime.databinding.bindString(this.model.title, titleInput);
+        // var titleInput = document.getElementById(this.props.fileId + '-title');
+        // gapi.drive.realtime.databinding.bindString(this.model.title, titleInput);
+        $('#' + this.props.fileId + '-title').val(this.model.title);
 
         var descriptionInput = document.getElementById(this.props.fileId + '-description');
         gapi.drive.realtime.databinding.bindString(this.model.description, descriptionInput);
@@ -93,10 +95,14 @@ module.exports = React.createClass({
 
     onFileLoaded : function(doc)
     {
-        // object
-        var gDriveModel = doc.getModel().getRoot();
-        this.model.title = gDriveModel.get('title');
-        this.model.description = gDriveModel.get('description');
+        var key;
+        if (this.props.objectType === GDriveConstant.ObjectType.PERSISTENT_DATA)
+        {
+            key = GDriveConstant.CustomObjectKey.PERSISTENT_DATA;
+        }
+
+        this.model = doc.getModel().getRoot().get('data');
+        console.log('for: ' + this.props.objectType + ', title: ' + this.model.name);
         
         this.contentFileLoaded = true;
         $('#' + this.props.fileId).addClass('fadeIn animated');
