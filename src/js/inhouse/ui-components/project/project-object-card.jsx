@@ -18,16 +18,36 @@ module.exports = React.createClass({
 
         this.model = this.props.model;
         this.model.isCardFront = true;
+        if (this.props.objectType === GDriveConstant.ObjectType.PERSISTENT_DATA)
+        {
+            this.model.objectType = 'PD';
+            this.model.color = '#3f51b5';
+        }
+        else if (this.props.objectType === GDriveConstant.ObjectType.EVENT)
+        {
+            this.model.objectType = 'EV';
+            this.model.color = '#ff9800';
+        }
+        else if (this.props.objectType === GDriveConstant.ObjectType.ENUM)
+        {
+            this.model.objectType = 'EN';
+            this.model.color = '#f44336';
+        }
+        else if (this.props.objectType === GDriveConstant.ObjectType.FLOW)
+        {
+            this.model.objectType = 'FL';
+            this.model.color = '#4caf50';
+        }
     },
 
     componentDidUpdate : function()
     {
         // var titleInput = document.getElementById(this.props.fileId + '-title');
-        // gapi.drive.realtime.databinding.bindString(this.model.title, titleInput);
         $('#' + this.props.fileId + '-title').val(this.model.title);
 
         var descriptionInput = document.getElementById(this.props.fileId + '-description');
-        gapi.drive.realtime.databinding.bindString(this.model.description, descriptionInput);
+        $(descriptionInput).val(this.model.description);
+
         // resize description text area
         $(descriptionInput).css('height', 'auto').height(descriptionInput.scrollHeight);
 
@@ -74,6 +94,9 @@ module.exports = React.createClass({
 
         // disable select
         $('#' + this.props.fileId + '-card').disableSelection();
+
+        // display object type tag on the front of the card
+        $('#' + this.props.fileId + '-object-type').addClass('card-tag-' + this.model.objectType).text(this.model.objectType);
     },
 
 	/* ******************************************
@@ -82,15 +105,23 @@ module.exports = React.createClass({
     onProjectMouseEnter : function()
     {
         $('#' + this.props.fileId + '-title').stop().animate({
-            borderBottomColor: "#f24235"
-        }, 200);
+            borderBottomColor: this.model.color
+        }, 0);
+
+        $('.' + this.props.fileId + '-card-face').stop().animate({
+            borderBottomColor: this.model.color
+        }, 500);
     },
 
     onProjectMouseLeave : function()
     {
         $('#' + this.props.fileId + '-title').stop().animate({
             borderBottomColor: "#9e9e9e"
-        }, 200);
+        }, 0);
+
+        $('.' + this.props.fileId + '-card-face').stop().animate({
+            borderBottomColor: "white"
+        }, 500);
     },
 
     onFileLoaded : function(doc)
@@ -100,9 +131,22 @@ module.exports = React.createClass({
         {
             key = GDriveConstant.CustomObjectKey.PERSISTENT_DATA;
         }
-
-        this.model = doc.getModel().getRoot().get('data');
-        console.log('for: ' + this.props.objectType + ', title: ' + this.model.name);
+        else if (this.props.objectType === GDriveConstant.ObjectType.EVENT)
+        {
+            key = GDriveConstant.CustomObjectKey.EVENT;
+        }
+        else if (this.props.objectType === GDriveConstant.ObjectType.ENUM)
+        {
+            key = GDriveConstant.CustomObjectKey.ENUM;
+        }
+        else if (this.props.objectType === GDriveConstant.ObjectType.FLOW)
+        {
+            key = GDriveConstant.CustomObjectKey.FLOW;
+        }
+        
+        var gModel = doc.getModel().getRoot().get(key);
+        this.model.title = gModel.title;
+        this.model.description = gModel.description;
         
         this.contentFileLoaded = true;
         $('#' + this.props.fileId).addClass('fadeIn animated');
@@ -111,8 +155,8 @@ module.exports = React.createClass({
 
     getContentBeforeFileLoaded : function()
     {
-        var content =   <div className="list-group project-card-preloader-wrapper">
-                            <img className="project-card-preloader" src="img/loading-spin.svg" />
+        var content =   <div className="list-group card-preloader-wrapper">
+                            <img className="card-preloader" src="img/loading-spin.svg" />
                         </div>
 
         return content;
@@ -125,13 +169,14 @@ module.exports = React.createClass({
         var cardFaceClassName = 'z-depth-1 ' + this.props.fileId + '-card-face';
 
         content = <div id={this.props.fileId + '-card'}>
-                        <div id={this.props.fileId + '-card-front'} className={"front project-card-face " + cardFaceClassName}>
-                            <input type="text" className="project-card-title noselect" id={this.props.fileId + '-title'} disabled="disabled" />
-                            <div id={this.props.fileId + '-description-wrapper'} className="project-card-description-wrapper">
-                                <textarea id={this.props.fileId + '-description'} className="project-card-description noselect" disabled="disabled"></textarea>
+                        <div id={this.props.fileId + '-card-front'} className={"front card-face " + cardFaceClassName}>
+                            <input type="text" className="card-title noselect" id={this.props.fileId + '-title'} disabled="disabled" />
+                            <div id={this.props.fileId + '-description-wrapper'} className="card-description-wrapper">
+                                <textarea id={this.props.fileId + '-description'} className="card-description noselect" disabled="disabled"></textarea>
                             </div>
+                            <div id={this.props.fileId + '-object-type'}></div>
                         </div>
-                        <div className={"back project-card-face " + cardFaceClassName}>
+                        <div className={"back card-face " + cardFaceClassName}>
                             Back side!<br />
                             Back side!<br />
                             Back side!<br />
@@ -184,7 +229,7 @@ module.exports = React.createClass({
 		}
 
         return (
-            <div id={this.props.fileId + '-wrapper'} className="project-card-wrapper">
+            <div id={this.props.fileId + '-wrapper'} className="card-wrapper">
                 <div>
                     {content}
                 </div>

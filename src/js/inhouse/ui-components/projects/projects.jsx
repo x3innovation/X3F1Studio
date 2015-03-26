@@ -2,6 +2,7 @@ var UserLoginFailRedirectHome = require('../common/user-login-fail-redirect-home
 var EventType = require('../../constants/event-type.js');
 var ProjectCard = require('./project-card.jsx');
 var googleDriveService = require('../../services/google-drive-service.js');
+var userStore = require('../../stores/user-store.js');
 
 module.exports = React.createClass({
 	mixins: [Navigation, UserLoginFailRedirectHome],
@@ -16,6 +17,12 @@ module.exports = React.createClass({
 	componentWillMount : function()
 	{
 		Bullet.on(EventType.App.USER_LOGGED_IN, 'projects.jsx>>user-logged-in', this.onUserLoggedIn);
+
+		// if user is already logged in, still need to initialize
+		if (userStore.isLoggedIn)
+		{
+			this.onUserLoggedIn();
+		}
 	},
 
 	componentDidMount : function()

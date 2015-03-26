@@ -81,14 +81,22 @@ module.exports = React.createClass({
     {
         $('#' + this.props.fileId + '-title').stop().animate({
             borderBottomColor: "#f24235"
-        }, 200);
+        }, 0);
+
+        $('.' + this.props.fileId + '-card-face').stop().animate({
+            borderBottomColor: "#f24235"
+        }, 500);
     },
 
     onProjectMouseLeave : function()
     {
         $('#' + this.props.fileId + '-title').stop().animate({
             borderBottomColor: "#9e9e9e"
-        }, 200);
+        }, 0);
+
+        $('.' + this.props.fileId + '-card-face').stop().animate({
+            borderBottomColor: "white"
+        }, 500);
     },
 
     onFileLoaded : function(doc)
@@ -104,8 +112,8 @@ module.exports = React.createClass({
 
     getContentBeforeFileLoaded : function()
     {
-        var content =   <div className="list-group project-card-preloader-wrapper">
-                            <img className="project-card-preloader" src="img/loading-spin.svg" />
+        var content =   <div className="list-group card-preloader-wrapper">
+                            <img className="card-preloader" src="img/loading-spin.svg" />
                         </div>
 
         return content;
@@ -118,13 +126,13 @@ module.exports = React.createClass({
         var cardFaceClassName = 'z-depth-1 ' + this.props.fileId + '-card-face';
 
         content = <div id={this.props.fileId + '-card'}>
-                        <div id={this.props.fileId + '-card-front'} className={"front project-card-face " + cardFaceClassName}>
-                            <input type="text" className="project-card-title noselect" id={this.props.fileId + '-title'} disabled="disabled" />
-                            <div id={this.props.fileId + '-description-wrapper'} className="project-card-description-wrapper">
-                                <textarea id={this.props.fileId + '-description'} className="project-card-description noselect" disabled="disabled"></textarea>
+                        <div id={this.props.fileId + '-card-front'} className={"front card-face " + cardFaceClassName}>
+                            <input type="text" className="card-title noselect" id={this.props.fileId + '-title'} disabled="disabled" />
+                            <div id={this.props.fileId + '-description-wrapper'} className="card-description-wrapper">
+                                <textarea id={this.props.fileId + '-description'} className="card-description noselect" disabled="disabled"></textarea>
                             </div>
                         </div>
-                        <div className={"back project-card-face " + cardFaceClassName}>
+                        <div className={"back card-face " + cardFaceClassName}>
                             Back side!<br />
                             Back side!<br />
                             Back side!<br />
@@ -158,8 +166,8 @@ module.exports = React.createClass({
     onCardDoubleClick : function()
     {
         var params = {
-            projectTitle : this.props.title,
-            projectFolderFileId : this.props.projectFolderFileId
+            projectFolderFileId : this.props.projectFolderFileId,
+            projectFileId : this.props.fileId
         };
         this.transitionTo('project', params);
     },
@@ -177,7 +185,7 @@ module.exports = React.createClass({
 		}
 
         return (
-            <div id={this.props.fileId + '-wrapper'} className="project-card-wrapper">
+            <div id={this.props.fileId + '-wrapper'} className="card-wrapper">
                 <div>
                     {content}
                 </div>

@@ -33,7 +33,8 @@ module.exports = function(grunt) {
             'store-1.3.17.js',
             'anijs-0.9.2.js',
             'jquery.slimscroll-1.3.0.js',
-            'jquery.flip-1.0.0.js'
+            'jquery.flip-1.0.0.js',
+            'autosize-2.0.0.js'
 		];
 
 		for (var i = 0; i<vendorLibs.length; ++i)
@@ -63,8 +64,8 @@ module.exports = function(grunt) {
 		var inhouseCss = [
 			'main.css',
 			'nav-bar.css',
-			'projects/projects.css',
-			'projects/project-card.css'
+			'card.css',
+			'project/project.css'
 		];
 
 		for (var i = 0; i<inhouseCss.length; ++i)

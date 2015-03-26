@@ -51,17 +51,17 @@ function GoogleDriveService()
 		}
 	}
 
-	this.saveProjectTitle = function(projectFileId, newTitle, parentFileId)
+	this.saveProjectTitle = function(projectFileId, newTitle, parentFolderId)
 	{
 		googleApiInterface.saveTitle(projectFileId, newTitle);
-		googleApiInterface.saveTitle(parentFileId, newTitle);
+		googleApiInterface.saveTitle(parentFolderId, newTitle);
 	}
 
 	this.getProjectObjects = function(projectFolderFileId, titleSearchString, includePersistentData, includeEnum, includeEvent, includeFlow, callback)
 	{
 		if (!includePersistentData && !includeEnum && !includeEvent && !includeFlow)
 		{
-			console.log("Not including any object types.");	
+			return [];
 		}
 		else
 		{
