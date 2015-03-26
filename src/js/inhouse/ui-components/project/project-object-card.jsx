@@ -68,7 +68,6 @@ module.exports = React.createClass({
         $('.row .col.s3').css('width', outerWidth);
 
         // apply single click to flip
-        // $('#' + this.props.fileId + '-wrapper').on('click', this.onCardSingleClick);
         var DELAY = 400, clicks = 0, timer = null;
         var onCardSingleClick = this.onCardSingleClick;
         var onCardDoubleClick = this.onCardDoubleClick;
@@ -170,9 +169,9 @@ module.exports = React.createClass({
 
         content = <div id={this.props.fileId + '-card'}>
                         <div id={this.props.fileId + '-card-front'} className={"front card-face " + cardFaceClassName}>
-                            <input type="text" className="card-title noselect" id={this.props.fileId + '-title'} disabled="disabled" />
+                            <input type="text" className="card-title noselect" id={this.props.fileId + '-title'} readonly />
                             <div id={this.props.fileId + '-description-wrapper'} className="card-description-wrapper">
-                                <textarea id={this.props.fileId + '-description'} className="card-description noselect" disabled="disabled"></textarea>
+                                <textarea id={this.props.fileId + '-description'} className="card-description noselect" readonly></textarea>
                             </div>
                             <div id={this.props.fileId + '-object-type'}></div>
                         </div>

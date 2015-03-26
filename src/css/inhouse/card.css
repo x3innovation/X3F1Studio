@@ -22,6 +22,8 @@
 	border: 0;
 	resize: none;
 	outline: none;
+	font-weight: 300;
+	color: Gray;
 }
 
 .card-face{
@@ -33,7 +35,6 @@
 .card-description-wrapper{
 	overflow-y: auto;
 	overflow-x: hidden;
-	color: DimGray;
 }
 
 .card-wrapper{

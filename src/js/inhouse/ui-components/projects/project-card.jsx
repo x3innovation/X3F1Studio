@@ -127,9 +127,9 @@ module.exports = React.createClass({
 
         content = <div id={this.props.fileId + '-card'}>
                         <div id={this.props.fileId + '-card-front'} className={"front card-face " + cardFaceClassName}>
-                            <input type="text" className="card-title noselect" id={this.props.fileId + '-title'} disabled="disabled" />
+                            <input type="text" className="card-title noselect" id={this.props.fileId + '-title'} readonly />
                             <div id={this.props.fileId + '-description-wrapper'} className="card-description-wrapper">
-                                <textarea id={this.props.fileId + '-description'} className="card-description noselect" disabled="disabled"></textarea>
+                                <textarea id={this.props.fileId + '-description'} className="card-description noselect" readonly></textarea>
                             </div>
                         </div>
                         <div className={"back card-face " + cardFaceClassName}>
