@@ -73,49 +73,26 @@ module.exports = React.createClass({
 		}
 		else
 		{
-			// need to put search project ids in 2d array with row size 4 elements.
-	        // this is to loop and display project cards, 4 cards in each row.
-	        var twoDimensionalProjects = [];
-	        var projects = this.model.projects;
-	        var rowArray;
-	        for (var i in projects)
-	        {
-	            if (i % 4 == 0)
-	            {
-	                rowArray = [];
-	                rowArray.push(projects[i]);
-	                twoDimensionalProjects.push(rowArray);
-	            }
-	            else
-	            {
-	                rowArray.push(projects[i]);
-	            }
-	        }
+	        var projects = this.model.projects;	       
 
 	        var cellStyle = {
 	        	marginBottom : '30px'
 	        };
 
-			content = 	(
-		                    twoDimensionalProjects.map(function(rowArray, rowIndex){
-		                        return (
-		                            <div key={rowIndex} className="row">
-		                                {
-		                                    rowArray.map(function(project, columnIndex){
-		                                       	return (
-		                                            <div key={columnIndex} className="col s3 f1-project-card" style={cellStyle}>
-		                                                <ProjectCard title={project.title} 
-		                                                			 fileId={project.id}
-		                                                			 projectFolderFileId={project.parents[0].id}
-		                                                			 model={{}} />
-													</div>
-		                                       	)
-		                                    })
-		                                }
-		                            </div>
-		                        )
-		                    })
-		                );
+	        content = 	<div className="row">
+	        				{
+	        					projects.map(function(project, columnIndex){
+	        						return (
+	        							<div key={columnIndex} className="col s3 f1-project-card" style={cellStyle}>
+                                            <ProjectCard title={project.title} 
+                                            			 fileId={project.id}
+                                            			 projectFolderFileId={project.parents[0].id}
+                                            			 model={{}} />
+										</div>
+	        						)
+	        					})
+	        				}
+	        			</div>;
 		}
 
         return (

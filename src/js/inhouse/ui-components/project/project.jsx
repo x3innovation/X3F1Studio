@@ -203,49 +203,26 @@ module.exports = React.createClass({
 		}
 		else
 		{
-			// need to put search project ids in 2d array with row size 4 elements.
-	        // this is to loop and display project cards, 4 cards in each row.
-	        var twoDimensionalProjects = [];
 	        var projectObjects = this.model.projectObjects;
-	        var rowArray;
-	        for (var i in projectObjects)
-	        {
-	            if (i % 4 == 0)
-	            {
-	                rowArray = [];
-	                rowArray.push(projectObjects[i]);
-	                twoDimensionalProjects.push(rowArray);
-	            }
-	            else
-	            {
-	                rowArray.push(projectObjects[i]);
-	            }
-	        }
 
 	        var cellStyle = {
 	        	marginBottom : '30px'
 	        };
 
-			content = 	(
-		                    twoDimensionalProjects.map(function(rowArray, rowIndex){
-		                        return (
-		                            <div key={rowIndex} className="row">
-		                                {
-		                                    rowArray.map(function(project, columnIndex){
-		                                       	return (
-		                                            <div key={columnIndex} className="col s3 f1-project-card" style={cellStyle}>
-		                                                <ProjectObjectCard title={project.title} 
-		                                                				   fileId={project.id}
-		                                                				   objectType={project.description}
-		                                                				   model={{}} />
-													</div>
-		                                       	)
-		                                    })
-		                                }
-		                            </div>
-		                        )
-		                    })
-		                );
+	        content = 	<div className="row">
+	        				{
+	        					projectObjects.map(function(projectObject, columnIndex){
+                                   	return (
+                                        <div key={columnIndex} className="col s3 f1-project-card" style={cellStyle}>
+                                            <ProjectObjectCard title={projectObject.title} 
+                                            				   fileId={projectObject.id}
+                                            				   objectType={projectObject.description}
+                                            				   model={{}} />
+										</div>
+                                   	)
+                                })
+	        				}
+	        			</div>;
 		}
 
         return (
@@ -272,7 +249,7 @@ module.exports = React.createClass({
     					<a className={"waves-effect waves-light btn " + this.model.buttons.flow.color} onClick={this.onFlowBtnClick}>Flow</a>
     				</div>
     			</div>
-    			{content}    			
+    			{content}
             </div>
         );
     }
