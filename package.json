@@ -12,6 +12,7 @@
     "grunt-contrib-copy": "0.7.x",
     "grunt-contrib-uglify": "0.7.x",
     "grunt-contrib-watch": "0.6.x",
+    "grunt-contrib-cssmin" : "0.12.x",
     "grunt-react": "0.10.x",
     "grunt-remove": "0.1.x"
   },

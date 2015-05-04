@@ -1,4 +1,0 @@
-module.exports = {
-	USER_LOG_IN : 'USER_LOG_IN',
-	RECEIVE_USER_LOG_IN : 'RECEIVE_USER_LOG_IN'
-}

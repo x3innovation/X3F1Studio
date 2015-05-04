@@ -1,0 +1,51 @@
+#project-title{
+	outline: none;
+	border: 0;
+	height: 3.5rem;
+	font-weight: 400;
+	font-size: 2.92rem;
+  	line-height: 3.212rem;
+  	margin: 1.25rem 0 1.168rem 0;
+}
+
+#project-title:focus{
+	border-bottom: 0 solid #f24235;
+	-webkit-box-shadow: 0 0 0 0 red;
+	-moz-box-shadow: 0 0 0 0 red;
+	box-shadow: 0 0 0 0 red;
+}
+
+#project-description-wrapper{
+	overflow-y: auto;
+	overflow-x: hidden;
+	font-weight: 300;
+	color: Gray;
+	display: none;
+	margin-bottom: 3em;
+}
+
+#project-description{
+	border: 0;
+	border-bottom: 2px white inset;
+	resize: none;
+	outline: none;
+}
+
+#project-description:focus{
+	border-bottom: 2px inset;
+}
+
+#project-title-description-wrapper{
+	position: relative;
+}
+
+#to-projects-btn{
+	position: fixed;
+	top: 65px;
+	left: 5%;
+	cursor: pointer;
+}
+
+#to-projects-btn:hover{
+	color: #f44336;
+}

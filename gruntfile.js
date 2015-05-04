@@ -11,6 +11,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-react');
 	grunt.loadNpmTasks('grunt-contrib-connect');
 	grunt.loadNpmTasks('grunt-remove');
+	grunt.loadNpmTasks('grunt-contrib-cssmin');
 	
 	// EVENT HANDLERS
 	grunt.event.on('watch', function(action, filepath, target){
@@ -20,7 +21,7 @@ module.exports = function(grunt) {
 	});
 
 	// TASKS DEFINITIONS
-	function getAllVendorLibs()
+	function getAllVendorJsLibs()
 	{
 		var vendorLibs = [
 			'jquery-2.1.3.js',
@@ -30,7 +31,10 @@ module.exports = function(grunt) {
 			'react-router-0.11.6.js',
 			'bullet-1.1.3-Jimin.js',
             'store-1.3.17.js',
-            'jquery.fullPage-2.5.8.js'
+            'anijs-0.9.2.js',
+            'jquery.slimscroll-1.3.0.js',
+            'jquery.flip-1.0.0.js',
+            'autosize-2.0.0.js'
 		];
 
 		for (var i = 0; i<vendorLibs.length; ++i)
@@ -40,6 +44,37 @@ module.exports = function(grunt) {
 
 		return vendorLibs;
 	};
+
+	function getAllVendorCss()
+	{
+		var vendorCss = [
+			'materialize-0.95.1.css'
+		];
+
+		for (var i = 0; i<vendorCss.length; ++i)
+		{
+			vendorCss[i] = './src/css/vendors/' + vendorCss[i];
+		}
+
+		return vendorCss;
+	}
+
+	function getAllInhouseCss()
+	{
+		var inhouseCss = [
+			'main.css',
+			'nav-bar.css',
+			'card.css',
+			'project/project.css'
+		];
+
+		for (var i = 0; i<inhouseCss.length; ++i)
+		{
+			inhouseCss[i] = './src/css/inhouse/' + inhouseCss[i];
+		}
+
+		return inhouseCss;
+	}
 	
 	// TASKS DEFINITIONS
 	grunt.initConfig({
@@ -73,18 +108,47 @@ module.exports = function(grunt) {
 		},
 		
 		concat: {
-			dev: {
-				files: {
-					'./dev/js/vendors.min.js' : getAllVendorLibs()
+			distVendorCss : {
+				files : {
+					'./dist/css/vendors.css' : getAllVendorCss()
 				}
 			},
-			dist: {
-				files: {
-					'./dist/js/vendors.js' : getAllVendorLibs()
+			distInhouseCss : {
+				files : {
+					'./dist/css/inhouse.css' : getAllInhouseCss()
+				}
+			},
+			distJs : {
+				files : {
+					'./dist/js/vendors.js' : getAllVendorJsLibs()
+				}
+			},
+			devVendorCss : {
+				files : {
+					'./dev/css/vendors.min.css' : getAllVendorCss()
+				}
+			},
+			devInhouseCss : {
+				files : {
+					'./dev/css/inhouse.min.css' : getAllInhouseCss()
+				}
+			},
+			devJs : {
+				files : {
+					'./dev/js/vendors.min.js' : getAllVendorJsLibs()
 				}
 			}
 		},
 		
+		cssmin: {
+			target : {
+				files : {
+					'./dist/css/vendors.min.css' : ['./dist/css/vendors.css'],
+					'./dist/css/inhouse.min.css' : ['./dist/css/inhouse.css']
+				}
+			}
+		},
+
 		copy : {
 			dist : {
 				files : [
@@ -94,7 +158,6 @@ module.exports = function(grunt) {
 								src : [
 									'**/*.html',
 									'**/*.ico',
-									'css/**/*.*',
 									'font/**/*.*',
 									'img/**/*.*',
 									'resource/**/*.*'
@@ -111,10 +174,10 @@ module.exports = function(grunt) {
 								src : [
 									'**/*.html',
 									'**/*.ico',
-									'css/**/*.*',
 									'font/**/*.*',
 									'img/**/*.*',
-									'resource/**/*.*'
+									'resource/**/*.*',
+									'*.js' // temporary for google drive examples
 								],
 								dest : './dev'
 							}
@@ -123,6 +186,12 @@ module.exports = function(grunt) {
 		},
 		
 		remove : {
+			distVendorCss : {
+				fileList : ['./dist/css/vendors.css']
+			},
+			distInhouseCss : {
+				fileList : ['./dist/css/inhouse.css']
+			},
 			distJs : {
 				fileList : [
 								'./dist/js/vendors.js', 
@@ -156,10 +225,9 @@ module.exports = function(grunt) {
 			options : {
 				livereload : true
 			},
-			nonJsJsx : {
+			miscellaneous : {
 				files : [
 							'./src/**/*.html',
-							'./src/css/**/*.*',
 							'./src/img/**/*.*',
 							'./src/font/**/*.*'
 						],
@@ -168,6 +236,10 @@ module.exports = function(grunt) {
 			jsJsx : {
 				files : ['./src/js/inhouse/**/*.js', './src/js/inhouse/**/*.jsx'],
 				tasks : ['browserify:dev']
+			},
+			css : {
+				files : ['./src/css/inhouse/**/*.*'],
+				tasks : ['concat:devInhouseCss']
 			}
 		}
 		
@@ -176,16 +248,23 @@ module.exports = function(grunt) {
 	// TASK EXECUTIONS
 	grunt.registerTask('build-dist', [
 	    'remove:cleanDist',
-	    'concat:dist',
+	    'concat:distVendorCss',
+	    'concat:distInhouseCss',
+	    'cssmin',
+	    'concat:distJs',
 		'browserify:dist',
         'copy:dist',
         'uglify:dist',
+        'remove:distVendorCss',
+        'remove:distInhouseCss',
         'remove:distJs'
 	]);
 
 	grunt.registerTask('build-dev', [
 	    'remove:cleanDev',
-        'concat:dev',
+	    'concat:devVendorCss',
+	    'concat:devInhouseCss',
+        'concat:devJs',
         'browserify:dev',
         'copy:dev'
 	]);
