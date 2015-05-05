@@ -79,22 +79,22 @@ module.exports = React.createClass({
     ****************************************** */
     onProjectMouseEnter : function()
     {
-        $('#' + this.props.fileId + '-title').stop().animate({
+        $('#' + this.props.fileId + '-title').stop(true, true).animate({
             borderBottomColor: "#f24235"
         }, 0);
 
-        $('.' + this.props.fileId + '-card-face').stop().animate({
+        $('.' + this.props.fileId + '-card-face').stop(true, true).animate({
             borderBottomColor: "#f24235"
         }, 500);
     },
 
     onProjectMouseLeave : function()
     {
-        $('#' + this.props.fileId + '-title').stop().animate({
+        $('#' + this.props.fileId + '-title').stop(true, true).animate({
             borderBottomColor: "#9e9e9e"
         }, 0);
 
-        $('.' + this.props.fileId + '-card-face').stop().animate({
+        $('.' + this.props.fileId + '-card-face').stop(true, true).animate({
             borderBottomColor: "white"
         }, 500);
     },
@@ -144,7 +144,7 @@ module.exports = React.createClass({
 
     onCardSingleClick : function()
     {
-        $('#' + this.props.fileId + '-wrapper').off('mouseenter mouseleave');
+        //$('#' + this.props.fileId + '-wrapper').off('mouseenter mouseleave');
         var cardFront = $('#' + this.props.fileId + '-card-front');
         if (this.model.isCardFront)
         {
@@ -162,7 +162,6 @@ module.exports = React.createClass({
 
         $('#' + this.props.fileId + '-card').flip(this.model.isCardFront);
         this.model.isCardFront = !this.model.isCardFront;
-        $('#' + this.props.fileId + '-wrapper').on('mouseenter mouseleave');
     },
 
     onCardDoubleClick : function()
