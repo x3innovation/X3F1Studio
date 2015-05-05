@@ -144,10 +144,11 @@ module.exports = React.createClass({
 
     onCardSingleClick : function()
     {
+        $('#' + this.props.fileId + '-wrapper').off('mouseenter mouseleave');
         var cardFront = $('#' + this.props.fileId + '-card-front');
         if (this.model.isCardFront)
         {
-            cardFront.stop().fadeOut(300, function(){
+            cardFront.stop(true, true).fadeOut(300, function(){
                 cardFront.css('visibility', 'hidden');
             });
             $('#' + this.props.fileId + '-description-wrapper').css('position', 'initial !important');    
@@ -155,12 +156,13 @@ module.exports = React.createClass({
         else
         {
             cardFront.css('visibility', 'visible');
-            cardFront.stop().fadeIn(300);
+            cardFront.stop(true, true).fadeIn(300);
             $('#' + this.props.fileId + '-description-wrapper').css('position', 'relative !important');
         }
 
         $('#' + this.props.fileId + '-card').flip(this.model.isCardFront);
         this.model.isCardFront = !this.model.isCardFront;
+        $('#' + this.props.fileId + '-wrapper').on('mouseenter mouseleave');
     },
 
     onCardDoubleClick : function()
