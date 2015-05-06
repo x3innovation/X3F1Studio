@@ -144,7 +144,6 @@ module.exports = React.createClass({
 
     onCardSingleClick : function()
     {
-        //$('#' + this.props.fileId + '-wrapper').off('mouseenter mouseleave');
         var cardFront = $('#' + this.props.fileId + '-card-front');
         if (this.model.isCardFront)
         {
