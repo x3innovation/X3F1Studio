@@ -212,7 +212,15 @@ module.exports = React.createClass({
             projectTitle : this.props.title,
             projectFolderFileId : this.props.projectFolderFileId
         };
-        this.transitionTo('project', params);
+        if (this.props.objectType === GDriveConstant.ObjectType.PERSISTENT_DATA) {
+            this.transitionTo('PD-entry-form', params);
+        } else if (this.props.objectType === GDriveConstant.ObjectType.EVENT) {
+            this.transitionTo('EV-entry-form', params);
+        } else if (this.props.objectType === GDriveConstant.ObjectType.ENUM) {
+            this.transitionTo('EN-entry-form', params);
+        } else if (this.props.objectType === GDriveConstant.ObjectType.FLOW) {
+            this.transitionTo('FL-entry-form', params);
+        }
     },
 
     render: function()

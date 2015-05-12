@@ -34,7 +34,9 @@ module.exports = function(grunt) {
             'anijs-0.9.2.js',
             'jquery.slimscroll-1.3.0.js',
             'jquery.flip-1.0.0.js',
-            'autosize-2.0.0.js'
+            'autosize-2.0.0.js',
+            'jquery.dataTables-1.10.7.js',
+            'jquery-1.10.7.js'
 		];
 
 		for (var i = 0; i<vendorLibs.length; ++i)
@@ -48,7 +50,8 @@ module.exports = function(grunt) {
 	function getAllVendorCss()
 	{
 		var vendorCss = [
-			'materialize-0.95.1.css'
+			'materialize-0.95.1.css',
+			'jquery.dataTables-1.10.7.css'
 		];
 
 		for (var i = 0; i<vendorCss.length; ++i)
@@ -65,6 +68,7 @@ module.exports = function(grunt) {
 			'main.css',
 			'nav-bar.css',
 			'card.css',
+			'form.css',
 			'project/project.css'
 		];
 
