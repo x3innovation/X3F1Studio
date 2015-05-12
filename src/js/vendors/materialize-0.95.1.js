@@ -535,15 +535,27 @@ jQuery.extend( jQuery.easing,
 
       $("#lean-overlay").css({ display : "block", opacity : 0 });
 
+      var modalInitialTopPosition = '4%';
+      if (options.modalInitialTopPosition != null)
+      {
+      	modalInitialTopPosition = options.modalInitialTopPosition;
+      }
+
       $(modal).css({
         display : "block",
-        top: "4%",
+        top: modalInitialTopPosition,
         opacity: 0
       });
 
       $("#lean-overlay").velocity({opacity: options.opacity}, {duration: options.in_duration, queue: false, ease: "easeOutCubic"});
 
-      $(modal).velocity({top: "10%", opacity: 1}, {
+      var modalEndTopPosition = '10%';
+      if (options.modalEndTopPosition != null)
+      {
+      	modalEndTopPosition = options.modalEndTopPosition;
+      }
+      
+      $(modal).velocity({top: modalEndTopPosition, opacity: 1}, {
         duration: options.in_duration,
         queue: false,
         ease: "easeOutCubic",

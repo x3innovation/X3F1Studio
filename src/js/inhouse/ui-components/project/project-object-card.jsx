@@ -42,7 +42,6 @@ module.exports = React.createClass({
 
     componentDidUpdate : function()
     {
-        // var titleInput = document.getElementById(this.props.fileId + '-title');
         $('#' + this.props.fileId + '-title').val(this.model.title);
 
         var descriptionInput = document.getElementById(this.props.fileId + '-description');
