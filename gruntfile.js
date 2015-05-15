@@ -27,7 +27,7 @@ module.exports = function(grunt) {
 			'jquery-2.1.3.js',
 			'jquery-ui-1.11.3.js',
 			'react-with-addons-0.12.2.min.js',
-			'materialize-0.95.1.js',
+			'materialize-0.96.1.js',
 			'react-router-0.11.6.js',
 			'bullet-1.1.3-Jimin.js',
             'store-1.3.17.js',
@@ -50,7 +50,7 @@ module.exports = function(grunt) {
 	function getAllVendorCss()
 	{
 		var vendorCss = [
-			'materialize-0.95.1.css',
+			'materialize-0.96.1.css',
 			'jquery.dataTables-1.10.7.css'
 		];
 

@@ -8,13 +8,13 @@ var App = require('./ui-components/app.jsx');
 var Home = require('./ui-components/home/home.jsx');
 var Projects = require('./ui-components/projects/projects.jsx');
 var Project = require('./ui-components/project/project.jsx');
-var PDEntryForm = require('./ui-components/persistent-data-entry-form/persistent-data-entry-form.jsx');
+var PersistentDataEntryForm = require('./ui-components/persistent-data-entry-form/persistent-data-entry-form.jsx');
 
 var routes = (
 	<Route name="home" path="/" handler={App}>
 		<Route name="projects" path="projects" handler={Projects}></Route>
 		<Route name="project" path="/project/:projectFolderFileId/:projectFileId" handler={Project} />
-		<Route name="PD-entry-form" path="/project/PD-entry-form" handler={PDEntryForm} />
+		<Route name="persistent-data-entry-form" path="/project/persistent-data-entry-form" handler={PersistentDataEntryForm} />
 		<DefaultRoute handler={Home} />
 	</Route>
 );

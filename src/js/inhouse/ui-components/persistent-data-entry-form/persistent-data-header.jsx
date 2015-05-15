@@ -8,10 +8,14 @@ module.exports = React.createClass ({
     ****************************************** */
   	render: function() {
       	return (
-    		<div className='PD-form'>
-    			<textarea className='form-header form-header-title' defaultValue={this.props.title}></textarea>
-    			<textarea className='form-header form-header-desc' defaultValue={this.props.desc}></textarea>
-    		</div>
-    	);
+    		<div className="row">
+                <div id="persistent-data-form-header-wrapper" className="col s12">
+                    <input type="text" id="persistent-data-form-title" defaultValue = {this.props.title}/>
+                    <div id="persistent-data-form-desc-wrapper">
+                        <textarea rows="1" id="persistent-data-form-desc" defaultValue = {this.props.desc}></textarea>
+                    </div>            
+                </div>
+          </div>
+    	)
   	}
 });

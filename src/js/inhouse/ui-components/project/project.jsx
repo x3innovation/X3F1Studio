@@ -181,6 +181,12 @@ module.exports = React.createClass({
     	this.switchButtonOnOff(button, model);
     },
 
+    onAddPersistentDataBtnClick : function(event)
+    {
+        $('#lean-overlay').remove();
+        this.transitionTo('persistent-data-entry-form');
+    },
+
     switchButtonOnOff : function(button, model)
     {
     	if (button.hasClass(model.color))
@@ -253,10 +259,10 @@ module.exports = React.createClass({
     			</div>
     			<div className="row" style={{marginBottom:'10px'}}>
     				<div id="project-object-btns" className="col s12 center">
-    					<a className={"waves-effect waves-light btn " + this.model.buttons.persistentData.color} onClick={this.onPersistentDataBtnClick}>Persistent Data</a>
-    					<a className={"waves-effect waves-light btn " + this.model.buttons.enum.color} onClick={this.onEnumBtnClick}>Enum</a>
-    					<a className={"waves-effect waves-light btn " + this.model.buttons.event.color} onClick={this.onEventBtnClick}>Event</a>
-    					<a className={"waves-effect waves-light btn " + this.model.buttons.flow.color} onClick={this.onFlowBtnClick}>Flow</a>
+    					<a className={"waves-effect waves-light btn " + Configs.App.PD_COLOR} onClick={this.onPersistentDataBtnClick}>Persistent Data</a>
+    					<a className={"waves-effect waves-light btn " + Configs.App.EN_COLOR} onClick={this.onEnumBtnClick}>Enum</a>
+    					<a className={"waves-effect waves-light btn " + Configs.App.EV_COLOR} onClick={this.onEventBtnClick}>Event</a>
+    					<a className={"waves-effect waves-light btn " + Configs.App.FL_COLOR} onClick={this.onFlowBtnClick}>Flow</a>
                         <a id="project-object-add-btn" className={"btn-floating waves-effect waves-light " + Configs.App.BUTTON_COLOR} href="#add-project-object-modal">
                             <i className="mdi-content-add"></i>
                         </a>
@@ -266,10 +272,13 @@ module.exports = React.createClass({
                 <div id="add-project-object-modal" className="modal">
                     <div className="modal-content">
                         <h4>Select a data type:</h4>
-                        <a className={"waves-effect waves-light btn " + this.model.buttons.persistentData.color} >Persistent Data</a>
-                        <a className={"waves-effect waves-light btn " + this.model.buttons.enum.color}>Enum</a>
-                        <a className={"waves-effect waves-light btn " + this.model.buttons.event.color}>Event</a>
-                        <a className={"waves-effect waves-light btn " + this.model.buttons.flow.color}>Flow</a>
+                        <div className = "modal-btn-row center">
+                            <a className={"waves-effect waves-light btn " + Configs.App.PD_COLOR}
+                               onClick={this.onAddPersistentDataBtnClick}>Persistent Data</a>
+                            <a className={"waves-effect waves-light btn " + Configs.App.EN_COLOR}>Enum</a>
+                            <a className={"waves-effect waves-light btn " + Configs.App.EV_COLOR}>Event</a>
+                            <a className={"waves-effect waves-light btn " + Configs.App.FL_COLOR}>Flow</a>
+                        </div>
                     </div>
                 </div>
 
