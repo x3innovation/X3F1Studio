@@ -1,7 +1,7 @@
 var googleApiInterface = require('../remote-server-interfaces/google-api-interface.js');
 var userStore = require('../stores/user-store.js');
-var Constant = require('../constants/constant.js');
-var GoogleDriveConstant = require('../constants/google-drive-constants.js');
+var LocalStorageKey = require('../constants/local-storage-key.js');
+var GCons = require('../constants/google-drive-constants.js');
 
 function GoogleDriveService()
 {
@@ -100,7 +100,7 @@ function GoogleDriveService()
 			// add persistent data query
 			if (includePersistentData)
 			{
-				query += 'fullText contains "' + GoogleDriveConstant.ObjectType.PERSISTENT_DATA + '"';
+				query += 'fullText contains "' + GCons.ObjectType.PERSISTENT_DATA + '"';
 				isFirstCondition = false;
 			}
 
@@ -111,7 +111,7 @@ function GoogleDriveService()
 				{
 					query += ' or ';
 				}
-				query += 'fullText contains "' + GoogleDriveConstant.ObjectType.ENUM + '"';
+				query += 'fullText contains "' + GCons.ObjectType.ENUM + '"';
 				isFirstCondition = false;
 			}
 
@@ -122,7 +122,7 @@ function GoogleDriveService()
 				{
 					query += ' or ';
 				}
-				query += 'fullText contains "' + GoogleDriveConstant.ObjectType.EVENT + '"';
+				query += 'fullText contains "' + GCons.ObjectType.EVENT + '"';
 				isFirstCondition = false;
 			}
 
@@ -133,7 +133,7 @@ function GoogleDriveService()
 				{
 					query += ' or ';
 				}
-				query += 'fullText contains "' + GoogleDriveConstant.ObjectType.FLOW + '"';
+				query += 'fullText contains "' + GCons.ObjectType.FLOW + '"';
 				isFirstCondition = false;
 			}
 
@@ -144,12 +144,17 @@ function GoogleDriveService()
 	}
 
 	this.createNewPersistentData = function(parentFolderId, callback){
-		fileData={};
-		fileData.title='new persistent data';
-		fileData.description='description';
-		fileData.parents=[parentFolderId];
-		fileData.type=GoogleDriveConstant.MimeType.DMX;
-		googleApiInterface.createNewFile(fileData, callback);
+		fileCreationParams={};
+		fileCreationParams.title='New Persistent Data';
+		fileCreationParams.description=GCons.ObjectType.PERSISTENT_DATA;
+		fileCreationParams.parent=parentFolderId;
+		fileCreationParams.type=GCons.MimeType.DMX;
+		googleApiInterface.createNewFile(fileCreationParams, callback);
+	}
+
+	this.getPersistentDataModel = function()
+	{
+		return googleApiInterface.PersistentDataModel;
 	}
 }
 

@@ -1,4 +1,6 @@
-var EventType=require('../../constants/event-type.js')
+var EventType=require('../../constants/event-type.js');
+var GDriveConstants = require('../../constants/google-drive-constants.js');
+var Cons = GDriveConstants.PersistentData;
 
 module.exports=React.createClass ({
 	/* ******************************************
@@ -6,29 +8,36 @@ module.exports=React.createClass ({
     ****************************************** */
     componentWillMount: function() {
         this.model={};
-        this.model.title=this.props.title;
-        this.model.description=this.props.description;
-        Bullet.on(EventType.PersistentDataEntry.GAPI_DATA_FILE_LOADED,'persistent-data-form-header.jsx>>gapi-data-file-loaded', 
-            this.readData);
     },
 
     componentDidMount: function() {
         $('#persistent-data-form-title').focus(function(){$(this).attr('placeholder', '');})
                                          .blur(function(){$(this).attr('placeholder', 'enter title');});
+
+        Bullet.on(EventType.PersistentDataEntry.GAPI_FILE_LOADED, 'persistent-data-header.jsx>>onGapiFileLoaded', this.onGapiFileLoaded);
     },
 
     componentWillUnmount: function() {
-        Bullet.off(EventType.PersistentDataEntry.GAPI_DATA_FILE_LOADED,'persistent-data-form-header.jsx>>gapi-data-file-loaded');
+        Bullet.off(EventType.PersistentDataEntry.GAPI_FILE_LOADED, 'persistent-data-header.jsx>>onGapiFileLoaded');
     },
 
 	/* ******************************************
                NON LIFE CYCLE FUNCTIONS
     ****************************************** */
 
-    readData: function(data) {
-        this.model.title=data.title;
-        this.model.description=data.description;
-        this.forceUpdate();
+    onGapiFileLoaded: function(doc)
+    {
+        var gModel = doc.getModel().getRoot().get(key);
+        this.model.title = gModel.title;
+        this.model.description = gModel.description;
+
+        var titleInput = document.getElementById('persistent-data-form-title');
+        // not working
+        // need to properly populate UI input with custom model value some how
+        // gapi.drive.realtime.databinding.bindString(this.model.title, titleInput);
+
+        var descriptionInput = document.getElementById('persistent-data-form-desc');
+        // gapi.drive.realtime.databinding.bindString(this.model.description, descriptionInput);
     },
 
     onTitleChange: function(e) {
@@ -45,11 +54,9 @@ module.exports=React.createClass ({
       	return (
     		<div className="row">
                 <div id="persistent-data-form-header-wrapper" className="col s12">
-                    <input type="text" id="persistent-data-form-title" placeholder='enter title'
-                     value={this.model.title} onChange={this.onTitleChange}/>
+                    <input type="text" id="persistent-data-form-title" placeholder='enter title' onChange={this.onTitleChange}/>
                     <div id="persistent-data-form-desc-wrapper">
-                        <textarea rows="1" id="persistent-data-form-desc" placeholder='enter description'
-                         value={this.model.description} onChange={this.onDescriptionChange}></textarea>
+                        <textarea rows="1" id="persistent-data-form-desc" placeholder='enter description' onChange={this.onDescriptionChange}></textarea>
                     </div>            
                 </div>
             </div>

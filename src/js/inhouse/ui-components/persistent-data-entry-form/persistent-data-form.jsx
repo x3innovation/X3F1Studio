@@ -21,7 +21,7 @@ module.exports=React.createClass({
 		 			return;
 		 		}
 		 		var newAttributeType=data.attributeType;
-		 		console.log("attribute changed to "+newAttributeType+"!");
+		 		
 		 		this.model.attributeType=newAttributeType;
 		 		this.forceUpdate();
 		 	}.bind(this)

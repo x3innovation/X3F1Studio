@@ -3,6 +3,7 @@ var EventType = require('../../constants/event-type.js');
 var userStore = require('../../stores/user-store.js');
 var googleDriveService = require('../../services/google-drive-service.js');
 var ProjectObjectCard = require('./project-object-card.jsx');
+var GDriveConstants = require('../../constants/google-drive-constants.js');
 var Configs = require('../../app-config.js');
 
 module.exports = React.createClass({
@@ -37,12 +38,12 @@ module.exports = React.createClass({
 	componentWillMount : function()
 	{
 		// load project objects on user logged in
-		Bullet.on(EventType.App.USER_LOGGED_IN, 'project.jsx>>user-logged-in', this.onUserLoggedIn);
+		Bullet.on(EventType.App.USER_LOGGED_IN, 'project.jsx>>user-logged-in', this.initialize);
 
 		// if user is already logged in, still need to initialize
 		if (userStore.isLoggedIn)
 		{
-			this.onUserLoggedIn();
+			this.initialize();
 		}
 	},
 
@@ -85,10 +86,10 @@ module.exports = React.createClass({
 	/* ******************************************
             NON LIFE CYCLE FUNCTIONS
     ****************************************** */
-    onUserLoggedIn : function()
+    initialize : function()
     {
     	// load google drive project metadata file
-		gapi.drive.realtime.load(this.getParams().projectFolderFileId, this.onProjectFileLoaded, null);
+		gapi.drive.realtime.load(this.getParams().projectFileId, this.onProjectFileLoaded, null);
 
 		this.getProjectObjects();
     },
@@ -98,11 +99,11 @@ module.exports = React.createClass({
     	var gDriveModel = doc.getModel().getRoot();
 
     	var titleInput = document.getElementById('project-title');
-    	var titleModel = gDriveModel.get('title');
+    	var titleModel = gDriveModel.get(GDriveConstants.Project.KEY_TITLE);
     	gapi.drive.realtime.databinding.bindString(titleModel, titleInput);
 
     	var descriptionInput = document.getElementById('project-description');
-    	var descriptionModel = gDriveModel.get('description');
+    	var descriptionModel = gDriveModel.get(GDriveConstants.Project.KEY_DESCRIPTION);
 		gapi.drive.realtime.databinding.bindString(descriptionModel, descriptionInput);
 		$('#project-description-wrapper').css('display', 'initial');
 		autosize(document.getElementById('project-description'));
@@ -190,8 +191,7 @@ module.exports = React.createClass({
     createNewPersistentDataAndGetId: function() 
     {
         var that=this;
-        var newId = googleDriveService.createNewPersistentData(this.getParams().projectFileId, function(file) {
-            console.log(file.id);
+        var newId = googleDriveService.createNewPersistentData(this.getParams().projectFolderFileId, function(file) {
             var params={persistentDataFileId: file.id};
             that.transitionTo('persistent-data-entry-form', params);
         }); 

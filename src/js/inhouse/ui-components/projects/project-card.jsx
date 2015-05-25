@@ -1,4 +1,6 @@
 var googleDriveService = require('../../services/google-drive-service.js');
+var GDriveConstants = require('../../constants/google-drive-constants.js');
+var Cons = GDriveConstants.Project;
 
 module.exports = React.createClass({
     mixins: [Navigation],
@@ -102,8 +104,8 @@ module.exports = React.createClass({
     onFileLoaded : function(doc)
     {
         var gDriveModel = doc.getModel().getRoot();
-        this.model.title = gDriveModel.get('title');
-        this.model.description = gDriveModel.get('description');
+        this.model.title = gDriveModel.get(Cons.KEY_TITLE);
+        this.model.description = gDriveModel.get(Cons.KEY_DESCRIPTION);
         
         this.contentFileLoaded = true;
         $('#' + this.props.fileId).addClass('fadeIn animated');

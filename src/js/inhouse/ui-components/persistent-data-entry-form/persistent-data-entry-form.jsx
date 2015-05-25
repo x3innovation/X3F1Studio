@@ -3,6 +3,7 @@ var PersistentDataHeader=require('./persistent-data-header.jsx');
 var EventType=require('../../constants/event-type.js');
 var userStore = require('../../stores/user-store.js');
 var googleDriveService = require('../../services/google-drive-service.js');
+var GCons = require('../../constants/google-drive-constants.js');
 //var UserLoginFailRedirectHome = require('../common/user-login-fail-redirect-home.jsx');
 
 module.exports=React.createClass({
@@ -15,7 +16,14 @@ module.exports=React.createClass({
     	this.model.title='sample title';
     	this.model.description='sample description';
     	this.model.attributes=['unreasonablylongattributename','a','b','c'];
-        Bullet.on(EventType.App.USER_LOGGED_IN, 'persistent-data-entry-form.jsx>>user-logged-in', this.onUserLoggedIn);
+
+        // load project objects on user logged in
+        Bullet.on(EventType.App.USER_LOGGED_IN, 'persistent-data-entry-form.jsx>>user-logged-in', this.initialize);
+        // if user is already logged in, still need to initialize
+        if (userStore.isLoggedIn)
+        {
+            this.initialize();
+        }
     },
     
     componentDidMount: function() {
@@ -28,29 +36,21 @@ module.exports=React.createClass({
 	/* ******************************************
                NON LIFE CYCLE FUNCTIONS
     ****************************************** */
-   
-    onUserLoggedIn: function() {
-        //gapi.drive.realtime.load(this.getParams().persistentDataFileId, this.onDataFileLoaded, null);
+    initialize: function()
+    {
+        gapi.drive.realtime.load(this.getParams().persistentDataFileId, this.onDataFileLoaded, this.initializeModel);
     },
 
-
     onDataFileLoaded: function(doc) {
-        /*(var gDriveModel=doc.getModel().getRoot();
-        var titleModel=gDriveModel.get('title');
-        var descriptionModel=gDriveModel.get('description');
-        var attributesModel=gDriveModel.get('properties');
-        var data={
-            title:titleModel,
-            description:descriptionModel,
-            attributes:attributesModel
-        }*/
+        Bullet.trigger(EventType.PersistentDataEntry.GAPI_FILE_LOADED, doc);
+    },
 
-        var data={
-            title:this.model.title,
-            description:this.model.description,
-            attributes:this.model.attributes
-        }
-        //Bullet.trigger(EventType.PersistentDataEntry.GAPI_DATA_FILE_LOADED, data);
+    initializeModel: function(model)
+    {
+        var customModel = model.create(googleDriveService.getPersistentDataModel());
+        customModel.title = 'New Persistent Data';
+        customModel.description = '';
+        model.getRoot().set(GCons.CustomObjectKey.PERSISTENT_DATA, customModel);
     },
 
     render: function() {

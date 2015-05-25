@@ -5,7 +5,7 @@ module.exports = {
 	},
 
 	PersistentDataEntry : {
-		GAPI_DATA_FILE_LOADED : 'PersistentDataEntry>>gapi-data-file-loaded',
+		GAPI_FILE_LOADED : 'PersistentDataEntry>>gapi-file-loaded',
 		ATTRIBUTE_SELECTED : 'PersistentDataEntry>>attribute-selected',
 		ATTRIBUTE_ADDED : 'PersistentDataEntry>>attribute-added',
 		ATTRIBUTE_DELETED : 'PersistentDataEntry>>attribute-deleted',

@@ -16,12 +16,12 @@ module.exports = React.createClass({
     ****************************************** */
 	componentWillMount : function()
 	{
-		Bullet.on(EventType.App.USER_LOGGED_IN, 'projects.jsx>>user-logged-in', this.onUserLoggedIn);
+		Bullet.on(EventType.App.USER_LOGGED_IN, 'projects.jsx>>user-logged-in', this.initialize);
 
 		// if user is already logged in, still need to initialize
 		if (userStore.isLoggedIn)
 		{
-			this.onUserLoggedIn();
+			this.initialize();
 		}
 	},
 
@@ -35,7 +35,7 @@ module.exports = React.createClass({
 	/* ******************************************
             NON LIFE CYCLE FUNCTIONS
     ****************************************** */
-    onUserLoggedIn : function()
+    initialize : function()
     {
     	googleDriveService.getProjects('', this.onReceiveProjects);
     },
