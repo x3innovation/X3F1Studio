@@ -5,7 +5,10 @@ module.exports = {
 	},
 
 	PersistentDataEntry : {
+		GAPI_DATA_FILE_LOADED : 'PersistentDataEntry>>gapi-data-file-loaded',
 		ATTRIBUTE_SELECTED : 'PersistentDataEntry>>attribute-selected',
+		ATTRIBUTE_ADDED : 'PersistentDataEntry>>attribute-added',
+		ATTRIBUTE_DELETED : 'PersistentDataEntry>>attribute-deleted',
 		ATTRIBUTE_TYPE_CHANGED : 'PersistentDataEntry>>attribute-type-changed'
 	}
 }

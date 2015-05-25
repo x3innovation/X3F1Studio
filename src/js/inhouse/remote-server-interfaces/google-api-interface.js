@@ -277,6 +277,22 @@ function GoogleApiInterface()
 			callback(response.items);
 		});
 	}
+
+	this.createNewFile = function(fileData, callback) {
+	  	var request = gapi.client.drive.files.insert({
+	  		uploadType: 'multipart',
+	  		title: fileData.title,
+	  		description: fileData.description,
+	  		mimeType: fileData.type,
+	  		parents: fileData.parents
+	  	});
+		if (!callback) {
+		    callback = function(file) {
+		        console.log('File made with ID: '+file.id);
+		    };
+		}
+	  	request.execute(callback);
+	}
 }
 
 module.exports = new GoogleApiInterface();

@@ -45,11 +45,11 @@ module.exports = React.createClass({
         $('#' + this.props.fileId + '-title').val(this.model.title);
 
         var descriptionInput = document.getElementById(this.props.fileId + '-description');
-        $(descriptionInput).val(this.model.description);
-
-        // resize description text area
-        $(descriptionInput).css('height', 'auto').height(descriptionInput.scrollHeight);
-
+        if (descriptionInput !== null) { //if the description text area exists
+            $(descriptionInput).val(this.model.description);
+            // resize description text area
+            $(descriptionInput).css('height', 'auto').height(descriptionInput.scrollHeight);
+        }
         // highlight card animation
         $('#' + this.props.fileId + '-wrapper').mouseenter(this.onProjectMouseEnter).mouseleave(this.onProjectMouseLeave);
 
@@ -212,13 +212,13 @@ module.exports = React.createClass({
             projectFolderFileId : this.props.projectFolderFileId
         };
         if (this.props.objectType === GDriveConstant.ObjectType.PERSISTENT_DATA) {
-            this.transitionTo('PD-entry-form', params);
+            this.transitionTo('persistent-data-entry-form-entry-form', params);
         } else if (this.props.objectType === GDriveConstant.ObjectType.EVENT) {
-            this.transitionTo('EV-entry-form', params);
+            this.transitionTo('event-entry-form', params);
         } else if (this.props.objectType === GDriveConstant.ObjectType.ENUM) {
-            this.transitionTo('EN-entry-form', params);
+            this.transitionTo('enum-entry-form', params);
         } else if (this.props.objectType === GDriveConstant.ObjectType.FLOW) {
-            this.transitionTo('FL-entry-form', params);
+            this.transitionTo('flow-entry-form', params);
         }
     },
 

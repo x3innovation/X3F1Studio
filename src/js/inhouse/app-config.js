@@ -1,9 +1,12 @@
 module.exports = {
 	App : {
 		BUTTON_COLOR : 'blue-grey',
-		PD_COLOR : 'indigo',
-		EN_COLOR : 'red',
-		EV_COLOR : 'orange',
-		FL_COLOR : 'green'
+		PERSISTENT_DATA_COLOR : 'indigo',
+		ENUM_COLOR : 'red',
+		EVENT_COLOR : 'orange',
+		FLOW_COLOR : 'green'
+	},
+	EntryForm : {
+		ATTRIBUTE_NAME_LENGTH_MAX : 30,
 	}
 };

@@ -142,6 +142,15 @@ function GoogleDriveService()
 			return query;
 		}
 	}
+
+	this.createNewPersistentData = function(parentFolderId, callback){
+		fileData={};
+		fileData.title='new persistent data';
+		fileData.description='description';
+		fileData.parents=[parentFolderId];
+		fileData.type=GoogleDriveConstant.MimeType.DMX;
+		googleApiInterface.createNewFile(fileData, callback);
+	}
 }
 
 module.exports = new GoogleDriveService();

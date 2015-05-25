@@ -88,7 +88,7 @@ module.exports = React.createClass({
     onUserLoggedIn : function()
     {
     	// load google drive project metadata file
-		gapi.drive.realtime.load(this.getParams().projectFileId, this.onProjectFileLoaded, null);
+		gapi.drive.realtime.load(this.getParams().projectFolderFileId, this.onProjectFileLoaded, null);
 
 		this.getProjectObjects();
     },
@@ -183,8 +183,18 @@ module.exports = React.createClass({
 
     onAddPersistentDataBtnClick : function(event)
     {
+        this.createNewPersistentDataAndGetId();
         $('#lean-overlay').remove();
-        this.transitionTo('persistent-data-entry-form');
+    },
+
+    createNewPersistentDataAndGetId: function() 
+    {
+        var that=this;
+        var newId = googleDriveService.createNewPersistentData(this.getParams().projectFileId, function(file) {
+            console.log(file.id);
+            var params={persistentDataFileId: file.id};
+            that.transitionTo('persistent-data-entry-form', params);
+        }); 
     },
 
     switchButtonOnOff : function(button, model)
@@ -259,10 +269,10 @@ module.exports = React.createClass({
     			</div>
     			<div className="row" style={{marginBottom:'10px'}}>
     				<div id="project-object-btns" className="col s12 center">
-    					<a className={"waves-effect waves-light btn " + Configs.App.PD_COLOR} onClick={this.onPersistentDataBtnClick}>Persistent Data</a>
-    					<a className={"waves-effect waves-light btn " + Configs.App.EN_COLOR} onClick={this.onEnumBtnClick}>Enum</a>
-    					<a className={"waves-effect waves-light btn " + Configs.App.EV_COLOR} onClick={this.onEventBtnClick}>Event</a>
-    					<a className={"waves-effect waves-light btn " + Configs.App.FL_COLOR} onClick={this.onFlowBtnClick}>Flow</a>
+    					<a className={"waves-effect waves-light btn " + Configs.App.PERSISTENT_DATA_COLOR} onClick={this.onPersistentDataBtnClick}>Persistent Data</a>
+    					<a className={"waves-effect waves-light btn " + Configs.App.ENUM_COLOR} onClick={this.onEnumBtnClick}>Enum</a>
+    					<a className={"waves-effect waves-light btn " + Configs.App.EVENT_COLOR} onClick={this.onEventBtnClick}>Event</a>
+    					<a className={"waves-effect waves-light btn " + Configs.App.FLOW_COLOR} onClick={this.onFlowBtnClick}>Flow</a>
                         <a id="project-object-add-btn" className={"btn-floating waves-effect waves-light " + Configs.App.BUTTON_COLOR} href="#add-project-object-modal">
                             <i className="mdi-content-add"></i>
                         </a>
@@ -273,11 +283,11 @@ module.exports = React.createClass({
                     <div className="modal-content">
                         <h4>Select a data type:</h4>
                         <div className = "modal-btn-row center">
-                            <a className={"waves-effect waves-light btn " + Configs.App.PD_COLOR}
+                            <a className={"waves-effect waves-light btn " + Configs.App.PERSISTENT_DATA_COLOR}
                                onClick={this.onAddPersistentDataBtnClick}>Persistent Data</a>
-                            <a className={"waves-effect waves-light btn " + Configs.App.EN_COLOR}>Enum</a>
-                            <a className={"waves-effect waves-light btn " + Configs.App.EV_COLOR}>Event</a>
-                            <a className={"waves-effect waves-light btn " + Configs.App.FL_COLOR}>Flow</a>
+                            <a className={"waves-effect waves-light btn " + Configs.App.ENUM_COLOR}>Enum</a>
+                            <a className={"waves-effect waves-light btn " + Configs.App.EVENT_COLOR}>Event</a>
+                            <a className={"waves-effect waves-light btn " + Configs.App.FLOW_COLOR}>Flow</a>
                         </div>
                     </div>
                 </div>

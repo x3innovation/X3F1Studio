@@ -1,12 +1,12 @@
-var EventType = require('../../constants/event-type.js');
+var EventType=require('../../constants/event-type.js');
 
 module.exports=React.createClass({
 	/* ******************************************
                 LIFE CYCLE FUNCTIONS
     ****************************************** */
     componentWillMount: function() {
-    	this.model = {};
-    	this.model.attributeType = 'double';
+    	this.model={};
+    	this.model.attributeType='double';
     },
 
 	componentDidMount: function() {
@@ -21,7 +21,7 @@ module.exports=React.createClass({
 		 			return;
 		 		}
 		 		var newAttributeType=data.attributeType;
-		 		console.log("attribute changed to "+newAttributeType);
+		 		console.log("attribute changed to "+newAttributeType+"!");
 		 		this.model.attributeType=newAttributeType;
 		 		this.forceUpdate();
 		 	}.bind(this)
@@ -54,12 +54,13 @@ module.exports=React.createClass({
 			<div id='attribute-type-dropdown' className='input-field col s4 offset-s4'>
 				<select id={this.props.attributeName+'-type-field'} className='type-selector' value='1'>
       				<option value='1'>double</option>
-      				<option value='2'>string</option>
-      				<option value='3'>integer</option>
-      				<option value='4'>boolean</option>
+      				<option value='2'>float</option>
+      				<option value='3'>short</option>
+      				<option value='4'>integer</option>
       				<option value='5'>long</option>
-      				<option value='6'>short</option>
-      				<option value='7'>char</option>
+      				<option value='6'>char</option>
+      				<option value='7'>string</option>
+      				<option value='8'>boolean</option>
 		  		</select>
 		  		<label htmlFor={this.props.attributeName+'-type-field'}	>type</label>
 		 	</div>
@@ -76,7 +77,7 @@ module.exports=React.createClass({
 	},
 
     makeDefValueInput: function() {
-		if (this.model.attributeType !== 'boolean') {
+		if (this.model.attributeType!=='boolean') {
 			return(
 				<div className='col s4 input-field'>
 					<input type='text' id={this.props.attributeName+'-def-value-field'}/>
@@ -149,9 +150,9 @@ module.exports=React.createClass({
 	}
 }); 
 
-OptionalInput = React.createClass({
+OptionalInput=React.createClass({
 	render: function() {
-		if (this.props.attributeType === 'string'){
+		if (this.props.attributeType==='string'){
 			return(
 				<div className='row'>
 					<div className='input-field col s4'>
@@ -160,7 +161,7 @@ OptionalInput = React.createClass({
 					</div>
 				</div>
 			);
-		} else if (['double','integer','long','short'].indexOf(this.props.attributeType) !== -1) {
+		} else if (['double','integer','long','short','float'].indexOf(this.props.attributeType)!==-1) {
 			return(
 				<div className='row'>
 					<div className='input-field col s4'>
