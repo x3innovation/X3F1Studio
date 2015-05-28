@@ -1,5 +1,5 @@
-var PersistentDataFieldSelector=require('./persistent-data-field-selector.jsx');
-var PersistentDataForm=require('./persistent-data-form.jsx');
+var AttributeSelector=require('./attribute-selector.jsx');
+var Form=require('./form.jsx');
 var EventType=require('../../constants/event-type.js');
 
 module.exports=React.createClass({
@@ -13,17 +13,9 @@ module.exports=React.createClass({
 
     componentDidMount: function() {
     	var that=this;
-    	Bullet.on(EventType.PersistentDataEntry.ATTRIBUTE_SELECTED, 'persistent-data-body.jsx>>attribute-selected', 
-    		function(data){
-    		    that.model.attribute=data.selectedAttribute.text()
-    			setTimeout(function() { //make sure attribute was changed before performing other functions
-                    that.forceUpdate(); 
-                }, 0);
-    		});
     },
 
     componentWillUnmount: function() {
-    	Bullet.off(EventType.PersistentDataEntry.ATTRIBUTE_SELECTED, 'persistent-data-body.jsx>>attribute-selected');
     },
 
 	/* ******************************************

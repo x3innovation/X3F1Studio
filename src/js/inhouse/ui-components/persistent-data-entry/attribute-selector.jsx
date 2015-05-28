@@ -17,7 +17,7 @@ module.exports=React.createClass ({
     		scrollY: 300,
     		paging: false,
     		info: false,
-    		order: [], //do not sort at table initialization to preserve order
+    		order: [], //do not sort at table initialization to preserve initial order
     		search: {
     			caseInsensitive: true
   			},

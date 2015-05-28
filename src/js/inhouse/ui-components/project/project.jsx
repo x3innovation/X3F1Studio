@@ -2,7 +2,7 @@ var UserLoginFailRedirectHome = require('../common/user-login-fail-redirect-home
 var EventType = require('../../constants/event-type.js');
 var userStore = require('../../stores/user-store.js');
 var googleDriveService = require('../../services/google-drive-service.js');
-var ProjectObjectCard = require('./project-object-card.jsx');
+var ProjectObjectCard = require('./card.jsx');
 var GDriveConstants = require('../../constants/google-drive-constants.js');
 var Configs = require('../../app-config.js');
 
@@ -182,19 +182,18 @@ module.exports = React.createClass({
     	this.switchButtonOnOff(button, model);
     },
 
-    onAddPersistentDataBtnClick : function(event)
+    onAddPersistentDataBtnClick : function(e)
     {
-        this.createNewPersistentDataAndGetId();
-        $('#lean-overlay').remove();
+        this.createNewPersistentData();
     },
 
-    createNewPersistentDataAndGetId: function() 
+    createNewPersistentData: function() 
     {
-        var that=this;
-        var newId = googleDriveService.createNewPersistentData(this.getParams().projectFolderFileId, function(file) {
+        googleDriveService.createNewPersistentData(this.getParams().projectFolderFileId, function(file) {
             var params={persistentDataFileId: file.id};
-            that.transitionTo('persistent-data-entry-form', params);
-        }); 
+            this.transitionTo('persistentDataEntry', params);
+            $('#lean-overlay').remove();
+        }.bind(this)); 
     },
 
     switchButtonOnOff : function(button, model)

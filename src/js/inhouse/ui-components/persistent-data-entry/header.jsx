@@ -14,11 +14,11 @@ module.exports=React.createClass ({
         $('#persistent-data-form-title').focus(function(){$(this).attr('placeholder', '');})
                                          .blur(function(){$(this).attr('placeholder', 'enter title');});
 
-        Bullet.on(EventType.PersistentDataEntry.GAPI_FILE_LOADED, 'persistent-data-header.jsx>>onGapiFileLoaded', this.onGapiFileLoaded);
+        Bullet.on(EventType.PersistentDataEntry.GAPI_FILE_LOADED, 'header.jsx>>onGapiFileLoaded', this.onGapiFileLoaded);
     },
 
     componentWillUnmount: function() {
-        Bullet.off(EventType.PersistentDataEntry.GAPI_FILE_LOADED, 'persistent-data-header.jsx>>onGapiFileLoaded');
+        Bullet.off(EventType.PersistentDataEntry.GAPI_FILE_LOADED, 'header.jsx>>onGapiFileLoaded');
     },
 
 	/* ******************************************
@@ -27,6 +27,7 @@ module.exports=React.createClass ({
 
     onGapiFileLoaded: function(doc)
     {
+        var key = GDriveConstants.ObjectType.PERSISTENT_DATA;
         var gModel = doc.getModel().getRoot().get(key);
         this.model.title = gModel.title;
         this.model.description = gModel.description;

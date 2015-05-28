@@ -1,5 +1,5 @@
-var PersistentDataBody=require('./persistent-data-body.jsx');
-var PersistentDataHeader=require('./persistent-data-header.jsx');
+var Body=require('./body.jsx');
+var Header=require('./header.jsx');
 var EventType=require('../../constants/event-type.js');
 var userStore = require('../../stores/user-store.js');
 var googleDriveService = require('../../services/google-drive-service.js');
@@ -18,7 +18,7 @@ module.exports=React.createClass({
     	this.model.attributes=['unreasonablylongattributename','a','b','c'];
 
         // load project objects on user logged in
-        Bullet.on(EventType.App.USER_LOGGED_IN, 'persistent-data-entry-form.jsx>>user-logged-in', this.initialize);
+        Bullet.on(EventType.App.USER_LOGGED_IN, 'persistent-data-entry.jsx>>userLoggedIn', this.initialize);
         // if user is already logged in, still need to initialize
         if (userStore.isLoggedIn)
         {
@@ -30,7 +30,7 @@ module.exports=React.createClass({
     },
 
     componentWillUnmount: function() {
-        Bullet.off(EventType.App.USER_LOGGED_IN, 'persistent-data-entry-form.jsx>>user-logged-in');
+        Bullet.off(EventType.App.USER_LOGGED_IN, 'persistent-data-entry.jsx>>userLoggedIn');
     },
 
 	/* ******************************************

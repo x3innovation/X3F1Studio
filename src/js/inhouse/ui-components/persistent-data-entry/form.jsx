@@ -15,21 +15,20 @@ module.exports=React.createClass({
 			Bullet.trigger(EventType.PersistentDataEntry.ATTRIBUTE_TYPE_CHANGED, data);
 		});
 
-		Bullet.on(EventType.PersistentDataEntry.ATTRIBUTE_TYPE_CHANGED, 'persistent-data-body.jsx>>attribute-type-selected',
-		 	function(data){
-		 		if(this.model.attributeType === data.attributeType) {
-		 			return;
-		 		}
-		 		var newAttributeType=data.attributeType;
-		 		
-		 		this.model.attributeType=newAttributeType;
-		 		this.forceUpdate();
-		 	}.bind(this)
-		);
+		Bullet.on(EventType.PersistentDataEntry.ATTRIBUTE_TYPE_CHANGED, 'form.jsx>>attributeTypeChanged', function(data){
+		 	var newAttributeType=data.attributeType;
+		 	this.onAttributeTypeChanged(newAttributeType);
+		 }.bind(this));
+
+		Bullet.on(EventType.PersistentDataEntry.ATTIBUTE_SELECTED, 'form.jsx>>attributeSelected', function(data) {
+			var selectedAttribute = data.selectedAttribute;
+			this.onAttributeSelected();
+		}.bind(this));
 	},
 
 	componentWillUnmount: function() {
-    	Bullet.off(EventType.PersistentDataEntry.ATTRIBUTE_TYPE_CHANGED, 'persistent-data-body.jsx>>attribute-type-selected');
+    	Bullet.off(EventType.PersistentDataEntry.ATTRIBUTE_TYPE_CHANGED, 'form.jsx>>attributeTypeChanged');
+    	Bullet.off(EventType.PersistentDataEntry.ATTIBUTE_SELECTED, 'form.jsx>>attributeSelected');
     },
 
     componentDidUpdate: function() {
@@ -39,6 +38,15 @@ module.exports=React.createClass({
 	/* ******************************************
                NON LIFE CYCLE FUNCTIONS
     ****************************************** */
+
+    onAttributeSelected: function (newAttribute) {
+
+    },
+
+    onAttributeTypeChanged: function(newAttributeType) {
+    	this.model.attributeType=newAttributeType;
+    	this.forceUpdate();
+    },
 
 	makeNameInput: function() {
 		return (

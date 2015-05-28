@@ -94,7 +94,7 @@ function GoogleDriveService()
 			// we are doing fullText contains search because at the time of writing this code,
 			// google drive api had bugs in custom properties query. So we are relying on having the object types
 			// right in the file's description and doing fullText search provided by Google to query the files accordingly
-			var query = '"' + projectFolderFileId + '" in parents and (';
+			var query = 'trashed = false and "' + projectFolderFileId + '" in parents and (';
 			var isFirstCondition = true;
 
 			// add persistent data query
@@ -143,12 +143,28 @@ function GoogleDriveService()
 		}
 	}
 
-	this.createNewPersistentData = function(parentFolderId, callback){
+	this.createNewProject = function(callback) {
+		folderCreationParams={};
+		folderCreationParams.title='New F1 Project';
+		folderCreationParams.mimeType=GCons.MimeType.FOLDER;
+		googleApiInterface.createNewFolder(folderCreationParams, this.createNewF1Metadata, callback);
+	}
+
+	this.createNewF1Metadata = function(folder, callback) {
+		fileCreationParams={};
+		fileCreationParams.title=folder.title;
+		fileCreationParams.description=GCons.ObjectType.PROJECT_METADATA;
+		fileCreationParams.parentId=folder.id;
+		fileCreationParams.mimeType=GCons.MimeType.PROJECT;
+		googleApiInterface.createNewFile(fileCreationParams, callback)
+	}
+
+	this.createNewPersistentData = function(parentFolderId, callback) {
 		fileCreationParams={};
 		fileCreationParams.title='New Persistent Data';
 		fileCreationParams.description=GCons.ObjectType.PERSISTENT_DATA;
-		fileCreationParams.parent=parentFolderId;
-		fileCreationParams.type=GCons.MimeType.DMX;
+		fileCreationParams.parentId=parentFolderId;
+		fileCreationParams.mimeType=GCons.MimeType.DMX;
 		googleApiInterface.createNewFile(fileCreationParams, callback);
 	}
 

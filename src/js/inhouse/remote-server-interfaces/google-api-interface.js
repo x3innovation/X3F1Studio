@@ -24,7 +24,8 @@ function GoogleApiInterface()
 		var Cons = GDriveConstant.PersistentData;
 
 		this.model = function(){};
-		model.prototype.initialize = function(){};
+		model.prototype.initialize = function(){
+		};
 
 		var custom = gapi.drive.realtime.custom;
 		custom.registerType(model, GDriveConstant.CustomObjectKey.PERSISTENT_DATA);
@@ -222,7 +223,7 @@ function GoogleApiInterface()
 	{
 		var request = gapi.client.drive.files.list({
 			corpus : 'DEFAULT',
-			q : 'mimeType="' + GDriveConstant.MimeType.PROJECT + '"',
+			q : 'mimeType="' + GDriveConstant.MimeType.PROJECT + '" and trashed = false',
 			fields : 'items(id,parents/id,title)'
 		});
 
@@ -295,22 +296,40 @@ function GoogleApiInterface()
 		});
 	}
 
+	this.createNewFolder = function(folderCreationParams, callback, linkedCallback) {
+	  	var request = gapi.client.drive.files.insert({
+	  		title: folderCreationParams.title,
+			mimeType: folderCreationParams.mimeType,
+	  	});
+		
+	  	if (typeof linkedCallback === 'function') { // if there is a second callback function being passed in, pass it to the first callback
+	  		request.execute(function(folder) {
+				callback(folder, linkedCallback);
+			});
+	  	} else {
+	  		request.execute(function(folder) {
+				callback(folder);
+			});
+	  	}
+	}
+
 	this.createNewFile = function(fileCreationParams, callback) {
-		var parent = {
-			'id' : fileCreationParams.parent
+		var parentId = {
+			'id' : fileCreationParams.parentId
 		};
 
 	  	var request = gapi.client.drive.files.insert({
 	  		title: fileCreationParams.title,
 	  		description: fileCreationParams.description,
-	  		mimeType: fileCreationParams.type,
-	  		parents: [parent]	// google forces us to pass an array here
+	  		mimeType: fileCreationParams.mimeType,
+	  		parents: [parentId]	// google forces us to pass an array here
 	  	});
 		
 	  	request.execute(function(file){
 			callback(file);
 		});
 	}
+
 }
 
 module.exports = new GoogleApiInterface();

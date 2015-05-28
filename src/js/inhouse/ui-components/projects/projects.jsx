@@ -1,6 +1,7 @@
 var UserLoginFailRedirectHome = require('../common/user-login-fail-redirect-home.jsx');
 var EventType = require('../../constants/event-type.js');
-var ProjectCard = require('./project-card.jsx');
+var Configs = require('../../app-config.js');
+var Card = require('./card.jsx');
 var googleDriveService = require('../../services/google-drive-service.js');
 var userStore = require('../../stores/user-store.js');
 
@@ -29,7 +30,7 @@ module.exports = React.createClass({
 	{
 		// hide placeholder on focus, then display on blur
 		$('#search-input').focus(function(){$(this).attr('placeholder', '');})
-								.blur(function(){$(this).attr('placeholder', 'search title');});
+							.blur(function(){$(this).attr('placeholder', 'search title');});
 	},
 
 	/* ******************************************
@@ -51,6 +52,19 @@ module.exports = React.createClass({
     {
     	clearTimeout(this.searchTypingTimeout);
         this.searchTypingTimeout = setTimeout(this.getProjects, 500);
+    },
+
+    onAddProjectBtnClick: function(e) {
+    	this.createNewProject();
+    },
+
+    createNewProject: function() {
+    	googleDriveService.createNewProject(function(file) { //transition as a callback
+    		var params = {};
+    		params.projectFolderFileId=file.parents[0].id;
+    		params.projectFileId=file.id;
+    		this.transitionTo('project', params);
+    	}.bind(this));
     },
 
     getProjects : function()
@@ -84,10 +98,10 @@ module.exports = React.createClass({
 	        					projects.map(function(project, columnIndex){
 	        						return (
 	        							<div key={columnIndex} className="col s3 f1-project-card" style={cellStyle}>
-                                            <ProjectCard title={project.title} 
-                                            			 fileId={project.id}
-                                            			 projectFolderFileId={project.parents[0].id}
-                                            			 model={{}} />
+											<Card title={project.title} 
+														 fileId={project.id}
+														 projectFolderFileId={project.parents[0].id}
+														 model={{}} />
 										</div>
 	        						)
 	        					})
@@ -95,9 +109,9 @@ module.exports = React.createClass({
 	        			</div>;
 		}
 
-        return (
-            <div className="container">
-            	<div className="row">
+		return (
+			<div className="container">
+				<div className="row">
 					<div className="col s12">
 						<h2>Projects</h2>
 					</div>
@@ -106,6 +120,14 @@ module.exports = React.createClass({
     				<div className="col s12 center">
     					<input id="search-input" placeholder="search title" onChange={this.onSearchInputChange} />
     				</div>
+    			</div>
+    			<div className="row">
+	    			<div className="col s2 offset-s10">
+	    				<a id="project-add-btn" className={"btn-floating waves-effect waves-light " + Configs.App.BUTTON_COLOR} 
+	    					onClick={this.onAddProjectBtnClick}>
+	                        <i className="mdi-content-add"></i>
+	                    </a>
+	    			</div>
     			</div>
     			{content}
             </div>
