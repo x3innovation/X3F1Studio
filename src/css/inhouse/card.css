@@ -49,46 +49,28 @@
 	-ms-box-shadow: 0 0 0 0 black !important;
 }
 
-.card-tag-PD{
+.card-tag{
 	position: absolute;
 	top: 3px;
 	left: 0px;
-	background-color: #3f51b5;
 	color: white;
 	font-size: 0.7em;
 	width: 3em;
 	text-align: center;
+}
+
+.card-tag-PD{
+	background-color: #3f51b5;
 }
 
 .card-tag-EV{
-	position: absolute;
-	top: 3px;
-	left: 0px;
 	background-color: #ff9800;
-	color: white;
-	font-size: 0.7em;
-	width: 3em;
-	text-align: center;
 }
 
 .card-tag-EN{
-	position: absolute;
-	top: 3px;
-	left: 0px;
 	background-color: #f44336;
-	color: white;
-	font-size: 0.7em;
-	width: 3em;
-	text-align: center;
 }
 
 .card-tag-FL{
-	position: absolute;
-	top: 3px;
-	left: 0px;
 	background-color: #4caf50;
-	color: white;
-	font-size: 0.7em;
-	width: 3em;
-	text-align: center;
 }

@@ -30,6 +30,7 @@ module.exports = function(grunt) {
 			'materialize-0.96.1.js',
 			'react-router-0.11.6.js',
 			'bullet-1.1.3-Jimin.js',
+			'jquery.tooltipster-3.3.0.js',
             'store-1.3.17.js',
             'anijs-0.9.2.js',
             'jquery.slimscroll-1.3.0.js',
@@ -51,6 +52,7 @@ module.exports = function(grunt) {
 	{
 		var vendorCss = [
 			'materialize-0.96.1.css',
+			'jquery.tooltipster-3.3.0.css',
 			'jquery.dataTables-1.10.7.css'
 		];
 

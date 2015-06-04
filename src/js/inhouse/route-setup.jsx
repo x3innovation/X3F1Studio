@@ -15,7 +15,7 @@ var routes = (
 	<Route name='home' path='/' handler={App}>
 		<Route name='projects' path='projects' handler={Projects}></Route>
 		<Route name='project' path='/project/:projectFolderFileId/:projectFileId' handler={Project} />
-		<Route name='persistentDataEntry' path='/persistent-data-entry/:persistentDataFileId'
+		<Route name='persistentDataEntry' path='/persistent-data-entry/:projectFolderFileId/:projectFileId/:persistentDataFileId'
 		 handler={PersistentDataEntryForm} /> 
 		<DefaultRoute handler={Home} />
 	</Route>

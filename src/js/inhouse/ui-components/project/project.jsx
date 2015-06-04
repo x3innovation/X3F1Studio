@@ -2,8 +2,9 @@ var UserLoginFailRedirectHome = require('../common/user-login-fail-redirect-home
 var EventType = require('../../constants/event-type.js');
 var userStore = require('../../stores/user-store.js');
 var googleDriveService = require('../../services/google-drive-service.js');
-var ProjectObjectCard = require('./card.jsx');
-var GDriveConstants = require('../../constants/google-drive-constants.js');
+var Card = require('./card.jsx');
+var GDriveCons = require('../../constants/google-drive-constants.js');
+var DefaultValueCons = require('../../constants/default-value-constants.js');
 var Configs = require('../../app-config.js');
 
 module.exports = React.createClass({
@@ -39,19 +40,20 @@ module.exports = React.createClass({
 	{
 		// load project objects on user logged in
 		Bullet.on(EventType.App.USER_LOGGED_IN, 'project.jsx>>user-logged-in', this.initialize);
-
-		// if user is already logged in, still need to initialize
-		if (userStore.isLoggedIn)
-		{
-			this.initialize();
-		}
 	},
 
 	componentDidMount : function()
 	{
+
+        // if user is already logged in, still need to initialize
+        if (userStore.isLoggedIn)
+        {
+            this.initialize();
+        }
+
 		// hide placeholder on focus, then display on blur
 		$('#search-input').focus(function(){$(this).attr('placeholder', '');})
-								.blur(function(){$(this).attr('placeholder', 'search title');});
+						  .blur(function(){$(this).attr('placeholder', 'search title');});
 
 		// title and description blind animation wire up
 		$('#project-title').focus(blindDownDescription).focusout(blindUpDescription);
@@ -96,14 +98,21 @@ module.exports = React.createClass({
 
     onProjectFileLoaded : function(doc)
     {
-    	var gDriveModel = doc.getModel().getRoot();
+    	var gModel = doc.getModel();
+
+        if (!gModel.getRoot().get(GDriveCons.Project.KEY_TITLE)) {
+            gModel.getRoot().set(GDriveCons.Project.KEY_TITLE, 
+                                 gModel.createString(DefaultValueCons.NewFileValues.PROJECT_TITLE));
+            gModel.getRoot().set(GDriveCons.Project.KEY_DESCRIPTION, 
+                                 gModel.createString(DefaultValueCons.NewFileValues.PROJECT_DESCRIPTION));
+        }
 
     	var titleInput = document.getElementById('project-title');
-    	var titleModel = gDriveModel.get(GDriveConstants.Project.KEY_TITLE);
+    	var titleModel = gModel.getRoot().get(GDriveCons.Project.KEY_TITLE) 
     	gapi.drive.realtime.databinding.bindString(titleModel, titleInput);
 
     	var descriptionInput = document.getElementById('project-description');
-    	var descriptionModel = gDriveModel.get(GDriveConstants.Project.KEY_DESCRIPTION);
+    	var descriptionModel = gModel.getRoot().get(GDriveCons.Project.KEY_DESCRIPTION) 
 		gapi.drive.realtime.databinding.bindString(descriptionModel, descriptionInput);
 		$('#project-description-wrapper').css('display', 'initial');
 		autosize(document.getElementById('project-description'));
@@ -190,7 +199,10 @@ module.exports = React.createClass({
     createNewPersistentData: function() 
     {
         googleDriveService.createNewPersistentData(this.getParams().projectFolderFileId, function(file) {
-            var params={persistentDataFileId: file.id};
+            var params={};
+            params.projectFolderFileId = this.getParams().projectFolderFileId;
+            params.projectFileId = this.getParams().projectFileId;
+            params.persistentDataFileId = file.id;
             this.transitionTo('persistentDataEntry', params);
             $('#lean-overlay').remove();
         }.bind(this)); 
@@ -219,6 +231,8 @@ module.exports = React.createClass({
 
     render: function()
 	{
+        var projectFileId = this.getParams().projectFileId;
+        var projectFolderFileId = this.getParams().projectFolderFileId;
 		var content;
 		if (!this.projectsReceived)
 		{
@@ -239,7 +253,9 @@ module.exports = React.createClass({
 	        					projectObjects.map(function(projectObject, columnIndex){
                                    	return (
                                         <div key={columnIndex} className="col s3 f1-project-card" style={cellStyle}>
-                                            <ProjectObjectCard title={projectObject.title} 
+                                            <Card title={projectObject.title} 
+                                                               projectFileId={projectFileId}
+                                                               projectFolderFileId={projectFolderFileId}
                                             				   fileId={projectObject.id}
                                             				   objectType={projectObject.description}
                                             				   model={{}} />

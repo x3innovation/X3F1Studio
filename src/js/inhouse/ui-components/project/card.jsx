@@ -1,5 +1,6 @@
 var googleDriveService = require('../../services/google-drive-service.js');
-var GDriveConstant = require('../../constants/google-drive-constants.js');
+var GDriveCons = require('../../constants/google-drive-constants.js');
+var DefaultValueCons = require('../../constants/default-value-constants.js');
 
 module.exports = React.createClass({
     mixins: [Navigation],
@@ -18,22 +19,22 @@ module.exports = React.createClass({
 
         this.model = this.props.model;
         this.model.isCardFront = true;
-        if (this.props.objectType === GDriveConstant.ObjectType.PERSISTENT_DATA)
+        if (this.props.objectType === GDriveCons.ObjectType.PERSISTENT_DATA)
         {
             this.model.objectType = 'PD';
             this.model.color = '#3f51b5';
         }
-        else if (this.props.objectType === GDriveConstant.ObjectType.EVENT)
+        else if (this.props.objectType === GDriveCons.ObjectType.EVENT)
         {
             this.model.objectType = 'EV';
             this.model.color = '#ff9800';
         }
-        else if (this.props.objectType === GDriveConstant.ObjectType.ENUM)
+        else if (this.props.objectType === GDriveCons.ObjectType.ENUM)
         {
             this.model.objectType = 'EN';
             this.model.color = '#f44336';
         }
-        else if (this.props.objectType === GDriveConstant.ObjectType.FLOW)
+        else if (this.props.objectType === GDriveCons.ObjectType.FLOW)
         {
             this.model.objectType = 'FL';
             this.model.color = '#4caf50';
@@ -94,7 +95,7 @@ module.exports = React.createClass({
         $('#' + this.props.fileId + '-card').disableSelection();
 
         // display object type tag on the front of the card
-        $('#' + this.props.fileId + '-object-type').addClass('card-tag-' + this.model.objectType).text(this.model.objectType);
+        $('#' + this.props.fileId + '-object-type').addClass('card-tag card-tag-' + this.model.objectType).text(this.model.objectType);
     },
 
 	/* ******************************************
@@ -125,26 +126,24 @@ module.exports = React.createClass({
     onFileLoaded : function(doc)
     {
         var key;
-    
-        var docModel = doc.getModel();
-        if (this.props.objectType === GDriveConstant.ObjectType.PERSISTENT_DATA)
+        if (this.props.objectType === GDriveCons.ObjectType.PERSISTENT_DATA)
         {
-            key = GDriveConstant.CustomObjectKey.PERSISTENT_DATA;
+            key = GDriveCons.CustomObjectKey.PERSISTENT_DATA;
         }
-        else if (this.props.objectType === GDriveConstant.ObjectType.EVENT)
+        else if (this.props.objectType === GDriveCons.ObjectType.EVENT)
         {
-            key = GDriveConstant.CustomObjectKey.EVENT;
+            key = GDriveCons.CustomObjectKey.EVENT;
         }
-        else if (this.props.objectType === GDriveConstant.ObjectType.ENUM)
+        else if (this.props.objectType === GDriveCons.ObjectType.ENUM)
         {
-            key = GDriveConstant.CustomObjectKey.ENUM;
+            key = GDriveCons.CustomObjectKey.ENUM;
         }
-        else if (this.props.objectType === GDriveConstant.ObjectType.FLOW)
+        else if (this.props.objectType === GDriveCons.ObjectType.FLOW)
         {
-            key = GDriveConstant.CustomObjectKey.FLOW;
+            key = GDriveCons.CustomObjectKey.FLOW;
         }
-        
-        var gModel = docModel.create(key);
+
+        var gModel = doc.getModel().getRoot().get(key);
         this.model.title = gModel.title;
         this.model.description = gModel.description;
         
@@ -210,14 +209,16 @@ module.exports = React.createClass({
     onCardDoubleClick : function()
     {
         var params = {};
-        if (this.props.objectType === GDriveConstant.ObjectType.PERSISTENT_DATA) {
+        params.projectFileId = this.props.projectFileId;
+        params.projectFolderFileId = this.props.projectFolderFileId;
+        if (this.props.objectType === GDriveCons.ObjectType.PERSISTENT_DATA) {
             params.persistentDataFileId = this.props.fileId;
             this.transitionTo('persistentDataEntry', params);
-        } else if (this.props.objectType === GDriveConstant.ObjectType.EVENT) {
+        } else if (this.props.objectType === GDriveCons.ObjectType.EVENT) {
             //this.transitionTo('event-entry-form', params);
-        } else if (this.props.objectType === GDriveConstant.ObjectType.ENUM) {
+        } else if (this.props.objectType === GDriveCons.ObjectType.ENUM) {
             //this.transitionTo('enum-entry-form', params);
-        } else if (this.props.objectType === GDriveConstant.ObjectType.FLOW) {
+        } else if (this.props.objectType === GDriveCons.ObjectType.FLOW) {
             //this.transitionTo('flow-entry-form', params);
         }
     },

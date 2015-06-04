@@ -1,4 +1,4 @@
-var AttributeSelector=require('./attribute-selector.jsx');
+var FieldSelector=require('./field-selector.jsx');
 var Form=require('./form.jsx');
 var EventType=require('../../constants/event-type.js');
 
@@ -8,11 +8,10 @@ module.exports=React.createClass({
     ****************************************** */
     componentWillMount: function() {
         this.model={};
-        this.model.attribute='';
+        this.model.field='';
     },
 
     componentDidMount: function() {
-    	var that=this;
     },
 
     componentWillUnmount: function() {
@@ -25,11 +24,11 @@ module.exports=React.createClass({
 	render: function() {
 		return (
 			<div id='persistent-data-form-wrapper' className='row'>
-				<div className='col s4' id='persistent-data-attributes-container'>
-					<PersistentDataFieldSelector attributes={this.props.attributes} />
+				<div className='col s4' id='persistent-data-fields-container'>
+					<FieldSelector fields={this.props.fields} />
 				</div>
 				<div className='col s8' id='persistent-data-form-contents'>
-					<PersistentDataForm attributeName={this.model.attribute} />
+					<Form fieldName={this.model.field} />
 				</div>
 			</div>
 		);

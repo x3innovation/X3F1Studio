@@ -7,6 +7,6 @@ module.exports = {
 		FLOW_COLOR : 'green'
 	},
 	EntryForm : {
-		ATTRIBUTE_NAME_LENGTH_MAX : 30,
+		FIELD_NAME_LENGTH_MAX : 30,
 	}
 };

@@ -1,6 +1,6 @@
 var EventType=require('../../constants/event-type.js');
-var GDriveConstants = require('../../constants/google-drive-constants.js');
-var Cons = GDriveConstants.PersistentData;
+var GDriveConstants=require('../../constants/google-drive-constants.js');
+var Cons=GDriveConstants.PersistentData;
 
 module.exports=React.createClass ({
 	/* ******************************************
@@ -8,11 +8,14 @@ module.exports=React.createClass ({
     ****************************************** */
     componentWillMount: function() {
         this.model={};
+        this.model.gModel=null;
     },
 
     componentDidMount: function() {
-        $('#persistent-data-form-title').focus(function(){$(this).attr('placeholder', '');})
-                                         .blur(function(){$(this).attr('placeholder', 'enter title');});
+        $('#header-title').focus(function(){$(this).attr('placeholder', '');})
+                           .blur(function(){$(this).attr('placeholder', 'enter title');});
+        $('#header-desc').focus(function(){$(this).attr('placeholder', '');})
+                          .blur(function(){$(this).attr('placeholder', 'enter description');});
 
         Bullet.on(EventType.PersistentDataEntry.GAPI_FILE_LOADED, 'header.jsx>>onGapiFileLoaded', this.onGapiFileLoaded);
     },
@@ -27,37 +30,35 @@ module.exports=React.createClass ({
 
     onGapiFileLoaded: function(doc)
     {
-        var key = GDriveConstants.ObjectType.PERSISTENT_DATA;
-        var gModel = doc.getModel().getRoot().get(key);
-        this.model.title = gModel.title;
-        this.model.description = gModel.description;
-
-        var titleInput = document.getElementById('persistent-data-form-title');
-        // not working
-        // need to properly populate UI input with custom model value some how
-        // gapi.drive.realtime.databinding.bindString(this.model.title, titleInput);
-
-        var descriptionInput = document.getElementById('persistent-data-form-desc');
-        // gapi.drive.realtime.databinding.bindString(this.model.description, descriptionInput);
+        var key=GDriveConstants.CustomObjectKey.PERSISTENT_DATA;
+        this.model.gModel=doc.getModel().getRoot().get(key);
+        this.model.gModel.addEventListener(gapi.drive.realtime.EventType.VALUE_CHANGED, this.updateUi);
+        this.updateUi();
+        this.connectUi();
     },
 
-    onTitleChange: function(e) {
-        this.model.title = e.target.value;
-        this.forceUpdate();
+    updateUi: function() {
+        $('#header-title').val(this.model.gModel.title);
+        $('#header-desc').val(this.model.gModel.description);
     },
 
-    onDescriptionChange: function(e) {
-        this.model.description = e.target.value;
-        this.forceUpdate();
+    connectUi: function() {
+        $('#header-title').keyup(this.saveUiToGoogle); 
+        $('#header-desc').keyup(this.saveUiToGoogle);
+    },
+
+    saveUiToGoogle: function() {
+        this.model.gModel.title=$('#header-title').val();
+        this.model.gModel.description=$('#header-desc').val();
     },
 
   	render: function() {
       	return (
     		<div className="row">
-                <div id="persistent-data-form-header-wrapper" className="col s12">
-                    <input type="text" id="persistent-data-form-title" placeholder='enter title' onChange={this.onTitleChange}/>
-                    <div id="persistent-data-form-desc-wrapper">
-                        <textarea rows="1" id="persistent-data-form-desc" placeholder='enter description' onChange={this.onDescriptionChange}></textarea>
+                <div id="header-wrapper" className="col s12">
+                    <input type="text" id="header-title" placeholder='enter title' />
+                    <div id="desc-wrapper">
+                        <textarea rows="1" id="header-desc" placeholder='enter description'></textarea>
                     </div>            
                 </div>
             </div>

@@ -94,7 +94,7 @@ function GoogleDriveService()
 			// we are doing fullText contains search because at the time of writing this code,
 			// google drive api had bugs in custom properties query. So we are relying on having the object types
 			// right in the file's description and doing fullText search provided by Google to query the files accordingly
-			var query = 'trashed = false and "' + projectFolderFileId + '" in parents and (';
+			var query = '"' + projectFolderFileId + '" in parents and (';
 			var isFirstCondition = true;
 
 			// add persistent data query
@@ -110,9 +110,9 @@ function GoogleDriveService()
 				if (!isFirstCondition)
 				{
 					query += ' or ';
+					isFirstCondition = false;
 				}
 				query += 'fullText contains "' + GCons.ObjectType.ENUM + '"';
-				isFirstCondition = false;
 			}
 
 			// add event query
@@ -121,9 +121,9 @@ function GoogleDriveService()
 				if (!isFirstCondition)
 				{
 					query += ' or ';
+					isFirstCondition = false;
 				}
 				query += 'fullText contains "' + GCons.ObjectType.EVENT + '"';
-				isFirstCondition = false;
 			}
 
 			// add flow query
@@ -132,12 +132,12 @@ function GoogleDriveService()
 				if (!isFirstCondition)
 				{
 					query += ' or ';
+					isFirstCondition = false;
 				}
 				query += 'fullText contains "' + GCons.ObjectType.FLOW + '"';
-				isFirstCondition = false;
 			}
 
-			query += ')';
+			query += ') and trashed = false'; //do not list entries in the trash folder
 
 			return query;
 		}
@@ -147,16 +147,16 @@ function GoogleDriveService()
 		folderCreationParams={};
 		folderCreationParams.title='New F1 Project';
 		folderCreationParams.mimeType=GCons.MimeType.FOLDER;
-		googleApiInterface.createNewFolder(folderCreationParams, this.createNewF1Metadata, callback);
-	}
+		googleApiInterface.createNewFolder(folderCreationParams, createNewF1Metadata);
 
-	this.createNewF1Metadata = function(folder, callback) {
-		fileCreationParams={};
-		fileCreationParams.title=folder.title;
-		fileCreationParams.description=GCons.ObjectType.PROJECT_METADATA;
-		fileCreationParams.parentId=folder.id;
-		fileCreationParams.mimeType=GCons.MimeType.PROJECT;
-		googleApiInterface.createNewFile(fileCreationParams, callback)
+		function createNewF1Metadata(folder) {
+			fileCreationParams={};
+			fileCreationParams.title=folder.title;
+			fileCreationParams.description=GCons.ObjectType.PROJECT_METADATA;
+			fileCreationParams.parentId=folder.id;
+			fileCreationParams.mimeType=GCons.MimeType.PROJECT;
+			googleApiInterface.createNewFile(fileCreationParams, callback)
+		}
 	}
 
 	this.createNewPersistentData = function(parentFolderId, callback) {

@@ -296,21 +296,15 @@ function GoogleApiInterface()
 		});
 	}
 
-	this.createNewFolder = function(folderCreationParams, callback, linkedCallback) {
+	this.createNewFolder = function(folderCreationParams, callback) {
 	  	var request = gapi.client.drive.files.insert({
 	  		title: folderCreationParams.title,
 			mimeType: folderCreationParams.mimeType,
 	  	});
 		
-	  	if (typeof linkedCallback === 'function') { // if there is a second callback function being passed in, pass it to the first callback
-	  		request.execute(function(folder) {
-				callback(folder, linkedCallback);
-			});
-	  	} else {
-	  		request.execute(function(folder) {
-				callback(folder);
-			});
-	  	}
+	  	request.execute(function(folder) {
+			callback(folder);
+		});
 	}
 
 	this.createNewFile = function(fileCreationParams, callback) {

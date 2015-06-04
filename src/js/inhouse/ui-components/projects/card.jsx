@@ -103,10 +103,11 @@ module.exports = React.createClass({
 
     onFileLoaded : function(doc)
     {
-        var gDriveModel = doc.getModel().getRoot();
-        this.model.title = gDriveModel.get(Cons.KEY_TITLE);
-        this.model.description = gDriveModel.get(Cons.KEY_DESCRIPTION);
-        
+        var gModel = doc.getModel();
+
+        this.model.title = gModel.getRoot().get(Cons.KEY_TITLE);
+        this.model.description = gModel.getRoot().get(Cons.KEY_DESCRIPTION);
+
         this.contentFileLoaded = true;
         $('#' + this.props.fileId).addClass('fadeIn animated');
         this.forceUpdate();

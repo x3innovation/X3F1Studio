@@ -59,10 +59,10 @@ module.exports = React.createClass({
     },
 
     createNewProject: function() {
-    	googleDriveService.createNewProject(function(file) { //transition as a callback
+    	googleDriveService.createNewProject(function(project) { //transition as a callback
     		var params = {};
-    		params.projectFolderFileId=file.parents[0].id;
-    		params.projectFileId=file.id;
+    		params.projectFolderFileId=project.parents[0].id;
+    		params.projectFileId=project.id;
     		this.transitionTo('project', params);
     	}.bind(this));
     },
