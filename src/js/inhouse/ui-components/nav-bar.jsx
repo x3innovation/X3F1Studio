@@ -37,15 +37,19 @@ module.exports = React.createClass({
 	render : function()
 	{
         return (
-			<nav id="menu-nav">
-				<a id="logo" href="javascript:void(0)" className="btn waves-effect waves-light"></a>
-
-				<div id="navbar-buttons">
-					<a id="user-log-in-out-btn" className="btn-floating waves-effect waves-light red tooltipped" data-position="bottom" data-delay="50" data-tooltip="Log In" onClick={this.onLogInBtnClick}>
-                        <i id="user-log-in-out-icon" className="mdi-social-person-outline"></i>
-                    </a>
-				</div>
-			</nav>
+            <div className = 'navbar-fixed'>
+    			<nav id="menu-nav">
+                    <div className="nav-wrapper">
+        				<a id="logo" href="javascript:void(0)" className="btn waves-effect waves-light"></a>
+        				<div id="navbar-buttons">
+        					<a id="user-log-in-out-btn" className="navbar-btn btn-floating waves-effect waves-light red tooltipped"
+                               data-position="bottom" data-delay="50" data-tooltip="Log In" onClick={this.onLogInBtnClick}>
+                                <i id="user-log-in-out-icon" className="mdi-social-person-outline"></i>
+                            </a>
+        				</div>
+                    </div>
+    			</nav>
+            </div>
         );
     }
 });

@@ -62,10 +62,9 @@ module.exports = React.createClass({
 
         // apply slim scroll to description section of card's front face
         $('#' + this.props.fileId + '-description-wrapper').slimScroll();
-
-        var cardBackHeader = document.getElementById(this.props.fileId + '-back-header');
+        
         var backSideHeader = this.getBackSideHeader();
-        $(cardBackHeader).val(backSideHeader);
+        $('#'+ this.props.fileId + '-back-header').val(backSideHeader);
     
         var cardBackSide = document.getElementById(this.props.fileId+'-back-side');
         if (cardBackSide !== null) {

@@ -130,16 +130,19 @@ module.exports = React.createClass({
 
         content = <div id={this.props.fileId + '-card'}>
                         <div id={this.props.fileId + '-card-front'} className={"front card-face " + cardFaceClassName}>
-                            <input type="text" className="card-title noselect" id={this.props.fileId + '-title'} readOnly />
+                            <input type="text" className="card-header noselect" id={this.props.fileId + '-title'} readOnly />
                             <div id={this.props.fileId + '-description-wrapper'} className="card-description-wrapper">
                                 <textarea id={this.props.fileId + '-description'} className="card-description noselect" readOnly></textarea>
                             </div>
                         </div>
-                        <div className={"back card-face " + cardFaceClassName}>
-                            Back side!<br />
-                            Back side!<br />
-                            Back side!<br />
-                            Back side!<br />
+                        <div id = {this.props.fileId+'-card-back'} className={"back card-face " + cardFaceClassName}>
+                            <input type="text" className="card-back-header noselect" id={this.props.fileId + '-back-header'} readOnly />
+                            <div id={this.props.fileId + '-back-side-wrapper'} className="card-back-side-wrapper">
+                                Back Side! <br />
+                                Back Side! <br />
+                                Back Side! <br />
+                                Back Side! <br />
+                            </div>
                         </div>
                     </div>
         return content;

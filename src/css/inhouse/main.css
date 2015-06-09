@@ -62,9 +62,17 @@ select {
 }
 
 .pannaramic-blue {
-  background-color: #5d8ce3 !important; 
+ 	background-color: #5d8ce3 !important; 
 }
 
 .pannaramic-blue-text {
-  color: #5d8ce3 !important; 
+	color: #5d8ce3 !important; 
+}
+
+.pannaramic-red {
+	background-color: #d63322 !important;
+}
+
+.pannaramic-red-text {
+	color: #d63322 !important;
 }
