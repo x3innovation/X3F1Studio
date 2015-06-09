@@ -63,6 +63,20 @@ module.exports = React.createClass({
         // apply slim scroll to description section of card's front face
         $('#' + this.props.fileId + '-description-wrapper').slimScroll();
 
+        var cardBackHeader = document.getElementById(this.props.fileId + '-back-header');
+        var backSideHeader = this.getBackSideHeader();
+        $(cardBackHeader).val(backSideHeader);
+    
+        var cardBackSide = document.getElementById(this.props.fileId+'-back-side');
+        if (cardBackSide !== null) {
+            var backSideContent = this.getBackSideContent();
+            $(cardBackSide).val(backSideContent);
+            $(cardBackSide).css('height', 'auto').height(cardBackSide.scrollHeight);
+        }
+
+        $('#' + this.props.fileId + '-description-wrapper').slimScroll();
+        $('#' + this.props.fileId + '-back-side-wrapper').slimScroll();
+
         // need to get rid of 25% width once page is rendered
         var outerWidth = $('.row .col.s3').outerWidth() - 1;
         $('.row .col.s3').css('width', outerWidth);
@@ -146,10 +160,55 @@ module.exports = React.createClass({
         var gModel = doc.getModel().getRoot().get(key);
         this.model.title = gModel.title;
         this.model.description = gModel.description;
+        if (this.props.objectType === GDriveCons.ObjectType.PERSISTENT_DATA) {
+            this.model.fieldNames=[];
+            var fields = gModel.fields.asArray();
+            for (i = 0, len = fields.length; i<len; i++) {
+                this.model.fieldNames.push(fields[i].name);
+            }
+        }
+        else if (this.props.objectType === GDriveCons.ObjectType.EVENT) {
+            //
+        }
+        else if (this.props.objectType === GDriveCons.ObjectType.ENUM) {
+            //
+        }
+        else if (this.props.objectType === GDriveCons.ObjectType.FLOW)  {
+            //
+        }
         
         this.contentFileLoaded = true;
         $('#' + this.props.fileId).addClass('fadeIn animated');
         this.forceUpdate();
+    },
+    getBackSideHeader: function() {
+        var content = '';
+        if (this.props.objectType === GDriveCons.ObjectType.PERSISTENT_DATA) {
+            content = 'Fields';
+        } else if (this.props.objectType === GDriveCons.ObjectType.EVENT) {
+            //
+        } else if (this.props.objectType === GDriveCons.ObjectType.ENUM) {
+            //
+        } else if (this.props.objectType === GDriveCons.ObjectType.FLOW) {
+            //
+        }
+        return content;
+    },
+    getBackSideContent: function() {
+        var content = "";
+        if (this.props.objectType === GDriveCons.ObjectType.PERSISTENT_DATA) {
+            var fieldNames = this.model.fieldNames;
+            for (i = 0, len=fieldNames.length; i<len; i++) {
+                content = content + fieldNames[i] + "\n";
+            }
+        } else if (this.props.objectType === GDriveCons.ObjectType.EVENT) {
+            //
+        } else if (this.props.objectType === GDriveCons.ObjectType.ENUM) {
+            //
+        } else if (this.props.objectType === GDriveCons.ObjectType.FLOW) {
+            //
+        }
+        return content;
     },
 
     getContentBeforeFileLoaded : function()
@@ -167,38 +226,43 @@ module.exports = React.createClass({
 
         var cardFaceClassName = 'z-depth-1 ' + this.props.fileId + '-card-face';
 
-        content = <div id={this.props.fileId + '-card'}>
-                        <div id={this.props.fileId + '-card-front'} className={"front card-face " + cardFaceClassName}>
-                            <input type="text" className="card-title noselect" id={this.props.fileId + '-title'} readOnly />
-                            <div id={this.props.fileId + '-description-wrapper'} className="card-description-wrapper">
-                                <textarea id={this.props.fileId + '-description'} className="card-description noselect" readOnly></textarea>
-                            </div>
-                            <div id={this.props.fileId + '-object-type'}></div>
-                        </div>
-                        <div className={"back card-face " + cardFaceClassName}>
-                            Back side!<br />
-                            Back side!<br />
-                            Back side!<br />
-                            Back side!<br />
-                        </div>
+        content = 
+            <div id={this.props.fileId + '-card'}>
+                <div id={this.props.fileId + '-card-front'} className={"front card-face " + cardFaceClassName}>
+                    <input type="text" className="card-header noselect" id={this.props.fileId + '-title'} readOnly />
+                    <div id={this.props.fileId + '-description-wrapper'} className="card-description-wrapper">
+                        <textarea id={this.props.fileId + '-description'} className="card-description noselect" readOnly></textarea>
                     </div>
+                    <div id={this.props.fileId + '-object-type'}></div>
+                </div>
+                <div id = {this.props.fileId+'-card-back'} className={"back card-face " + cardFaceClassName}>
+                    <input type="text" className="card-back-header noselect" id={this.props.fileId + '-back-header'} readOnly />
+                    <div id={this.props.fileId + '-back-side-wrapper'} className="card-back-side-wrapper">
+                        <textarea id={this.props.fileId+'-back-side'} className="card-description noselect" readOnly></textarea>
+                    </div>
+                </div>
+            </div>
         return content;
     },
 
     onCardSingleClick : function()
     {
         var cardFront = $('#' + this.props.fileId + '-card-front');
+        var cardBack = $('#' + this.props.fileId+'-card-back');
         if (this.model.isCardFront)
         {
             cardFront.stop(true, true).fadeTo(0, 300, function(){
                 cardFront.css('visibility', 'hidden');
+                cardBack.css('visibility', 'visible');
             });
             $('#' + this.props.fileId + '-description-wrapper').css('position', 'initial !important');    
         }
         else
         {
-            cardFront.css('visibility', 'visible');
-            cardFront.stop(true, true).fadeTo(0, 300);
+            cardFront.stop(true, true).fadeTo(0, 300, function(){
+                cardBack.css('visibility','hidden');
+                cardFront.css('visibility', 'visible');
+            });
             $('#' + this.props.fileId + '-description-wrapper').css('position', 'relative !important');
         }
 

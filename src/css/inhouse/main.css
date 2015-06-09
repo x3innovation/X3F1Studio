@@ -60,3 +60,11 @@ select {
 	border-left : 0;
 	margin-bottom : 1em;
 }
+
+.pannaramic-blue {
+  background-color: #5d8ce3 !important; 
+}
+
+.pannaramic-blue-text {
+  color: #5d8ce3 !important; 
+}

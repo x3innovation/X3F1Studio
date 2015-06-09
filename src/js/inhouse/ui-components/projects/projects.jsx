@@ -30,7 +30,7 @@ module.exports = React.createClass({
 	{
 		// hide placeholder on focus, then display on blur
 		$('#search-input').focus(function(){$(this).attr('placeholder', '');})
-							.blur(function(){$(this).attr('placeholder', 'search title');});
+						   .blur(function(){$(this).attr('placeholder', 'search title');});
 	},
 
 	/* ******************************************
@@ -106,13 +106,19 @@ module.exports = React.createClass({
 	        						)
 	        					})
 	        				}
+				    		<div className="col s3 center">
+				    			<a id="project-add-btn" className={"btn-floating waves-effect waves-light " + Configs.App.ADD_BUTTON_COLOR} 
+				    				onClick={this.onAddProjectBtnClick}>
+				                    <i className="mdi-content-add"></i>
+				                </a>
+				    		</div>	
 	        			</div>;
 		}
 
 		return (
 			<div className="container">
 				<div className="row">
-					<div className="col s12">
+					<div className="col s12 center">
 						<h2>Projects</h2>
 					</div>
     			</div>
@@ -120,14 +126,6 @@ module.exports = React.createClass({
     				<div className="col s12 center">
     					<input id="search-input" placeholder="search title" onChange={this.onSearchInputChange} />
     				</div>
-    			</div>
-    			<div className="row">
-	    			<div className="col s2 offset-s10">
-	    				<a id="project-add-btn" className={"btn-floating waves-effect waves-light " + Configs.App.BUTTON_COLOR} 
-	    					onClick={this.onAddProjectBtnClick}>
-	                        <i className="mdi-content-add"></i>
-	                    </a>
-	    			</div>
     			</div>
     			{content}
             </div>

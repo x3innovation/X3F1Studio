@@ -1,6 +1,6 @@
 module.exports = {
 	App : {
-		BUTTON_COLOR : 'blue-grey',
+		ADD_BUTTON_COLOR : 'pannaramic-blue',
 		PERSISTENT_DATA_COLOR : 'indigo',
 		ENUM_COLOR : 'red',
 		EVENT_COLOR : 'orange',

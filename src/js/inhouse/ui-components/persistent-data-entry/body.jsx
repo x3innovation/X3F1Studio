@@ -7,16 +7,16 @@ module.exports=React.createClass({
                 LIFE CYCLE FUNCTIONS
     ****************************************** */
     componentWillMount: function() {
-        this.model={};
-        this.model.field='';
+    	
     },
 
     componentDidMount: function() {
+
     },
 
     componentWillUnmount: function() {
+    	
     },
-
 	/* ******************************************
                NON LIFE CYCLE FUNCTIONS
     ****************************************** */
@@ -25,10 +25,10 @@ module.exports=React.createClass({
 		return (
 			<div id='persistent-data-form-wrapper' className='row'>
 				<div className='col s4' id='persistent-data-fields-container'>
-					<FieldSelector fields={this.props.fields} />
+					<FieldSelector />
 				</div>
 				<div className='col s8' id='persistent-data-form-contents'>
-					<Form fieldName={this.model.field} />
+					<Form />
 				</div>
 			</div>
 		);

@@ -54,9 +54,13 @@
 	position: relative;
 }
 
+#project-add-btn{
+	margin-top: 125px;
+}
+
 #project-object-add-btn{
-	position: absolute;
 	top: 0;
+	position: absolute;
 	right: 16%;
 }
 

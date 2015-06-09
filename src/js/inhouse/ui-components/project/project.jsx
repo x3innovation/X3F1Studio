@@ -271,7 +271,7 @@ module.exports = React.createClass({
             	<i id="to-projects-btn" className='medium mdi-navigation-arrow-back' onClick={this.onToProjectsBtnClick}></i>
             	<div className="row">
 					<div id="project-title-description-wrapper" className="col s12">
-						<input type="text" id="project-title" />
+						<input type="text" id="project-title" className="center" />
 						<div id="project-description-wrapper">
 							<textarea rows="1" id="project-description"></textarea>
 						</div>						
@@ -288,13 +288,13 @@ module.exports = React.createClass({
     					<a className={"waves-effect waves-light btn " + Configs.App.ENUM_COLOR} onClick={this.onEnumBtnClick}>Enum</a>
     					<a className={"waves-effect waves-light btn " + Configs.App.EVENT_COLOR} onClick={this.onEventBtnClick}>Event</a>
     					<a className={"waves-effect waves-light btn " + Configs.App.FLOW_COLOR} onClick={this.onFlowBtnClick}>Flow</a>
-                        <a id="project-object-add-btn" className={"btn-floating waves-effect waves-light " + Configs.App.BUTTON_COLOR} href="#add-project-object-modal">
+                        <a id="project-object-add-btn" className={"btn-floating waves-effect waves-light " + Configs.App.ADD_BUTTON_COLOR} href="#add-project-object-modal">
                             <i className="mdi-content-add"></i>
                         </a>
     				</div>
     			</div>
 
-                <div id="add-project-object-modal" className="modal">
+                <div id="add-project-object-modal" className="modal z-depth-2">
                     <div className="modal-content">
                         <h4>Select a data type:</h4>
                         <div className = "modal-btn-row center">
