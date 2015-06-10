@@ -15,8 +15,7 @@ module.exports=React.createClass ({
         this.model.fields = [];
         this.model.gModel = null;
         this.model.table = null;
-        this.model.selectedFieldName = null;
-        this.model.firstRead = true;
+        this.model.selectedFieldID = null;
     },
 
     componentDidMount: function() {
@@ -35,12 +34,12 @@ module.exports=React.createClass ({
     ****************************************** */
 
     initializeTable: function() {
-        var fieldNames = [];
+        var fieldData = [];
         for (i = 0, len = this.model.fields.length; i < len; i++) {
-            fieldNames[i] = [this.model.fields[i].name]; //an array so the datatable can parse properly
+            fieldData.push([this.model.fields[i].ID, this.model.fields[i].name]); //an array so the datatable can parse properly
         }
         this.model.table = $('#persistent-data-field-table').DataTable({
-            data: fieldNames,
+            data: fieldData,
             destroy: true,
             scrollY: 300,
             paging: false,
@@ -53,24 +52,32 @@ module.exports=React.createClass ({
                 search: '_INPUT_', //removes the 'search:' text, puts it directly in the searchbox
                 searchPlaceholder: 'search fields',
                 emptyTable: 'no fields defined'
-
             },
-            columnDefs: [{
-                targets: 0,
-                className: 'field-cell'
-            }]
+            columnDefs: [
+                {
+                    targets: 0,
+                    className: 'field-ID-cell hide'
+                },
+                {
+                    targets: 1,
+                    className: 'field-cell'
+                }
+            ]
         });
-        $('th.field-cell').removeClass('field-cell'); //header cells should not be treated as body cells
-        $('.field-cell').each(function() {
-                            var $thisCell = $(this);
-                            $thisCell.attr('id', ''+$thisCell.text()+'-cell');
-                        });
+        this.model.table.order([0, 'asc']);
+        $('th.field-ID-cell').removeClass('field-ID-cell'); //header cells should not be treated as body cells
+        $('th.field-cell').removeClass('field-cell'); 
+        var thisTable = this.model.table;
+        $('.field-cell').each(function() 
+            {
+                var $thisCell = $(this);
+                $thisCell.attr('id', ''+$thisCell.text()+'-cell');
+                if (!$thisCell.text()) {
+                    $thisCell.addClass("empty-cell");
+                }
+            }
+        );
         $('.field-cell').on('click', this.onFieldClick);
-
-        if (this.model.firstRead) {
-            this.selectTopCell();
-            this.model.firstRead = false;
-        }
         this.forceUpdate();
     },
 
@@ -100,23 +107,23 @@ module.exports=React.createClass ({
 
     updateUi: function() {
         this.model.fields = this.model.gModel.fields.asArray();
-        this.model.table.destroy();
         this.initializeTable();
         this.selectField();
     },
 
-    saveNewField: function() {
+    saveNewField: function(newFieldName) {
         if (!this.model.gModel) {
             return false;
         }
         var fields = this.model.gModel.fields.asArray();
         for (i = 0, len = fields.length; i<len; i++) { //don't add if the field already exists
-            if (fields[i].name === this.model.selectedFieldName) {
+            if (fields[i].name === newFieldName) {
                 return false;
             }
         }
-        var newField = {
-                            name: this.model.selectedFieldName,
+        var newField = {    
+                            ID: this.model.selectedFieldID,
+                            name: newFieldName,
                             type: DefaultFields.FIELD_TYPE,
                             description: DefaultFields.FIELD_DESCRIPTION,
                             defaultValue: DefaultFields.FIELD_DEF_VALUE,
@@ -131,13 +138,13 @@ module.exports=React.createClass ({
         this.model.gModel.fields.push(newField);
     },
 
-    saveRemovedField: function(removedFieldName) {
+    saveRemovedField: function(removedFieldID) {
         if (!this.model.gModel) {
             return false;
         }
         var fields = this.model.gModel.fields.asArray();
         for (i = 0; i<fields.length; i++) {
-            if (fields[i].name === removedFieldName) {
+            if ("" + fields[i].ID === removedFieldID) {
                 this.model.gModel.fields.remove(i);
                 return true;
             }
@@ -149,24 +156,37 @@ module.exports=React.createClass ({
             return false;
         }
         $('.field-cell').first().addClass('selected-cell');
-        this.model.selectedFieldName = $('.selected-cell').text();
-        var data = {selectedField: this.model.selectedFieldName};
+        var $selectedCell = $('.selected-cell');
+        var cellIndex = this.model.table.cell($selectedCell).index();
+        var thisRow = this.model.table.row(cellIndex.row).node();
+        this.model.selectedFieldID = $(thisRow).find('.field-ID-cell').text();
+        selectedFieldName = $selectedCell.text();
+        var data = {selectedField: selectedFieldName,
+                    fieldCount: $('.field-cell').length};
         Bullet.trigger(EventType.PersistentDataEntry.FIELD_SELECTED, data);
     },
 
     selectField: function() {
-        if (!this.model.selectedFieldName) {
+        if (!this.model.selectedFieldID) {
             return false;
         }
         this.unselectSelectedCell();
-        var selectedFieldName = this.model.selectedFieldName;
-        $('.field-cell').each(function() {
-            if ($(this).text() === selectedFieldName) {
-                $(this).addClass('selected-cell');
-                $('.dataTables_scrollBody').scrollTop($(this).position().top-100);
-            }
-        });
-        var data = {selectedField: this.model.selectedFieldName};
+        var table = this.model.table;
+        var selectedFieldID = this.model.selectedFieldID;
+        var selectedFieldName = '';
+        if ($('.field-cell').length >= 0) {
+            $('.field-ID-cell').each(function(index, element) {
+                if ($(this).text() === selectedFieldID) {
+                    var cellIndex = table.cell($(this)).index();
+                    var thisRow = table.row(cellIndex.row).node();
+                    $(thisRow).find('td.field-cell').addClass('selected-cell');
+                    selectedFieldName = $('.selected-cell').text();
+                    $('.dataTables_scrollBody').scrollTop($('.selected-cell').position().top-100);
+                }
+            });
+        }
+        var data = {selectedField: selectedFieldName,
+                    fieldCount: $('.field-cell').length};
         Bullet.trigger(EventType.PersistentDataEntry.FIELD_SELECTED, data);
     },
 
@@ -178,7 +198,6 @@ module.exports=React.createClass ({
     },
 
     onAddBtnClick: function(e) {
-        this.unselectSelectedCell();
         // getting the first value N where new-field-N is not currently used
         var NEW_FIELD_NAME='new-field-';
         var tableData=this.model.table.cells('.field-cell').data();
@@ -192,20 +211,26 @@ module.exports=React.createClass ({
         while (digitsList.indexOf(""+newAttributeNum) >= 0) { 
             newAttributeNum++;
         }
-
-        this.model.selectedFieldName = NEW_FIELD_NAME+""+newAttributeNum;
-        var data = {selectedField: this.model.selectedFieldName};
-        Bullet.trigger(EventType.PersistentDataEntry.FIELD_SELECTED, data);
-        this.saveNewField();
-        Bullet.trigger(EventType.PersistentDataEntry.FIELD_ADDED);
+        var newFieldName = NEW_FIELD_NAME+""+newAttributeNum;
+        var newIndex = 1;
+        $('.field-ID-cell').each(function(index, element){
+            if (parseInt($(this).text()) >= newIndex) {
+                newIndex = parseInt($(this).text()) + 1;
+            }
+        });
+        this.model.selectedFieldID = ""+newIndex;
+        this.saveNewField(newFieldName);
     },  
 
     onDeleteBtnClick: function(e) {
         if ($('.selected-cell').length===0) {
             return false;
         }
-        var removedFieldName = $('.selected-cell').text();
-        this.saveRemovedField(removedFieldName);
+        var $selectedCell = $('.selected-cell');
+        var cellIndex = this.model.table.cell($selectedCell).index();
+        var thisRow = this.model.table.row(cellIndex.row).node();
+        var removedFieldID = $(thisRow).find(".field-ID-cell").text();
+        this.saveRemovedField(removedFieldID);
 
         $('.delete-tooltipped').tooltipster('hide');
         this.selectTopCell();
@@ -213,14 +238,18 @@ module.exports=React.createClass ({
     },
 
     onFieldClick: function(e) {
-        var $selectedCell=$(e.currentTarget);
-        if ($selectedCell.hasClass('selected-cell')) {
+        var $clickedCell=$(e.currentTarget);
+        if ($clickedCell.hasClass('selected-cell')) {
             return false;
         }
         this.unselectSelectedCell();
-        $selectedCell.addClass('selected-cell');
-        this.model.selectedFieldName = $selectedCell.text();
-        var data = {selectedField: this.model.selectedFieldName};
+        $clickedCell.addClass('selected-cell');
+        var cellIndex = this.model.table.cell($clickedCell).index();
+        var thisRow = this.model.table.row(cellIndex.row).node();
+        this.model.selectedFieldID = $(thisRow).find('.field-ID-cell').text();
+        selectedFieldName = $clickedCell.text();
+        var data = {selectedField: selectedFieldName,
+                    fieldCount: $('.field-cell').length};
         Bullet.trigger(EventType.PersistentDataEntry.FIELD_SELECTED, data);
     },
 
@@ -231,16 +260,19 @@ module.exports=React.createClass ({
             <div>
                 <table id='persistent-data-field-table' className='dataTable hoverable col s12'>
                     <thead>
-                        <tr><th><div className='field-table-header'>fields</div></th></tr>
+                        <tr>
+                            <th><div className='hide field-ID-table-header'></div></th>
+                            <th><div className='field-table-header'>fields</div></th>
+                        </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
                 <div>
-                    <a id='field-add-btn' onClick={this.onAddBtnClick} className={'z-depth-2 field-selector-header-btn btn-floating waves-effect waves-light '+Configs.App.ADD_BUTTON_COLOR}>
+                    <a id='field-add-btn' onClick={this.onAddBtnClick} className={'z-depth-1 field-selector-header-btn btn-floating waves-effect waves-light '+Configs.App.ADD_BUTTON_COLOR}>
                        <i className='mdi-content-add btn-icon'></i></a>
                 </div>
                 <div>
-                    <a id='field-delete-btn' className='z-depth-2 delete-tooltipped field-selector-header-btn btn-floating waves-effect waves-light red'>
+                    <a id='field-delete-btn' className='z-depth-1 delete-tooltipped field-selector-header-btn btn-floating waves-effect waves-light red'>
                        <i className='mdi-content-clear btn-icon'></i></a>
                 </div>
             </div>

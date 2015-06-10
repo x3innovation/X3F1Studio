@@ -61,7 +61,9 @@ module.exports = React.createClass({
         });
 
         // apply slim scroll to description section of card's front face
-        $('#' + this.props.fileId + '-description-wrapper').slimScroll();
+        $('#' + this.props.fileId + '-description-wrapper').slimScroll({
+            height : '220px'
+        });
         
         var backSideHeader = this.getBackSideHeader();
         $('#'+ this.props.fileId + '-back-header').val(backSideHeader);
@@ -72,9 +74,9 @@ module.exports = React.createClass({
             $(cardBackSide).val(backSideContent);
             $(cardBackSide).css('height', 'auto').height(cardBackSide.scrollHeight);
         }
-
-        $('#' + this.props.fileId + '-description-wrapper').slimScroll();
-        $('#' + this.props.fileId + '-back-side-wrapper').slimScroll();
+        $('#' + this.props.fileId + '-back-side-wrapper').slimScroll({
+            height : '220px'
+        });
 
         // need to get rid of 25% width once page is rendered
         var outerWidth = $('.row .col.s3').outerWidth() - 1;
@@ -185,11 +187,11 @@ module.exports = React.createClass({
         if (this.props.objectType === GDriveCons.ObjectType.PERSISTENT_DATA) {
             content = 'Fields';
         } else if (this.props.objectType === GDriveCons.ObjectType.EVENT) {
-            //
+            /* EVENT HEADER CONTENT */
         } else if (this.props.objectType === GDriveCons.ObjectType.ENUM) {
-            //
+            /* ENUM HEADER CONTENT */
         } else if (this.props.objectType === GDriveCons.ObjectType.FLOW) {
-            //
+            /* FLOW HEADER CONTENT */
         }
         return content;
     },
@@ -201,11 +203,11 @@ module.exports = React.createClass({
                 content = content + fieldNames[i] + "\n";
             }
         } else if (this.props.objectType === GDriveCons.ObjectType.EVENT) {
-            //
+            /* EVENT OBJECT CONTENT */
         } else if (this.props.objectType === GDriveCons.ObjectType.ENUM) {
-            //
+            /* ENUM OBJECT CONTENT */
         } else if (this.props.objectType === GDriveCons.ObjectType.FLOW) {
-            //
+            /* FLOW OBJECT CONTENT */
         }
         return content;
     },

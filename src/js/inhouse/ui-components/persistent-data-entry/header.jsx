@@ -11,6 +11,7 @@ module.exports=React.createClass ({
 	****************************************** */
 	componentWillMount: function() {
 		this.model.gModel=null;
+		this.model.fieldAttr={};
 	},
 
 	componentDidMount: function() {
@@ -42,28 +43,37 @@ module.exports=React.createClass ({
 	updateUi: function() {
 		$('#header-title').val(this.model.gModel.title);
 		$('#header-desc').val(this.model.gModel.description);
+		this.setCursorPos();
 	},
 
 	connectUi: function() {
-		$('#header-title').keyup(this.keyupSaveHandler); 
-		$('#header-desc').keyup(this.keyupSaveHandler);
+		$('#header-title').keyup(this.keyUpHandler); 
+		$('#header-desc').keyup(this.keyUpHandler);
 	},
 
-	keyupSaveHandler: function(e) {
-		var code = (e.keyCode || e.which);
-		var nonInputKeys = [9,16,17,18,19,20,27,33,34,35,36,37,38,39,40,45,46,91,92,93,112,113,114,115,116,117,118,119,120,121,122,123,144,145];
-
-   		// do nothing if key is pressed that doesn't cause input
-    	if(nonInputKeys.indexOf(code)!==-1) {
-    	    return false;
-    	} else {
-    		this.saveUiToGoogle();
-    	}
+	keyUpHandler: function(e) {
+		var $fieldAttr = $(e.target);
+		var code = (e.keyCode);
+		var nonInputKeys = [9,16,17,18,19,20,27,33,34,35,36,37,38,39,40,45,46,91,92,93,112,113,114,115,116,
+					        117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,144,145];
+		if (nonInputKeys.indexOf(code) >= 0) {
+			return false;
+		} else {
+			this.model.fieldAttr.curr=$fieldAttr[0];
+			this.model.fieldAttr.currPos=$fieldAttr[0].selectionStart;
+			this.saveUiToGoogle();
+		}
 	},
 
 	saveUiToGoogle: function() {
 		this.model.gModel.title=$('#header-title').val();
 		this.model.gModel.description=$('#header-desc').val();
+	},
+
+	setCursorPos: function() {
+		if (this.model.fieldAttr.curr) {
+			this.model.fieldAttr.curr.setSelectionRange(this.model.fieldAttr.currPos, this.model.fieldAttr.currPos);
+		}
 	},
 
 	render: function() {

@@ -13,9 +13,8 @@ module.exports=React.createClass({
 	componentWillMount: function() {
 		this.model.gModel=null;
 		this.model.fieldSelected=false;
-		this.model.currentFieldAttribute=null;
-		this.model.currentFieldAttributePosition=null;
 		this.model.fieldData={};
+		this.model.fieldAttr={};
 
 		Bullet.on(EventType.PersistentDataEntry.GAPI_FILE_LOADED, 'form.jsx>>onGapiFileLoaded', this.onGapiFileLoaded); 
 	},
@@ -24,7 +23,7 @@ module.exports=React.createClass({
 		this.initializeSelect();
 
 		Bullet.on(EventType.PersistentDataEntry.FIELD_SELECTED, 'form.jsx>>fieldSelected', function(data) {
-			this.onFieldSelected(data.selectedField);
+			this.onFieldSelected(data);
 		}.bind(this));
 	},
 
@@ -54,12 +53,12 @@ module.exports=React.createClass({
 	},
 
 	connectUi: function() {
-		$('#name-field').keyup(this.keyupSaveHandler);
-		$('#description-field').keyup(this.keyupSaveHandler);
-		$('#def-value-field').keyup(this.keyupSaveHandler);
-		$('#min-value-field').keyup(this.keyupSaveHandler);
-		$('#max-value-field').keyup(this.keyupSaveHandler);
-		$('#string-len-field').keyup(this.keyupSaveHandler);
+		$('#name-field').keyup(this.keyUpHandler);
+		$('#description-field').keyup(this.keyUpHandler);
+		$('#def-value-field').keyup(this.keyUpHandler);
+		$('#min-value-field').keyup(this.keyUpHandler);
+		$('#max-value-field').keyup(this.keyUpHandler);
+		$('#string-len-field').keyup(this.keyUpHandler);
 		$('#def-value-checkbox').change(this.saveUiToGoogle);
 		$('#read-only-checkbox').change(this.saveUiToGoogle);
 		$('#optional-checkbox').change(this.saveUiToGoogle);
@@ -67,15 +66,18 @@ module.exports=React.createClass({
 		$('#context-id-checkbox').change(this.saveUiToGoogle);
 	},
 
-	keyupSaveHandler: function(e) {
-		var code = (e.keyCode || e.which);
-		var nonInputKeys = [9,16,17,18,19,20,27,33,34,35,36,37,38,39,40,45,46,91,92,93,112,113,114,115,116,117,118,119,120,121,122,123,144,145];
-
-    	if(nonInputKeys.indexOf(code)>=0) {
-    	    return false;
-    	} else {
-    		this.saveUiToGoogle();
-    	}
+	keyUpHandler: function(e) {
+		var $fieldAttr = $(e.target);
+		var code = (e.keyCode);
+		var nonInputKeys = [9,16,17,18,19,20,27,33,34,35,36,37,38,39,40,45,46,91,92,93,112,113,114,115,116,
+					        117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,144,145];
+		if (nonInputKeys.indexOf(code) >= 0) {
+			return false;
+		} else {
+			this.model.fieldAttr.curr=$fieldAttr[0];
+			this.model.fieldAttr.currPos=$fieldAttr[0].selectionStart;
+			this.saveUiToGoogle();
+		}
 	},
 
 	displayCorrectUiComponents: function() {
@@ -98,17 +100,8 @@ module.exports=React.createClass({
 		$('#optional-checkbox').prop('checked', this.model.fieldData.optional);
 		$('#array-checkbox').prop('checked', this.model.fieldData.array);
 		$('#context-id-checkbox').prop('checked', this.model.fieldData.contextId);
-		this.initializeSelect(); //Materialize requires reinitializing dynamic components when changed programmatically
-		this.forceUpdate();
-
-		// realign the labels with each update
-        $('.text-input').each(function(index, element) {
-            if ($(this).val() != '') {
-                $(this).next('label').addClass('active');
-            } else {
-                $(this).next('label').removeClass('active');
-            }
-        });
+		this.initializeSelect(); //Materialize requires reinitializing dynamic components when changed
+		this.setCursorPos();
 	},
 
 	saveUiToGoogle: function(newFieldType) {
@@ -121,9 +114,9 @@ module.exports=React.createClass({
 			}
 		}
 		var newField = {};
-
+		newField.ID =this.model.fieldData.ID;
 		newField.name=$('#name-field').val();
-		newField.type=$('#type-field').val();
+		newField.type=$('#field-type-dropdown input.select-dropdown').val();
 		newField.description=$('#description-field').val();
 		newField.readOnly=$('#read-only-checkbox').prop('checked');
 		newField.optional=$('#optional-checkbox').prop('checked');
@@ -139,12 +132,25 @@ module.exports=React.createClass({
 		this.model.gModel.fields.set(fieldIndex, this.model.fieldData);
 	},
 
-	onFieldSelected: function(selectedField) {
+	setCursorPos: function() {
+		if (this.model.fieldAttr.curr) {
+			this.model.fieldAttr.curr.setSelectionRange(this.model.fieldAttr.currPos, this.model.fieldAttr.currPos);
+		}
+	},
+
+	onFieldSelected: function(data) {
+		if (data.fieldCount === 0) {
+			this.model.fieldSelected = false;
+			$('form').addClass('hide');
+			this.forceUpdate();
+			return false;
+		}
 		if (!this.model.fieldSelected) {
 			this.model.fieldSelected = true;
 			$('form.hide').removeClass('hide');
-			this.forceUpdate();
 		}
+
+		var selectedField = data.selectedField;
 		var fields=this.model.gModel.fields.asArray();
 		for (i = 0, len=fields.length; i<len; i++) {
 			if (fields[i].name===selectedField) {
@@ -153,6 +159,14 @@ module.exports=React.createClass({
 			}
 		}
 		this.updateUi();
+		// realign the labels
+        $('.text-input').each(function(index, element) {
+            if ($(this).val() != '') {
+                $(this).next('label').addClass('active');
+            } else {
+                $(this).next('label').removeClass('active');
+            }
+        });
 	},
 
 	onFieldTypeChanged: function(newFieldType) {

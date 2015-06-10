@@ -254,11 +254,11 @@ module.exports = React.createClass({
                                    	return (
                                         <div key={columnIndex} className="col s3 f1-project-card" style={cellStyle}>
                                             <Card title={projectObject.title} 
-                                                               projectFileId={projectFileId}
-                                                               projectFolderFileId={projectFolderFileId}
-                                            				   fileId={projectObject.id}
-                                            				   objectType={projectObject.description}
-                                            				   model={{}} />
+                                                  projectFileId={projectFileId}
+                                                  projectFolderFileId={projectFolderFileId}
+                                            	  fileId={projectObject.id}
+                                            	  objectType={projectObject.description}
+                                            	  model={{}} />
 										</div>
                                    	)
                                 })

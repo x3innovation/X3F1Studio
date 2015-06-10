@@ -2,7 +2,7 @@ var Body=require('./body.jsx');
 var Header=require('./header.jsx');
 var EventType=require('../../constants/event-type.js');
 var userStore = require('../../stores/user-store.js');
-var defaultValueCons = require('../../constants/default-value-constants.js');
+var DefaultValueCons = require('../../constants/default-value-constants.js');
 var googleDriveService = require('../../services/google-drive-service.js');
 var GCons = require('../../constants/google-drive-constants.js');
 var UserLoginFailRedirectHome = require('../common/user-login-fail-redirect-home.jsx');
@@ -18,7 +18,7 @@ module.exports=React.createClass({
     },
     
     componentDidMount: function() {
-        // if user is already logged in, still need to initialize
+        // if user is already logged in, just initialize
         if (userStore.isLoggedIn)
         {
             this.initialize();
@@ -46,8 +46,8 @@ module.exports=React.createClass({
         var customModel = model.create(GCons.CustomObjectKey.PERSISTENT_DATA);
         model.getRoot().set(GCons.CustomObjectKey.PERSISTENT_DATA, customModel);
 
-        customModel.title = defaultValueCons.NewFileValues.PERSISTENT_DATA_TITLE;
-        customModel.description = defaultValueCons.NewFileValues.PERSISTENT_DATA_DESCRIPTION;
+        customModel.title = DefaultValueCons.NewFileValues.PERSISTENT_DATA_TITLE;
+        customModel.description = DefaultValueCons.NewFileValues.PERSISTENT_DATA_DESCRIPTION;
         customModel.fields=model.createList();
     },
 
