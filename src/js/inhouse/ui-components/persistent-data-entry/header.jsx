@@ -1,5 +1,6 @@
 var EventType=require('../../constants/event-type.js');
 var GDriveConstants=require('../../constants/google-drive-constants.js');
+var googleDriveService = require('../../services/google-drive-service.js');
 var Cons=GDriveConstants.PersistentData;
 
 module.exports=React.createClass ({
@@ -36,6 +37,8 @@ module.exports=React.createClass ({
 		var key=GDriveConstants.CustomObjectKey.PERSISTENT_DATA;
 		this.model.gModel=doc.getModel().getRoot().get(key);
 		this.model.gModel.addEventListener(gapi.drive.realtime.EventType.VALUE_CHANGED, this.updateUi);
+		$('#data-ID').val(this.model.gModel.id);
+		$('#data-ID-label').addClass('active').removeClass('hide');
 		this.updateUi();
 		this.connectUi();
 	},
@@ -68,6 +71,7 @@ module.exports=React.createClass ({
 	saveUiToGoogle: function() {
 		this.model.gModel.title=$('#header-title').val();
 		this.model.gModel.description=$('#header-desc').val();
+		Bullet.trigger(EventType.PersistentDataEntry.TITLE_CHANGED);
 	},
 
 	setCursorPos: function() {
@@ -78,12 +82,18 @@ module.exports=React.createClass ({
 
 	render: function() {
 		return (
-			<div className="row">
-				<div id="header-wrapper" className="col s12 center">
-					<input type="text" id="header-title" className='center' />
-					<div id="desc-wrapper">
-						<textarea rows="1" id="header-desc" ></textarea>
-					</div>            
+			<div>
+				<div className='row'>
+					<div id='header-wrapper' className='col s12 center'>
+						<input type='text' id='header-title' className='center' />
+						<div id='data-ID-wrapper' className='input-field col s2'>
+							<input disabled type='text' id='data-ID'/>
+							<label htmlFor='data-ID' className='active' id='data-ID-label'>ID</label>
+						</div>
+						<div id='desc-wrapper' className='col s10'>
+							<textarea rows='1' id='header-desc'></textarea>
+						</div>
+					</div>
 				</div>
 			</div>
 		)

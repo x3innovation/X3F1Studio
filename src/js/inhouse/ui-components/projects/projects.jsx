@@ -54,8 +54,18 @@ module.exports = React.createClass({
         this.searchTypingTimeout = setTimeout(this.getProjects, 500);
     },
 
+    getProjects : function()
+    {
+    	this.model.projects = [];
+    	this.forceUpdate();
+
+    	var titleSearchString = $('#search-input').val();
+    	googleDriveService.getProjects(titleSearchString, this.onReceiveProjects);
+    },
+
     onAddProjectBtnClick: function(e) {
-    	this.createNewProject();
+        clearTimeout(this.createProjectTimeout);
+        this.createProjectTimeout = setTimeout(this.createNewProject, 100);
     },
 
     createNewProject: function() {
@@ -65,15 +75,6 @@ module.exports = React.createClass({
     		params.projectFileId=project.id;
     		this.transitionTo('project', params);
     	}.bind(this));
-    },
-
-    getProjects : function()
-    {
-    	this.model.projects = [];
-    	this.forceUpdate();
-
-    	var titleSearchString = $('#search-input').val();
-    	googleDriveService.getProjects(titleSearchString, this.onReceiveProjects);
     },
 
     render: function()

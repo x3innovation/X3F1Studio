@@ -1,9 +1,9 @@
 module.exports = {
 	NewFileValues : {
 		PROJECT_TITLE : 'New F1 Project',
-		PROJECT_DESCRIPTION : 'new description',
+		PROJECT_DESCRIPTION : 'description',
 		PERSISTENT_DATA_TITLE : 'New Persistent Data',
-		PERSISTENT_DATA_DESCRIPTION : 'A new persistent data model',
+		PERSISTENT_DATA_DESCRIPTION : 'A new persistent data model'
 	},
 
 	DefaultFieldAttributes : {
@@ -14,9 +14,12 @@ module.exports = {
 		FIELD_MIN_VALUE : null,
 		FIELD_MAX_VALUE : null,
 		FIELD_STR_LEN : null,
+		FIELD_REF_NAME : 'default',
+		FIELD_REF_TYPE : '',
+		FIELD_ENUM_NAME : 'default',
 		FIELD_READ_ONLY : false,
 		FIELD_OPTIONAL : false,
 		FIELD_ARRAY : false,
-		FIELD_CONTEXT_ID : false,
+		FIELD_CONTEXT_ID : false
 	}
 }

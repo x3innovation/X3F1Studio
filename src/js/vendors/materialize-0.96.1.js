@@ -2710,7 +2710,6 @@ $(document).ready(function(){
       }
 
       $select.addClass('initialized');
-      $select.css("display", "none");
 
       $newSelect.on('focus', function(){
         $(this).trigger('open');

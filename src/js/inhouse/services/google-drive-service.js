@@ -2,17 +2,18 @@ var googleApiInterface = require('../remote-server-interfaces/google-api-interfa
 var userStore = require('../stores/user-store.js');
 var LocalStorageKey = require('../constants/local-storage-key.js');
 var GCons = require('../constants/google-drive-constants.js');
+var DefaultCons= require('../constants/default-value-constants.js');
 
 function GoogleDriveService()
 {
 	// //////// private members
 	var sortCompareByFileTitle = function(a,b){
-		var titlsA=a.title.toLowerCase(), titleB=b.title.toLowerCase();
-		if (titlsA < titleB) //sort string ascending
+		var titleA=a.title.toLowerCase(), titleB=b.title.toLowerCase();
+		if (titleA < titleB) //sort string ascending
 		{
 			return -1;
 		}
-		else if (titlsA > titleB)
+		else if (titleA > titleB)
 		{
 			return 1;
 		}
@@ -21,6 +22,18 @@ function GoogleDriveService()
 			return 0;
 		}
 	}
+
+	var updateMetadataModel = function(metadataModel) {
+		if (metadataModel.version == null) {
+		    metadataModel.version = 1;
+		}
+		if (metadataModel.nextId == null) {
+		    metadataModel.nextId = 10;
+		}
+		if (metadataModel.announcement == null) {
+		    metadataModel.announcement = doc.getModel().createList();
+		}
+	} 
 
 	// //////// public members
 	this.getProjects = function(titleSearchString, callback)
@@ -57,39 +70,54 @@ function GoogleDriveService()
 		googleApiInterface.saveTitle(parentFolderId, newTitle);
 	}
 
+	this.saveFileTitle = function(fileId, title) {
+		googleApiInterface.saveTitle(fileId, title);
+	}
+
+	this.getProjectMetadata = function(fileId, callback) {
+	    var metadataModel;
+
+
+	    var initializeMetadataModel = function(model) {
+	        var field = model.create(GCons.CustomObjectKey.PROJECT_METADATA);
+	        field.announcement = model.createList();
+	        model.getRoot().set(GCons.CustomObjectKey.PROJECT_METADATA, field);
+	    };
+
+	    var onMetadataFileLoaded = function(doc) {
+	        metadataModel = doc.getModel().getRoot().get(GCons.CustomObjectKey.PROJECT_METADATA);
+	        if (metadataModel===null) {
+	        	initializeMetadataModel(doc.getModel());
+	        	onMetadataFileLoaded(doc);
+	        }
+	        //if not properly initialized, update it
+	        else {
+	        	updateMetadataModel(metadataModel);
+	        	callback(metadataModel);
+	    	}
+	    };
+
+	    gapi.drive.realtime.load(fileId, onMetadataFileLoaded, initializeMetadataModel);
+	}
+
+	this.getMetadataModelId = function(projectFileId, callback, step) {
+	    if (typeof step == 'undefined') {
+	    	step = 1;
+	    }
+	    this.getProjectMetadata(projectFileId, function(metadataModel) {
+	        if (typeof metadataModel.nextId == 'undefined') {
+	            metadataModel.nextId = 0;
+	        }
+	        var thisId = metadataModel.nextId;
+	        metadataModel.nextId = metadataModel.nextId + step;
+	        callback(thisId);
+		});
+	}
+
 	this.getProjectObjects = function(projectFolderFileId, titleSearchString, includePersistentData, includeEnum, includeEvent, includeFlow, callback)
 	{
-		if (!includePersistentData && !includeEnum && !includeEvent && !includeFlow)
-		{
-			return [];
-		}
-		else
-		{
-			var query = buildQuery(projectFolderFileId, includePersistentData, includeEnum, includeEvent, includeFlow);
-			googleApiInterface.getProjectObjects(query, callbackWrapper);
-
-			function callbackWrapper(projectObjects)
-			{
-				var filteredProjectObjects = filterObjectsByTitle(projectObjects, titleSearchString);
-				filteredProjectObjects.sort(sortCompareByFileTitle);
-				callback(filteredProjectObjects);
-			}
-
-			function filterObjectsByTitle(projectObjects, titleSearchString)
-			{
-				var filteredProjectObjects = [];
-				for (var i in projectObjects)
-				{
-					if (projectObjects[i].title.indexOf(titleSearchString) > -1)
-					{
-						filteredProjectObjects.push(projectObjects[i]);
-					}
-				}
-				return filteredProjectObjects;
-			}
-		}
 		
-		function buildQuery(projectFolderFileId, includePersistentData, includeEnum, includeEvent, includeFlow)
+		var buildQuery = function (projectFolderFileId, includePersistentData, includeEnum, includeEvent, includeFlow)
 		{
 			// we are doing fullText contains search because at the time of writing this code,
 			// google drive api had bugs in custom properties query. So we are relying on having the object types
@@ -141,15 +169,40 @@ function GoogleDriveService()
 
 			return query;
 		}
+
+		if (!includePersistentData && !includeEnum && !includeEvent && !includeFlow)
+		{
+			return [];
+		}
+		else
+		{
+			var query = buildQuery(projectFolderFileId, includePersistentData, includeEnum, includeEvent, includeFlow);
+			googleApiInterface.getProjectObjects(query, callbackWrapper);
+
+			function callbackWrapper(projectObjects)
+			{
+				var filteredProjectObjects = filterObjectsByTitle(projectObjects, titleSearchString);
+				filteredProjectObjects.sort(sortCompareByFileTitle);
+				callback(filteredProjectObjects);
+			}
+
+			function filterObjectsByTitle(projectObjects, titleSearchString)
+			{
+				var filteredProjectObjects = [];
+				for (var i in projectObjects)
+				{
+					if (projectObjects[i].title.indexOf(titleSearchString) > -1)
+					{
+						filteredProjectObjects.push(projectObjects[i]);
+					}
+				}
+				return filteredProjectObjects;
+			}
+		}
 	}
 
 	this.createNewProject = function(callback) {
-		folderCreationParams={};
-		folderCreationParams.title='New F1 Project';
-		folderCreationParams.mimeType=GCons.MimeType.FOLDER;
-		googleApiInterface.createNewFolder(folderCreationParams, createNewF1Metadata);
-
-		function createNewF1Metadata(folder) {
+		var createNewF1Metadata = function (folder) {
 			fileCreationParams={};
 			fileCreationParams.title=folder.title;
 			fileCreationParams.description=GCons.ObjectType.PROJECT_METADATA;
@@ -157,20 +210,19 @@ function GoogleDriveService()
 			fileCreationParams.mimeType=GCons.MimeType.PROJECT;
 			googleApiInterface.createNewFile(fileCreationParams, callback)
 		}
+		folderCreationParams={};
+		folderCreationParams.title='New F1 Project';
+		folderCreationParams.mimeType=GCons.MimeType.FOLDER;
+		googleApiInterface.createNewFolder(folderCreationParams, createNewF1Metadata);
 	}
 
 	this.createNewPersistentData = function(parentFolderId, callback) {
 		fileCreationParams={};
-		fileCreationParams.title='New Persistent Data';
+		fileCreationParams.title=DefaultCons.NewFileValues.PERSISTENT_DATA_TITLE;
 		fileCreationParams.description=GCons.ObjectType.PERSISTENT_DATA;
 		fileCreationParams.parentId=parentFolderId;
 		fileCreationParams.mimeType=GCons.MimeType.DMX;
 		googleApiInterface.createNewFile(fileCreationParams, callback);
-	}
-
-	this.getPersistentDataModel = function()
-	{
-		return googleApiInterface.PersistentDataModel;
 	}
 }
 

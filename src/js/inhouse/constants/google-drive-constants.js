@@ -21,6 +21,7 @@ module.exports = {
 	},
 
 	CustomObjectKey : {
+		PROJECT_METADATA : 'project-metadata-custom-object',
 		PERSISTENT_DATA : 'persistent-data-custom-object',
 		ENUM : 'enum-data-custom-object',
 		EVENT : 'event-data-custom-object',
@@ -30,6 +31,12 @@ module.exports = {
 	Project : {
 		KEY_TITLE : 'title',
 		KEY_DESCRIPTION : 'description',
+	},
+
+	ProjectMetadata : {
+		KEY_VERSION : 'version',
+		KEY_ANNOUNCEMENT : 'announcement',
+		KEY_NEXT_ID : 'nextId'
 	},
 
 	PersistentData : {

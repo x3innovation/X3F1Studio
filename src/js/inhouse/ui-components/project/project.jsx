@@ -91,7 +91,7 @@ module.exports = React.createClass({
     initialize : function()
     {
     	// load google drive project metadata file
-		gapi.drive.realtime.load(this.getParams().projectFileId, this.onProjectFileLoaded, null);
+		gapi.drive.realtime.load(this.getParams().projectFileId, this.onProjectFileLoaded, this.onProjectModelInitialize);
 
 		this.getProjectObjects();
     },
@@ -100,9 +100,11 @@ module.exports = React.createClass({
     {
     	var gModel = doc.getModel();
 
-        if (!gModel.getRoot().get(GDriveCons.Project.KEY_TITLE)) {
+        if (!gModel.getRoot().get(GDriveCons.Project.KEY_TITLE)) { // if initializing went wrong, reset to default values
             gModel.getRoot().set(GDriveCons.Project.KEY_TITLE, 
                                  gModel.createString(DefaultValueCons.NewFileValues.PROJECT_TITLE));
+        }
+        if (!gModel.getRoot().get(GDriveCons.Project.KEY_DESCRIPTION)) {
             gModel.getRoot().set(GDriveCons.Project.KEY_DESCRIPTION, 
                                  gModel.createString(DefaultValueCons.NewFileValues.PROJECT_DESCRIPTION));
         }
@@ -130,6 +132,14 @@ module.exports = React.createClass({
         titleModel.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, onTitleChange);
     },
 
+    onProjectModelInitialize: function(model) {
+        var gRoot = model.getRoot();
+        gRoot.set(GDriveCons.Project.KEY_TITLE, 
+                    model.createString(DefaultValueCons.NewFileValues.PROJECT_TITLE));
+        gRoot.set(GDriveCons.Project.KEY_DESCRIPTION, 
+                    model.createString(DefaultValueCons.NewFileValues.PROJECT_DESCRIPTION));
+    },
+
     saveTitleToFileItself : function()
     {
     	var newTitle = $('#project-title').val();
@@ -154,6 +164,7 @@ module.exports = React.createClass({
     {
     	this.model.projectObjects = projectObjects;
     	this.projectsReceived = true;
+        $('#project-object-add-btn').removeClass('disabled');
     	this.forceUpdate();
     },
 
@@ -192,20 +203,18 @@ module.exports = React.createClass({
     },
 
     onAddPersistentDataBtnClick : function(e)
-    {
-        this.createNewPersistentData();
+    {   
+        clearTimeout(this.createObjectTimeout);
+        this.createObjectTimeout = setTimeout(this.createNewPersistentData, 300);
     },
 
     createNewPersistentData: function() 
     {
-        googleDriveService.createNewPersistentData(this.getParams().projectFolderFileId, function(file) {
-            var params={};
-            params.projectFolderFileId = this.getParams().projectFolderFileId;
-            params.projectFileId = this.getParams().projectFileId;
-            params.persistentDataFileId = file.id;
-            this.transitionTo('persistentDataEntry', params);
-            $('#lean-overlay').remove();
-        }.bind(this)); 
+        var params={};
+        params.projectFolderFileId = this.getParams().projectFolderFileId;
+        params.projectFileId = this.getParams().projectFileId;
+        this.replaceWith('persistentDataCreate', params);
+        $('#lean-overlay').remove();
     },
 
     switchButtonOnOff : function(button, model)
@@ -288,7 +297,7 @@ module.exports = React.createClass({
     					<a className={"waves-effect waves-light btn " + Configs.App.ENUM_COLOR} onClick={this.onEnumBtnClick}>Enum</a>
     					<a className={"waves-effect waves-light btn " + Configs.App.EVENT_COLOR} onClick={this.onEventBtnClick}>Event</a>
     					<a className={"waves-effect waves-light btn " + Configs.App.FLOW_COLOR} onClick={this.onFlowBtnClick}>Flow</a>
-                        <a id="project-object-add-btn" className={"btn-floating waves-effect waves-light " + Configs.App.ADD_BUTTON_COLOR} href="#add-project-object-modal">
+                        <a id="project-object-add-btn" className={"btn-floating disabled waves-effect waves-light " + Configs.App.ADD_BUTTON_COLOR} href="#add-project-object-modal">
                             <i className="mdi-content-add"></i>
                         </a>
     				</div>

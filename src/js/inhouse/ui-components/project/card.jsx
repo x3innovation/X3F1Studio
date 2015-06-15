@@ -159,13 +159,20 @@ module.exports = React.createClass({
         }
 
         var gModel = doc.getModel().getRoot().get(key);
-        this.model.title = gModel.title;
-        this.model.description = gModel.description;
+        if (gModel) {
+            this.model.title = gModel.title;
+            this.model.description = gModel.description;
+        } else { //gModel was not properly initialized, but still need to load
+            this.model.title = DefaultValueCons.NewFileValues.PERSISTENT_DATA_TITLE;
+            this.model.description = DefaultValueCons.NewFileValues.PERSISTENT_DATA_DESCRIPTION;
+        }
         if (this.props.objectType === GDriveCons.ObjectType.PERSISTENT_DATA) {
             this.model.fieldNames=[];
-            var fields = gModel.fields.asArray();
-            for (i = 0, len = fields.length; i<len; i++) {
-                this.model.fieldNames.push(fields[i].name);
+            if (gModel) {
+                var fields = gModel.fields.asArray();
+                for (i = 0, len = fields.length; i<len; i++) {
+                    this.model.fieldNames.push(fields[i].name);
+                }
             }
         }
         else if (this.props.objectType === GDriveCons.ObjectType.EVENT) {
@@ -252,18 +259,15 @@ module.exports = React.createClass({
         var cardBack = $('#' + this.props.fileId+'-card-back');
         if (this.model.isCardFront)
         {
-            cardFront.stop(true, true).fadeTo(0, 300, function(){
+            cardFront.stop(true, true).fadeOut(300, function(){
                 cardFront.css('visibility', 'hidden');
-                cardBack.css('visibility', 'visible');
             });
             $('#' + this.props.fileId + '-description-wrapper').css('position', 'initial !important');    
         }
         else
         {
-            cardFront.stop(true, true).fadeTo(0, 300, function(){
-                cardBack.css('visibility','hidden');
-                cardFront.css('visibility', 'visible');
-            });
+            cardFront.css('visibility', 'visible');
+            cardFront.stop(true, true).fadeIn(300);
             $('#' + this.props.fileId + '-description-wrapper').css('position', 'relative !important');
         }
 
@@ -280,11 +284,11 @@ module.exports = React.createClass({
             params.persistentDataFileId = this.props.fileId;
             this.transitionTo('persistentDataEntry', params);
         } else if (this.props.objectType === GDriveCons.ObjectType.EVENT) {
-            //this.transitionTo('event-entry-form', params);
+            //this.transitionTo('eventEntry', params);
         } else if (this.props.objectType === GDriveCons.ObjectType.ENUM) {
-            //this.transitionTo('enum-entry-form', params);
+            //this.transitionTo('enumEntry', params);
         } else if (this.props.objectType === GDriveCons.ObjectType.FLOW) {
-            //this.transitionTo('flow-entry-form', params);
+            //this.transitionTo('flowEntry', params);
         }
     },
 

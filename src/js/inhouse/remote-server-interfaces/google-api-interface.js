@@ -13,10 +13,30 @@ function GoogleApiInterface()
 		registerLegacyDMXEDataModel();
 		registerLegacyFMXDataModel();
 
+		that.ProjectMetadataModel = registerProjectMetadataModel();
 		that.PersistentDataModel = registerPersistentDataModel();
 		that.EventModel = registerEventDataModel();
 		that.EnumModel = registerEnumDataModel();
 		that.FlowModel = registerFlowDataModel();
+	}
+
+	function registerProjectMetadataModel() {
+		var Cons = GDriveConstant.ProjectMetadata;
+
+		this.model = function(){};
+		model.prototype.initialize = function(){
+		    this.version = 1;
+		    this.nextId = 0;
+		};
+
+	    var custom = gapi.drive.realtime.custom;
+	    custom.registerType(model, GDriveConstant.CustomObjectKey.PROJECT_METADATA);
+	    model.prototype.version = custom.collaborativeField(Cons.KEY_VERSION);
+	    model.prototype.nextId = custom.collaborativeField(Cons.KEY_NEXT_ID);
+	    model.prototype.announcement = custom.collaborativeField(Cons.KEY_ANNOUNCEMENT);
+	    custom.setInitializer(model, model.prototype.initialize);
+
+	    return model;
 	}
 
 	function registerPersistentDataModel()
@@ -24,8 +44,7 @@ function GoogleApiInterface()
 		var Cons = GDriveConstant.PersistentData;
 
 		this.model = function(){};
-		model.prototype.initialize = function(){
-		};
+		model.prototype.initialize = function(){};
 
 		var custom = gapi.drive.realtime.custom;
 		custom.registerType(model, GDriveConstant.CustomObjectKey.PERSISTENT_DATA);

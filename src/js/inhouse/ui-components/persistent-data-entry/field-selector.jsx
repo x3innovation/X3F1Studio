@@ -5,7 +5,6 @@ var DefaultValueConstants = require('../../constants/default-value-constants.js'
 var DefaultFields = DefaultValueConstants.DefaultFieldAttributes;
 
 module.exports=React.createClass ({
-
     model: {},
 
     /* ******************************************
@@ -26,7 +25,7 @@ module.exports=React.createClass ({
     },
 
     componentWillUnmount: function() {
-        Bullet.off(EventType.PersistentDataEntry.GAPI_FILE_LOADED, 'field-selector.jsx>>onGapiFileLoaded', this.onGapiFileLoaded);
+        Bullet.off(EventType.PersistentDataEntry.GAPI_FILE_LOADED, 'field-selector.jsx>>onGapiFileLoaded');
     },
 
     /* ******************************************
@@ -35,13 +34,14 @@ module.exports=React.createClass ({
 
     initializeTable: function() {
         var fieldData = [];
-        for (i = 0, len = this.model.fields.length; i < len; i++) {
-            fieldData.push([this.model.fields[i].ID, this.model.fields[i].name]); //an array so the datatable can parse properly
+        for (i = 0, len = this.model.fields.length; i < len; i+=1) {
+            //dataTables stores reach each array for a row, so give array of array as data
+            fieldData.push([this.model.fields[i].ID||i, this.model.fields[i].name]);
         }
         this.model.table = $('#persistent-data-field-table').DataTable({
             data: fieldData,
             destroy: true,
-            scrollY: 300,
+            scrollY: 330,
             paging: false,
             info: false,
             ordering: false,
@@ -65,8 +65,7 @@ module.exports=React.createClass ({
             ]
         });
         this.model.table.order([0, 'asc']);
-        $('th.field-ID-cell').removeClass('field-ID-cell'); //header cells should not be treated as body cells
-        $('th.field-cell').removeClass('field-cell'); 
+        $('th').removeClass('field-ID-cell field-cell'); //header cells should not be treated as body cells
         var thisTable = this.model.table;
         $('.field-cell').each(function() 
             {
@@ -78,7 +77,6 @@ module.exports=React.createClass ({
             }
         );
         $('.field-cell').on('click', this.onFieldClick);
-        this.forceUpdate();
     },
 
     initializeTooltips: function() {
@@ -116,25 +114,27 @@ module.exports=React.createClass ({
             return false;
         }
         var fields = this.model.gModel.fields.asArray();
-        for (i = 0, len = fields.length; i<len; i++) { //don't add if the field already exists
+        for (i = 0, len = fields.length; i<len; i+=1) { //don't add if the field already exists
             if (fields[i].name === newFieldName) {
                 return false;
             }
         }
-        var newField = {    
-                            ID: this.model.selectedFieldID,
-                            name: newFieldName,
-                            type: DefaultFields.FIELD_TYPE,
-                            description: DefaultFields.FIELD_DESCRIPTION,
-                            defaultValue: DefaultFields.FIELD_DEF_VALUE,
-                            minValue: DefaultFields.FIELD_MIN_VALUE,
-                            maxValue: DefaultFields.FIELD_MAX_VALUE,
-                            strLength: DefaultFields.FIELD_STR_LEN,
-                            contextId: DefaultFields.FIELD_CONTEXT_ID,
-                            readOnly: DefaultFields.FIELD_READ_ONLY,
-                            optional: DefaultFields.FIELD_OPTIONAL,
-                            array: DefaultFields.FIELD_ARRAY
-                       };
+        var newField = 
+            {    
+                ID: this.model.selectedFieldID,
+                name: newFieldName,
+                type: DefaultFields.FIELD_TYPE,
+                description: DefaultFields.FIELD_DESCRIPTION,
+                defaultValue: DefaultFields.FIELD_DEF_VALUE,
+                minValue: DefaultFields.FIELD_MIN_VALUE,
+                maxValue: DefaultFields.FIELD_MAX_VALUE,
+                strLength: DefaultFields.FIELD_STR_LEN,
+                contextId: DefaultFields.FIELD_CONTEXT_ID,
+                readOnly: DefaultFields.FIELD_READ_ONLY,
+                optional: DefaultFields.FIELD_OPTIONAL,
+                array: DefaultFields.FIELD_ARRAY,
+                refType: DefaultFields.FIELD_REF_TYPE
+            };
         this.model.gModel.fields.push(newField);
     },
 
@@ -143,7 +143,7 @@ module.exports=React.createClass ({
             return false;
         }
         var fields = this.model.gModel.fields.asArray();
-        for (i = 0; i<fields.length; i++) {
+        for (i = 0; i<fields.length; i+=1) {
             if ("" + fields[i].ID === removedFieldID) {
                 this.model.gModel.fields.remove(i);
                 return true;
@@ -198,12 +198,12 @@ module.exports=React.createClass ({
     },
 
     onAddBtnClick: function(e) {
-        // getting the first value N where new-field-N is not currently used
-        var NEW_FIELD_NAME='new-field-';
+        // getting the first value N where newField_ is not currently used
+        var NEW_FIELD_NAME='newField_';
         var tableData=this.model.table.cells('.field-cell').data();
         var newAttributeNum = 0;
         var digitsList = [];
-        for (var i=0; i<tableData.length; i++) {
+        for (i=0; i<tableData.length; i+=1) {
             if (tableData[i].indexOf(NEW_FIELD_NAME) == 0) {
                 digitsList.push(tableData[i].substring(NEW_FIELD_NAME.length));
             }
@@ -214,8 +214,8 @@ module.exports=React.createClass ({
         var newFieldName = NEW_FIELD_NAME+""+newAttributeNum;
         var newIndex = 1;
         $('.field-ID-cell').each(function(index, element){
-            if (parseInt($(this).text()) >= newIndex) {
-                newIndex = parseInt($(this).text()) + 1;
+            if (parseInt($(this).text(), 10) >= newIndex) {
+                newIndex = parseInt($(this).text(), 10) + 1;
             }
         });
         this.model.selectedFieldID = ""+newIndex;
@@ -234,7 +234,6 @@ module.exports=React.createClass ({
 
         $('.delete-tooltipped').tooltipster('hide');
         this.selectTopCell();
-        Bullet.trigger(EventType.PersistentDataEntry.FIELD_REMOVED);
     },
 
     onFieldClick: function(e) {
