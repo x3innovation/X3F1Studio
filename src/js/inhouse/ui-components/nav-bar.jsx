@@ -44,7 +44,7 @@ module.exports = React.createClass({
         				<div id="navbar-buttons">
         					<a id="user-log-in-out-btn" className="navbar-btn btn-floating waves-effect waves-light red tooltipped"
                                data-position="bottom" data-delay="50" data-tooltip="Log In" onClick={this.onLogInBtnClick}>
-                                <i id="user-log-in-out-icon" className="mdi-social-person-outline"></i>
+                                <i id="user-log-in-out-icon" className="mdi-social-person-outline navbar-btn-icon"></i>
                             </a>
         				</div>
                     </div>

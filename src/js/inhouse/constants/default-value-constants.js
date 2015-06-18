@@ -1,7 +1,7 @@
 module.exports = {
 	NewFileValues : {
 		PROJECT_TITLE : 'New F1 Project',
-		PROJECT_DESCRIPTION : 'description',
+		PROJECT_DESCRIPTION : 'project description',
 		PERSISTENT_DATA_TITLE : 'New Persistent Data',
 		PERSISTENT_DATA_DESCRIPTION : 'A new persistent data model'
 	},

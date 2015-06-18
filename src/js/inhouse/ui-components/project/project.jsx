@@ -53,7 +53,7 @@ module.exports = React.createClass({
 
 		// hide placeholder on focus, then display on blur
 		$('#search-input').focus(function(){$(this).attr('placeholder', '');})
-						  .blur(function(){$(this).attr('placeholder', 'search title');});
+						   .blur(function(){$(this).attr('placeholder', 'search title');});
 
 		// title and description blind animation wire up
 		$('#project-title').focus(blindDownDescription).focusout(blindUpDescription);
@@ -178,28 +178,28 @@ module.exports = React.createClass({
     {
     	var button = $(event.currentTarget);
     	var model = this.model.buttons.persistentData;
-    	this.switchButtonOnOff(button, model);
+    	this.toggleButton(button, model);
     },
 
     onEnumBtnClick : function(event)
     {
     	var button = $(event.currentTarget);
     	var model = this.model.buttons.enum;
-    	this.switchButtonOnOff(button, model);
+    	this.toggleButton(button, model);
     },
 
     onEventBtnClick : function(event)
     {
     	var button = $(event.currentTarget);
     	var model = this.model.buttons.event;
-    	this.switchButtonOnOff(button, model);
+    	this.toggleButton(button, model);
     },
 
     onFlowBtnClick : function(event)
     {
     	var button = $(event.currentTarget);
     	var model = this.model.buttons.flow;
-    	this.switchButtonOnOff(button, model);
+    	this.toggleButton(button, model);
     },
 
     onAddPersistentDataBtnClick : function(e)
@@ -217,7 +217,7 @@ module.exports = React.createClass({
         $('#lean-overlay').remove();
     },
 
-    switchButtonOnOff : function(button, model)
+    toggleButton : function(button, model)
     {
     	if (button.hasClass(model.color))
     	{
@@ -245,7 +245,7 @@ module.exports = React.createClass({
 		var content;
 		if (!this.projectsReceived)
 		{
-			content = <div id="cards-wrapper">
+			content = <div id="cards-wrapper" className='preloader'>
 						<img id="cards-wrapper-preloader" src="img/loading-spin.svg" />
 					</div>
 		}

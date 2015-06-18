@@ -61,8 +61,8 @@
 
 #project-object-add-btn{
 	top: 0;
-	position: absolute;
-	right: 16%;
+	position: relative;
+	left: 3%;
 }
 
 #add-project-object-modal{

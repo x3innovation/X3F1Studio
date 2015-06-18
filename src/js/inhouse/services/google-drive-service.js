@@ -74,9 +74,8 @@ function GoogleDriveService()
 		googleApiInterface.saveTitle(fileId, title);
 	}
 
-	this.getProjectMetadata = function(fileId, callback) {
+	this.getMetadataModel = function(fileId, callback) {
 	    var metadataModel;
-
 
 	    var initializeMetadataModel = function(model) {
 	        var field = model.create(GCons.CustomObjectKey.PROJECT_METADATA);
@@ -90,9 +89,8 @@ function GoogleDriveService()
 	        	initializeMetadataModel(doc.getModel());
 	        	onMetadataFileLoaded(doc);
 	        }
-	        //if not properly initialized, update it
 	        else {
-	        	updateMetadataModel(metadataModel);
+	        	updateMetadataModel(metadataModel);  //if not properly initialized, update it
 	        	callback(metadataModel);
 	    	}
 	    };
@@ -104,7 +102,7 @@ function GoogleDriveService()
 	    if (typeof step == 'undefined') {
 	    	step = 1;
 	    }
-	    this.getProjectMetadata(projectFileId, function(metadataModel) {
+	    this.getMetadataModel(projectFileId, function(metadataModel) {
 	        if (typeof metadataModel.nextId == 'undefined') {
 	            metadataModel.nextId = 0;
 	        }
@@ -113,6 +111,15 @@ function GoogleDriveService()
 	        callback(thisId);
 		});
 	}
+
+	this.announce = function(metadataModel, announcement) {
+	    metadataModel.announcement.clear();
+	    metadataModel.announcement.push(announcement);
+	};
+
+	this.registerAnnouncement = function(metadataModel, callback) {
+	    metadataModel.announcement.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, callback);
+	};
 
 	this.getProjectObjects = function(projectFolderFileId, titleSearchString, includePersistentData, includeEnum, includeEvent, includeFlow, callback)
 	{

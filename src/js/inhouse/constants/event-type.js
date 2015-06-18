@@ -6,9 +6,7 @@ module.exports = {
 
 	PersistentDataEntry : {
 		GAPI_FILE_LOADED : 'PersistentDataEntry>>gapiFileLoaded',
-		GET_REF_NAMES : 'PersistentDataEntry>>getRefNames',
-		TITLE_CHANGED : 'PersistentDataEntry>>titleChanged',
-		FIELD_SELECTED : 'PersistentDataEntry>>fieldSelected',
-		FIELD_TYPE_CHANGED : 'PersistentDataEntry>>fieldTypeChanged',
+		METADATA_MODEL_LOADED : 'PersistentDataEntry>>metadataModelLoaded',
+		FIELD_SELECTED : 'PersistentDataEntry>>fieldSelected'
 	}
 }

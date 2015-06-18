@@ -1,18 +1,18 @@
-module.exports = React.createClass({
+module.exports=React.createClass({
 	/* ******************************************
                 LIFE CYCLE FUNCTIONS
     ****************************************** */
     componentWillMount: function() {
     	
-    },
+    }, 
 
     componentDidMount: function() {
 
-    },
+    }, 
 
     componentWillUnmount: function() {
     	
-    },
+    }, 
 
 	/* ******************************************
                NON LIFE CYCLE FUNCTIONS

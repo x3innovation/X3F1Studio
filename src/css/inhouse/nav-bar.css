@@ -16,7 +16,7 @@
 }
 
 #menu-nav {
-	background: black;
+	background: #222222;
 	height: inherit;
 	box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.16), 0 0 0 0 rgba(0, 0, 0, 0.12);
 	-webkit-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.16), 0 0 0 0 rgba(0, 0, 0, 0.12);
@@ -37,7 +37,7 @@ a.navbar-btn{
 	height: 30px;
 }
 
-a.navbar-btn i{
+a.navbar-btn>i{
 	position: absolute;
 	top: -18px;
 	font-size: 1.4rem;

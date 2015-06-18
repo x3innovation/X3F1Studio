@@ -6264,7 +6264,7 @@ form p:last-child {
 /* Remove default checkbox */
 [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
   position: absolute;
-  left: -9999px; }
+  display: none; }
 
 [type="checkbox"] {
   /* checkbox aspect */ }
@@ -6396,8 +6396,8 @@ form p:last-child {
   top: 0px;
   width: 20px;
   height: 20px;
-  border: 2px solid #26a69a;
-  background-color: #26a69a;
+  border: 2px solid #5d8ce3;
+  background-color: #5d8ce3;
   z-index: 0; }
 [type="checkbox"].filled-in:disabled:not(:checked) + label:before {
   background-color: transparent;
