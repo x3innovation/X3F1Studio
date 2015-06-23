@@ -1,5 +1,4 @@
 /* ===[ Container ]=== */
-
 #persistent-data-form-container {
     position: relative
 }
@@ -16,19 +15,22 @@
 }
 
 /* ===[ Header ]=== */
-
 #header-wrapper {
     position: relative
 }
 
 #header-title {
-    outline: none;
     border: 0;
     height: 3.5rem;
     font-weight: 400;
-    font-size: 2.92rem;
+    font-size: 3rem;
     line-height: 3.212rem;
     margin: 1.25rem 0 1.168rem 0;
+}
+
+#header-title:focus{
+    outline: none;
+    border-bottom-color: #26a69a ;
 }
 
 #desc-wrapper {
@@ -36,14 +38,18 @@
     overflow-x: hidden;
     font-weight: 300;
     color: #9e9e9e;
-    margin-bottom: 2.92rem;
+    margin-bottom: 0.92rem;
 }
 
 #header-desc {
     border: 0;
     border-bottom: none;
     resize: none;
+}
+
+#header-desc:focus {
     outline: none;
+    border-bottom-color: #26a69a ;
 }
 
 #data-ID{
@@ -66,14 +72,14 @@
     position: fixed;
     top: 45%;
     left: 50%;
-    transform: translate(-50%, -50%);
     -webkit-transform: translate(-50%, -50%);
     -moz-transform: translate(-50%, -50%);
     -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
 }
 
 /* ===[ Table ]=== */
-
 #persistent-data-fields-container {
     position: relative;
     border-right: 1px solid #9e9e9e;
@@ -94,7 +100,7 @@
     height: 1.6rem;
 }
 
-.field-selector-header-btn>i {
+.field-selector-header-btn > i {
     font-size: 1.3rem;
     position: absolute;
     top: -6px;
@@ -129,7 +135,6 @@
 }
 
 /* ===[ Form ]=== */
-
 #persistent-data-form-contents {
     position: relative;
 }
@@ -138,13 +143,13 @@ select.form-select{
     display: none;
 }
 
-.select-dropdown>li>span {
+.select-dropdown > li > span {
     font-size: 1rem;
     color: #222222;
     padding: 0.8rem 0;
 }
 
-.select-dropdown>li.active>span {
+.select-dropdown > .active > span {
     font-size: 1rem;
     background-color: #8c9eff;
     color: #f5f5f5;
@@ -162,7 +167,7 @@ select.form-select{
 
 /* ===[ Events ]=== */
 
-.event-display[type='text']:disabled {
+input[type='text'].event-display:disabled {
     border-bottom: 0;
     color: #222222;
     font-size: 0.85rem;
@@ -171,10 +176,65 @@ select.form-select{
     text-overflow: ellipsis;
 }
 
-.event-display[type=text]:disabled + .event-label {
+input[type='text'].event-display:disabled + .event-label {
     color: #9e9e9e;
 }
 
 .event-cell {
     margin-bottom: 1rem;
+}
+
+/* ===[Queries]=== */
+
+#add-query-label {
+    font-size: 1rem;
+    margin-left: 0.5rem;
+    color: #222222;
+}
+
+#query-add-btn {
+    width: 1.6rem;
+    height: 1.6rem;
+}
+
+#query-add-btn > i {
+    font-size: 1.3rem;
+    position: absolute;
+    top: -6px;
+}
+
+.query-delete-btn-wrapper {
+    margin-top: 1rem;
+}
+
+.query-delete-btn {
+    margin-top: 50%;
+    margin-left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    width: 1.6rem;
+    height: 1.6rem;
+}
+
+.query-delete-btn > i {
+    font-size: 1.3rem;
+    position: absolute;
+    top: -6px;
+}
+
+input[type='text'].query-id-field:disabled {
+    border: 0;
+    color: #222222;
+}
+
+input[type='text'].query-id-field:disabled + .query-label {
+    color: #9e9e9e;
+}
+
+textarea.query-description-field {
+    padding: 0;
+    padding-top: 11px;
 }

@@ -2,13 +2,13 @@ var googleApiInterface = require('../remote-server-interfaces/google-api-interfa
 var userStore = require('../stores/user-store.js');
 var LocalStorageKey = require('../constants/local-storage-key.js');
 var GCons = require('../constants/google-drive-constants.js');
-var DefaultCons= require('../constants/default-value-constants.js');
+var DefaultCons = require('../constants/default-value-constants.js');
 
 function GoogleDriveService()
 {
 	// //////// private members
 	var sortCompareByFileTitle = function(a,b){
-		var titleA=a.title.toLowerCase(), titleB=b.title.toLowerCase();
+		var titleA = a.title.toLowerCase(), titleB = b.title.toLowerCase();
 		if (titleA < titleB) //sort string ascending
 		{
 			return -1;
@@ -40,22 +40,17 @@ function GoogleDriveService()
 	{
 		googleApiInterface.getProjects(successCallback);
 
-		function successCallback(projects)
-		{
+		function successCallback(projects) {
 			var filteredProjects = [];
-			if (titleSearchString != null && titleSearchString.length > 0)
-			{
-				for (var i in projects)
-				{
+			if (titleSearchString != null && titleSearchString.length > 0) {
+				for (var i in projects) {
 					var projectTitle = projects[i].title;
-					if (projectTitle.indexOf(titleSearchString) > -1)
-					{
+					if (projectTitle.indexOf(titleSearchString) > -1) {
 						filteredProjects.push(projects[i]);
 					}
 				}
 			}
-			else
-			{
+			else {
 				filteredProjects = projects;
 			}			
 
@@ -64,8 +59,7 @@ function GoogleDriveService()
 		}
 	}
 
-	this.saveProjectTitle = function(projectFileId, newTitle, parentFolderId)
-	{
+	this.saveProjectTitle = function(projectFileId, newTitle, parentFolderId) {
 		googleApiInterface.saveTitle(projectFileId, newTitle);
 		googleApiInterface.saveTitle(parentFolderId, newTitle);
 	}
@@ -80,17 +74,19 @@ function GoogleDriveService()
 	    var initializeMetadataModel = function(model) {
 	        var field = model.create(GCons.CustomObjectKey.PROJECT_METADATA);
 	        field.announcement = model.createList();
+	        field.nextId = 0;
+	        field.version = 1;
 	        model.getRoot().set(GCons.CustomObjectKey.PROJECT_METADATA, field);
 	    };
 
 	    var onMetadataFileLoaded = function(doc) {
 	        metadataModel = doc.getModel().getRoot().get(GCons.CustomObjectKey.PROJECT_METADATA);
-	        if (metadataModel===null) {
+	        if (metadataModel == null) {
 	        	initializeMetadataModel(doc.getModel());
 	        	onMetadataFileLoaded(doc);
 	        }
 	        else {
-	        	updateMetadataModel(metadataModel);  //if not properly initialized, update it
+	        	updateMetadataModel(metadataModel);//if not properly initialized, update it
 	        	callback(metadataModel);
 	    	}
 	    };
@@ -107,7 +103,7 @@ function GoogleDriveService()
 	            metadataModel.nextId = 0;
 	        }
 	        var thisId = metadataModel.nextId;
-	        metadataModel.nextId = metadataModel.nextId + step;
+	        metadataModel.nextId = metadataModel.nextId+step;
 	        callback(thisId);
 		});
 	}
@@ -210,25 +206,28 @@ function GoogleDriveService()
 
 	this.createNewProject = function(callback) {
 		var createNewF1Metadata = function (folder) {
-			fileCreationParams={};
-			fileCreationParams.title=folder.title;
-			fileCreationParams.description=GCons.ObjectType.PROJECT_METADATA;
-			fileCreationParams.parentId=folder.id;
-			fileCreationParams.mimeType=GCons.MimeType.PROJECT;
+			var fileCreationParams = {
+				title: folder.title,
+				description: GCons.ObjectType.PROJECT_METADATA,
+				parentId: folder.id,
+				mimeType: GCons.MimeType.PROJECT
+			};
 			googleApiInterface.createNewFile(fileCreationParams, callback)
-		}
-		folderCreationParams={};
-		folderCreationParams.title='New F1 Project';
-		folderCreationParams.mimeType=GCons.MimeType.FOLDER;
+		};
+		var folderCreationParams = {
+			title: DefaultCons.NewFileValues.PROJECT_TITLE,
+			mimeType: GCons.MimeType.FOLDER
+		};
 		googleApiInterface.createNewFolder(folderCreationParams, createNewF1Metadata);
 	}
 
 	this.createNewPersistentData = function(parentFolderId, callback) {
-		fileCreationParams={};
-		fileCreationParams.title=DefaultCons.NewFileValues.PERSISTENT_DATA_TITLE;
-		fileCreationParams.description=GCons.ObjectType.PERSISTENT_DATA;
-		fileCreationParams.parentId=parentFolderId;
-		fileCreationParams.mimeType=GCons.MimeType.DMX;
+		var fileCreationParams = {
+			title: DefaultCons.NewFileValues.PERSISTENT_DATA_TITLE,
+			description: GCons.ObjectType.PERSISTENT_DATA,
+			parentId: parentFolderId,
+			mimeType: GCons.MimeType.DMX
+		};
 		googleApiInterface.createNewFile(fileCreationParams, callback);
 	}
 }

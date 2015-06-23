@@ -110,11 +110,11 @@ module.exports = React.createClass({
         }
 
     	var titleInput = document.getElementById('project-title');
-    	var titleModel = gModel.getRoot().get(GDriveCons.Project.KEY_TITLE) 
+    	var titleModel = gModel.getRoot().get(GDriveCons.Project.KEY_TITLE);
     	gapi.drive.realtime.databinding.bindString(titleModel, titleInput);
 
     	var descriptionInput = document.getElementById('project-description');
-    	var descriptionModel = gModel.getRoot().get(GDriveCons.Project.KEY_DESCRIPTION) 
+    	var descriptionModel = gModel.getRoot().get(GDriveCons.Project.KEY_DESCRIPTION);
 		gapi.drive.realtime.databinding.bindString(descriptionModel, descriptionInput);
 		$('#project-description-wrapper').css('display', 'initial');
 		autosize(document.getElementById('project-description'));
@@ -143,7 +143,7 @@ module.exports = React.createClass({
     saveTitleToFileItself : function()
     {
     	var newTitle = $('#project-title').val();
-        googleDriveService.saveProjectTitle(this.getParams().projectFileId, newTitle, this.getParams().projectFolderFileId)
+        googleDriveService.saveProjectTitle(this.getParams().projectFileId, newTitle, this.getParams().projectFolderFileId);
     },
 
     getProjectObjects : function()
@@ -213,7 +213,7 @@ module.exports = React.createClass({
         var params={};
         params.projectFolderFileId = this.getParams().projectFolderFileId;
         params.projectFileId = this.getParams().projectFileId;
-        this.replaceWith('persistentDataCreate', params);
+        this.transitionTo('persistentDataCreate', params);
         $('#lean-overlay').remove();
     },
 
@@ -247,7 +247,7 @@ module.exports = React.createClass({
 		{
 			content = <div id="cards-wrapper" className='preloader'>
 						<img id="cards-wrapper-preloader" src="img/loading-spin.svg" />
-					</div>
+					</div>;
 		}
 		else
 		{
@@ -269,7 +269,7 @@ module.exports = React.createClass({
                                             	  objectType={projectObject.description}
                                             	  model={{}} />
 										</div>
-                                   	)
+                                   	);
                                 })
 	        				}
 	        			</div>;
