@@ -85,17 +85,18 @@ module.exports = React.createClass({
 	}, 
 
 	render: function() {
-		var projectFileId = this.getParams.projectFileId; 
+		var projectFileId = this.getParams().projectFileId; 
 		var projectFolderFileId = this.getParams().projectFolderFileId;
 		var fileId = this.getParams().persistentDataFileId;
-		var fileType = GDriveConstants.CustomObjectKey.PERSISTENT_DATA;
+		var fileType = GDriveConstants.ObjectType.PERSISTENT_DATA;
+		var gapiKey = GDriveConstants.CustomObjectKey.PERSISTENT_DATA;
 		return(
 			<div id = 'persistent-data-form-container' className = 'container'>
 				<i id = "to-project-btn" className = 'medium mdi-navigation-arrow-back' onClick = {this.onToProjectBtnClick}></i>
 				<Header projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-				        fileId = {fileId} fileType = {fileType} />
+				        fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
 				<Body projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-				      fileId = {fileId} fileType = {fileType} />
+				      fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
 			</div>
 		);
 	}

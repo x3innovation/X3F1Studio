@@ -40,7 +40,7 @@ module.exports = React.createClass({
 	onGapiFileLoaded: function(doc) {
 		this.loadRefs();
 
-		var key = this.props.fileType;
+		var key = this.props.gapiKey;
 		this.model.gFields = doc.getModel().getRoot().get(key).fields;
 		this.model.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this.updateUi);
 		this.model.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this.updateUi);

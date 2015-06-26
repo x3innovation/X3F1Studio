@@ -27,7 +27,7 @@ module.exports = React.createClass({
 				NON LIFE CYCLE FUNCTIONS
 	****************************************** */
 	onGapiFileLoaded: function(doc) {
-		var key = this.props.fileType;
+		var key = this.props.gapiKey;
 		this.model.gModel = doc.getModel().getRoot().get(key);
 		this.model.gModel.addEventListener(gapi.drive.realtime.EventType.VALUE_CHANGED, this.updateUi);
 		this.updateUi();

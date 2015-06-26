@@ -13,7 +13,7 @@ module.exports = React.createClass({
 				LIFE CYCLE FUNCTIONS
 	****************************************** */
 	componentWillMount: function() {
-		this.gapiNotLoaded = true;
+		this.gapiLoaded = false;
 		this.model.gQueries = null;
 		this.model.queries = [];
 		this.model.fieldAttr = {};
@@ -33,8 +33,7 @@ module.exports = React.createClass({
 				NON LIFE CYCLE FUNCTIONS
 	****************************************** */
 	onGapiFileLoaded: function(doc) {
-		this.gapiNotLoaded = false;
-		var key = this.props.fileType;
+		var key = this.props.gapiKey;
 		this.model.gQueries = doc.getModel().getRoot().get(key).queries;
 		if (!this.model.gQueries) {
 			this.model.gQueries = doc.getModel().createList();
@@ -43,6 +42,7 @@ module.exports = React.createClass({
 		this.model.gQueries.addEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this.updateUi);
 		this.model.gQueries.addEventListener(gapi.drive.realtime.EventType.VALUES_SET, this.updateUi);
 		this.updateUi();
+		this.gapiLoaded = true;
 	},
 
 	updateUi: function(e) {
@@ -53,7 +53,7 @@ module.exports = React.createClass({
 	},
 
 	keyUpHandler: function(e) {
-		if (this.gapiNotLoaded) {
+		if (!this.gapiLoaded) {
 			return;
 		}
 		var $fieldAttr = $(e.target);
@@ -111,7 +111,7 @@ module.exports = React.createClass({
 
 	createNewQuery: function() {
 		var that = this;
-		GDriveService.getMetadataModelId(this.props.projectFileId, function(id) {
+		GDriveService.getMetadataModelId(that.props.projectFileId, function(id) {
 			$('.query-id-field').each(function(index, element) {
 				if (""+id === ""+$(this).val()) {
 					id += 2;

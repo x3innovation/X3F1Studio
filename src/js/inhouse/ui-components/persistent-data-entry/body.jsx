@@ -35,31 +35,32 @@ module.exports = React.createClass({
 		var projectFolderFileId = this.props.projectFolderFileId;
 		var fileId = this.props.fileId;
 		var fileType = this.props.fileType;
+		var gapiKey = this.props.gapiKey;
 		return (
 			<div>
 				<div id = 'persistent-data-body-wrapper' className = 'row loaded hide'>	
 					<div id = 'persistent-data-form-wrapper' className = 'row'>
 						<div className = 'col s4' id = 'persistent-data-fields-container'>
 							<FieldSelector projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-							               fileId = {fileId} fileType = {fileType} />
+							               fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey}/>
 						</div>
 						<div className = 'col s8' id = 'persistent-data-form-contents'>
 							<Form projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-							      fileId = {fileId} fileType = {fileType} />
+							      fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
 						</div>
 					</div>
 					<br />
 					<div id = 'persistent-events-wrapper' className = 'row'>
 						<div className = 'col s12'>
 							<PersistentEvents projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-							                  fileId = {fileId} fileType = {fileType} />
+							                  fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
 						</div>
 					</div>
 					<br />
 					<div id = 'queries-wrapper' className = 'row'>
 						<div className = 'col s12'>
 							<Queries projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-							         fileId = {fileId} fileType = {fileType} />
+							         fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
 						</div>
 					</div>
 				</div>
