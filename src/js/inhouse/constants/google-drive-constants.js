@@ -7,6 +7,7 @@ module.exports = {
 	
 	MimeType : {
 		DMX : 'application/dmx',
+		DMXE : 'application/dmxe',
 		FMX : 'application/fmx',
 		PROJECT : 'application/f1.project',
 		FOLDER : 'application/vnd.google-apps.folder'
@@ -21,11 +22,11 @@ module.exports = {
 	},
 
 	CustomObjectKey : {
-		PROJECT_METADATA : 'project-metadata-custom-object',
 		PERSISTENT_DATA : 'persistent-data-custom-object',
 		ENUM : 'enum-data-custom-object',
 		EVENT : 'event-data-custom-object',
-		FLOW : 'flow-data-custom-object'
+		FLOW : 'flow-data-custom-object',
+		PROJECT_METADATA : 'project-metadata-custom-object'
 	},
 
 	Project : {
@@ -94,4 +95,4 @@ module.exports = {
 		KEY_EVENT_FLOWS : 'eventFlows',
 		KEY_ENGINE_FLOWS : 'engineFlows'
 	}
-}
+};

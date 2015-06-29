@@ -4,9 +4,9 @@ module.exports = {
 		USER_LOGGED_IN : 'App>>user-logged-in'
 	},
 
-	PersistentDataEntry : {
-		GAPI_FILE_LOADED : 'PersistentDataEntry>>gapiFileLoaded',
-		METADATA_MODEL_LOADED : 'PersistentDataEntry>>metadataModelLoaded',
-		FIELD_SELECTED : 'PersistentDataEntry>>fieldSelected'
+	EntryForm : {
+		GAPI_FILE_LOADED : 'EntryForm>>gapiFileLoaded',
+		METADATA_MODEL_LOADED : 'EntryForm>>metadataModelLoaded',
+		FIELD_SELECTED : 'EntryForm>>fieldSelected'
 	}
-}
+};

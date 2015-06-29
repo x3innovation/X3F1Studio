@@ -70,7 +70,7 @@ module.exports = function(grunt) {
 			'main.css',
 			'nav-bar.css',
 			'card.css',
-			'form.css',
+			'entry-forms.css',
 			'project/project.css'
 		];
 

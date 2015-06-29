@@ -2,7 +2,7 @@
 .tooltipster-default {
 	border-radius: 5px;
 	background: #fff;
-	box-shadow: 0px 0px 14px rgba(0,0,0,0.3);
+	box-shadow: 0 0 14px rgba(0,0,0,0.3);
 	color: #2c2c2c;
 }
 
@@ -231,7 +231,7 @@
 	-o-transition-property: all;
 	-ms-transition-property: all;
 	transition-property: all;
-	top: 0px !important;
+	top: 0 !important;
 	opacity: 0;
 }
 
@@ -257,7 +257,7 @@
 	-o-transition-property: all;
 	-ms-transition-property: all;
 	transition-property: all;
-	left: 0px !important;
+	left: 0 !important;
 	opacity: 0;
 }
 

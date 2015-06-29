@@ -84,7 +84,7 @@ module.exports = React.createClass({
 		{
 			content = <div id="cards-wrapper">
 						<img id="cards-wrapper-preloader" src="img/loading-spin.svg" />
-					</div>
+					</div>;
 		}
 		else
 		{
@@ -99,12 +99,13 @@ module.exports = React.createClass({
 	        					projects.map(function(project, columnIndex){
 	        						return (
 	        							<div key={columnIndex} className="col s3 f1-project-card" style={cellStyle}>
-											<Card title={project.title} 
-														 fileId={project.id}
-														 projectFolderFileId={project.parents[0].id}
-														 model={{}} />
+											<Card
+												title={project.title} 
+											    fileId={project.id}
+												projectFolderFileId={project.parents[0].id}
+												model={{}} />
 										</div>
-	        						)
+	        						);
 	        					})
 	        				}
 				    		<div className="col s3 center">

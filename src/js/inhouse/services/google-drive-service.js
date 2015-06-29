@@ -21,7 +21,7 @@ function GoogleDriveService()
 		{
 			return 0;
 		}
-	}
+	};
 
 	var updateMetadataModel = function(metadataModel) {
 		if (metadataModel.version == null) {
@@ -33,7 +33,7 @@ function GoogleDriveService()
 		if (metadataModel.announcement == null) {
 		    metadataModel.announcement = doc.getModel().createList();
 		}
-	} 
+	};
 
 	// //////// public members
 	this.getProjects = function(titleSearchString, callback)
@@ -57,16 +57,16 @@ function GoogleDriveService()
 			filteredProjects.sort(sortCompareByFileTitle);
 			callback(filteredProjects);
 		}
-	}
+	};
 
 	this.saveProjectTitle = function(projectFileId, newTitle, parentFolderId) {
 		googleApiInterface.saveTitle(projectFileId, newTitle);
 		googleApiInterface.saveTitle(parentFolderId, newTitle);
-	}
+	};
 
 	this.saveFileTitle = function(fileId, title) {
 		googleApiInterface.saveTitle(fileId, title);
-	}
+	};
 
 	this.getMetadataModel = function(fileId, callback) {
 	    var metadataModel;
@@ -92,7 +92,7 @@ function GoogleDriveService()
 	    };
 
 	    gapi.drive.realtime.load(fileId, onMetadataFileLoaded, initializeMetadataModel);
-	}
+	};
 
 	this.getMetadataModelId = function(projectFileId, callback, step) {
 	    if (typeof step == 'undefined') {
@@ -106,9 +106,10 @@ function GoogleDriveService()
 	        metadataModel.nextId = metadataModel.nextId+step;
 	        callback(thisId);
 		});
-	}
+	};
 
 	this.announce = function(metadataModel, announcement) {
+		console.log(announcement);
 	    metadataModel.announcement.clear();
 	    metadataModel.announcement.push(announcement);
 	};
@@ -171,7 +172,7 @@ function GoogleDriveService()
 			query += ') and trashed = false'; //do not list entries in the trash folder
 
 			return query;
-		}
+		};
 
 		if (!includePersistentData && !includeEnum && !includeEvent && !includeFlow)
 		{
@@ -202,7 +203,7 @@ function GoogleDriveService()
 				return filteredProjectObjects;
 			}
 		}
-	}
+	};
 
 	this.createNewProject = function(callback) {
 		var createNewF1Metadata = function (folder) {
@@ -212,14 +213,14 @@ function GoogleDriveService()
 				parentId: folder.id,
 				mimeType: GCons.MimeType.PROJECT
 			};
-			googleApiInterface.createNewFile(fileCreationParams, callback)
+			googleApiInterface.createNewFile(fileCreationParams, callback);
 		};
 		var folderCreationParams = {
 			title: DefaultCons.NewFileValues.PROJECT_TITLE,
 			mimeType: GCons.MimeType.FOLDER
 		};
 		googleApiInterface.createNewFolder(folderCreationParams, createNewF1Metadata);
-	}
+	};
 
 	this.createNewPersistentData = function(parentFolderId, callback) {
 		var fileCreationParams = {
@@ -229,7 +230,27 @@ function GoogleDriveService()
 			mimeType: GCons.MimeType.DMX
 		};
 		googleApiInterface.createNewFile(fileCreationParams, callback);
-	}
+	};
+
+	this.createNewEnum = function(parentFolderId, callback) {
+		var fileCreationParams = {
+			title: DefaultCons.NewFileValues.ENUM,
+			description: GCons.ObjectType.ENUM,
+			parentId: parentFolderId,
+			mimeType: GCons.MimeType.DMXE
+		};
+		googleApiInterface.createNewFile(fileCreationParams, callback);
+	};
+
+	this.createNewEvent = function(parentFolderId, callback) {
+		var fileCreationParams = {
+			title: DefaultCons.NewFileValues.EVENT,
+			description: GCons.ObjectType.EVENT,
+			parentId: parentFolderId,
+			mimeType: GCons.MimeType.DMX
+		};
+		googleApiInterface.createNewFile(fileCreationParams, callback);
+	};
 }
 
 module.exports = new GoogleDriveService();

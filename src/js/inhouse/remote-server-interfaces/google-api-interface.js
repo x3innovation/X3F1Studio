@@ -236,7 +236,7 @@ function GoogleApiInterface()
 	    		failCallback();
 	    	}
 	    }
-	}
+	};
 
 	this.getProjects = function(callback)
 	{
@@ -249,7 +249,7 @@ function GoogleApiInterface()
 		request.execute(function(response){
 			callback(response.items);
 		});
-	}
+	};
 
 	this.saveTitle = function(fileId, title)
 	{
@@ -261,7 +261,7 @@ function GoogleApiInterface()
         });
 
         saveTitleRequest.execute();
-	}
+	};
 
 	this.setMimeType = function(fileId, mimeType)
 	{
@@ -273,7 +273,7 @@ function GoogleApiInterface()
         });
 
         saveTitleRequest.execute();
-	}
+	};
 
 	this.getMimeTypeFiles = function(mimeType, callback)
 	{
@@ -286,7 +286,7 @@ function GoogleApiInterface()
 		request.execute(function(response){
 			callback(response.items);
 		});
-	}
+	};
 
 	this.getAllFilesInFolder = function(folderFileId, callback)
 	{
@@ -299,7 +299,7 @@ function GoogleApiInterface()
 		request.execute(function(response){
 			callback(response.items);
 		});
-	}
+	};
 
 	this.getProjectObjects = function(query, callback)
 	{
@@ -313,7 +313,7 @@ function GoogleApiInterface()
 		request.execute(function(response){
 			callback(response.items);
 		});
-	}
+	};
 
 	this.createNewFolder = function(folderCreationParams, callback) {
 	  	var request = gapi.client.drive.files.insert({
@@ -324,7 +324,7 @@ function GoogleApiInterface()
 	  	request.execute(function(folder) {
 			callback(folder);
 		});
-	}
+	};
 
 	this.createNewFile = function(fileCreationParams, callback) {
 		var parentId = {
@@ -341,7 +341,7 @@ function GoogleApiInterface()
 	  	request.execute(function(file){
 			callback(file);
 		});
-	}
+	};
 
 }
 
