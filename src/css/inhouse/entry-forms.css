@@ -12,7 +12,6 @@
 
 .small-btn {
     position: absolute;
-    top: 15%;
     width: 1.6rem;
     height: 1.6rem;
 }
@@ -71,13 +70,8 @@
 
 #data-ID{
     border-bottom: 0;
-    color: #222222;
     height: 1.5rem;
     font-size: 0.85rem;
-}
-
-#data-ID-label {
-    color: #9e9e9e;
 }
 
 /* ===[ Body ]=== */
@@ -97,9 +91,13 @@
 }
 
 /* ===[ Field Selector ]=== */
-#fields-container {
+#field-selector-wrapper {
     position: relative;
     border-right: 1px solid #9e9e9e;
+}
+
+.field-selector-btn {
+    top: 15%;
 }
 
 #field-add-btn {
@@ -117,10 +115,10 @@
 }
 
 .field-cell {
-    -webkit-transition: background-color 0.25s ease;
-    -moz-transition: background-color 0.25s ease;
-    -o-transition: background-color 0.25s ease;
-    transition: background-color 0.25s ease;
+    -webkit-transition: background-color 0.4s ease;
+    -moz-transition: background-color 0.4s ease;
+    -o-transition: background-color 0.4s ease;
+    transition: background-color 0.4s ease;
     min-height: 1.5rem;
     white-space: nowrap;;
     overflow: hidden;
@@ -128,7 +126,9 @@
     text-overflow: clip;
 }
 
-.empty-cell {
+.field-cell > .field-table-input {
+    border-width: 0;
+    margin: 0;
     height: 1.5rem;
 }
 
@@ -137,7 +137,7 @@
 }
 
 /* ===[ Form ]=== */
-#form-contents {
+#form-wrapper {
     position: relative;
 }
 
@@ -172,17 +172,12 @@ select.form-select{
 }
 
 /* ===[ Events ]=== */
-input[type='text'].event-display:disabled {
-    border-bottom: 0;
-    color: #222222;
+input[type='text'].event-display {
+    border-width: 0;
     font-size: 0.85rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-input[type='text'].event-display:disabled + .event-label {
-    color: #9e9e9e;
 }
 
 .event-cell {
@@ -221,13 +216,8 @@ input[type='text'].event-display:disabled + .event-label {
     top: -6px;
 }
 
-input[type='text'].query-id-field:disabled {
+input[type='text'].query-id-field {
     border: 0;
-    color: #222222;
-}
-
-input[type='text'].query-id-field:disabled + .query-label {
-    color: #9e9e9e;
 }
 
 textarea.query-description-field {
@@ -252,10 +242,10 @@ textarea.query-description-field {
 }
 
 .editable-cell {
-    -webkit-transition: border 0.25s ease;
-    -moz-transition: border 0.25s ease;
-    -o-transition: border 0.25s ease;
-    transition: border 0.25s ease;
+    -webkit-transition: border 0.4s ease;
+    -moz-transition: border 0.4s ease;
+    -o-transition: border 0.4s ease;
+    transition: border 0.4s ease;
     white-space: nowrap; 
     overflow: hidden;
     -o-text-overflow: clip;
@@ -269,7 +259,7 @@ textarea.query-description-field {
 }
 
 .enum-name-cell:empty:not(:focus):before {
-    content: attr(data-warning-value);
+    content: attr(data-placeholder-value);
     color: #f44336;
 }
 

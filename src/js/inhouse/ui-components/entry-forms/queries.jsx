@@ -8,7 +8,7 @@ module.exports = React.createClass({
 				LIFE CYCLE FUNCTIONS
 	****************************************** */
 	componentWillMount: function() {
-		this.gapiNotLoaded = true;
+		this.gModel = null;
 		this.gQueries = null;
 		this.queries = [];
 		this.fieldAttr = {};
@@ -28,9 +28,7 @@ module.exports = React.createClass({
 				NON LIFE CYCLE FUNCTIONS
 	****************************************** */
 	onGapiFileLoaded: function(doc) {
-		this.gapiNotLoaded = false;
-		var key = this.props.gapiKey;
-		this.gQueries = doc.getModel().getRoot().get(key).queries;
+		this.gQueries = doc.getModel().getRoot().get(this.props.gapiKey).queries;
 		if (!this.gQueries) {
 			this.gQueries = doc.getModel().createList();
 		}
@@ -48,31 +46,29 @@ module.exports = React.createClass({
 	},
 
 	keyUpHandler: function(e) {
-		if (this.gapiNotLoaded) {
-			return;
-		}
 		var $fieldAttr = $(e.target);
 		var code = (e.keyCode);
 		var arrowKeyCodes = [37, 38, 39, 40];
 		if (arrowKeyCodes.indexOf(code) >= 0) {
 			return;
 		}
-		this.fieldAttr.attr = $fieldAttr;
-		this.fieldAttr.pos = $fieldAttr[0].selectionStart;
+		this.fieldAttr.attr = e.target;
+		this.fieldAttr.pos = e.target.selectionStart;
 
 		var $queryRow = $fieldAttr.closest('.query-row');
 		var queryId = parseInt($queryRow.attr('data-query-id'), 10);
 		var queries = this.gQueries.asArray();
 		for (var i = 0, len = queries.length; i < len; i += 1) {
 			if(parseInt(queries[i].id, 10) === queryId) {
-				this.gQueries.set(i, {
+				var newQuery = {
 					requestId: queryId,
 					responseId: queryId + 1,
 					idc: -1,
 					id: queryId,
 					name: $queryRow.find('.query-name-field').val(),
 					description: $queryRow.find('.query-description-field').val()
-				});
+				};
+				this.gQueries.set(i, newQuery);
 				break;
 			}
 		}
@@ -91,16 +87,13 @@ module.exports = React.createClass({
 
 	setCursorPos: function() {
 		if (this.fieldAttr.attr) {
-			this.fieldAttr.attr[0].setSelectionRange(this.fieldAttr.pos, this.fieldAttr.pos);
+			this.fieldAttr.attr.setSelectionRange(this.fieldAttr.pos, this.fieldAttr.pos);
 		} else {
 			return;
 		}
 	},
 
 	onAddQueryBtnClick: function() {
-		if (this.gapiNotLoaded) {
-			return;
-		}
 		clearTimeout(this.createQueryTimeout);
 		this.createQueryTimeout = setTimeout(this.createNewQuery, 300);
 	},
@@ -130,10 +123,7 @@ module.exports = React.createClass({
 	},
 
 	onDeleteQueryBtnClick: function(e) {
-		if (this.gapiNotLoaded) {
-			return;
-		}
-		var $clickedBtn = $(e.target).parent('.query-delete-btn');
+		var $clickedBtn = $(e.target).closest('.query-delete-btn');
 		var delId = $clickedBtn.attr('data-query-id');
 		var queries = this.gQueries.asArray();
 		for (var i = 0, len = queries.length; i < len; i += 1) {
@@ -173,7 +163,7 @@ module.exports = React.createClass({
 			<div id = 'query-container' className = 'row'>
 				<div className = 'row'>
 					<div className = 'col s2'>
-						<a id = 'query-add-btn' onClick = {this.onAddQueryBtnClick} className = {'small-btn btn-floating waves-effect waves-light ' + Configs.App.ADD_BUTTON_COLOR}>
+						<a id = 'query-add-btn' onClick = {this.onAddQueryBtnClick} className = {'small-btn query-btn btn-floating waves-effect waves-light ' + Configs.App.ADD_BUTTON_COLOR}>
 							<i className = 'mdi-content-add btn-icon' />
 						</a>
 						<label htmlFor = 'query-add-btn' id = 'add-query-label'>add query</label>

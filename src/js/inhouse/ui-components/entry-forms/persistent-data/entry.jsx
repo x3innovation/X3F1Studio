@@ -46,13 +46,7 @@ module.exports = React.createClass({
 	},
 
 	onDataFileLoaded: function(doc) {
-		var gModel = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.PERSISTENT_DATA);
-		if (!gModel) { //if the model was not initialized properly, reinitialize
-			this.initializeModel(doc.getModel());
-			this.onDataFileLoaded(doc);
-		} else {
-			Bullet.trigger(EventType.EntryForm.GAPI_FILE_LOADED, doc);
-		}
+		Bullet.trigger(EventType.EntryForm.GAPI_FILE_LOADED, doc);
 	},
 
 	initializeModel: function(model)
@@ -60,8 +54,8 @@ module.exports = React.createClass({
 		var gModel = model.create(GDriveConstants.CustomObjectKey.PERSISTENT_DATA);
 
 		model.getRoot().set(GDriveConstants.CustomObjectKey.PERSISTENT_DATA, gModel);
-		gModel.title = DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE;
-		gModel.description = DefaultValueConstants.NewFileValues.PERSISTENT_DATA_DESCRIPTION;
+		gModel.title = model.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE);
+		gModel.description = model.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_DESCRIPTION);
 		gModel.fields = model.createList();
 		gModel.queries = model.createList();
 		GDriveService.getMetadataModelId(this.getParams().projectFileId, function(id) {

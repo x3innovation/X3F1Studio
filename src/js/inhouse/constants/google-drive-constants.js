@@ -16,6 +16,7 @@ module.exports = {
 	ObjectType : {
 		PERSISTENT_DATA : 'f1-objectType-persistentData',
 		ENUM : 'f1-objectType-enum',
+		SNIPPET : 'f1-objectType-snippet',
 		EVENT : 'f1-objectType-event',
 		FLOW : 'f1-objectType-flow',
 		PROJECT_METADATA : 'f1-objectType-projectMetadata'
@@ -24,6 +25,7 @@ module.exports = {
 	CustomObjectKey : {
 		PERSISTENT_DATA : 'persistent-data-custom-object',
 		ENUM : 'enum-data-custom-object',
+		SNIPPET : 'snippet-data-custom-object',
 		EVENT : 'event-data-custom-object',
 		FLOW : 'flow-data-custom-object',
 		PROJECT_METADATA : 'project-metadata-custom-object'
@@ -71,6 +73,16 @@ module.exports = {
 		KEY_DESCRIPTION : 'description',
 		KEY_FIELDS : 'fields',
 		KEY_QUERIES : 'queries',
+		KEY_APP_STATE_ID : 'appStateId'
+	},
+
+	Snippet : {
+		KEY_INTRODUCED_VERSION : 'introducedVersion',
+		KEY_DEPRECATED_VERSION : 'deprecatedVersion',
+		KEY_ID : 'id',
+		KEY_TITLE : 'title',
+		KEY_DESCRIPTION : 'description',
+		KEY_FIELDS : 'fields',
 		KEY_APP_STATE_ID : 'appStateId'
 	},
 

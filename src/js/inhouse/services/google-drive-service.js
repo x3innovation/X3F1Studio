@@ -109,7 +109,6 @@ function GoogleDriveService()
 	};
 
 	this.announce = function(metadataModel, announcement) {
-		console.log(announcement);
 	    metadataModel.announcement.clear();
 	    metadataModel.announcement.push(announcement);
 	};
@@ -118,10 +117,11 @@ function GoogleDriveService()
 	    metadataModel.announcement.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, callback);
 	};
 
-	this.getProjectObjects = function(projectFolderFileId, titleSearchString, includePersistentData, includeEnum, includeEvent, includeFlow, callback)
+	this.getProjectObjects = function( projectFolderFileId, titleSearchString,
+		includePersistentData, includeEnum, includeSnippet, includeEvent, includeFlow, callback)
 	{
-		
-		var buildQuery = function (projectFolderFileId, includePersistentData, includeEnum, includeEvent, includeFlow)
+		var buildQuery = function (projectFolderFileId, 
+			includePersistentData, includeEnum, includeSnippet, includeEvent, includeFlow)
 		{
 			// we are doing fullText contains search because at the time of writing this code,
 			// google drive api had bugs in custom properties query. So we are relying on having the object types
@@ -145,6 +145,17 @@ function GoogleDriveService()
 					isFirstCondition = false;
 				}
 				query += 'fullText contains "' + GCons.ObjectType.ENUM + '"';
+			}
+
+			// add snippet query
+			if (includeSnippet)
+			{
+				if (!isFirstCondition)
+				{
+					query += ' or ';
+					isFirstCondition = false;
+				}
+				query += 'fullText contains "' + GCons.ObjectType.SNIPPET + '"';
 			}
 
 			// add event query
@@ -174,13 +185,13 @@ function GoogleDriveService()
 			return query;
 		};
 
-		if (!includePersistentData && !includeEnum && !includeEvent && !includeFlow)
+		if (!includePersistentData && !includeEnum && !includeSnippet && !includeEvent && !includeFlow)
 		{
 			return [];
 		}
 		else
 		{
-			var query = buildQuery(projectFolderFileId, includePersistentData, includeEnum, includeEvent, includeFlow);
+			var query = buildQuery(projectFolderFileId, includePersistentData, includeEnum, includeSnippet, includeEvent, includeFlow);
 			googleApiInterface.getProjectObjects(query, callbackWrapper);
 
 			function callbackWrapper(projectObjects)
@@ -234,7 +245,7 @@ function GoogleDriveService()
 
 	this.createNewEnum = function(parentFolderId, callback) {
 		var fileCreationParams = {
-			title: DefaultCons.NewFileValues.ENUM,
+			title: DefaultCons.NewFileValues.ENUM_TITLE,
 			description: GCons.ObjectType.ENUM,
 			parentId: parentFolderId,
 			mimeType: GCons.MimeType.DMXE
@@ -242,9 +253,19 @@ function GoogleDriveService()
 		googleApiInterface.createNewFile(fileCreationParams, callback);
 	};
 
+	this.createNewSnippet = function(parentFolderId, callback) {
+		var fileCreationParams = {
+			title: DefaultCons.NewFileValues.SNIPPET_TITLE,
+			description: GCons.ObjectType.SNIPPET,
+			parentId: parentFolderId,
+			mimeType: GCons.MimeType.DMX
+		};
+		googleApiInterface.createNewFile(fileCreationParams, callback);
+	};
+
 	this.createNewEvent = function(parentFolderId, callback) {
 		var fileCreationParams = {
-			title: DefaultCons.NewFileValues.EVENT,
+			title: DefaultCons.NewFileValues.EVENT_TITLE,
 			description: GCons.ObjectType.EVENT,
 			parentId: parentFolderId,
 			mimeType: GCons.MimeType.DMX

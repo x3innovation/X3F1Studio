@@ -12,7 +12,7 @@ module.exports = React.createClass({
 	****************************************** */
 	componentDidMount: function() {
 		var _this = this;
-		GDriveService.createNewPersistentData(_this.getParams().projectFolderFileId, function(file) {
+		GDriveService.createNewSnippet(_this.getParams().projectFolderFileId, function(file) {
 			var params = {
 				projectFolderFileId: _this.getParams().projectFolderFileId,
 				projectFileId: _this.getParams().projectFileId,
@@ -20,14 +20,14 @@ module.exports = React.createClass({
 			};
 			var addFileAnnouncement = {
 				action: AnnouncementType.ADD_FILE,
-				fileType: GDriveConstants.ObjectType.PERSISTENT_DATA,
+				fileType: GDriveConstants.ObjectType.SNIPPET,
 				fileId: file.id,
-				fileName: DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE
+				fileName: DefaultValueConstants.NewFileValues.SNIPPET_TITLE
 			};
 			GDriveService.getMetadataModel(_this.getParams().projectFileId, function(metadataModel) {
 				GDriveService.announce(metadataModel, addFileAnnouncement);
 			});
-			_this.replaceWith('persistentDataEntry', params); //if user presses back, do not go back to creation page
+			_this.replaceWith('snippetEntry', params); //if user presses back, do not go back to creation page
 		});
 	},
 

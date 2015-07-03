@@ -38,13 +38,13 @@ module.exports = React.createClass({
 		return (
 			<div>
 				<div id = 'body-wrapper' className = 'row hide'>
-					<div id = 'form-wrapper' className = 'row'>
-						<div className = 'col s4' id = 'fields-container'>
+					<div className = 'row'>
+						<div className = 'col s4' id = 'field-selector-wrapper'>
 							<FieldSelector
 								projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
 								fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
 						</div>
-						<div className = 'col s8' id = 'form-contents'>
+						<div className = 'col s8' id = 'form-wrapper'>
 							<Form
 								projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
 								fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />

@@ -15,7 +15,6 @@ module.exports = React.createClass({
 	componentDidMount : function()
 	{
 		gapi.drive.realtime.load(this.props.fileId, this.onFileLoaded, null);
-		this.titleChangeTimeout = null;
 
 		this.model = this.props.model;
 		this.model.isCardFront = true;
@@ -28,6 +27,11 @@ module.exports = React.createClass({
 		{
 			this.model.objectType = 'EV';
 			this.model.color = '#ff9800';
+		}
+		else if (this.props.objectType === GDriveCons.ObjectType.SNIPPET)
+		{
+			this.model.objectType = 'SN';
+			this.model.color = '#7b1fa2';
 		}
 		else if (this.props.objectType === GDriveCons.ObjectType.ENUM)
 		{
@@ -43,7 +47,7 @@ module.exports = React.createClass({
 
 	componentDidUpdate : function()
 	{
-		$('#' + this.props.fileId + '-title').val(this.model.title);
+		$('#' + this.props.fileId + '-title').val(this.model.title.toString());
 
 		var descriptionInput = document.getElementById(this.props.fileId + '-description');
 		if (descriptionInput !== null) { //if the description text area exists
@@ -153,13 +157,17 @@ module.exports = React.createClass({
 		{
 			key = GDriveCons.CustomObjectKey.PERSISTENT_DATA;
 		}
-		else if (this.props.objectType === GDriveCons.ObjectType.EVENT)
-		{
-			key = GDriveCons.CustomObjectKey.EVENT;
-		}
 		else if (this.props.objectType === GDriveCons.ObjectType.ENUM)
 		{
 			key = GDriveCons.CustomObjectKey.ENUM;
+		}
+		else if (this.props.objectType === GDriveCons.ObjectType.SNIPPET)
+		{
+			key = GDriveCons.CustomObjectKey.SNIPPET;
+		}
+		else if (this.props.objectType === GDriveCons.ObjectType.EVENT)
+		{
+			key = GDriveCons.CustomObjectKey.EVENT;
 		}
 		else if (this.props.objectType === GDriveCons.ObjectType.FLOW)
 		{
@@ -171,43 +179,57 @@ module.exports = React.createClass({
 		if (this.props.objectType === GDriveCons.ObjectType.PERSISTENT_DATA) {
 			this.model.fieldNames = [];
 			if (gModel) {
-				this.model.title = gModel.title;
-				this.model.description = gModel.description;
-				fields = gModel.fields.asArray();
+				this.model.title = gModel.title.toString();
+				this.model.description = gModel.description.toString();
+				fields = gModel.fields;
 				for (i = 0, len = fields.length; i < len; i++) {
-					this.model.fieldNames.push(fields[i].name);
+					this.model.fieldNames.push(fields.get(i).get('name').toString());
 				}
 			} else { //gModel was not properly initialized, but still need to load
 				this.model.title = DefaultValueCons.NewFileValues.PERSISTENT_DATA_TITLE;
 				this.model.description = DefaultValueCons.NewFileValues.PERSISTENT_DATA_DESCRIPTION;
 			}
 		}
-		else if (this.props.objectType === GDriveCons.ObjectType.EVENT) {
-			this.model.fieldNames = [];
-			if (gModel) {
-				this.model.title = gModel.title;
-				this.model.description = gModel.description;
-				fields = gModel.fields.asArray();
-				for (i = 0, len = fields.length; i < len; i++) {
-					this.model.fieldNames.push(fields[i].name);
-				}
-			} else { //gModel was not properly initialized, but still need to load
-				this.model.title = DefaultValueCons.NewFileValues.EVENT_TITLE;
-				this.model.description = DefaultValueCons.NewFileValues.EVENT_DESCRIPTION;
-			}
-		}
 		else if (this.props.objectType === GDriveCons.ObjectType.ENUM) {
 			this.model.enumNames = [];
 			if (gModel) {
-				this.model.title = gModel.title;
-				this.model.description = gModel.description;
-				fields = gModel.fields.asArray();
+				this.model.title = gModel.title.toString();
+				this.model.description = gModel.description.toString();
+				fields = gModel.fields;
 				for (i = 0, len = fields.length; i < len; i++) {
-					this.model.enumNames.push(fields[i].name);
+					this.model.enumNames.push(fields.get(i).name);
 				}
 			} else { //gModel was not properly initialized, but still need to load
 				this.model.title = DefaultValueCons.NewFileValues.ENUM_TITLE;
 				this.model.description = DefaultValueCons.NewFileValues.ENUM_DESCRIPTION;
+			}
+		}
+		else if (this.props.objectType === GDriveCons.ObjectType.SNIPPET) {
+			this.model.fieldNames = [];
+			if (gModel) {
+				this.model.title = gModel.title.toString();
+				this.model.description = gModel.description.toString();
+				fields = gModel.fields;
+				for (i = 0, len = fields.length; i < len; i++) {
+					this.model.fieldNames.push(fields.get(i).get('name').toString());
+				}
+			} else { //gModel was not properly initialized, but still need to load
+				this.model.title = DefaultValueCons.NewFileValues.SNIPPET_TITLE;
+				this.model.description = DefaultValueCons.NewFileValues.SNIPPET_DESCRIPTION;
+			}
+		}
+		else if (this.props.objectType === GDriveCons.ObjectType.EVENT) {
+			this.model.fieldNames = [];
+			if (gModel) {
+				this.model.title = gModel.title.toString();
+				this.model.description = gModel.description.toString();
+				fields = gModel.fields;
+				for (i = 0, len = fields.length; i < len; i++) {
+					this.model.fieldNames.push(fields.get(i).get('name').toString());
+				}
+			} else { //gModel was not properly initialized, but still need to load
+				this.model.title = DefaultValueCons.NewFileValues.EVENT_TITLE;
+				this.model.description = DefaultValueCons.NewFileValues.EVENT_DESCRIPTION;
 			}
 		}
 		else if (this.props.objectType === GDriveCons.ObjectType.FLOW) {
@@ -225,6 +247,8 @@ module.exports = React.createClass({
 			contentHeader = 'Persistent Data Fields';
 		} else if (this.props.objectType === GDriveCons.ObjectType.EVENT) {
 			contentHeader = 'Event Fields';
+		} else if (this.props.objectType === GDriveCons.ObjectType.SNIPPET) {
+			contentHeader = 'Snippet Fields';
 		} else if (this.props.objectType === GDriveCons.ObjectType.ENUM) {
 			contentHeader = 'Enums';
 		} else if (this.props.objectType === GDriveCons.ObjectType.FLOW) {
@@ -235,21 +259,21 @@ module.exports = React.createClass({
 	
 	getBackSideContent: function() {
 		var content = '';
-		var fieldNames;
 		if (this.props.objectType === GDriveCons.ObjectType.PERSISTENT_DATA) {
-			fieldNames = this.model.fieldNames;
-			for (i = 0, len = fieldNames.length; i < len; i++) {
-				content = content + fieldNames[i] + '\n';
+			for (i = 0, len = this.model.fieldNames.length; i < len; i++) {
+				content = content + this.model.fieldNames[i] + '\n';
 			}
 		} else if (this.props.objectType === GDriveCons.ObjectType.EVENT) {
-			fieldNames = this.model.fieldNames;
-			for (i = 0, len = fieldNames.length; i < len; i++) {
-				content = content + fieldNames[i] + '\n';
+			for (i = 0, len = this.model.fieldNames.length; i < len; i++) {
+				content = content + this.model.fieldNames[i] + '\n';
+			}
+		} else if (this.props.objectType === GDriveCons.ObjectType.SNIPPET) {
+			for (i = 0, len = this.model.fieldNames.length; i < len; i++) {
+				content = content + this.model.fieldNames[i] + '\n';
 			}
 		} else if (this.props.objectType === GDriveCons.ObjectType.ENUM) {
-			enumNames = this.model.enumNames;
-			for (i = 0, len = enumNames.length; i < len; i++) {
-				content = content + enumNames[i] + '\n';
+			for (i = 0, len = this.model.enumNames.length; i < len; i++) {
+				content = content + this.model.enumNames[i] + '\n';
 			}
 		} else if (this.props.objectType === GDriveCons.ObjectType.FLOW) {
 			/* FLOW OBJECT CONTENT */
@@ -325,6 +349,8 @@ module.exports = React.createClass({
 			this.transitionTo('persistentDataEntry', params);
 		} else if (this.props.objectType === GDriveCons.ObjectType.EVENT) {
 			this.transitionTo('eventEntry', params);
+		} else if (this.props.objectType === GDriveCons.ObjectType.SNIPPET) {
+			this.transitionTo('snippetEntry', params);
 		} else if (this.props.objectType === GDriveCons.ObjectType.ENUM) {
 			this.transitionTo('enumEntry', params);
 		} else if (this.props.objectType === GDriveCons.ObjectType.FLOW) {

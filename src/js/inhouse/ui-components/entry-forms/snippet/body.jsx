@@ -2,7 +2,6 @@ var EventType = require('../../../constants/event-type.js');
 
 var FieldSelector = require('../field-selector.jsx');
 var Form = require('../form.jsx');
-var Queries = require('../queries.jsx');
 
 module.exports = React.createClass({
 	/* ******************************************
@@ -45,14 +44,6 @@ module.exports = React.createClass({
 						</div>
 						<div className = 'col s8' id = 'form-wrapper'>
 							<Form
-								projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-								fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
-						</div>
-					</div>
-					<br />
-					<div id = 'queries-wrapper' className = 'row'>
-						<div className = 'col s12'>
-							<Queries
 								projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
 								fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
 						</div>

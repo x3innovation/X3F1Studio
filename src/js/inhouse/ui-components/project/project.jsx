@@ -22,6 +22,10 @@ module.exports = React.createClass({
 				color : 'red',
 				isSearchOn : true
 			},
+			snippet : {
+				color: 'purple',
+				isSearchOn: true
+			},
 			event : {
 				color : 'orange',
 				isSearchOn : true
@@ -128,6 +132,7 @@ module.exports = React.createClass({
 		}.bind(this);
 		titleModel.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, onTitleChange);
 		titleModel.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, onTitleChange);
+		this.saveTitleToFileItself();
 	},
 
 	onProjectModelInitialize: function(model) {
@@ -152,6 +157,7 @@ module.exports = React.createClass({
 			$('#search-input').val(),
 			this.model.buttons.persistentData.isSearchOn,
 			this.model.buttons.enum.isSearchOn,
+			this.model.buttons.snippet.isSearchOn,
 			this.model.buttons.event.isSearchOn,
 			this.model.buttons.flow.isSearchOn,
 			this.onReceiveProjectObjects);
@@ -185,6 +191,13 @@ module.exports = React.createClass({
 		this.toggleButton(button, model);
 	},
 
+	onSnippetBtnClick : function(event)
+	{
+		var button = $(event.currentTarget);
+		var model = this.model.buttons.snippet;
+		this.toggleButton(button, model);
+	},
+
 	onEventBtnClick : function(event)
 	{
 		var button = $(event.currentTarget);
@@ -202,49 +215,49 @@ module.exports = React.createClass({
 	onAddPersistentDataBtnClick: function()
 	{
 		clearTimeout(this.createObjectTimeout);
-		this.createObjectTimeout = setTimeout(this.createNewPersistentData, 300);
-	},
-
-	createNewPersistentData: function() 
-	{
-		var params = {
-			projectFolderFileId: this.getParams().projectFolderFileId,
-			projectFileId: this.getParams().projectFileId
-		};
-		this.transitionTo('persistentDataCreate', params);
-		$('#lean-overlay').remove();
+		this.createObjectTimeout = setTimeout(function() {
+			var params = {
+				projectFolderFileId: this.getParams().projectFolderFileId,
+				projectFileId: this.getParams().projectFileId
+			};
+			this.transitionTo('persistentDataCreate', params);
+		}.bind(this), 300);
 	},
 
 	onAddEnumBtnClick: function()
 	{
 		clearTimeout(this.createObjectTimeout);
-		this.createObjectTimeout = setTimeout(this.createNewEnum, 300);
+		this.createObjectTimeout = setTimeout(function() {
+			var params = {
+				projectFolderFileId: this.getParams().projectFolderFileId,
+				projectFileId: this.getParams().projectFileId
+			};
+			this.transitionTo('enumCreate', params);
+		}.bind(this), 300);
 	},
 
-	createNewEnum: function()
+	onAddSnippetBtnClick: function()
 	{
-		var params = {
-			projectFolderFileId: this.getParams().projectFolderFileId,
-			projectFileId: this.getParams().projectFileId
-		};
-		this.transitionTo('enumCreate', params);
-		$('#lean-overlay').remove();
+		clearTimeout(this.createObjectTimeout);
+		this.createObjectTimeout = setTimeout(function() {
+			var params = {
+				projectFolderFileId: this.getParams().projectFolderFileId,
+				projectFileId: this.getParams().projectFileId
+			};
+			this.transitionTo('snippetCreate', params);
+		}.bind(this), 300);
 	},
 
 	onAddEventBtnClick: function()
 	{
 		clearTimeout(this.createObjectTimeout);
-		this.createObjectTimeout = setTimeout(this.createNewEvent, 300);
-	},
-
-	createNewEvent: function()
-	{
-		var params = {
-			projectFolderFileId: this.getParams().projectFolderFileId,
-			projectFileId: this.getParams().projectFileId
-		};
-		this.transitionTo('eventCreate', params);
-		$('#lean-overlay').remove();
+		this.createObjectTimeout = setTimeout(function() {
+			var params = {
+				projectFolderFileId: this.getParams().projectFolderFileId,
+				projectFileId: this.getParams().projectFileId
+			};
+			this.transitionTo('eventCreate', params);
+		}.bind(this), 300);
 	},
 
 	toggleButton : function(button, model)
@@ -325,6 +338,7 @@ module.exports = React.createClass({
 					<div id='project-object-btns' className='col s12 center'>
 						<a className={'waves-effect waves-light btn ' + Configs.App.PERSISTENT_DATA_COLOR} onClick={this.onPersistentDataBtnClick}>Persistent Data</a>
 						<a className={'waves-effect waves-light btn ' + Configs.App.ENUM_COLOR} onClick={this.onEnumBtnClick}>Enum</a>
+						<a className={'waves-effect waves-light btn ' + Configs.App.SNIPPET_COLOR} onClick={this.onSnippetBtnClick}>Snippet</a>
 						<a className={'waves-effect waves-light btn ' + Configs.App.EVENT_COLOR} onClick={this.onEventBtnClick}>Event</a>
 						<a className={'waves-effect waves-light btn ' + Configs.App.FLOW_COLOR} onClick={this.onFlowBtnClick}>Flow</a>
 						<a id='project-object-add-btn' className={'btn-floating disabled waves-effect waves-light ' + Configs.App.ADD_BUTTON_COLOR} href='#add-project-object-modal'>
@@ -337,11 +351,15 @@ module.exports = React.createClass({
 					<div className='modal-content'>
 						<h4>Select a data type:</h4>
 						<div className = 'modal-btn-row center'>
-							<a className={'waves-effect waves-light btn ' + Configs.App.PERSISTENT_DATA_COLOR}
+							<a className={'modal-close waves-effect waves-light btn ' + Configs.App.PERSISTENT_DATA_COLOR}
 								onClick={this.onAddPersistentDataBtnClick}>Persistent Data</a>
-							<a className={'waves-effect waves-light btn ' + Configs.App.ENUM_COLOR} onClick={this.onAddEnumBtnClick}>Enum</a>
-							<a className={'waves-effect waves-light btn ' + Configs.App.EVENT_COLOR} onClick={this.onAddEventBtnClick}>Event</a>
-							<a className={'waves-effect waves-light btn ' + Configs.App.FLOW_COLOR}>Flow</a>
+							<a className={'modal-close waves-effect waves-light btn ' + Configs.App.ENUM_COLOR}
+								onClick={this.onAddEnumBtnClick}>Enum</a>
+							<a className={'modal-close waves-effect waves-light btn ' + Configs.App.SNIPPET_COLOR}
+								onClick={this.onAddSnippetBtnClick}>Snippet</a>
+							<a className={'modal-close waves-effect waves-light btn ' + Configs.App.EVENT_COLOR}
+								onClick={this.onAddEventBtnClick}>Event</a>
+							<a className={'modal-close waves-effect waves-light btn ' + Configs.App.FLOW_COLOR}>Flow</a>
 						</div>
 					</div>
 				</div>

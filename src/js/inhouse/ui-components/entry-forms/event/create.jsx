@@ -27,7 +27,7 @@ module.exports = React.createClass({
 			GDriveService.getMetadataModel(_this.getParams().projectFileId, function(metadataModel) {
 				GDriveService.announce(metadataModel, addFileAnnouncement);
 			});
-			_this.replaceWith('eventEntry', params);
+			_this.replaceWith('eventEntry', params); //if user presses back, do not go back to creation page
 		});
 	},
 

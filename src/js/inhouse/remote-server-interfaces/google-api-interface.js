@@ -16,6 +16,7 @@ function GoogleApiInterface()
 		that.ProjectMetadataModel = registerProjectMetadataModel();
 		that.PersistentDataModel = registerPersistentDataModel();
 		that.EventModel = registerEventDataModel();
+		that.SnippetModel = registerSnippetDataModel();
 		that.EnumModel = registerEnumDataModel();
 		that.FlowModel = registerFlowDataModel();
 	}
@@ -89,6 +90,27 @@ function GoogleApiInterface()
 	    model.prototype.description = custom.collaborativeField(Cons.KEY_DESCRIPTION);
 	    model.prototype.fields = custom.collaborativeField(Cons.KEY_FIELDS);
 	    model.prototype.queries = custom.collaborativeField(Cons.KEY_QUERIES);
+	    model.prototype.appStateId = custom.collaborativeField(Cons.KEY_APP_STATE_ID);
+	    custom.setInitializer(model, model.prototype.initialize);
+
+	    return model;
+	}
+
+	function registerSnippetDataModel()
+	{
+		var Cons = GDriveConstant.Snippet;
+
+		var model = function(){};
+		model.prototype.initialize = function(){};
+
+		var custom = gapi.drive.realtime.custom;
+		custom.registerType(model, GDriveConstant.CustomObjectKey.SNIPPET);
+		model.prototype.introducedVersion = custom.collaborativeField(Cons.KEY_INTRODUCED_VERSION);
+		model.prototype.deprecatedVersion = custom.collaborativeField(Cons.KEY_DEPRECATED_VERSION);
+	    model.prototype.id = custom.collaborativeField(Cons.KEY_ID);
+	    model.prototype.title = custom.collaborativeField(Cons.KEY_TITLE);
+	    model.prototype.description = custom.collaborativeField(Cons.KEY_DESCRIPTION);
+	    model.prototype.fields = custom.collaborativeField(Cons.KEY_FIELDS);
 	    model.prototype.appStateId = custom.collaborativeField(Cons.KEY_APP_STATE_ID);
 	    custom.setInitializer(model, model.prototype.initialize);
 

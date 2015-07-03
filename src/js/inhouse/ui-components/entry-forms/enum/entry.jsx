@@ -60,8 +60,8 @@ module.exports = React.createClass({
 		var gModel = model.create(GDriveConstants.CustomObjectKey.ENUM);
 
 		model.getRoot().set(GDriveConstants.CustomObjectKey.ENUM, gModel);
-		gModel.title = DefaultValueConstants.NewFileValues.ENUM_TITLE;
-		gModel.description = DefaultValueConstants.NewFileValues.ENUM_DESCRIPTION;
+		gModel.title = model.createString(DefaultValueConstants.NewFileValues.ENUM_TITLE);
+		gModel.description = model.createString(DefaultValueConstants.NewFileValues.ENUM_DESCRIPTION);
 		gModel.fields = model.createList();
 		GDriveService.getMetadataModelId(this.getParams().projectFileId, function(id) {
 			var thisId = id;

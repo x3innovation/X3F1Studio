@@ -20,15 +20,15 @@ module.exports = React.createClass({
 				NON LIFE CYCLE FUNCTIONS
 	****************************************** */
 	onGapiFileLoaded: function(doc) {
-		var key = this.props.gapiKey;
-		this.gModel = doc.getModel().getRoot().get(key);
-		this.gModel.addEventListener(gapi.drive.realtime.EventType.VALUE_CHANGED, this.updateUi);
+		this.gModel = doc.getModel().getRoot().get(this.props.gapiKey);
+		this.gModel.title.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, this.updateUi);
+		this.gModel.title.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, this.updateUi);
 		this.updateUi();
 	},
 
 	updateUi: function() {
 		var gModel = this.gModel;
-		var title = this.gModel.title;
+		var title = gModel.title.getText();
 		this.events = [
 			{
 				id: gModel.UpdatePersistenceEventTypeId,
@@ -76,14 +76,14 @@ module.exports = React.createClass({
 
 		var eventContents = events.map(function(event, index) {
 			return (
-				<div key = {index} className = 'col s4'>
+				<div key = {event.id} className = 'col s4'>
 					<div className = 'row'>
 						<div className = 'col s2 input-field'>
-							<input type = 'text' className = 'event-display' disabled value = {event.id} id = {'event-' + event.id + '-name'} />
+							<input type = 'text' className = 'event-display' readOnly value = {event.id} id = {'event-' + event.id + '-name'} />
 							<label htmlFor = {event.id + '-event-id'} className = 'event-label active'>Type Id</label>
 						</div>
 						<div className = 'col s10 input-field'>
-							<input type = 'text' className = 'event-display' disabled value = {event.name} id = {'event-' + event.id + '-name'} />
+							<input type = 'text' className = 'event-display' readOnly value = {event.name} id = {'event-' + event.id + '-name'} />
 							<label htmlFor = {'event-' + event.id + '-name'} className = 'event-label active'>{event.label}</label>
 						</div>
 					</div>

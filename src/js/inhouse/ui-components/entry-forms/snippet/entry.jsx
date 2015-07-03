@@ -25,6 +25,7 @@ module.exports = React.createClass({
 	},
 
 	componentDidMount: function() {
+
 	},
 
 	componentWillUnmount: function() {
@@ -45,7 +46,7 @@ module.exports = React.createClass({
 	},
 
 	onDataFileLoaded: function(doc) {
-		var gModel = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.EVENT);
+		var gModel = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.SNIPPET);
 		if (!gModel) { //if the model was not initialized properly, reinitialize
 			this.initializeModel(doc.getModel());
 			this.onDataFileLoaded(doc);
@@ -56,13 +57,12 @@ module.exports = React.createClass({
 
 	initializeModel: function(model)
 	{
-		var gModel = model.create(GDriveConstants.CustomObjectKey.EVENT);
+		var gModel = model.create(GDriveConstants.CustomObjectKey.SNIPPET);
 
-		model.getRoot().set(GDriveConstants.CustomObjectKey.EVENT, gModel);
-		gModel.title = model.createString(DefaultValueConstants.NewFileValues.EVENT_TITLE);
-		gModel.description = model.createString(DefaultValueConstants.NewFileValues.EVENT_DESCRIPTION);
+		model.getRoot().set(GDriveConstants.CustomObjectKey.SNIPPET, gModel);
+		gModel.title = model.createString(DefaultValueConstants.NewFileValues.SNIPPET_TITLE);
+		gModel.description = model.createString(DefaultValueConstants.NewFileValues.SNIPPET_DESCRIPTION);
 		gModel.fields = model.createList();
-		gModel.queries = model.createList();
 		GDriveService.getMetadataModelId(this.getParams().projectFileId, function(id) {
 			var thisId = id;
 			gModel.id = thisId;
@@ -81,10 +81,10 @@ module.exports = React.createClass({
 		var projectFileId = this.getParams().projectFileId;
 		var projectFolderFileId = this.getParams().projectFolderFileId;
 		var fileId = this.getParams().fileId;
-		var fileType = GDriveConstants.ObjectType.EVENT;
-		var gapiKey = GDriveConstants.CustomObjectKey.EVENT;
+		var fileType = GDriveConstants.ObjectType.SNIPPET;
+		var gapiKey = GDriveConstants.CustomObjectKey.SNIPPET;
 		return (
-			<div id = 'form-container' className = 'event-form container'>
+			<div id = 'form-container' className = 'snippet-form container'>
 				<i id = "to-project-btn" className = 'medium mdi-navigation-arrow-back' onClick = {this.onToProjectBtnClick} />
 				<Header
 					projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
@@ -96,3 +96,4 @@ module.exports = React.createClass({
 		);
 	}
 });
+

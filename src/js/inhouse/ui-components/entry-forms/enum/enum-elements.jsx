@@ -9,17 +9,13 @@ module.exports = React.createClass({
 				LIFE CYCLE FUNCTIONS
 	****************************************** */
 	componentWillMount: function() {
-		this.fields = [];
+		this.metadataModel = null;
 		this.gFields = null;
 		this.table = null;
 		this.selectedRowIndex = null;
-		this.gapiLoaded = false;
 
 		Bullet.on(EventType.EntryForm.GAPI_FILE_LOADED, 'enum-elements.jsx>>onGapiFileLoaded', this.onGapiFileLoaded);
-	},
-
-	componentDidMount: function() {
-
+		Bullet.on(EventType.EntryForm.METADATA_MODEL_LOADED, 'enum-elements.jsx>>onMetadataModelLoaded', this.onMetadataModelLoaded);
 	},
 
 	componentWillUnmount: function() {
@@ -30,17 +26,18 @@ module.exports = React.createClass({
 			NON LIFE CYCLE FUNCTIONS
 	****************************************** */
 	onGapiFileLoaded: function(doc) {
-		var key = this.props.gapiKey;
-		this.gFields = doc.getModel().getRoot().get(key).fields;
+		this.gFields = doc.getModel().getRoot().get(this.props.gapiKey).fields;
 		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this.updateUi);
 		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this.updateUi);
 		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_SET, this.updateUi);
 		this.updateUi();
-		this.gapiLoaded = true;
+	},
+
+	onMetadataModelLoaded: function(metadataModel) {
+		this.metadataModel = metadataModel;
 	},
 
 	updateUi: function() {
-		this.fields = this.gFields.asArray();
 		this.initializeTable();
 		this.selectRow();
 		this.forceUpdate();
@@ -48,7 +45,7 @@ module.exports = React.createClass({
 
 	initializeTable: function() {
 		this.table = $('#enum-table').DataTable({
-			data: this.fields,
+			data: this.gFields.asArray(),
 			autoWidth: false,
 			destroy: true,
 			scrollY: 350,
@@ -86,13 +83,14 @@ module.exports = React.createClass({
 		$('.dataTables_scrollBody table').css('table-layout', 'fixed');
 		$('.enum-cell').click(this.setSelectedRow);
 		$('.editable-cell').attr('contentEditable', 'true').keypress(this.keyPressHandler).blur(this.saveCell);
-		$('.enum-name-cell').attr('data-warning-value', 'please enter a name');
+		$('.enum-name-cell').attr('data-placeholder-value', 'please enter a name');
 		$('.enum-description-cell').attr('data-placeholder-value', 'enter description');
 	},
 
 	keyPressHandler: function(e) {
 		var code = (e.keyCode);
 		if (code === 13) {
+			$(e.target).blur();
 			return false; //enter was detected, ignore keypress
 		}
 	},
@@ -101,15 +99,14 @@ module.exports = React.createClass({
 		var $selectedRow = $(e.target).closest('tr');
 		var index = parseInt($selectedRow.find('.enum-index-cell').text(), 10);
 
-		var fields = this.gFields.asArray();
-		for (var i = 0, len = fields.length; i < len; i += 1) {
-			if (fields[i].index === index) {
+		for (var i = 0, len = this.gFields.length; i < len; i += 1) {
+			if (this.gFields.get(i).index === index) {
 				var newField = {
 					index: index,
 					name: $selectedRow.find('.enum-name-cell').text(),
 					description: $selectedRow.find('.enum-description-cell').text()
 				};
-				if (newField.name !== fields[i].name || newField.description !== fields[i].description) {
+				if (newField.name !== this.gFields.get(i).name || newField.description !== this.gFields.get(i).description) {
 					this.gFields.set(i, newField);
 				}
 				break;
@@ -126,15 +123,15 @@ module.exports = React.createClass({
 	},
 
 	selectRow: function() {
-		var selectedRowIndex = this.selectedRowIndex;
-		if (!selectedRowIndex) {
+		var _this = this;
+		if (!this.selectedRowIndex) {
 			return;
 		}
 		var $selectedRow;
 		$('.selected-cell').removeClass('selected-cell');
 		$('.enum-index-cell').each(function(index, element) {
 			var $element = $(element);
-			if ($element.text() === ""+selectedRowIndex) {
+			if ($element.text() === ""+_this.selectedRowIndex) {
 				$selectedRow = $element.closest('tr');
 			}
 		});
@@ -142,49 +139,60 @@ module.exports = React.createClass({
 	},
 
 	onAddEnumBtnClick: function(e) {
-		if (!this.gapiLoaded) {
-			e.preventDefault();
-			return;
-		}
 		var NEW_ELEMENT_NAME = 'newElement_';
 		var newElementNum = 0;
 		var digitsList = [];
-		$('.enum-name-cell').each(function(index, element) {
-			var $element = $(element);
-			if ($element.text().indexOf(NEW_ELEMENT_NAME) === 0) {
-				digitsList.push($element.text().substring(NEW_ELEMENT_NAME.length));
+		var newIndex = 1;
+
+		$('#enum-table').find('tr').each(function(index, element) {
+			var $this = $(this);
+			var $nameCell = $this.find('.enum-name-cell');
+			if ($nameCell.text().indexOf(NEW_ELEMENT_NAME) === 0) {
+				digitsList.push($nameCell.text().substring(NEW_ELEMENT_NAME.length));
+			}
+			var $indexCell = $this.find('.enum-index-cell');
+			var compareIndex = parseInt($indexCell.text(), 10);
+			if (compareIndex >= newIndex) {
+				newIndex = compareIndex + 1;
 			}
 		});
 		while (digitsList.indexOf('' + newElementNum) >= 0) {
 			newElementNum++;
 		}
-		var newIndex = 1;
-		$('.enum-index-cell').each(function(index, element) {
-			var compareIndex = parseInt($(element).text(), 10);
-			if (compareIndex >= newIndex) {
-				newIndex = compareIndex + 1;
-			}
-		});
-		var newElementName = NEW_ELEMENT_NAME + newElementNum;
 		var newEnum = {
 			index: newIndex,
-			name: newElementName,
+			name: NEW_ELEMENT_NAME + newElementNum,
 			description: ""
 		};
 		this.selectedRowIndex = newIndex;
 		this.gFields.push(newEnum);
+		var addEnumAnnouncement = {
+			action: AnnouncementType.ADD_ENUM,
+			fileId: this.props.fileId,
+			enumIndex: newEnum.index,
+			enumNewName: newEnum.name
+		};
+		GDriveService.announce(this.metadataModel, addEnumAnnouncement);
 	},
 
 	onDeleteEnumBtnClick: function(e) {
 		var $selectedIndexCell = $('.selected-cell.enum-index-cell');
-		if (!this.gapiLoaded || !$selectedIndexCell.length) {
+		if (!$selectedIndexCell.length) {
 			e.preventDefault();
 			return;
 		}
-		var index = parseInt($selectedIndexCell.text(), 10);
-		var fields = this.gFields.asArray();
-		for (var i = 0, len = fields.length; i < len; i += 1) {
-			if (fields[i].index === index) {
+		var index = this.selectedRowIndex;
+		this.selectedRowIndex = null;
+		for (var i = 0, len = this.gFields.length; i < len; i += 1) {
+			if (this.gFields.get(i).index === index) {
+				var deletedEnum = this.gFields.get(i);
+				var deleteEnumAnnouncement = {
+					action: AnnouncementType.DELETE_ENUM,
+					fileId: this.props.fileId,
+					enumIndex: deletedEnum.index,
+					enumNewName: deletedEnum.name
+				};
+				GDriveService.announce(this.metadataModel, deleteEnumAnnouncement);
 				this.gFields.remove(i);
 				break;
 			}
