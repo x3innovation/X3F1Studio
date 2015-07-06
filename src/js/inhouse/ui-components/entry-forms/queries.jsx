@@ -16,10 +16,6 @@ module.exports = React.createClass({
 		Bullet.on(EventType.EntryForm.GAPI_FILE_LOADED, 'queries.jsx>>onGapiFileLoaded', this.onGapiFileLoaded);
 	},
 
-	componentDidMount: function() {
-
-	},
-
 	componentWillUnmount: function() {
 		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'queries.jsx>>onGapiFileLoaded');
 	},
@@ -138,7 +134,7 @@ module.exports = React.createClass({
 		var queries = this.queries;
 		var queryContents = queries.map(function(query) {
 			return (
-				<div className = 'query-row row' key = {'query-id-' + query.id} data-query-id = {query.id}>
+				<div className = 'query-row row' key = {query.id} data-query-id = {query.id}>
 					<div className = 'col s1 input-field query-id-wrapper'>
 						<input type = 'text' id = {'query-' + query.id + '-id-field'} disabled className = 'query-id-field' value = {query.id} />
 						<label htmlFor = {'query-' + query.id + '-id-field'} className = 'query-label active'>query id</label>

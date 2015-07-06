@@ -1,7 +1,9 @@
 var EventType = require('../../../constants/event-type.js');
 var DefaultValueConstants = require('../../../constants/default-value-constants.js');
+var AnnouncementType = require('../../../constants/announcement-type.js');
 var DefaultFields = DefaultValueConstants.DefaultFieldAttributes;
 
+var GDriveService = require('../../../services/google-drive-service.js');
 var Configs = require('../../../app-config.js');
 
 module.exports = React.createClass({
@@ -101,13 +103,22 @@ module.exports = React.createClass({
 
 		for (var i = 0, len = this.gFields.length; i < len; i += 1) {
 			if (this.gFields.get(i).index === index) {
-				var newField = {
+				var renamedEnum = {
 					index: index,
 					name: $selectedRow.find('.enum-name-cell').text(),
 					description: $selectedRow.find('.enum-description-cell').text()
 				};
-				if (newField.name !== this.gFields.get(i).name || newField.description !== this.gFields.get(i).description) {
-					this.gFields.set(i, newField);
+				if (renamedEnum.name !== this.gFields.get(i).name) {
+					this.gFields.set(i, renamedEnum);
+					var renameEnumAnnouncement = {
+						action: AnnouncementType.RENAME_ENUM,
+						fileId: this.props.fileId,
+						enumIndex: renamedEnum.index,
+						enumNewName: renamedEnum.name
+					};
+					GDriveService.announce(this.metadataModel, renameEnumAnnouncement);
+				} else if (renamedEnum.description !== this.gFields.get(i).description) {
+					this.gFields.set(i, renamedEnum);
 				}
 				break;
 			}

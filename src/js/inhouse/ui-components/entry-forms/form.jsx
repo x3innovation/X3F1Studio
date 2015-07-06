@@ -92,12 +92,14 @@ module.exports = React.createClass({
 					_this.updateRefNames(announcement);
 				}
 			} else if (announcement.action === AnnouncementType.ADD_ENUM) {
-				console.log('enum added!');
 				if (announcement.fileId === _this.fieldData.get('enumId')) {
 					_this.setEnumValues(announcement.fileId);
 				}
 			} else if (announcement.action === AnnouncementType.DELETE_ENUM) {
-				console.log('enum deleted!');
+				if (announcement.fileId === _this.fieldData.get('enumId')) {
+					_this.setEnumValues(announcement.fileId);
+				}
+			} else if (announcement.action === AnnouncementType.RENAME_ENUM) {
 				if (announcement.fileId === _this.fieldData.get('enumId')) {
 					_this.setEnumValues(announcement.fileId);
 				}
@@ -230,8 +232,9 @@ module.exports = React.createClass({
 	},
 
 	onFieldTypeChanged: function(newFieldType) {
-		this.fieldData.set('type', newFieldType);
-		if (newFieldType === 'enum') {
+		if (newFieldType === 'ref') {
+		}
+		else if (newFieldType === 'enum') {
 			this.setEnumValues(this.fieldData.get('enumId'));
 		}
 		this.saveUiToGoogle();
@@ -357,6 +360,8 @@ module.exports = React.createClass({
 		_this.elements.enumValueSelect.html('<option value="default" disabled>loading enum values...</option>');
 		_this.elements.enumValueSelect.material_select();
 		if (!enumId) {
+			_this.elements.enumValueSelect.html('<option value="default" disabled>select an enum type</option>');
+			_this.elements.enumValueSelect.material_select();
 			return;
 		}
 		gapi.drive.realtime.load(enumId, function(doc) {
@@ -559,7 +564,7 @@ module.exports = React.createClass({
 								<select id='enum-value-select' className='enum-value-selector form-select' value='default'>
 									<option value='default' disabled>loading enum values...</option>
 								</select>
-								<label htmlFor='enum-value-select' id='enum-value-label'>default enum</label>
+								<label htmlFor='enum-value-select' id='enum-value-label'>enum value</label>
 							</div>
 							</div>
 						<div id='checkbox-field' className='col s3 offset-s1'>
