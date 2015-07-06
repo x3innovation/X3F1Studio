@@ -182,7 +182,7 @@ module.exports = React.createClass({
 				this.model.title = gModel.title.toString();
 				this.model.description = gModel.description.toString();
 				fields = gModel.fields;
-				for (i = 0, len = fields.length; i < len; i++) {
+				for (i = 0, len = fields.length; i<len; i++) {
 					this.model.fieldNames.push(fields.get(i).get('name').toString());
 				}
 			} else { //gModel was not properly initialized, but still need to load
@@ -196,7 +196,7 @@ module.exports = React.createClass({
 				this.model.title = gModel.title.toString();
 				this.model.description = gModel.description.toString();
 				fields = gModel.fields;
-				for (i = 0, len = fields.length; i < len; i++) {
+				for (i = 0, len = fields.length; i<len; i++) {
 					this.model.enumNames.push(fields.get(i).name);
 				}
 			} else { //gModel was not properly initialized, but still need to load
@@ -210,7 +210,7 @@ module.exports = React.createClass({
 				this.model.title = gModel.title.toString();
 				this.model.description = gModel.description.toString();
 				fields = gModel.fields;
-				for (i = 0, len = fields.length; i < len; i++) {
+				for (i = 0, len = fields.length; i<len; i++) {
 					this.model.fieldNames.push(fields.get(i).get('name').toString());
 				}
 			} else { //gModel was not properly initialized, but still need to load
@@ -224,7 +224,7 @@ module.exports = React.createClass({
 				this.model.title = gModel.title.toString();
 				this.model.description = gModel.description.toString();
 				fields = gModel.fields;
-				for (i = 0, len = fields.length; i < len; i++) {
+				for (i = 0, len = fields.length; i<len; i++) {
 					this.model.fieldNames.push(fields.get(i).get('name').toString());
 				}
 			} else { //gModel was not properly initialized, but still need to load
@@ -260,19 +260,19 @@ module.exports = React.createClass({
 	getBackSideContent: function() {
 		var content = '';
 		if (this.props.objectType === GDriveCons.ObjectType.PERSISTENT_DATA) {
-			for (i = 0, len = this.model.fieldNames.length; i < len; i++) {
+			for (i = 0, len = this.model.fieldNames.length; i<len; i++) {
 				content = content + this.model.fieldNames[i] + '\n';
 			}
 		} else if (this.props.objectType === GDriveCons.ObjectType.EVENT) {
-			for (i = 0, len = this.model.fieldNames.length; i < len; i++) {
+			for (i = 0, len = this.model.fieldNames.length; i<len; i++) {
 				content = content + this.model.fieldNames[i] + '\n';
 			}
 		} else if (this.props.objectType === GDriveCons.ObjectType.SNIPPET) {
-			for (i = 0, len = this.model.fieldNames.length; i < len; i++) {
+			for (i = 0, len = this.model.fieldNames.length; i<len; i++) {
 				content = content + this.model.fieldNames[i] + '\n';
 			}
 		} else if (this.props.objectType === GDriveCons.ObjectType.ENUM) {
-			for (i = 0, len = this.model.enumNames.length; i < len; i++) {
+			for (i = 0, len = this.model.enumNames.length; i<len; i++) {
 				content = content + this.model.enumNames[i] + '\n';
 			}
 		} else if (this.props.objectType === GDriveCons.ObjectType.FLOW) {

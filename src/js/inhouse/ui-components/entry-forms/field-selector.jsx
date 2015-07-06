@@ -38,7 +38,7 @@ module.exports = React.createClass({
 		this.updateUi();
 	},
 
-	updateUi: function(e) {
+	updateUi: function(evt) {
 		this.repopulateFields();
 		this.initializeTable();
 		this.selectField();
@@ -49,7 +49,7 @@ module.exports = React.createClass({
 		this.fields = [];
 		var gField;
 		var field;
-		for (var i = 0, len = this.gFields.length; i < len; i += 1) {
+		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			gField = this.gFields.get(i);
 			field = {};
 			field.ID = gField.get('ID');
@@ -82,8 +82,8 @@ module.exports = React.createClass({
 				targets: 1,
 				data: 'name',
 				render: function (data, type, row, meta) {
-			     	return '<input readOnly class="field-table-input" type="text" data-field-id="'+row.ID+'" value='+data+'></input>';
-			    },
+					return '<input readOnly class="field-table-input" type="text" data-field-id="'+row.ID+'" value='+data+'></input>';
+				},
 				className: 'field-cell'
 			}]
 		});
@@ -119,10 +119,10 @@ module.exports = React.createClass({
 		var table = this.table;
 		var selectedFieldID = this.selectedFieldID;
 		var selectedFieldName = '';
-		var $IdCells = $('.field-ID-cell');
+		var $idCells = $('.field-ID-cell');
 
-		if ($IdCells.length >= 0) {
-			$IdCells.each(function(index, element) {
+		if ($idCells.length >= 0) {
+			$idCells.each(function(index, element) {
 				var $element = $(element);
 				if ($element.text() === selectedFieldID) {
 					var cellIndex = table.cell($element).index();
@@ -133,16 +133,15 @@ module.exports = React.createClass({
 				}
 			});
 		}
-
 		var data = {
 			selectedField: selectedFieldName,
-			fieldCount: $IdCells.length
+			fieldCount: $idCells.length
 		};
 		Bullet.trigger(EventType.EntryForm.FIELD_SELECTED, data);
 	},
 
 	rebindStrings: function() {
-		var _this = this;
+		var that = this;
 		var bindString = gapi.drive.realtime.databinding.bindString;
 		for (var boundObj in this.gBindings) {
 			this.gBindings[boundObj].unbind();
@@ -150,9 +149,9 @@ module.exports = React.createClass({
 		$('.field-table-input').each(function(index, element) {
 			var $element = $(element);
 			var fieldId = $element.attr('data-field-id');
-			for (var i = 0, len = _this.gFields.length; i < len; i += 1) {
-				if (_this.gFields.get(i).get('ID') === fieldId) {
-					_this.gBindings.fieldId = bindString(_this.gFields.get(i).get('name'), element);
+			for (var i = 0, len = that.gFields.length; i<len; i++) {
+				if (that.gFields.get(i).get('ID') === fieldId) {
+					that.gBindings.fieldId = bindString(that.gFields.get(i).get('name'), element);
 					break;
 				}
 			}
@@ -163,7 +162,7 @@ module.exports = React.createClass({
 		if (!this.gFields) {
 			return false;
 		}
-		for (var i = 0, len = this.gFields.length; i < len; i += 1) { //don't add if the field already exists
+		for (var i = 0, len = this.gFields.length; i<len; i++) { //don't add if the field already exists
 			if (this.gFields.get(i).get('name').toString() === newFieldName) {
 				return false;
 			}
@@ -202,7 +201,7 @@ module.exports = React.createClass({
 		if (!this.gFields) {
 			return false;
 		}
-		for (var i = 0, len = this.gFields.length; i < len; i += 1) {
+		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			if ('' + this.gFields.get(i).get('ID') === removedFieldID) {
 				this.gFields.remove(i);
 				return true;
@@ -277,8 +276,8 @@ module.exports = React.createClass({
 		this.selectTopCell();
 	},
 
-	onFieldClick: function(e) {
-		var $clickedCell = $(e.currentTarget);
+	onFieldClick: function(evt) {
+		var $clickedCell = $(evt.currentTarget);
 		if ($clickedCell.hasClass('selected-cell')) {
 			return false;
 		}

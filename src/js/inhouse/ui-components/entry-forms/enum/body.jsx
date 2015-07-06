@@ -1,5 +1,5 @@
 var EventType = require('../../../constants/event-type.js');
-var EnumElements = require('./enum-elements.jsx');
+var EnumElements = require('../enum-elements.jsx');
 
 module.exports = React.createClass({
 	/* ******************************************

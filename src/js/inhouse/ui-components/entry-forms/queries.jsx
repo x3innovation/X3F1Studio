@@ -41,20 +41,18 @@ module.exports = React.createClass({
 		this.realignLabels();
 	},
 
-	keyUpHandler: function(e) {
-		var $fieldAttr = $(e.target);
-		var code = (e.keyCode);
+	keyUpHandler: function(evt) {
+		var $fieldAttr = $(evt.target);
+		var code = (evt.keyCode);
 		var arrowKeyCodes = [37, 38, 39, 40];
-		if (arrowKeyCodes.indexOf(code) >= 0) {
-			return;
-		}
-		this.fieldAttr.attr = e.target;
-		this.fieldAttr.pos = e.target.selectionStart;
+		if (arrowKeyCodes.indexOf(code) >= 0) { return;	}
+		this.fieldAttr.attr = evt.target;
+		this.fieldAttr.pos = evt.target.selectionStart;
 
 		var $queryRow = $fieldAttr.closest('.query-row');
 		var queryId = parseInt($queryRow.attr('data-query-id'), 10);
 		var queries = this.gQueries.asArray();
-		for (var i = 0, len = queries.length; i < len; i += 1) {
+		for (var i = 0, len = queries.length; i<len; i++) {
 			if(parseInt(queries[i].id, 10) === queryId) {
 				var newQuery = {
 					requestId: queryId,
@@ -84,8 +82,6 @@ module.exports = React.createClass({
 	setCursorPos: function() {
 		if (this.fieldAttr.attr) {
 			this.fieldAttr.attr.setSelectionRange(this.fieldAttr.pos, this.fieldAttr.pos);
-		} else {
-			return;
 		}
 	},
 
@@ -95,8 +91,8 @@ module.exports = React.createClass({
 	},
 
 	createNewQuery: function() {
-		var _this = this;
-		GDriveService.getMetadataModelId(_this.props.projectFileId, function(id) {
+		var that = this;
+		GDriveService.getMetadataModelId(that.props.projectFileId, function(id) {
 			$('.query-id-field').each(function(index, element) {
 				var $element = $(element);
 				if ('' + id === '' + $element.val()) {
@@ -114,15 +110,15 @@ module.exports = React.createClass({
 				name: null,
 				description: null
 			};
-			_this.gQueries.push(newQuery);
+			that.gQueries.push(newQuery);
 		}, 2);
 	},
 
-	onDeleteQueryBtnClick: function(e) {
-		var $clickedBtn = $(e.target).closest('.query-delete-btn');
+	onDeleteQueryBtnClick: function(evt) {
+		var $clickedBtn = $(evt.target).closest('.query-delete-btn');
 		var delId = $clickedBtn.attr('data-query-id');
 		var queries = this.gQueries.asArray();
-		for (var i = 0, len = queries.length; i < len; i += 1) {
+		for (var i = 0, len = queries.length; i<len; i++) {
 			if ('' + queries[i].id === '' + delId) {
 				this.gQueries.remove(i);
 				break;

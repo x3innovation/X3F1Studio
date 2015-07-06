@@ -1,10 +1,10 @@
-var EventType = require('../../../constants/event-type.js');
-var DefaultValueConstants = require('../../../constants/default-value-constants.js');
-var AnnouncementType = require('../../../constants/announcement-type.js');
+var EventType = require('../../constants/event-type.js');
+var DefaultValueConstants = require('../../constants/default-value-constants.js');
+var AnnouncementType = require('../../constants/announcement-type.js');
 var DefaultFields = DefaultValueConstants.DefaultFieldAttributes;
 
-var GDriveService = require('../../../services/google-drive-service.js');
-var Configs = require('../../../app-config.js');
+var GDriveService = require('../../services/google-drive-service.js');
+var Configs = require('../../app-config.js');
 
 module.exports = React.createClass({
 	/* ******************************************
@@ -89,19 +89,19 @@ module.exports = React.createClass({
 		$('.enum-description-cell').attr('data-placeholder-value', 'enter description');
 	},
 
-	keyPressHandler: function(e) {
-		var code = (e.keyCode);
-		if (code === 13) {
-			$(e.target).blur();
-			return false; //enter was detected, ignore keypress
+	keyPressHandler: function(evt) {
+		var code = (evt.keyCode);
+		if (code === 13) { //enter was detected, ignore keypress
+			$(evt.target).blur();
+			return false;
 		}
 	},
 
-	saveCell: function(e) {
-		var $selectedRow = $(e.target).closest('tr');
+	saveCell: function(evt) {
+		var $selectedRow = $(evt.target).closest('tr');
 		var index = parseInt($selectedRow.find('.enum-index-cell').text(), 10);
 
-		for (var i = 0, len = this.gFields.length; i < len; i += 1) {
+		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			if (this.gFields.get(i).index === index) {
 				var renamedEnum = {
 					index: index,
@@ -125,8 +125,8 @@ module.exports = React.createClass({
 		}
 	},
 
-	setSelectedRow: function(e) {
-		var $clicked = $(e.target);
+	setSelectedRow: function(evt) {
+		var $clicked = $(evt.target);
 		var cellIndex = this.table.cell($clicked).index();
 		var $selectedRow = $(this.table.row(cellIndex.row).node());
 		this.selectedRowIndex = parseInt($selectedRow.find('.enum-index-cell').text(), 10);
@@ -134,22 +134,20 @@ module.exports = React.createClass({
 	},
 
 	selectRow: function() {
-		var _this = this;
-		if (!this.selectedRowIndex) {
-			return;
-		}
+		var that = this;
+		if (!this.selectedRowIndex) { return; }
 		var $selectedRow;
 		$('.selected-cell').removeClass('selected-cell');
 		$('.enum-index-cell').each(function(index, element) {
 			var $element = $(element);
-			if ($element.text() === ""+_this.selectedRowIndex) {
+			if ($element.text() === ""+that.selectedRowIndex) {
 				$selectedRow = $element.closest('tr');
 			}
 		});
 		$selectedRow.find('td').addClass('selected-cell');
 	},
 
-	onAddEnumBtnClick: function(e) {
+	onAddEnumBtnClick: function(evt) {
 		var NEW_ELEMENT_NAME = 'newElement_';
 		var newElementNum = 0;
 		var digitsList = [];
@@ -186,15 +184,15 @@ module.exports = React.createClass({
 		GDriveService.announce(this.metadataModel, addEnumAnnouncement);
 	},
 
-	onDeleteEnumBtnClick: function(e) {
+	onDeleteEnumBtnClick: function(evt) {
 		var $selectedIndexCell = $('.selected-cell.enum-index-cell');
 		if (!$selectedIndexCell.length) {
-			e.preventDefault();
+			evt.preventDefault();
 			return;
 		}
 		var index = this.selectedRowIndex;
 		this.selectedRowIndex = null;
-		for (var i = 0, len = this.gFields.length; i < len; i += 1) {
+		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			if (this.gFields.get(i).index === index) {
 				var deletedEnum = this.gFields.get(i);
 				var deleteEnumAnnouncement = {

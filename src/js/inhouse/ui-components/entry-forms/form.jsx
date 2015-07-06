@@ -65,53 +65,49 @@ module.exports = React.createClass({
 	},
 
 	onMetadataModelLoaded: function(metadataModel) {
-		var _this = this;
+		var that = this;
 		GDriveService.registerAnnouncement(metadataModel, function() {
 			var announcement = metadataModel.announcement.get(0);
 			if (announcement.action === AnnouncementType.ADD_FILE) {
-				if (announcement.fileId === _this.props.fileId) {
-					return;
-				}
+				if (announcement.fileId === that.props.fileId) { return; }
 				if (announcement.fileType === GDriveConstants.ObjectType.PERSISTENT_DATA) {
-					_this.addToRefs(announcement);
+					that.addToRefs(announcement);
 				} else if (announcement.fileType === GDriveConstants.ObjectType.ENUM) {
-					_this.addToEnums(announcement);
+					that.addToEnums(announcement);
 				} else if (announcement.fileType === GDriveConstants.ObjectType.SNIPPET) {
-					_this.addToRefs(announcement);
+					that.addToRefs(announcement);
 				} else if (announcement.fileType === GDriveConstants.ObjectType.EVENT) {
-					_this.addToRefs(announcement);
+					that.addToRefs(announcement);
 				}
 			} else if (announcement.action === AnnouncementType.RENAME_FILE) {
 				if (announcement.fileType === GDriveConstants.ObjectType.PERSISTENT_DATA) {
-					_this.updateRefNames(announcement);
+					that.updateRefNames(announcement);
 				} else if (announcement.fileType === GDriveConstants.ObjectType.ENUM) {
-					_this.updateEnums(announcement);
+					that.updateEnums(announcement);
 				} else if (announcement.fileType === GDriveConstants.ObjectType.SNIPPET) {
-					_this.updateRefNames(announcement);
+					that.updateRefNames(announcement);
 				} else if (announcement.fileType === GDriveConstants.ObjectType.EVENT) {
-					_this.updateRefNames(announcement);
+					that.updateRefNames(announcement);
 				}
 			} else if (announcement.action === AnnouncementType.ADD_ENUM) {
-				if (announcement.fileId === _this.fieldData.get('enumId')) {
-					_this.setEnumValues(announcement.fileId);
+				if (announcement.fileId === that.fieldData.get('enumId')) {
+					that.setEnumValues(announcement.fileId);
 				}
 			} else if (announcement.action === AnnouncementType.DELETE_ENUM) {
-				if (announcement.fileId === _this.fieldData.get('enumId')) {
-					_this.setEnumValues(announcement.fileId);
+				if (announcement.fileId === that.fieldData.get('enumId')) {
+					that.setEnumValues(announcement.fileId);
 				}
 			} else if (announcement.action === AnnouncementType.RENAME_ENUM) {
-				if (announcement.fileId === _this.fieldData.get('enumId')) {
-					_this.setEnumValues(announcement.fileId);
+				if (announcement.fileId === that.fieldData.get('enumId')) {
+					that.setEnumValues(announcement.fileId);
 				}
 			}
 		});
 	},
 
 
-	updateUi: function(e) {
-		if (Object.keys(this.fieldData).length === 0) {
-			return;
-		}
+	updateUi: function() {
+		if (Object.keys(this.fieldData).length === 0) { return;	}
 		this.displayCorrectUiComponents();
 		this.elements.fieldTypeSelect.val(this.fieldData.get('type'));
 		this.elements.enumValueSelect.val(this.fieldData.get('enumValue'));
@@ -138,7 +134,7 @@ module.exports = React.createClass({
 
 	saveUiToGoogle: function() {
 		var fieldIndex;
-		for (var i = 0, len = this.gFields.length; i < len; i += 1) {
+		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			if (this.gFields.get(i).get('ID') === this.fieldData.get('ID')) {
 				fieldIndex = i;
 				break;
@@ -171,7 +167,7 @@ module.exports = React.createClass({
 		}
 	},
 
-	realignLabels: function() {
+	alignAllLabels: function() {
 		$('.text-input').each(function(index, element) {
 			var $element = $(element);
 			if ($element.val() !== '') {
@@ -196,12 +192,12 @@ module.exports = React.createClass({
 		}
 
 		var selectedField = data.selectedField;
-		for (var i = 0, len = this.gFields.length; i < len; i += 1) {
+		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			if (this.gFields.get(i).get('name').toString() === selectedField) {
 				this.fieldData = this.gFields.get(i);
 				this.updateUi();
 				this.rebindStrings();
-				this.realignLabels();
+				this.alignAllLabels();
 				this.setEnumValues(this.fieldData.get('enumId'));
 				break;
 			}
@@ -209,23 +205,63 @@ module.exports = React.createClass({
 	},
 
 	rebindStrings: function() {
-		var bindString = gapi.drive.realtime.databinding.bindString;
-		for (var boundObj in this.gBindings) {
-			this.gBindings[boundObj].unbind();
+		for (var prevBoundObj in this.gBindings) {
+			this.gBindings[prevBoundObj].unbind(); //unbind the previous strings
 		}
-		this.gBindings.name = bindString(this.fieldData.get('name'), this.elements.nameField[0]);
-		this.gBindings.description = bindString(this.fieldData.get('description'), this.elements.descriptionField[0]);
-		this.gBindings.defValue = bindString(this.fieldData.get('defValue'), this.elements.defValueField[0]);
-		this.gBindings.minValue = bindString(this.fieldData.get('minValue'), this.elements.minValueField[0]);
-		this.gBindings.maxValue = bindString(this.fieldData.get('maxValue'), this.elements.maxValueField[0]);
-		this.gBindings.strLen = bindString(this.fieldData.get('strLen'), this.elements.strLenField[0]);
-		this.gBindings.arrayLen = bindString(this.fieldData.get('arrayLen'), this.elements.arrayLenField[0]);
+		var that = this;
+		var bindString = gapi.drive.realtime.databinding.bindString;
+		var TextInsertedEvent = gapi.drive.realtime.EventType.TEXT_INSERTED;
+		var TextDeletedEvent = gapi.drive.realtime.EventType.TEXT_DELETED;
+
+		var alignLabel = function(evt, elementName) {
+			if (evt.isLocal) { return; } //local users don't need to worry with label alignment changing
+			if (evt.target.length) { //if the calling string isn't empty
+				$('#'+elementName+'-label').addClass('active');
+			} else {
+				$('#'+elementName+'-label').removeClass('active');
+			}
+		};
+
+		var nameString = this.fieldData.get('name'); //getting each collaborative string
+		nameString.addEventListener(TextInsertedEvent, function(evt) {alignLabel(evt, 'name');});
+		nameString.addEventListener(TextDeletedEvent, function(evt) {alignLabel(evt, 'name');});
+		this.gBindings.name = bindString(nameString, this.elements.nameField[0]);
+
+		var descriptionString = this.fieldData.get('description');
+		descriptionString.addEventListener(TextInsertedEvent, function(evt) {alignLabel(evt, 'description');});
+		descriptionString.addEventListener(TextDeletedEvent, function(evt) {alignLabel(evt, 'description');});
+		this.gBindings.description = bindString(descriptionString, this.elements.descriptionField[0]);
+
+		var defValueString = this.fieldData.get('defValue');
+		defValueString.addEventListener(TextInsertedEvent, function(evt) {alignLabel(evt, 'def-value');});
+		defValueString.addEventListener(TextDeletedEvent, function(evt) {alignLabel(evt, 'def-value');});
+		this.gBindings.defValue = bindString(defValueString, this.elements.defValueField[0]);
+
+		var minValueString = this.fieldData.get('minValue');
+		minValueString.addEventListener(TextInsertedEvent, function(evt) {alignLabel(evt, 'min-value');});
+		minValueString.addEventListener(TextDeletedEvent, function(evt) {alignLabel(evt, 'min-value');});
+		this.gBindings.minValue = bindString(minValueString, this.elements.minValueField[0]);
+
+		var maxValueString = this.fieldData.get('maxValue');
+		maxValueString.addEventListener(TextInsertedEvent, function(evt) {alignLabel(evt, 'max-value');});
+		maxValueString.addEventListener(TextDeletedEvent, function(evt) {alignLabel(evt, 'max-value');});
+		this.gBindings.maxValue = bindString(maxValueString, this.elements.maxValueField[0]);
+
+		var strLenString = this.fieldData.get('strLen');
+		strLenString.addEventListener(TextInsertedEvent, function(evt) {alignLabel(evt, 'str-len');});
+		strLenString.addEventListener(TextDeletedEvent, function(evt) {alignLabel(evt, 'str-len');});
+		this.gBindings.strLen = bindString(strLenString, this.elements.strLenField[0]);
+
+		var arrayLenString = this.fieldData.get('arrayLen');
+		arrayLenString.addEventListener(TextInsertedEvent, function(evt) {alignLabel(evt, 'array-len');});
+		arrayLenString.addEventListener(TextDeletedEvent, function(evt) {alignLabel(evt, 'array-len');});
+		this.gBindings.arrayLen = bindString(arrayLenString, this.elements.arrayLenField[0]);
 	},
 
 	updateAllSelect: function() {
-		var _this = this;
+		var that = this;
 		this.elements.fieldTypeSelect.material_select(function() {
-			_this.onFieldTypeChanged($('#field-type-dropdown').find('input.select-dropdown').val());
+			that.onFieldTypeChanged($('#field-type-dropdown').find('input.select-dropdown').val());
 		});
 		this.updateRefSelectOptions();
 		this.updateEnumSelectOptions();
@@ -246,13 +282,13 @@ module.exports = React.createClass({
 
 	onEnumTypeChanged: function(newEnumName) {
 		var newEnumId = '';
-		var _this = this;
+		var that = this;
 		$('#enum-name-dropdown').find('span').each(function(index, element) {
 			var $element = $(element);
 			if ($element.text() === newEnumName) {
 				newEnumId = $element.attr('data-file-id');
-				_this.fieldData.set('enumId', newEnumId);
-				_this.setEnumValues(newEnumId);
+				that.fieldData.set('enumId', newEnumId);
+				that.setEnumValues(newEnumId);
 			}
 		});
 		this.saveUiToGoogle();
@@ -268,7 +304,7 @@ module.exports = React.createClass({
 	onFilesLoaded: function(fileObjects) {
 		this.refs = [];
 		this.enums = [];
-		for (var i = 0, len = fileObjects.length; i < len; i += 1) {
+		for (var i = 0, len = fileObjects.length; i<len; i++) {
 			//the drive file description contains the object type
 			if (fileObjects[i].description === GDriveConstants.ObjectType.PERSISTENT_DATA) {
 				this.refs.push({
@@ -300,24 +336,24 @@ module.exports = React.createClass({
 	},
 
 	setSelectOptions: function() {
-		var _this = this;
+		var that = this;
 
 		var refs = this.refs;
 		this.elements.refNameSelect.empty();
 		var refOptions = "";
-		for (i = 0, len = refs.length; i < len; i += 1) {
+		for (i = 0, len = refs.length; i<len; i++) {
 			refOptions += '<option data-file-type = "'+refs[i].fileType+'" data-file-id = "'+refs[i].id+'" value = "'+refs[i].id+'">'+refs[i].title+'</option>';
 		}
 		this.elements.refNameSelect.html(refOptions);
 		this.elements.refNameSelect.material_select(function() {
-			_this.onRefTypeChanged($('#ref-name-dropdown').find('.select-dropdown').val());
+			that.onRefTypeChanged($('#ref-name-dropdown').find('.select-dropdown').val());
 		});
 		if (Object.keys(this.fieldData).length > 0) {
 			this.elements.refNameSelect.val(this.fieldData.get('refId'));
 		}
 		$('#ref-name-dropdown').find('span').each(function(index, element) {
 			var $element = $(element);
-			for (i = 0, len = refs.length; i < len; i += 1) {
+			for (i = 0, len = refs.length; i<len; i++) {
 				if ($element.text() === '' + refs[i].title) {
 					$element.attr('data-file-id', refs[i].id).attr('data-file-type', refs[i].fileType);
 					break;
@@ -329,19 +365,19 @@ module.exports = React.createClass({
 		if (enums.length) {
 			this.elements.enumNameSelect.empty();
 			var enumOptions = "";
-			for (i = 0, len = enums.length; i < len; i += 1) {
+			for (i = 0, len = enums.length; i<len; i++) {
 				enumOptions += '<option data-file-type = "'+enums[i].fileType+'" data-file-id = "'+enums[i].id+'" value = "'+enums[i].id+'">'+enums[i].title+'</option>';
 			}
 			this.elements.enumNameSelect.html(enumOptions);
 			this.elements.enumNameSelect.material_select(function() {
-				_this.onEnumTypeChanged($('#enum-name-dropdown').find('.select-dropdown').val());
+				that.onEnumTypeChanged($('#enum-name-dropdown').find('.select-dropdown').val());
 			});
 			if (Object.keys(this.fieldData).length > 0) {
 				this.elements.refNameSelect.val(this.fieldData.get('enumId'));
 			}
 			$('#enum-name-dropdown').find('span').each(function(index, element) {
 				var $element = $(element);
-				for (i = 0, len = enums.length; i < len; i += 1) {
+				for (i = 0, len = enums.length; i<len; i++) {
 					if ($element.text() === '' + enums[i].title) {
 						$element.attr('data-file-id', enums[i].id).attr('data-file-type', enums[i].fileType);
 						break;
@@ -350,33 +386,33 @@ module.exports = React.createClass({
 			});
 		} else {	
 			this.elements.enumNameSelect.material_select(function() {
-				_this.onEnumTypeChanged($('#enum-name-dropdown').find('.select-dropdown').val());
+				that.onEnumTypeChanged($('#enum-name-dropdown').find('.select-dropdown').val());
 			});
 		}
 	},
 
 	setEnumValues: function(enumId) {
-		var _this = this;
-		_this.elements.enumValueSelect.html('<option value="default" disabled>loading enum values...</option>');
-		_this.elements.enumValueSelect.material_select();
+		var that = this;
+		that.elements.enumValueSelect.html('<option value="default" disabled>loading enum values...</option>');
+		that.elements.enumValueSelect.material_select();
 		if (!enumId) {
-			_this.elements.enumValueSelect.html('<option value="default" disabled>select an enum type</option>');
-			_this.elements.enumValueSelect.material_select();
+			that.elements.enumValueSelect.html('<option value="default" disabled>select an enum type</option>');
+			that.elements.enumValueSelect.material_select();
 			return;
 		}
 		gapi.drive.realtime.load(enumId, function(doc) {
 			var enumValues = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.ENUM).fields.asArray();
 			if (enumValues.length) {
 				var enumValueOptions = "";
-				for (var i = 0, len = enumValues.length; i < len; i += 1) {
+				for (var i = 0, len = enumValues.length; i<len; i++) {
 					enumValueOptions += '<option data-enum-index = "'+enumValues[i].index+'" value = "'+enumValues[i].name+'">'+enumValues[i].name+'</option>';
 				}
-				_this.elements.enumValueSelect.html(enumValueOptions);
+				that.elements.enumValueSelect.html(enumValueOptions);
 			} else {
-				_this.elements.enumValueSelect.html('<option value = "default">no enums defined</option>');
+				that.elements.enumValueSelect.html('<option value = "default">no enums defined</option>');
 			}
-			_this.elements.enumValueSelect.material_select(_this.saveUiToGoogle);
-			_this.updateEnumValueSelect();
+			that.elements.enumValueSelect.material_select(that.saveUiToGoogle);
+			that.updateEnumValueSelect();
 		});
 	},
 
@@ -395,7 +431,7 @@ module.exports = React.createClass({
 
 	updateRefNames: function(announcement) {
 		var refs = this.refs;
-		for (var i = 0, len = refs.length; i < len; i += 1) {
+		for (var i = 0, len = refs.length; i<len; i++) {
 			if (refs[i].id === announcement.fileId) {
 				refs[i].title = announcement.fileNewName;
 				break;
@@ -413,7 +449,7 @@ module.exports = React.createClass({
 		}
 		$('#ref-name-dropdown').find('span').each(function(index, element) {
 			var $element = $(element);
-			for (var i = 0, len = refs.length; i < len; i += 1) {
+			for (var i = 0, len = refs.length; i<len; i++) {
 				if ($element.attr('data-file-id') === refs[i].id) {
 					if ($element.text() !== refs[i].title) {
 						$element.text(refs[i].title);
@@ -444,7 +480,7 @@ module.exports = React.createClass({
 
 	updateEnums: function(announcement) {
 		var enums = this.enums;
-		for (var i = 0, len = enums.length; i < len; i += 1) {
+		for (var i = 0, len = enums.length; i<len; i++) {
 			if (enums[i].id === announcement.fileId) {
 				enums[i] = {
 					id: announcement.fileId,
@@ -470,7 +506,7 @@ module.exports = React.createClass({
 		}
 		$('#enum-name-dropdown').find('span').each(function(index, element) {
 			var $element = $(element);
-			for (var i = 0, len = enums.length; i < len; i += 1) {
+			for (var i = 0, len = enums.length; i<len; i++) {
 				if ($element.attr('data-file-id') === enums[i].id) {
 					if ($element.text() !== enums[i].title) {
 						$element.text(enums[i].title);

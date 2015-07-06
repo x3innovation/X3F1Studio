@@ -49,7 +49,7 @@
     border-bottom-color: #26a69a ;
 }
 
-#desc-wrapper {
+#description-wrapper {
     overflow-y: auto;
     overflow-x: hidden;
     font-weight: 300;
@@ -57,18 +57,18 @@
     margin-bottom: 0.92rem;
 }
 
-#header-desc {
+#header-description {
     border: 0;
     border-bottom: none;
     resize: none;
 }
 
-#header-desc:focus {
+#header-description:focus {
     outline: none;
     border-bottom-color: #26a69a ;
 }
 
-#data-ID{
+#header-ID{
     border-bottom: 0;
     height: 1.5rem;
     font-size: 0.85rem;

@@ -11,11 +11,11 @@ module.exports = React.createClass({
 				LIFE CYCLE FUNCTIONS
 	****************************************** */
 	componentDidMount: function() {
-		var _this = this;
-		GDriveService.createNewPersistentData(_this.getParams().projectFolderFileId, function(file) {
+		var that = this;
+		GDriveService.createNewPersistentData(that.getParams().projectFolderFileId, function(file) {
 			var params = {
-				projectFolderFileId: _this.getParams().projectFolderFileId,
-				projectFileId: _this.getParams().projectFileId,
+				projectFolderFileId: that.getParams().projectFolderFileId,
+				projectFileId: that.getParams().projectFileId,
 				fileId: file.id
 			};
 			var addFileAnnouncement = {
@@ -24,10 +24,10 @@ module.exports = React.createClass({
 				fileId: file.id,
 				fileName: DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE
 			};
-			GDriveService.getMetadataModel(_this.getParams().projectFileId, function(metadataModel) {
+			GDriveService.getMetadataModel(that.getParams().projectFileId, function(metadataModel) {
 				GDriveService.announce(metadataModel, addFileAnnouncement);
 			});
-			_this.replaceWith('persistentDataEntry', params); //if user presses back, do not go back to creation page
+			that.replaceWith('persistentDataEntry', params); //if user presses back, do not go back to creation page
 		});
 	},
 
