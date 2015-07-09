@@ -100,7 +100,7 @@ module.exports = React.createClass({
 		return (
 			<div className = 'row'>
 				<div id = 'header-wrapper' className = 'hide col s12 center'>
-					<input type = 'text' id = 'header-title' className = 'center' 
+					<input type = 'text' id = 'header-title' className = 'center' spellCheck = 'false'
 						onKeyPress = {this.keyPressHandler} placeholder = 'enter title' />
 					<a id="clear-title-btn" onClick = {this.onClearTitleBtnClick}
 						className="small-btn btn-floating waves-effect waves-light grey">
@@ -110,7 +110,7 @@ module.exports = React.createClass({
 						<label htmlFor = 'header-ID' className = 'hide active' id = 'header-ID-label'>ID</label>
 					</div>
 					<div id = 'description-wrapper' className = 'col s11'>
-						<textarea rows = '1' id = 'header-description'
+						<textarea rows = '1' id = 'header-description' spellCheck = 'false'
 							onKeyPress = {this.keyPressHandler} placeholder = 'enter description' />
 					</div>
 				</div>

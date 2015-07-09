@@ -153,25 +153,24 @@ module.exports = React.createClass({
 	onFileLoaded : function(doc)
 	{
 		var key;
-		if (this.props.objectType === GDriveCons.ObjectType.PERSISTENT_DATA)
-		{
-			key = GDriveCons.CustomObjectKey.PERSISTENT_DATA;
-		}
-		else if (this.props.objectType === GDriveCons.ObjectType.ENUM)
-		{
-			key = GDriveCons.CustomObjectKey.ENUM;
-		}
-		else if (this.props.objectType === GDriveCons.ObjectType.SNIPPET)
-		{
-			key = GDriveCons.CustomObjectKey.SNIPPET;
-		}
-		else if (this.props.objectType === GDriveCons.ObjectType.EVENT)
-		{
-			key = GDriveCons.CustomObjectKey.EVENT;
-		}
-		else if (this.props.objectType === GDriveCons.ObjectType.FLOW)
-		{
-			key = GDriveCons.CustomObjectKey.FLOW;
+		switch(this.props.objectType) {
+			case GDriveCons.ObjectType.PERSISTENT_DATA:
+				key = GDriveCons.CustomObjectKey.PERSISTENT_DATA;
+				break;
+			case GDriveCons.ObjectType.ENUM:
+				key = GDriveCons.CustomObjectKey.ENUM;
+				break;
+			case GDriveCons.ObjectType.SNIPPET:
+				key = GDriveCons.CustomObjectKey.SNIPPET;
+				break;
+			case GDriveCons.ObjectType.EVENT:
+				key = GDriveCons.CustomObjectKey.EVENT;
+				break;
+			case GDriveCons.ObjectType.FLOW:
+				key = GDriveCons.CustomObjectKey.FLOW;
+				break;
+			default:
+				break;
 		}
 
 		var gModel = doc.getModel().getRoot().get(key);

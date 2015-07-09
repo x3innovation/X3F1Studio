@@ -75,7 +75,7 @@ module.exports = React.createClass({
 				width: '20%',
 				className: 'enum-cell enum-name-cell',
 				render: function(data, type, row, meta) {
-					return '<input type="text" placeholder="please enter a name" data-enum-index='+
+					return '<input type="text" spellcheck="false" placeholder="please enter a name" data-enum-index='+
 						row.index+' value="'+data+'" class="enum-table-input enum-name-input">';
 				},
 			}, {
@@ -84,8 +84,8 @@ module.exports = React.createClass({
 				width: '70%',
 				className: 'enum-cell enum-description-cell',
 				render: function(data, type, row, meta) {
-					return '<input type="text" placeholder="enter description" data-enum-index='+
-					row.index+' value="'+data+'" class="enum-table-input enum-description-input">';
+					return '<input type="text" spellcheck="false" placeholder="enter description" data-enum-index='+
+						row.index+' value="'+data+'" class="enum-table-input enum-description-input">';
 				},
 			}]
 		});

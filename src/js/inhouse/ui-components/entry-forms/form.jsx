@@ -526,7 +526,7 @@ module.exports = React.createClass({
 				<form className='hide col s12' action='#!'>
 					<div className='row'>
 						<div className='input-field col s4'>
-							<input type='text' id='name-field' className='text-input' />
+							<input type='text' id='name-field' className='text-input' spellCheck = 'false' />
 							<label htmlFor='name-field' id='name-label'>name</label>
 						</div>
 						<div id='field-type-dropdown' className='input-field col offset-s4 s4'>
@@ -547,7 +547,7 @@ module.exports = React.createClass({
 					</div>
 					<div className='row'>
 						<div className='input-field col s12'>
-							<textarea id='description-field' className='materialize-textarea text-input' />
+							<textarea id='description-field' className='materialize-textarea text-input' spellCheck = 'false' />
 							<label htmlFor='description-field' id='description-label'>description</label>
 						</div>
 					</div>
@@ -577,7 +577,7 @@ module.exports = React.createClass({
 					<div className='row'>
 						<div className='col s4 input-field type-specific-field double-specific-field float-specific-field byte-specific-field
 							integer-specific-field long-specific-field short-specific-field string-specific-field ref-specific-field'>
-							<input type='text' id='def-value-field' className='text-input' />
+							<input type='text' id='def-value-field' className='text-input' spellCheck = 'false' />
 							<label htmlFor='def-value-field' id='def-value-label'>default value</label>
 						</div>
 						<div className='col s4 type-specific-field boolean-specific-field'>
@@ -604,20 +604,20 @@ module.exports = React.createClass({
 							<label htmlFor='array-checkbox' id='array-label'>array</label>
 						</div>
 						<div id='array-len-wrapper' className='input-field col type-specific-field s4'>
-							<input type='text' id='array-len-field' className='text-input' />
+							<input type='text' id='array-len-field' className='text-input' spellCheck = 'false' />
 							<label htmlFor='array-len-field' id='array-len-label'>array length</label>
 						</div>
 					</div>
 					<div className='row type-specific-field string-specific-field'>
 						<div className='input-field col s4'>
-							<input type='text' id='str-len-field' className='text-input' />
+							<input type='text' id='str-len-field' className='text-input' spellCheck = 'false' />
 							<label htmlFor='str-len-field' id='str-len-label'>string length</label>
 						</div>
 					</div>
 					<div className='row type-specific-field double-specific-field float-specific-field byte-specific-field
 					     integer-specific-field long-specific-field short-specific-field'>
 						<div className='input-field col s4'>
-							<input type='text' id='min-value-field' className='text-input' />
+							<input type='text' id='min-value-field' className='text-input' spellCheck = 'false' />
 							<label htmlFor='min-value-field' id='min-value-label'>min value</label>
 						</div>
 						<div className='input-field col s4'>

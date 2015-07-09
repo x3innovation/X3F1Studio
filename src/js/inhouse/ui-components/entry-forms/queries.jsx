@@ -132,12 +132,12 @@ module.exports = React.createClass({
 					</div>
 					<div className = 'col s2 input-field query-name-wrapper'>
 						<input type = 'text' id = {'query-' + query.id + '-name-field'} className = 'query-name-field query-input'
-						 	onKeyUp = {this.keyUpHandler} defaultValue = {query.name} />
+						 	onKeyUp = {this.keyUpHandler} defaultValue = {query.name} spellCheck = 'false' />
 						<label htmlFor = {'query-' + query.id + '-name-field'} className = 'query-label'>query name</label>
 					</div>
 					<div className = 'col s8 input-field query-description-wrapper'>
 						<textarea id = {'query-' + query.id + '-description-field'} className = 'query-description-field materialize-textarea query-input'
-							onKeyUp = {this.keyUpHandler} defaultValue = {query.description} />
+							onKeyUp = {this.keyUpHandler} defaultValue = {query.description} spellCheck = 'false' />
 						<label htmlFor = {'query-' + query.id + '-description-field'} className = 'query-label'>query description</label>
 					</div>
 					<div className = 'col s1 delete-query-btn-wrapper'>

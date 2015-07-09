@@ -102,19 +102,18 @@ module.exports = React.createClass({
 
 	        content = 
 	        	<div className="row">
-	        		{
-	        			projects.map(function(project, columnIndex){
-	        				return (
-	        					<div key={columnIndex} className="col s3 f1-project-card" style={cellStyle}>
-									<Card
-										title={project.title} 
-									    fileId={project.id}
-										projectFolderFileId={project.parents[0].id}
-										model={{}} />
-								</div>
-	        				);
-	        			})
-	        		}
+	        		{projects.map(function(project, columnIndex) {
+	        			return (
+	        				<div key={columnIndex} className="col s3 f1-project-card" style={cellStyle}>
+								<Card
+									title={project.title} 
+								    fileId={project.id}
+									projectFolderFileId={project.parents[0].id}
+									model={{}} />
+							</div>
+	        			);
+	        		})}
+	        		
 					<div className="col s3 center">
 						<a id="project-add-btn" className={"btn-floating waves-effect waves-light " + Configs.App.ADD_BUTTON_COLOR} 
 							onClick={this.onAddProjectBtnClick} style={addProjectBtnStyle}>
