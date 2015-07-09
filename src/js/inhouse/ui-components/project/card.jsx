@@ -243,40 +243,44 @@ module.exports = React.createClass({
 
 	getBackSideHeader: function() {
 		var contentHeader = '';
-		if (this.props.objectType === GDriveCons.ObjectType.PERSISTENT_DATA) {
-			contentHeader = 'Persistent Data Fields';
-		} else if (this.props.objectType === GDriveCons.ObjectType.EVENT) {
-			contentHeader = 'Event Fields';
-		} else if (this.props.objectType === GDriveCons.ObjectType.SNIPPET) {
-			contentHeader = 'Snippet Fields';
-		} else if (this.props.objectType === GDriveCons.ObjectType.ENUM) {
-			contentHeader = 'Enums';
-		} else if (this.props.objectType === GDriveCons.ObjectType.FLOW) {
-			/* FLOW HEADER CONTENT */
+		switch(this.props.objectType) {
+			case GDriveCons.ObjectType.PERSISTENT_DATA:
+			case GDriveCons.ObjectType.EVENT:
+			case GDriveCons.ObjectType.SNIPPET:
+				contentHeader = 'Fields';
+				break;
+			case GDriveCons.ObjectType.ENUM:
+				contentHeader = 'Enums';
+				break;
+			case GDriveCons.ObjectType.FLOW:
+				/* FLOW OBJECT CONTENT HEADER */
+				break;
+			default:
+				break;
 		}
 		return contentHeader;
 	},
 	
 	getBackSideContent: function() {
 		var content = '';
-		if (this.props.objectType === GDriveCons.ObjectType.PERSISTENT_DATA) {
-			for (i = 0, len = this.model.fieldNames.length; i<len; i++) {
-				content = content + this.model.fieldNames[i] + '\n';
-			}
-		} else if (this.props.objectType === GDriveCons.ObjectType.EVENT) {
-			for (i = 0, len = this.model.fieldNames.length; i<len; i++) {
-				content = content + this.model.fieldNames[i] + '\n';
-			}
-		} else if (this.props.objectType === GDriveCons.ObjectType.SNIPPET) {
-			for (i = 0, len = this.model.fieldNames.length; i<len; i++) {
-				content = content + this.model.fieldNames[i] + '\n';
-			}
-		} else if (this.props.objectType === GDriveCons.ObjectType.ENUM) {
-			for (i = 0, len = this.model.enumNames.length; i<len; i++) {
-				content = content + this.model.enumNames[i] + '\n';
-			}
-		} else if (this.props.objectType === GDriveCons.ObjectType.FLOW) {
-			/* FLOW OBJECT CONTENT */
+		switch(this.props.objectType) {
+			case GDriveCons.ObjectType.PERSISTENT_DATA:
+			case GDriveCons.ObjectType.EVENT:
+			case GDriveCons.ObjectType.SNIPPET:
+				for (i = 0, len = this.model.fieldNames.length; i<len; i++) {
+					content = content + this.model.fieldNames[i] + '\n';
+				}
+				break;
+			case GDriveCons.ObjectType.ENUM:
+				for (i = 0, len = this.model.enumNames.length; i<len; i++) {
+					content = content + this.model.enumNames[i] + '\n';
+				}
+				break;
+			case GDriveCons.ObjectType.FLOW:
+				/* FLOW OBJECT CONTENT */
+				break;
+			default:
+				break;
 		}
 		return content;
 	},

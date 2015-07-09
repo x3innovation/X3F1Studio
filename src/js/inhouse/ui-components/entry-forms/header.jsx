@@ -1,5 +1,6 @@
 var EventType = require('../../constants/event-type.js');
 var AnnouncementType = require('../../constants/announcement-type.js');
+var GDriveConstants = require('../../constants/google-drive-constants.js');
 
 var GDriveService = require('../../services/google-drive-service.js');
 
@@ -52,13 +53,19 @@ module.exports = React.createClass({
 		if (this.elements.headerID.val().length) {
 			this.elements.headerIDLabel.removeClass('hide').addClass('active');
 		}
+		this.forceUpdate();
+		$('#header-wrapper').removeClass('hide');
 	},
 
 	onMetadataModelLoaded: function(metadataModel) {
 		this.metadataModel = metadataModel;
 	},
 
-	saveTitleHandler: function(evt) {
+	onClearTitleBtnClick: function(e) {
+		this.elements.headerTitle.val('').focus();
+	},
+
+	saveTitleHandler: function(e) {
 		if (!this.elements.headerID.val().length) {
 			this.elements.headerID.val(this.gModel.id);
 			this.elements.headerIDLabel.removeClass('hide').addClass('active');
@@ -79,17 +86,32 @@ module.exports = React.createClass({
 		GDriveService.announce(this.metadataModel, renameAnnouncement);
 	},
 
+	keyPressHandler: function(e) {
+		var code = (e.keyCode || e.which);
+		if (code === 13) { //enter was detected, ignore keypress
+			$(e.currentTarget).blur();
+			return false;
+		}
+	},
+
 	render: function() {
+		var dataModel = this.gModel;
+		var fileType = this.props.fileType;
 		return (
 			<div className = 'row'>
-				<div id = 'header-wrapper' className = 'col s12 center'>
-					<input type = 'text' id = 'header-title' className = 'center' />
-					<div id = 'description-wrapper' className = 'col s10'>
-						<textarea rows = '1' id = 'header-description' />
-					</div>
-					<div id = 'header-ID-wrapper' className = 'input-field col offset-s1 s1'>
+				<div id = 'header-wrapper' className = 'hide col s12 center'>
+					<input type = 'text' id = 'header-title' className = 'center' 
+						onKeyPress = {this.keyPressHandler} placeholder = 'enter title' />
+					<a id="clear-title-btn" onClick = {this.onClearTitleBtnClick}
+						className="small-btn btn-floating waves-effect waves-light grey">
+						<i className="mdi-content-clear btn-icon" /></a>
+					<div id = 'header-ID-wrapper' className = 'input-field col s1'>
 						<input readOnly type = 'text' id = 'header-ID'/>
 						<label htmlFor = 'header-ID' className = 'hide active' id = 'header-ID-label'>ID</label>
+					</div>
+					<div id = 'description-wrapper' className = 'col s11'>
+						<textarea rows = '1' id = 'header-description'
+							onKeyPress = {this.keyPressHandler} placeholder = 'enter description' />
 					</div>
 				</div>
 			</div>

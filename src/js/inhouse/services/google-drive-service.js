@@ -7,7 +7,7 @@ var DefaultCons = require('../constants/default-value-constants.js');
 function GoogleDriveService()
 {
 	// //////// private members
-	var sortCompareByFileTitle = function(a,b){
+	var sortCompareByFileTitle = function(a,b) {
 		var titleA = a.title.toLowerCase(), titleB = b.title.toLowerCase();
 		if (titleA < titleB) //sort string ascending
 		{
@@ -117,11 +117,9 @@ function GoogleDriveService()
 	    metadataModel.announcement.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, callback);
 	};
 
-	this.getProjectObjects = function( projectFolderFileId, titleSearchString,
-		includePersistentData, includeEnum, includeSnippet, includeEvent, includeFlow, callback)
+	this.getProjectObjects = function( projectFolderFileId, titleSearchString, objectsToGet, callback)
 	{
-		var buildQuery = function (projectFolderFileId, 
-			includePersistentData, includeEnum, includeSnippet, includeEvent, includeFlow)
+		var buildQuery = function (projectFolderFileId, objectsToGet)
 		{
 			// we are doing fullText contains search because at the time of writing this code,
 			// google drive api had bugs in custom properties query. So we are relying on having the object types
@@ -130,54 +128,58 @@ function GoogleDriveService()
 			var isFirstCondition = true;
 
 			// add persistent data query
-			if (includePersistentData)
-			{
+			if (objectsToGet.persistentData)
+			{	
+				if (!isFirstCondition)
+				{
+					query += ' or ';
+				}
 				query += 'fullText contains "' + GCons.ObjectType.PERSISTENT_DATA + '"';
 				isFirstCondition = false;
 			}
 
 			// add enum query
-			if (includeEnum)
+			if (objectsToGet.enum)
 			{
 				if (!isFirstCondition)
 				{
 					query += ' or ';
-					isFirstCondition = false;
 				}
 				query += 'fullText contains "' + GCons.ObjectType.ENUM + '"';
+				isFirstCondition = false;
 			}
 
 			// add snippet query
-			if (includeSnippet)
+			if (objectsToGet.snippet)
 			{
 				if (!isFirstCondition)
 				{
 					query += ' or ';
-					isFirstCondition = false;
 				}
 				query += 'fullText contains "' + GCons.ObjectType.SNIPPET + '"';
+				isFirstCondition = false;
 			}
 
 			// add event query
-			if (includeEvent)
+			if (objectsToGet.event)
 			{
 				if (!isFirstCondition)
 				{
 					query += ' or ';
-					isFirstCondition = false;
 				}
 				query += 'fullText contains "' + GCons.ObjectType.EVENT + '"';
+				isFirstCondition = false;
 			}
 
 			// add flow query
-			if (includeFlow)
+			if (objectsToGet.flow)
 			{
 				if (!isFirstCondition)
 				{
 					query += ' or ';
-					isFirstCondition = false;
 				}
 				query += 'fullText contains "' + GCons.ObjectType.FLOW + '"';
+				isFirstCondition = false;
 			}
 
 			query += ') and trashed = false'; //do not list entries in the trash folder
@@ -185,13 +187,23 @@ function GoogleDriveService()
 			return query;
 		};
 
-		if (!includePersistentData && !includeEnum && !includeSnippet && !includeEvent && !includeFlow)
+		var getAnyObjectFlag = false;
+		for (var objectType in objectsToGet)
+		{
+			if (objectsToGet[objectType])
+			{
+				getAnyObjectFlag = true;
+				break;
+			}
+		}
+
+		if (!getAnyObjectFlag)
 		{
 			return [];
 		}
 		else
 		{
-			var query = buildQuery(projectFolderFileId, includePersistentData, includeEnum, includeSnippet, includeEvent, includeFlow);
+			var query = buildQuery(projectFolderFileId, objectsToGet);
 			googleApiInterface.getProjectObjects(query, callbackWrapper);
 
 			function callbackWrapper(projectObjects)

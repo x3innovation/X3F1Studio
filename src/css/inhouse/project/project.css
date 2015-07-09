@@ -52,11 +52,7 @@
 
 #project-object-btns{
 	position: relative;
-}
-
-#project-add-btn{
-	margin-top: 125px;
-	margin-bottom: 138px;
+	margin-bottom: 1.5rem;
 }
 
 #project-object-add-btn{

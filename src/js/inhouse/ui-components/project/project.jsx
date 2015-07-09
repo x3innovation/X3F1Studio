@@ -152,14 +152,18 @@ module.exports = React.createClass({
 		this.model.projectObjects = [];
 		this.forceUpdate();
 
+		var objectsToGet = {
+			persistentData: this.model.buttons.persistentData.isSearchOn,
+			enum: this.model.buttons.enum.isSearchOn,
+			snippet: this.model.buttons.snippet.isSearchOn,
+			event: this.model.buttons.event.isSearchOn,
+			flow: this.model.buttons.flow.isSearchOn
+		};
+
 		googleDriveService.getProjectObjects(
 			this.getParams().projectFolderFileId,
 			$('#search-input').val(),
-			this.model.buttons.persistentData.isSearchOn,
-			this.model.buttons.enum.isSearchOn,
-			this.model.buttons.snippet.isSearchOn,
-			this.model.buttons.event.isSearchOn,
-			this.model.buttons.flow.isSearchOn,
+			objectsToGet,
 			this.onReceiveProjectObjects);
 	},
 
@@ -260,6 +264,11 @@ module.exports = React.createClass({
 		}.bind(this), 300);
 	},
 
+	onAddFlowBtnClick: function()
+	{
+		/*does nothing for now*/
+	},
+
 	toggleButton : function(button, model)
 	{
 		if (button.hasClass(model.color))
@@ -325,7 +334,7 @@ module.exports = React.createClass({
 					<div id='project-title-description-wrapper' className='col s12'>
 						<input type='text' id='project-title' className='center' />
 						<div id='project-description-wrapper'>
-							<textarea rows='1' id='project-description'></textarea>
+							<textarea rows='1' id='project-description' />
 						</div>
 					</div>
 				</div>
@@ -341,8 +350,9 @@ module.exports = React.createClass({
 						<a className={'waves-effect waves-light btn ' + Configs.App.SNIPPET_COLOR} onClick={this.onSnippetBtnClick}>Snippet</a>
 						<a className={'waves-effect waves-light btn ' + Configs.App.EVENT_COLOR} onClick={this.onEventBtnClick}>Event</a>
 						<a className={'waves-effect waves-light btn ' + Configs.App.FLOW_COLOR} onClick={this.onFlowBtnClick}>Flow</a>
-						<a id='project-object-add-btn' className={'btn-floating disabled waves-effect waves-light ' + Configs.App.ADD_BUTTON_COLOR} href='#add-project-object-modal'>
-							<i className='mdi-content-add'></i>
+						<a className={'btn-floating disabled waves-effect waves-light ' + Configs.App.ADD_BUTTON_COLOR}
+							href='#add-project-object-modal' id='project-object-add-btn'>
+							<i className='mdi-content-add' />
 						</a>
 					</div>
 				</div>
@@ -359,7 +369,8 @@ module.exports = React.createClass({
 								onClick={this.onAddSnippetBtnClick}>Snippet</a>
 							<a className={'modal-close waves-effect waves-light btn ' + Configs.App.EVENT_COLOR}
 								onClick={this.onAddEventBtnClick}>Event</a>
-							<a className={'modal-close waves-effect waves-light btn ' + Configs.App.FLOW_COLOR}>Flow</a>
+							<a className={'modal-close waves-effect waves-light btn ' + Configs.App.FLOW_COLOR}
+								onClick={this.onAddFlowBtnClick}>Flow</a>
 						</div>
 					</div>
 				</div>

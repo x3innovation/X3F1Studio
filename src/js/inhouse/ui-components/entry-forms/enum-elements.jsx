@@ -22,6 +22,7 @@ module.exports = React.createClass({
 
 	componentWillUnmount: function() {
 		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'enum-elements.jsx>>onGapiFileLoaded');
+		Bullet.off(EventType.EntryForm.METADATA_MODEL_LOADED, 'enum-elements.jsx>>onMetadataModelLoaded');
 	},
 
 	/* ******************************************
@@ -42,15 +43,15 @@ module.exports = React.createClass({
 	updateUi: function() {
 		this.initializeTable();
 		this.selectRow();
-		this.forceUpdate();
 	},
 
 	initializeTable: function() {
+		var fields = this.gFields.asArray();
 		this.table = $('#enum-table').DataTable({
-			data: this.gFields.asArray(),
+			data: fields,
 			autoWidth: false,
 			destroy: true,
-			scrollY: 350,
+			scrollY: 400,
 			paging: false,
 			info: false,
 			ordering: false,
@@ -64,49 +65,68 @@ module.exports = React.createClass({
 			},
 			columnDefs: [{
 				targets: 0,
-				data: "index",
+				data: 'index',
 				width: '10%',
 				searchable: false,
 				className: 'enum-cell enum-index-cell'
 			}, {
 				targets: 1,
-				data: "name",
+				data: 'name',
 				width: '20%',
-				className: 'enum-cell enum-name-cell editable-cell'
+				className: 'enum-cell enum-name-cell',
+				render: function(data, type, row, meta) {
+					return '<input type="text" placeholder="please enter a name" data-enum-index='+
+						row.index+' value="'+data+'" class="enum-table-input enum-name-input">';
+				},
 			}, {
 				targets: 2,
-				data: "description",
+				data: 'description',
 				width: '70%',
-				className: 'enum-cell enum-description-cell editable-cell'
+				className: 'enum-cell enum-description-cell',
+				render: function(data, type, row, meta) {
+					return '<input type="text" placeholder="enter description" data-enum-index='+
+					row.index+' value="'+data+'" class="enum-table-input enum-description-input">';
+				},
 			}]
 		});
 		this.table.order([0, 'asc']);
-		$('th').removeClass('enum-cell enum-index-cell enum-name-cell enum-description-cell editable-cell');
+		$('th').removeClass('enum-cell enum-index-cell enum-name-cell enum-description-cell');
 		$('.dataTables_scrollBody table').css('table-layout', 'fixed');
 		$('.enum-cell').click(this.setSelectedRow);
-		$('.editable-cell').attr('contentEditable', 'true').keypress(this.keyPressHandler).blur(this.saveCell);
-		$('.enum-name-cell').attr('data-placeholder-value', 'please enter a name');
-		$('.enum-description-cell').attr('data-placeholder-value', 'enter description');
+		var that = this;
+		$('.enum-table-input').each(function(index, element) {
+			var $element = $(element);
+			if ($element.val() === '')  {
+				$element.addClass('empty-input');
+			}
+			$element.keypress(that.keyPressHandler).blur(that.saveCell);
+		});
 	},
 
-	keyPressHandler: function(evt) {
-		var code = (evt.keyCode);
+	keyPressHandler: function(e) {
+		var code = (e.keyCode || e.which);
 		if (code === 13) { //enter was detected, ignore keypress
-			$(evt.target).blur();
+			$(e.currentTarget).blur();
 			return false;
 		}
 	},
 
-	saveCell: function(evt) {
-		var $selectedRow = $(evt.target).closest('tr');
+	saveCell: function(e) {
+		var $target = $(e.target);
+		var $selectedRow = $target.closest('tr');
 		var index = parseInt($selectedRow.find('.enum-index-cell').text(), 10);
+		if ($target.val() === '') {
+			$target.addClass('empty-input');
+		} else {
+			$target.removeClass('empty-input');
+		}
 
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			if (this.gFields.get(i).index === index) {
 				var renamedEnum = {
 					index: index,
-					name: $selectedRow.find('.enum-name-cell').text(),
-					description: $selectedRow.find('.enum-description-cell').text()
+					name: $selectedRow.find('.enum-name-input').val(),
+					description: $selectedRow.find('.enum-description-input').val()
 				};
 				if (renamedEnum.name !== this.gFields.get(i).name) {
 					this.gFields.set(i, renamedEnum);
@@ -125,8 +145,8 @@ module.exports = React.createClass({
 		}
 	},
 
-	setSelectedRow: function(evt) {
-		var $clicked = $(evt.target);
+	setSelectedRow: function(e) {
+		var $clicked = $(e.currentTarget);
 		var cellIndex = this.table.cell($clicked).index();
 		var $selectedRow = $(this.table.row(cellIndex.row).node());
 		this.selectedRowIndex = parseInt($selectedRow.find('.enum-index-cell').text(), 10);
@@ -135,7 +155,7 @@ module.exports = React.createClass({
 
 	selectRow: function() {
 		var that = this;
-		if (!this.selectedRowIndex) { return; }
+		if (this.selectedRowIndex === null) { return; }
 		var $selectedRow;
 		$('.selected-cell').removeClass('selected-cell');
 		$('.enum-index-cell').each(function(index, element) {
@@ -147,19 +167,19 @@ module.exports = React.createClass({
 		$selectedRow.find('td').addClass('selected-cell');
 	},
 
-	onAddEnumBtnClick: function(evt) {
+	onAddEnumBtnClick: function(e) {
 		var NEW_ELEMENT_NAME = 'newElement_';
 		var newElementNum = 0;
 		var digitsList = [];
-		var newIndex = 1;
+		var newIndex = 0;
 
 		$('#enum-table').find('tr').each(function(index, element) {
-			var $this = $(this);
-			var $nameCell = $this.find('.enum-name-cell');
-			if ($nameCell.text().indexOf(NEW_ELEMENT_NAME) === 0) {
-				digitsList.push($nameCell.text().substring(NEW_ELEMENT_NAME.length));
+			var $element = $(element);
+			var $nameCellInput = $element.find('.enum-name-input');
+			if ($nameCellInput.length && $nameCellInput.val().indexOf(NEW_ELEMENT_NAME) === 0) {
+				digitsList.push($nameCellInput.val().substring(NEW_ELEMENT_NAME.length));
 			}
-			var $indexCell = $this.find('.enum-index-cell');
+			var $indexCell = $element.find('.enum-index-cell');
 			var compareIndex = parseInt($indexCell.text(), 10);
 			if (compareIndex >= newIndex) {
 				newIndex = compareIndex + 1;
@@ -184,10 +204,10 @@ module.exports = React.createClass({
 		GDriveService.announce(this.metadataModel, addEnumAnnouncement);
 	},
 
-	onDeleteEnumBtnClick: function(evt) {
+	onDeleteEnumBtnClick: function(e) {
 		var $selectedIndexCell = $('.selected-cell.enum-index-cell');
 		if (!$selectedIndexCell.length) {
-			evt.preventDefault();
+			e.preventDefault();
 			return;
 		}
 		var index = this.selectedRowIndex;
@@ -227,7 +247,7 @@ module.exports = React.createClass({
 					className = {'small-btn btn-floating waves-effect waves-light ' + Configs.App.ADD_BUTTON_COLOR}>
 						<i className = 'mdi-content-add btn-icon' /></a>
 					<a id = 'enum-delete-btn' onClick = {this.onDeleteEnumBtnClick}
-					className = 'small-btn btn-floating waves-effect waves-light red'>
+					className = 'small-btn btn-floating waves-effect waves-light materialize-red'>
 						<i className = 'mdi-content-clear btn-icon' /></a>
 				</div>
 			</div>

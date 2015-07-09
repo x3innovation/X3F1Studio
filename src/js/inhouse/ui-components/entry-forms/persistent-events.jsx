@@ -28,45 +28,35 @@ module.exports = React.createClass({
 
 	updateUi: function() {
 		var gModel = this.gModel;
-		var title = gModel.title.getText();
+		var title = gModel.title.toString();
 		this.events = [
-			{
-				id: gModel.UpdatePersistenceEventTypeId,
-				label: 'Update',
-				name: 'Update ' + title
-			}, {
-				id: gModel.CreatePersistenceEventTypeId,
-				label: 'Create',
-				name: 'Create ' + title
-			}, {
-				id: gModel.RemovePersistenceEventTypeId,
-				label: 'Remove',
-				name: 'Remove ' + title
-			}, {
-				id: gModel.UpdatedPersistenceEventTypeId,
-				label: 'Updated',
-				name: title + ' Updated'
-			}, {
-				id: gModel.CreatedPersistenceEventTypeId,
-				label: 'Created',
-				name: title + ' Created'
-			}, {
-				id: gModel.RemovedPersistenceEventTypeId,
-				label: 'Removed',
-				name: title + ' Removed'
-			}, {
-				id: gModel.RejectedUpdatePersistenceEventTypeId,
-				label: 'Update Rejected',
-				name: 'Update ' + title + ' Rejected'
-			}, {
-				id: gModel.RejectedCreatePersistenceEventTypeId,
-				label: 'Create Rejected',
-				name: 'Create ' + title + ' Rejected'
-			}, {
-				id: gModel.RejectedRemovePersistenceEventTypeId,
-				label: 'Remove Rejected',
-				name: 'Remove ' + title + ' Rejected'
-			}
+			{id: gModel.UpdatePersistenceEventTypeId,
+			 label: 'Update',
+			 name: 'Update ' + title }, 
+			{id: gModel.CreatePersistenceEventTypeId,
+			 label: 'Create',
+			 name: 'Create ' + title }, 
+			{id: gModel.RemovePersistenceEventTypeId,
+			 label: 'Remove',
+			 name: 'Remove ' + title },
+			{id: gModel.UpdatedPersistenceEventTypeId,
+			 label: 'Updated',
+			 name: title + ' Updated' },
+			{id: gModel.CreatedPersistenceEventTypeId,
+			 label: 'Created',
+			 name: title + ' Created' },
+			{id: gModel.RemovedPersistenceEventTypeId,
+			 label: 'Removed',
+			 name: title + ' Removed' },
+			{id: gModel.RejectedUpdatePersistenceEventTypeId,
+			 label: 'Update Rejected',
+			 name: 'Update ' + title + ' Rejected' },
+			{id: gModel.RejectedCreatePersistenceEventTypeId,
+			 label: 'Create Rejected',
+			 name: 'Create ' + title + ' Rejected' },
+			{id: gModel.RejectedRemovePersistenceEventTypeId,
+			 label: 'Remove Rejected',
+			 name: 'Remove ' + title + ' Rejected' }
 		];
 		this.forceUpdate();
 	},

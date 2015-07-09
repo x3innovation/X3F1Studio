@@ -82,9 +82,10 @@ module.exports = React.createClass({
 		var content;
 		if (!this.projectsReceived)
 		{
-			content = <div id="cards-wrapper">
-						<img id="cards-wrapper-preloader" src="img/loading-spin.svg" />
-					</div>;
+			content = 
+				<div id="cards-wrapper">
+					<img id="cards-wrapper-preloader" src="img/loading-spin.svg" />
+				</div>;
 		}
 		else
 		{
@@ -94,27 +95,33 @@ module.exports = React.createClass({
 	        	marginBottom : '30px'
 	        };
 
-	        content = 	<div className="row">
-	        				{
-	        					projects.map(function(project, columnIndex){
-	        						return (
-	        							<div key={columnIndex} className="col s3 f1-project-card" style={cellStyle}>
-											<Card
-												title={project.title} 
-											    fileId={project.id}
-												projectFolderFileId={project.parents[0].id}
-												model={{}} />
-										</div>
-	        						);
-	        					})
-	        				}
-				    		<div className="col s3 center">
-				    			<a id="project-add-btn" className={"btn-floating waves-effect waves-light " + Configs.App.ADD_BUTTON_COLOR} 
-				    				onClick={this.onAddProjectBtnClick}>
-				                    <i className="mdi-content-add"></i>
-				                </a>
-				    		</div>	
-	        			</div>;
+	        var addProjectBtnStyle = {
+	        	marginTop: '125px',
+	        	marginBottom: '138px'
+	        };
+
+	        content = 
+	        	<div className="row">
+	        		{
+	        			projects.map(function(project, columnIndex){
+	        				return (
+	        					<div key={columnIndex} className="col s3 f1-project-card" style={cellStyle}>
+									<Card
+										title={project.title} 
+									    fileId={project.id}
+										projectFolderFileId={project.parents[0].id}
+										model={{}} />
+								</div>
+	        				);
+	        			})
+	        		}
+					<div className="col s3 center">
+						<a id="project-add-btn" className={"btn-floating waves-effect waves-light " + Configs.App.ADD_BUTTON_COLOR} 
+							onClick={this.onAddProjectBtnClick} style={addProjectBtnStyle}>
+				            <i className="mdi-content-add"></i>
+				        </a>
+					</div>
+	        	</div>;
 		}
 
 		return (

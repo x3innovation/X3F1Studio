@@ -20,6 +20,7 @@
     font-size: 1.3rem;
     position: absolute;
     top: -6px;
+    left: 0;
 }
 
 #to-project-btn:hover {
@@ -36,7 +37,7 @@
 }
 
 #header-title {
-    border: 0;
+    border: 1px solid transparent;
     height: 3.5rem;
     font-weight: 400;
     font-size: 3rem;
@@ -44,7 +45,7 @@
     margin: 1.25rem 0 1.168rem 0;
 }
 
-#header-title:focus{
+#header-title:focus {
     outline: none;
     border-bottom-color: #26a69a ;
 }
@@ -58,25 +59,38 @@
 }
 
 #header-description {
-    border: 0;
-    border-bottom: none;
     resize: none;
+    border: 0;
+    border-bottom: 1px solid transparent;
 }
 
 #header-description:focus {
     outline: none;
-    border-bottom-color: #26a69a ;
+    border-bottom-color: #26a69a;
+    -webkit-transition: border 0.4s ease;
+    -moz-transition: border 0.4s ease;
+    -o-transition: border 0.4s ease;
+    transition: border 0.4s ease;
 }
 
-#header-ID{
+#header-ID {
     border-bottom: 0;
     height: 1.5rem;
     font-size: 0.85rem;
 }
 
+#clear-title-btn {
+    top: 20%;
+    right: 2%;
+}
+
+#clear-title-btn:hover {
+    background-color: #e51c23 !important;
+}
+
 /* ===[ Body ]=== */
-#body-preloader-wrapper{
-    height: 20em;
+#body-preloader-wrapper {
+    height: 20rem;
 }
 
 #body-preloader{
@@ -241,7 +255,8 @@ textarea.query-description-field {
     left: 5%;
 }
 
-.editable-cell {
+#enum-table .enum-cell {
+    padding: 0 18px;
     -webkit-transition: border 0.4s ease;
     -moz-transition: border 0.4s ease;
     -o-transition: border 0.4s ease;
@@ -250,24 +265,61 @@ textarea.query-description-field {
     overflow: hidden;
     -o-text-overflow: clip;
     text-overflow: clip;
+}
+
+.enum-cell > .enum-table-input {
+    margin: 0;
     border: 2px solid transparent;
 }
 
-.editable-cell:focus {
-    outline: none;
-    border-bottom: 2px solid #26a69a;
+.enum-name-input.empty-input:not(:focus) {
+    border: 2px solid #d32f2f;
 }
 
-.enum-name-cell:empty:not(:focus):before {
-    content: attr(data-placeholder-value);
+.enum-cell > .enum-name-input::-webkit-input-placeholder {
     color: #f44336;
 }
-
-.enum-name-cell:empty:not(:focus) {
-    border: 2px solid #e57373;
+.enum-cell > .enum-name-input:-ms-input-placeholder {
+    color: #f44336;
+}
+.enum-cell > .enum-name-input::-moz-placeholder {
+    color: #f44336;
+    opacity: 1;
 }
 
-.enum-description-cell:empty:not(:focus):before {
-    content: attr(data-placeholder-value);
-    color: #bababa;
+.enum-cell > ::-webkit-input-placeholder {
+    color: #a9a9a9;
+}
+.enum-cell > :-ms-input-placeholder {
+    color: #a9a9a9;
+}
+.enum-cell > ::-moz-placeholder {
+    color: #a9a9a9;
+    opacity: 1;
+}
+
+/* ===[XML Generator]=== */
+#xml-btn-wrapper {
+    margin-top: 3rem;
+    margin-left: -1rem;
+}
+
+#generate-xml-btn {
+    width: 100%;
+    height: 2.5rem;
+    padding: 0 0.5rem;
+}
+
+#xml-display-modal {
+    width: 70%;
+}
+
+#xml-display-modal > .modal-content {
+    background-color: #f8f8f8;
+    padding: 20px 20px 54px;
+}
+
+#xml-download-btn > i {
+    position: absolute;
+    left: 0.5rem;
 }

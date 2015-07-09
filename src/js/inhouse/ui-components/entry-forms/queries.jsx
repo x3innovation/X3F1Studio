@@ -35,29 +35,30 @@ module.exports = React.createClass({
 	},
 
 	updateUi: function() {
-		this.queries = this.gQueries.asArray();
 		this.forceUpdate();
 		this.setCursorPos();
 		this.realignLabels();
 	},
 
-	keyUpHandler: function(evt) {
-		var $fieldAttr = $(evt.target);
-		var code = (evt.keyCode);
+	keyUpHandler: function(e) {
+		var $fieldAttr = $(e.target);
+		var code = (e.keyCode);
 		var arrowKeyCodes = [37, 38, 39, 40];
 		if (arrowKeyCodes.indexOf(code) >= 0) { return;	}
-		this.fieldAttr.attr = evt.target;
-		this.fieldAttr.pos = evt.target.selectionStart;
+		this.fieldAttr.attr = e.target;
+		this.fieldAttr.pos = e.target.selectionStart;
 
+		this.updateQuery($fieldAttr);
+	},
+
+	updateQuery: function($fieldAttr) {
 		var $queryRow = $fieldAttr.closest('.query-row');
 		var queryId = parseInt($queryRow.attr('data-query-id'), 10);
-		var queries = this.gQueries.asArray();
-		for (var i = 0, len = queries.length; i<len; i++) {
-			if(parseInt(queries[i].id, 10) === queryId) {
+		for (var i = 0, len = this.gQueries.length; i<len; i++) {
+			if(parseInt(this.gQueries.get(i).id, 10) === queryId) {
 				var newQuery = {
 					requestId: queryId,
 					responseId: queryId + 1,
-					idc: -1,
 					id: queryId,
 					name: $queryRow.find('.query-name-field').val(),
 					description: $queryRow.find('.query-description-field').val()
@@ -71,7 +72,7 @@ module.exports = React.createClass({
 	realignLabels: function() {
 		$('.query-input').each(function(index, element) {
 			var $element = $(element);
-			if ($element.val().length > 0) {
+			if ($element.val().length) {
 				$element.next('label').addClass('active');
 			} else {
 				$element.next('label').removeClass('active');
@@ -93,19 +94,12 @@ module.exports = React.createClass({
 	createNewQuery: function() {
 		var that = this;
 		GDriveService.getMetadataModelId(that.props.projectFileId, function(id) {
-			$('.query-id-field').each(function(index, element) {
-				var $element = $(element);
-				if ('' + id === '' + $element.val()) {
-					id += 2;
-				}
-			});
 			var thisId = id;
 			var requestId = thisId++;
 			var responseId = thisId++;
 			var newQuery = {
 				requestId: requestId,
 				responseId: responseId,
-				idc: -1,
 				id: requestId,
 				name: null,
 				description: null
@@ -114,12 +108,10 @@ module.exports = React.createClass({
 		}, 2);
 	},
 
-	onDeleteQueryBtnClick: function(evt) {
-		var $clickedBtn = $(evt.target).closest('.query-delete-btn');
-		var delId = $clickedBtn.attr('data-query-id');
-		var queries = this.gQueries.asArray();
-		for (var i = 0, len = queries.length; i<len; i++) {
-			if ('' + queries[i].id === '' + delId) {
+	onDeleteQueryBtnClick: function(e) {
+		var delId  = e.currentTarget.dataset.queryId;
+		for (var i = 0, len = this.gQueries.length; i<len; i++) {
+			if ('' + this.gQueries.get(i).id === '' + delId) {
 				this.gQueries.remove(i);
 				break;
 			}
@@ -127,24 +119,29 @@ module.exports = React.createClass({
 	},
 
 	render: function() {
-		var queries = this.queries;
+		var queries = [];
+		if (this.gQueries) {
+			queries = this.gQueries.asArray();
+		}
 		var queryContents = queries.map(function(query) {
 			return (
 				<div className = 'query-row row' key = {query.id} data-query-id = {query.id}>
 					<div className = 'col s1 input-field query-id-wrapper'>
-						<input type = 'text' id = {'query-' + query.id + '-id-field'} disabled className = 'query-id-field' value = {query.id} />
+						<input type = 'text' id = {'query-' + query.id + '-id-field'} readOnly className = 'query-id-field' value = {query.id} />
 						<label htmlFor = {'query-' + query.id + '-id-field'} className = 'query-label active'>query id</label>
 					</div>
 					<div className = 'col s2 input-field query-name-wrapper'>
-						<input type = 'text' id = {'query-' + query.id + '-name-field'} className = 'query-name-field query-input' onKeyUp = {this.keyUpHandler} defaultValue = {query.name} />
+						<input type = 'text' id = {'query-' + query.id + '-name-field'} className = 'query-name-field query-input'
+						 	onKeyUp = {this.keyUpHandler} defaultValue = {query.name} />
 						<label htmlFor = {'query-' + query.id + '-name-field'} className = 'query-label'>query name</label>
 					</div>
 					<div className = 'col s8 input-field query-description-wrapper'>
-						<textarea id = {'query-' + query.id + '-description-field'} className = 'query-description-field materialize-textarea query-input' onKeyUp = {this.keyUpHandler} defaultValue = {query.description} />
+						<textarea id = {'query-' + query.id + '-description-field'} className = 'query-description-field materialize-textarea query-input'
+							onKeyUp = {this.keyUpHandler} defaultValue = {query.description} />
 						<label htmlFor = {'query-' + query.id + '-description-field'} className = 'query-label'>query description</label>
 					</div>
 					<div className = 'col s1 delete-query-btn-wrapper'>
-						<a id = {'query-' + query.id + '-delete-btn'} onClick = {this.onDeleteQueryBtnClick} data-query-id = {query.id} className = 'query-delete-btn small-btn btn-floating waves-effect waves-light red'>
+						<a id = {'query-' + query.id + '-delete-btn'} onClick = {this.onDeleteQueryBtnClick} data-query-id = {query.id} className = 'query-delete-btn small-btn btn-floating waves-effect waves-light materialize-red'>
 							<i className = 'mdi-content-clear' />
 						</a>
 					</div>

@@ -38,7 +38,7 @@ module.exports = React.createClass({
 		this.updateUi();
 	},
 
-	updateUi: function(evt) {
+	updateUi: function(e) {
 		this.repopulateFields();
 		this.initializeTable();
 		this.selectField();
@@ -81,8 +81,8 @@ module.exports = React.createClass({
 			}, {
 				targets: 1,
 				data: 'name',
-				render: function (data, type, row, meta) {
-					return '<input readOnly class="field-table-input" type="text" data-field-id="'+row.ID+'" value='+data+'></input>';
+				render: function(data, type, row, meta) {
+					return '<input readOnly class="field-table-input" type="text" data-field-id="'+row.ID+'" value='+data+'>';
 				},
 				className: 'field-cell'
 			}]
@@ -121,7 +121,7 @@ module.exports = React.createClass({
 		var selectedFieldName = '';
 		var $idCells = $('.field-ID-cell');
 
-		if ($idCells.length >= 0) {
+		if ($idCells.length) {
 			$idCells.each(function(index, element) {
 				var $element = $(element);
 				if ($element.text() === selectedFieldID) {
@@ -182,8 +182,11 @@ module.exports = React.createClass({
 			array: DefaultFields.FIELD_ARRAY,
 			arrayLen: DefaultFields.FIELD_ARRAY_LEN,
 			refId: DefaultFields.FIELD_REF_ID,
+			refName: DefaultFields.FIELD_REF_NAME,
 			refType: DefaultFields.FIELD_REF_TYPE,
 			enumId: DefaultFields.FIELD_ENUM_ID,
+			enumName: DefaultFields.FIELD_ENUM_NAME,
+			enumValue: DefaultFields.FIELD_ENUM_VALUE,
 			contextId: DefaultFields.FIELD_CONTEXT_ID
 		};
 		var newGField = this.gModel.createMap(newField);
@@ -276,8 +279,8 @@ module.exports = React.createClass({
 		this.selectTopCell();
 	},
 
-	onFieldClick: function(evt) {
-		var $clickedCell = $(evt.currentTarget);
+	onFieldClick: function(e) {
+		var $clickedCell = $(e.currentTarget);
 		if ($clickedCell.hasClass('selected-cell')) {
 			return false;
 		}
@@ -311,7 +314,7 @@ module.exports = React.createClass({
 					<a id = 'field-add-btn' onClick = {this.onAddBtnClick}
 					className = {'small-btn field-selector-btn btn-floating waves-effect waves-light ' + Configs.App.ADD_BUTTON_COLOR}>
 						<i className = 'mdi-content-add btn-icon' /></a>
-					<a id = 'field-delete-btn' className = 'delete-tooltipped small-btn field-selector-btn btn-floating waves-effect waves-light red'>
+					<a id = 'field-delete-btn' className = 'delete-tooltipped small-btn field-selector-btn btn-floating waves-effect waves-light materialize-red'>
 						<i className = 'mdi-content-clear btn-icon' /></a>
 				</div>
 			</div>

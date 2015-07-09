@@ -27,11 +27,14 @@ module.exports = function(grunt) {
 			'jquery-2.1.3.js',
 			'jquery-ui-1.11.3.js',
 			'react-with-addons-0.12.2.min.js',
+			'vkbeautify-0.99.00.js',
+			'highlight-8.6.js',
 			'materialize-0.96.1.js',
 			'react-router-0.11.6.js',
 			'bullet-1.1.3-Jimin.js',
 			'jquery.tooltipster-3.3.0.js',
 			'store-1.3.17.js',
+			'x2js-1.1.7.js',
 			'anijs-0.9.2.js',
 			'jquery.slimscroll-1.3.0.js',
 			'jquery.flip-1.0.0.js',
@@ -53,7 +56,8 @@ module.exports = function(grunt) {
 		var vendorCss = [
 			'materialize-0.96.1.css',
 			'jquery.tooltipster-3.3.0.css',
-			'jquery.dataTables-1.10.7.css'
+			'jquery.dataTables-1.10.7.css',
+			'highlight-8.6.css'
 		];
 
 		for (var i = 0; i<vendorCss.length; ++i)

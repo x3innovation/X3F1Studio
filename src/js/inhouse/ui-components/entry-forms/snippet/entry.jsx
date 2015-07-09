@@ -8,6 +8,7 @@ var GDriveService = require('../../../services/google-drive-service.js');
 
 var Body = require('./body.jsx');
 var Header = require('../header.jsx');
+var XMLModal = require('../xml-modal.jsx');
 
 module.exports = React.createClass({
 	mixins: [Navigation, State, UserLoginFailRedirectHome],
@@ -15,6 +16,8 @@ module.exports = React.createClass({
 	            LIFE CYCLE FUNCTIONS
 	****************************************** */
 	componentWillMount: function() {
+		this.xmlData = null;
+
 		if (UserStore.isLoggedIn) {
 			// if user is already logged in, just initialize
 			this.initialize();
@@ -22,10 +25,6 @@ module.exports = React.createClass({
 
 		// load project objects on user logged in
 		Bullet.on(EventType.App.USER_LOGGED_IN, 'entry.jsx>>userLoggedIn', this.initialize);
-	},
-
-	componentDidMount: function() {
-
 	},
 
 	componentWillUnmount: function() {
@@ -92,6 +91,7 @@ module.exports = React.createClass({
 				<Body
 					projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
 					fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
+				<XMLModal fileType = {fileType} gapiKey = {gapiKey} />
 			</div>
 		);
 	}
