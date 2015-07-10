@@ -6,6 +6,7 @@ var Card = require('./card.jsx');
 var GDriveCons = require('../../constants/google-drive-constants.js');
 var DefaultValueCons = require('../../constants/default-value-constants.js');
 var Configs = require('../../app-config.js');
+var XMLModal = require('./xml-modal.jsx');
 
 module.exports = React.createClass({
 	mixins: [Navigation, UserLoginFailRedirectHome, State],
@@ -304,27 +305,35 @@ module.exports = React.createClass({
 		else
 		{
 			var projectObjects = this.model.projectObjects;
+			var projectFile = {
+				title: $('#project-title').val(),
+				description: $('#project-description').val()
+			};
 
 			var cellStyle = {
 				marginBottom : '30px'
 			};
 
 			content =
-				<div className='row'>{
-					projectObjects.map(function(projectObject, columnIndex){
-						return (
-							<div key={columnIndex} className='col s3 f1-project-card' style={cellStyle}>
-								<Card
-									title={projectObject.title}
-									projectFileId={projectFileId}
-									projectFolderFileId={projectFolderFileId}
-									fileId={projectObject.id}
-									objectType={projectObject.description}
-									model={{}} />
-							</div>
-						);
-					})
-				}</div>;
+				<div className='row'>
+					{
+						projectObjects.map(function(projectObject, columnIndex){
+							return (
+								<div key={columnIndex} className='col s3 f1-project-card' style={cellStyle}>
+									<Card
+										title={projectObject.title}
+										projectFileId={projectFileId}
+										projectFolderFileId={projectFolderFileId}
+										fileId={projectObject.id}
+										objectType={projectObject.description}
+										model={{}} />
+								</div>
+							);
+						})
+					}
+					<div className = 'col s12' />
+					<XMLModal projectObjects = {projectObjects} projectFile = {projectFile} />
+				</div>;
 		}
 
 		return (

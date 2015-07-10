@@ -81,39 +81,39 @@ module.exports = React.createClass({
 				}],
 				Field: []
 			};
-			jsonObj.Data.UpdatePersistenceEvent = {
+			jsonObj.UpdatePersistenceEvent = {
 				_name: 'Update ' + name,
 				_typeId: dataModel.UpdatePersistenceEventTypeId,
 				_persistentData: name };
-			jsonObj.Data.CreatePersistenceEvent = {
+			jsonObj.CreatePersistenceEvent = {
 				_name: 'Create ' + name,
 				_typeId: dataModel.CreatePersistenceEventTypeId,
 				_persistentData: name };
-			jsonObj.Data.RemovePersistenceEvent = {
+			jsonObj.RemovePersistenceEvent = {
 				_name: 'Remove ' + name,
 				_typeId: dataModel.RemovePersistenceEventTypeId,
 				_persistentData: name };
-			jsonObj.Data.UpdatedPersistenceEvent = {
+			jsonObj.UpdatedPersistenceEvent = {
 				_name: name + ' Updated',
 				_typeId: dataModel.UpdatedPersistenceEventTypeId,
 				_persistentData: name };
-			jsonObj.Data.CreatedPersistenceEvent = {
+			jsonObj.CreatedPersistenceEvent = {
 				_name: name + ' Created',
 				_typeId: dataModel.CreatedPersistenceEventTypeId,
 				_persistentData: name };
-			jsonObj.Data.RemovedPersistenceEvent = {
+			jsonObj.RemovedPersistenceEvent = {
 				_name: name + ' Removed',
 				_typeId: dataModel.RemovedPersistenceEventTypeId,
 				_persistentData: name };
-			jsonObj.Data.RejectedUpdatePersistenceEvent = {
+			jsonObj.RejectedUpdatePersistenceEvent = {
 				_name: 'Update ' + name + 'Rejected',
 				_typeId: dataModel.RejectedUpdatePersistenceEventTypeId,
 				_persistentData: name };
-			jsonObj.Data.RejectedCreatePersistenceEvent = {
+			jsonObj.RejectedCreatePersistenceEvent = {
 				_name: 'Create ' + name + 'Rejected',
 				_typeId: dataModel.RejectedCreatePersistenceEventTypeId,
 				_persistentData: name };
-			jsonObj.Data.RejectedRemovePersistenceEvent = {
+			jsonObj.RejectedRemovePersistenceEvent = {
 				_name: 'Remove ' + name + 'Rejected',
 				_typeId: dataModel.RejectedRemovePersistenceEventTypeId,
 				_persistentData: name };
@@ -165,7 +165,7 @@ module.exports = React.createClass({
 				delete jsonObj.Data.Field;
 			}
 		} else if (this.props.fileType === GDriveConstants.ObjectType.ENUM) {
-			jsonObj.Data = { 
+			jsonObj.Enum = { 
 				_name: name,
 				_typeId: typeId,
 				Annotation: [{
@@ -180,9 +180,9 @@ module.exports = React.createClass({
 
 			var gFields = dataModel.fields;
 			if (gFields.length) {
-				this.setEnumFieldData(gFields, jsonObj.Data.Choice);
+				this.setEnumFieldData(gFields, jsonObj.Enum.Choice);
 			} else {
-				delete jsonObj.Data.Choice;
+				delete jsonObj.Enum.Choice;
 			}
 		}
 		return jsonObj;
