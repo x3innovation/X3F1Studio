@@ -5,18 +5,7 @@ var Configs = require('../../app-config.js');
 
 module.exports = React.createClass({
 	/* ******************************************
-	            LIFE CYCLE FUNCTIONS
-	****************************************** */
-	componentWillMount: function() {
-
-	},
-
-	componentWillUnmount: function() {
-
-	},
-
-	/* ******************************************
-	        	NON LIFE CYCLE FUNCTIONS
+				NON LIFE CYCLE FUNCTIONS
 	****************************************** */
 	onGenerateXMLBtnClick: function(e) {
 		if (e.target === e.currentTarget) {
@@ -52,79 +41,92 @@ module.exports = React.createClass({
 	generateJSONDataAndConvertToXML: function() {
 		var title = this.props.projectFile.title;
 		var description = this.props.projectFile.description;
+		var spacelessName = this.replaceAll(title, ' ', '');
 		var jsonRootObj = {
-			'dmx:dmxSchema': {
-				_name: title,
-				_version: "1",
-				'_xmlns:dmx': 'schema.dmx.f1.x3',
-				'_xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
-				'_xsi:schemaLocation': 'schema.dmx.f1.x3 /dmxSchema.xsd',
-				Annotation: [{
-						"_name": "description",
-						"_svalue": description
-					}],
-				Enum: [],
-				Data: [],
-				UpdatePersistenceEvent: [],
-				CreatePersistenceEvent: [],
-				RemovePersistenceEvent: [],
-				UpdatedPersistenceEvent: [],
-				CreatedPersistenceEvent: [],
-				RemovedPersistenceEvent: [],
-				RejectedUpdatePersistenceEvent: [],
-				RejectedCreatePersistenceEvent: [],
-				RejectedRemovePersistenceEvent: []
-			},
-        	'fmx:fmxSchema': {
-        	    _name: title,
-        	    _version: "1",
-        	    '_xmlns:fmx': 'schema.fmx.f1.x3',
-        	    '_xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
-        	    '_xsi:schemaLocation': 'schema.fmx.f1.x3 /fmxSchema.xsd',
-        	    'j': [],
-        	}
-		};
+			'amx:amxSchema': {
+				'_name' : spacelessName,
+				'_version' : "1",
+				'_xmlns:xi' : "http://www.w3.org/2001/XInclude", 
+				'_xmlns:amx' : "schema.amx.f1.x3", 
+				'_xmlns:dmx' : "schema.dmx.f1.x3", 
+				'_xmlns:fmx' : "schema.fmx.f1.x3",
+				'_xmlns:mx' : "schema.mx.f1.x3",
+				'_xmlns:xsi' : "http://www.w3.org/2001/XMLSchema-instance",
+				'_xsi:schemaLocation' : 
+					"schema.amx.f1.x3 /amxSchema.xsd\n"+
+					"schema.dmx.f1.x3 /dmxSchema.xsd\n"+
+					"schema.fmx.f1.x3 /fmxSchema.xsd\n"+
+					"schema.mx.f1.x3 /mxSchema.xsd",
+				'Application': {
+					'_name': spacelessName,
+						Annotation: [{
+							"_name": "description",
+							"_svalue": description
+						}],
+						Enum: [],
+						Data: [],
+						UpdatePersistenceEvent: [],
+						CreatePersistenceEvent: [],
+						RemovePersistenceEvent: [],
+						UpdatedPersistenceEvent: [],
+						CreatedPersistenceEvent: [],
+						RemovedPersistenceEvent: [],
+						RejectedUpdatePersistenceEvent: [],
+						RejectedCreatePersistenceEvent: [],
+						RejectedRemovePersistenceEvent: []
+					}
+				}
+			};
 
-		var DMX_SCHEMA = 'dmx:dmxSchema';
-		var FMX_SCHEMA = 'fmx:fmxSchema';
-		
+		var ApplicationJson = jsonRootObj['amx:amxSchema'].Application;
+
 		var that = this;
 		that.loadAllEnums(function(enumJsonNode) {
-			jsonRootObj[DMX_SCHEMA].Enum = enumJsonNode;
+			ApplicationJson.Enum = enumJsonNode;
 			that.loadAllDatas(function(dataJsonNode) {
-				jsonRootObj[DMX_SCHEMA].Data = dataJsonNode.Data;
-				jsonRootObj[DMX_SCHEMA].UpdatePersistenceEvent = dataJsonNode.UpdatePersistenceEvent;
-				jsonRootObj[DMX_SCHEMA].CreatePersistenceEvent = dataJsonNode.CreatePersistenceEvent;
-				jsonRootObj[DMX_SCHEMA].RemovePersistenceEvent = dataJsonNode.RemovePersistenceEvent;
-				jsonRootObj[DMX_SCHEMA].UpdatedPersistenceEvent = dataJsonNode.UpdatedPersistenceEvent;
-				jsonRootObj[DMX_SCHEMA].CreatedPersistenceEvent = dataJsonNode.CreatedPersistenceEvent;
-				jsonRootObj[DMX_SCHEMA].RemovedPersistenceEvent = dataJsonNode.RemovedPersistenceEvent;
-				jsonRootObj[DMX_SCHEMA].RejectedUpdatePersistenceEvent = dataJsonNode.RejectedUpdatePersistenceEvent;
-				jsonRootObj[DMX_SCHEMA].RejectedCreatePersistenceEvent = dataJsonNode.RejectedCreatePersistenceEvent;
-				jsonRootObj[DMX_SCHEMA].RejectedRemovePersistenceEvent = dataJsonNode.RejectedRemovePersistenceEvent;
+				ApplicationJson.Data = dataJsonNode.Data;
+				ApplicationJson.UpdatePersistenceEvent = dataJsonNode.UpdatePersistenceEvent;
+				ApplicationJson.CreatePersistenceEvent = dataJsonNode.CreatePersistenceEvent;
+				ApplicationJson.RemovePersistenceEvent = dataJsonNode.RemovePersistenceEvent;
+				ApplicationJson.UpdatedPersistenceEvent = dataJsonNode.UpdatedPersistenceEvent;
+				ApplicationJson.CreatedPersistenceEvent = dataJsonNode.CreatedPersistenceEvent;
+				ApplicationJson.RemovedPersistenceEvent = dataJsonNode.RemovedPersistenceEvent;
+				ApplicationJson.RejectedUpdatePersistenceEvent = dataJsonNode.RejectedUpdatePersistenceEvent;
+				ApplicationJson.RejectedCreatePersistenceEvent = dataJsonNode.RejectedCreatePersistenceEvent;
+				ApplicationJson.RejectedRemovePersistenceEvent = dataJsonNode.RejectedRemovePersistenceEvent;
 				that.convertToXml(jsonRootObj);
 			});
 		});
 	},
 
 	convertToXml: function(jsonRootObj) {
-		console.log(JSON.stringify(jsonRootObj));
-		var XML_VERSION_TAG = '<?xml version=\'1.0\' encoding=\'UTF-8\'?>';
+		var XML_HEADER_TAG = "<?xml version='1.0' encoding='UTF-8' ?>";
 		var x2js = new X2JS();
-		var xmlData = XML_VERSION_TAG + x2js.json2xml_str(jsonRootObj);
-		console.log(xmlData);
+		var xmlData = XML_HEADER_TAG + x2js.json2xml_str(jsonRootObj);
 		this.onXMLGenerated(xmlData);
+	},
+
+	replaceAll: function(string, findArr, replacement) {
+		if (typeof findArr === 'string') {
+			string = string.split(findArr).join(replacement);
+		} else {
+			for (var i = 0, len = findArr.length; i<len; i++) {
+				string = string.split(findArr[i]).join(replacement);
+			}
+		}
+		return string;
 	},
 
 	onXMLGenerated: function(xmlData) {
 		var $xmlDisplay = $('#xml-display');
-		this.xmlDisplayData = vkbeautify.xml(xmlData);
+		var prettyXML = vkbeautify.xml(xmlData);
+		this.xmlDisplayData = this.replaceAll(prettyXML, ['<j>', '</j>', '<j/>', '<j />'], '');
 		$xmlDisplay.text(this.xmlDisplayData);
 		hljs.highlightBlock($xmlDisplay[0]);
 		$('#xml-display-modal').openModal({
 			opacity: 0.7,
-			in_duration: 250,
-			out_duration: 250
+			in_duration: 200,
+			out_duration: 200
 		});
 	},
 	
@@ -137,46 +139,59 @@ module.exports = React.createClass({
 	loadAllEnums: function(callback) {
 		var enumJsonNode = [];
 		var enumCount = this.enums.length;
-		var enumsLoaded = 0;
+		var replaceAll = this.replaceAll;
 
 		var onEnumLoad = function(doc) {
 			var gModel = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.ENUM);
 			var name = gModel.title.toString();
+			var spacelessName = replaceAll(name, ' ', '');
 			var description = gModel.description.toString();
 			var typeId = gModel.id;
 			var node = {
 				_typeId: typeId,
-				_name: name,
+				_name: spacelessName,
 				"Annotation": {
 					"_name": "description",
 					"_svalue": description
-				},
+				}
 			};
 
-			var gFields = gModel.fields;
-			if (gFields.length) {
+			if (gModel.fields.length) {
 				var gField;
 				node.Choice = [];
-				for (var i = 0, len = gFields.length; i<len; i++) {
-					gField = gFields.get(i);
-					node.Choice[i] = {
-						_name: gField.name + '' || gField.get('name').toString(),
-						_index: gField.index + '' || gField.get('index').toString(),
-						'Annotation': {
-							'_name': 'description',
-							'_svalue': gField.description + '' || gField.get('description').toString()
-						}
-					};
+				for (var i = 0, len = gModel.fields.length; i<len; i++) {
+					gField = gModel.fields.get(i);
+					if (typeof gField.index === 'number') {
+						node.Choice[i] = {
+							_name: gField.name,
+							_value: gField.index+'',
+							'Annotation': {
+								'_name': 'description',
+								'_svalue': gField.description
+							}
+						};
+					} else {
+						node.Choice[i] = {
+							_name: gField.get('name').toString(),
+							_value: gField.get('index').toString(),
+							'Annotation': {
+								'_name': 'description',
+								'_svalue': gField.get('description').toString(),
+							}
+						};
+					}
 				}
 			}
 
 			enumJsonNode.push(node);
-			enumsLoaded ++;
-			if (enumsLoaded === enumCount && typeof callback === 'function') {
+			if (enumJsonNode.length === enumCount && typeof callback === 'function') {
 				callback(enumJsonNode);
 			}
 		};
 
+		if (enumCount === 0 && typeof callback === 'function') {
+			callback(enumJsonNode);
+		}
 		for (var i = 0; i<enumCount; i++) {
 			gapi.drive.realtime.load(this.enums[i].id, onEnumLoad);
 		}
@@ -196,19 +211,21 @@ module.exports = React.createClass({
 			RejectedRemovePersistenceEvent: [],
 		};
 		var dataCount = this.datas.length;
-		var datasLoaded = 0;
+		var replaceAll = this.replaceAll;
+		var firstEnum = this.enums[0];
+		var firstRef = this.datas[0];
 
-		var createNode = function(gModel, dataType) {
+		var createDataNode = function(gModel, dataType) {
 			var node = {};
-			var name = gModel.title.toString();
+			var name = replaceAll(gModel.title.toString(), ' ', '');
+			var spacelessName = replaceAll(name, ' ', '');
 			var description = gModel.description.toString();
 			var typeId = gModel.id;
 
 			node.Data = {
-				_name: name,
+				_name: spacelessName,
 				_typeId: typeId,
-				_identifiable: 'true',
-				_stateChecked: 'false',
+				_identifiable: 'false',
 				_type: dataType,
 				Annotation: [{
 					'_name': 'description',
@@ -216,54 +233,60 @@ module.exports = React.createClass({
 					}, { 
 					'_name': 'type',
 					'_svalue': dataType 
-				}]
+				}],
+				Field: []
 			};
+			if (dataType === 'persisted') {
+				node.Data._identifiable = 'true';
+				node.Data._stateChecked = 'false';
+			}
 			return node;
 		};
 
 		var setJsonEvents = function(node, gModel) {
 			var name = gModel.title.toString();
+			var spacelessName = replaceAll(name, ' ', '');
 			node.UpdatePersistenceEvent = {
-				_name: 'Update ' + name,
+				_name: 'Update' + spacelessName,
 				_typeId: gModel.UpdatePersistenceEventTypeId,
-				_persistentData: name };
+				_persistedData: spacelessName };
 			node.CreatePersistenceEvent = {
-				_name: 'Create ' + name,
+				_name: 'Create' + spacelessName,
 				_typeId: gModel.CreatePersistenceEventTypeId,
-				_persistentData: name };
+				_persistedData: spacelessName };
 			node.RemovePersistenceEvent = {
-				_name: 'Remove ' + name,
+				_name: 'Remove' + spacelessName,
 				_typeId: gModel.RemovePersistenceEventTypeId,
-				_persistentData: name };
+				_persistedData: spacelessName };
 			node.UpdatedPersistenceEvent = {
-				_name: name + ' Updated',
+				_name: spacelessName + 'Updated',
 				_typeId: gModel.UpdatedPersistenceEventTypeId,
-				_persistentData: name };
+				_persistedData: spacelessName };
 			node.CreatedPersistenceEvent = {
-				_name: name + ' Created',
+				_name: spacelessName + 'Created',
 				_typeId: gModel.CreatedPersistenceEventTypeId,
-				_persistentData: name };
+				_persistedData: spacelessName };
 			node.RemovedPersistenceEvent = {
-				_name: name + ' Removed',
+				_name: spacelessName + 'Removed',
 				_typeId: gModel.RemovedPersistenceEventTypeId,
-				_persistentData: name };
+				_persistedData: spacelessName };
 			node.RejectedUpdatePersistenceEvent = {
-				_name: 'Update ' + name + 'Rejected',
+				_name: 'Update' + spacelessName + 'Rejected',
 				_typeId: gModel.RejectedUpdatePersistenceEventTypeId,
-				_persistentData: name };
+				_persistedData: spacelessName };
 			node.RejectedCreatePersistenceEvent = {
-				_name: 'Create ' + name + 'Rejected',
+				_name: 'Create' + spacelessName + 'Rejected',
 				_typeId: gModel.RejectedCreatePersistenceEventTypeId,
-				_persistentData: name };
+				_persistedData: spacelessName };
 			node.RejectedRemovePersistenceEvent = {
-				_name: 'Remove ' + name + 'Rejected',
+				_name: 'Remove' + spacelessName + 'Rejected',
 				_typeId: gModel.RejectedRemovePersistenceEventTypeId,
-				_persistentData: name };
+				_persistedData: spacelessName };
 			return node;
 		};
 
-		var setJsonFields = function(node, gFields) {
-			node.Data.Field = [];
+		var setJsonFields = function(node, gModel) {
+			var gFields = gModel.fields;
 			var gField;
 			for (var i = 0, len = gFields.length; i<len; i++) {
 				gField = gFields.get(i);
@@ -275,15 +298,18 @@ module.exports = React.createClass({
 						'_svalue': gField.get('description').toString()
 					},
 					_default: gField.get('defValue').toString(),
-					_readOnly: gField.get('readOnly').toString(),
-					_optional: gField.get('optional').toString()
+					//_readOnly: gField.get('readOnly').toString(),
 				};
+				if (gField.get('optional')) {
+					node.Data.Field[i]._optional = 'true';
+				}
 				switch (gField.get('type').toString()) {
+					case 'integer':
+						node.Data.Field[i]._type = 'int';
 					case 'double':
 					case 'float':
 					case 'byte':
 					case 'short':
-					case 'integer':
 					case 'long':
 						if (isNaN(gField.get('defValue').toString())) {
 							node.Data.Field[i]._default = ''; //don't send a non-number value
@@ -299,7 +325,11 @@ module.exports = React.createClass({
 						node.Data.Field[i]._default = gField.get('defValueBool').toString();
 						break;
 					case 'string':
-						node.Data.Field[i]._length = gField.get('strLen').toString();
+						if (gField.get('strLen').toString().length && !isNaN(gField.get('strLen').toString())) {
+							node.Data.Field[i]._length = gField.get('strLen').toString();
+						} else {
+							node.Data.Field[i]._length = '1'; //sending an invalid string value would cause an error
+						}
 						break;
 					case 'ref':
 						node.Data.Field[i]._ref = gField.get('refName');
@@ -312,12 +342,20 @@ module.exports = React.createClass({
 						break;
 					case 'enum':
 						node.Data.Field[i]._enum = gField.get('enumName');
-						node.Data.Field[i]._default = gField.get('enumValue');
+						if (gField.get('enumValue') === 'no default value') {
+							node.Data.Field[i]._default = '';
+						} else {
+							node.Data.Field[i]._default = gField.get('enumValue') || '';
+						}
 						break;
 					}
 				if (gField.get('array') && !isNaN(gField.get('arrayLen').toString()) &&
-				    parseInt(gField.get('arrayLen').toString(), 10) > 0) {
+					parseInt(gField.get('arrayLen').toString(), 10) > 0) {
 					node.Data.Field[i]._sequenceLength = gField.get('arrayLen').toString();
+				}
+
+				if (node.Data.Field[i]._default === '') {
+					delete node.Data.Field[i]._default;
 				}
 			}
 			return node;
@@ -325,13 +363,9 @@ module.exports = React.createClass({
 
 		var onPersistentDataLoad = function(doc) {
 			var gModel = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.PERSISTENT_DATA);
-			var dataType = 'persistentData';
-			var node = createNode(gModel, dataType);
-
-			var gFields = gModel.fields;
-			if (gFields.length) {
-				node = setJsonFields(node, gFields);
-			}
+			var dataType = 'persisted';
+			var node = createDataNode(gModel, dataType);
+			node = setJsonFields(node, gModel);
 			node = setJsonEvents(node, gModel);
 
 			dataJsonNode.Data.push(node.Data);
@@ -345,8 +379,7 @@ module.exports = React.createClass({
 			dataJsonNode.RejectedCreatePersistenceEvent.push(node.RejectedCreatePersistenceEvent);
 			dataJsonNode.RejectedRemovePersistenceEvent.push(node.RejectedRemovePersistenceEvent);
 
-			datasLoaded++;
-			if (datasLoaded === dataCount && typeof callback === 'function') {
+			if (dataJsonNode.Data.length === dataCount && typeof callback === 'function') {
 				callback(dataJsonNode);
 			}
 		};
@@ -354,17 +387,12 @@ module.exports = React.createClass({
 		var onEventLoad = function(doc) {
 			var dataType = 'event';
 			var gModel = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.EVENT);
-			var node = createNode(gModel, dataType);
-
-			var gFields = gModel.fields;
-			if (gFields.length) {
-				node = setJsonFields(node, gFields);
-			}
+			var node = createDataNode(gModel, dataType);
+			node = setJsonFields(node, gModel);
 
 			dataJsonNode.Data.push(node.Data);
 
-			datasLoaded++;
-			if (datasLoaded === dataCount && typeof callback === 'function') {
+			if (dataJsonNode.Data.length === dataCount && typeof callback === 'function') {
 				callback(dataJsonNode);
 			}
 		};
@@ -372,20 +400,19 @@ module.exports = React.createClass({
 		var onSnippetLoad = function(doc) {
 			var dataType = 'snippet';
 			var gModel = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.SNIPPET);
-			var node = createNode(gModel, dataType);
-
-			var gFields = gModel.fields;
-			if (gFields.length) {
-				node = setJsonFields(node, gFields);
-			}
+			var node = createDataNode(gModel, dataType);
+			node = setJsonFields(node, gModel);
 
 			dataJsonNode.Data.push(node.Data);
 
-			datasLoaded++;
-			if (datasLoaded === dataCount && typeof callback === 'function') {
+			if (dataJsonNode.Data.length === dataCount && typeof callback === 'function') {
 				callback(dataJsonNode);
 			}
 		};
+
+		if (dataCount === 0 && typeof callback === 'function') {
+			callback(dataJsonNode);
+		}
 
 		for (var i = 0; i<dataCount; i++) {
 			if (this.datas[i].description === GDriveConstants.ObjectType.PERSISTENT_DATA){

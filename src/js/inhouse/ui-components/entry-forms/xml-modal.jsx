@@ -1,5 +1,5 @@
 var GDriveConstants = require('../../constants/google-drive-constants.js');
-var EventType = require('../../constants/event-type.js')
+var EventType = require('../../constants/event-type.js');
 
 var GDriveService = require('../../services/google-drive-service.js');
 var Configs = require('../../app-config.js');
@@ -26,6 +26,17 @@ module.exports = React.createClass({
 		$('#xml-btn-wrapper').removeClass('hide');
 	},
 
+	replaceAll: function(string, findArr, replacement) {
+		if (typeof findArr === 'string') {
+			string = string.split(findArr).join(replacement);
+		} else {
+			for (var i = 0, len = findArr.length; i<len; i++) {
+				string = string.split(findArr[i]).join(replacement);
+			}
+		}
+		return string;
+	},
+
 	highlightAllContent: function(e) {
 		var contentField = e.currentTarget;
 		var range = document.createRange();
@@ -37,10 +48,10 @@ module.exports = React.createClass({
 	},
 
 	onGenerateXMLBtnClick: function() {
-		var XML_VERSION_TAG = '<?xml version=\'1.0\' encoding=\'UTF-8\'?>';
+		var XML_HEADER_TAG = "<?xml version='1.0' encoding='UTF-8' ?>";
 		var x2js = new X2JS();
 		var jsonData = this.generateJSONData();
-		var xmlData = XML_VERSION_TAG + x2js.json2xml_str(jsonData);
+		var xmlData = XML_HEADER_TAG + x2js.json2xml_str(jsonData);
 		this.onXMLGenerated(xmlData);
 	},
 
@@ -51,8 +62,8 @@ module.exports = React.createClass({
 		hljs.highlightBlock($xmlDisplay[0]);
 		$('#xml-display-modal').openModal({
 			opacity: 0.7,
-			in_duration: 250,
-			out_duration: 250
+			in_duration: 200,
+			out_duration: 200
 		});
 	},
 	
@@ -64,125 +75,130 @@ module.exports = React.createClass({
 
 	generateJSONData: function() {
 		var dataModel = this.gModel;
-		var name = dataModel.title.toString();
+		var name = this.replaceAll(dataModel.title.toString(), ' ', '');
 		var description = dataModel.description.toString();
 		var typeId = dataModel.id;
-		var jsonObj = {};
+		var jsonObj = {
+			'dmx:dmxSchema': {
+				'_name' : name,
+				'_version' : "1",
+				'_xmlns:dmx' : "schema.dmx.f1.x3", 
+				'_xmlns:xsi' : "http://www.w3.org/2001/XMLSchema-instance",
+				'_xsi:schemaLocation' : "schema.dmx.f1.x3 /dmxSchema.xsd"
+			}};
+		var gFields;
+		var dataObj = jsonObj['dmx:dmxSchema'];
 		if (this.props.fileType === GDriveConstants.ObjectType.PERSISTENT_DATA) {
-			jsonObj.Data = { 
+			dataObj.Data = { 
 				_name: name,
 				_typeId: typeId,
+				_type: 'persisted',
+				_identifiable: 'true',
+				_stateChecked: 'false',
 				Annotation: [{
 					'_name': 'description',
 					'_svalue': description 
 					}, { 
 					'_name': 'type',
-					'_svalue': 'persistentData' 
+					'_svalue': 'persisted' 
 				}],
 				Field: []
 			};
-			jsonObj.UpdatePersistenceEvent = {
-				_name: 'Update ' + name,
+			dataObj.UpdatePersistenceEvent = {
+				_name: 'Update' + name,
 				_typeId: dataModel.UpdatePersistenceEventTypeId,
-				_persistentData: name };
-			jsonObj.CreatePersistenceEvent = {
-				_name: 'Create ' + name,
+				_persistedData: name };
+			dataObj.CreatePersistenceEvent = {
+				_name: 'Create' + name,
 				_typeId: dataModel.CreatePersistenceEventTypeId,
-				_persistentData: name };
-			jsonObj.RemovePersistenceEvent = {
-				_name: 'Remove ' + name,
+				_persistedData: name };
+			dataObj.RemovePersistenceEvent = {
+				_name: 'Remove' + name,
 				_typeId: dataModel.RemovePersistenceEventTypeId,
-				_persistentData: name };
-			jsonObj.UpdatedPersistenceEvent = {
-				_name: name + ' Updated',
+				_persistedData: name };
+			dataObj.UpdatedPersistenceEvent = {
+				_name: name + 'Updated',
 				_typeId: dataModel.UpdatedPersistenceEventTypeId,
-				_persistentData: name };
-			jsonObj.CreatedPersistenceEvent = {
-				_name: name + ' Created',
+				_persistedData: name };
+			dataObj.CreatedPersistenceEvent = {
+				_name: name + 'Created',
 				_typeId: dataModel.CreatedPersistenceEventTypeId,
-				_persistentData: name };
-			jsonObj.RemovedPersistenceEvent = {
-				_name: name + ' Removed',
+				_persistedData: name };
+			dataObj.RemovedPersistenceEvent = {
+				_name: name + 'Removed',
 				_typeId: dataModel.RemovedPersistenceEventTypeId,
-				_persistentData: name };
-			jsonObj.RejectedUpdatePersistenceEvent = {
-				_name: 'Update ' + name + 'Rejected',
+				_persistedData: name };
+			dataObj.RejectedUpdatePersistenceEvent = {
+				_name: 'Update' + name +'Rejected',
 				_typeId: dataModel.RejectedUpdatePersistenceEventTypeId,
-				_persistentData: name };
-			jsonObj.RejectedCreatePersistenceEvent = {
-				_name: 'Create ' + name + 'Rejected',
+				_persistedData: name };
+			dataObj.RejectedCreatePersistenceEvent = {
+				_name: 'Create' + name + 'Rejected',
 				_typeId: dataModel.RejectedCreatePersistenceEventTypeId,
-				_persistentData: name };
-			jsonObj.RejectedRemovePersistenceEvent = {
-				_name: 'Remove ' + name + 'Rejected',
+				_persistedData: name };
+			dataObj.RejectedRemovePersistenceEvent = {
+				_name: 'Remove' + name + 'Rejected',
 				_typeId: dataModel.RejectedRemovePersistenceEventTypeId,
-				_persistentData: name };
+				_persistedData: name };
 
-			var gFields = dataModel.fields;
+			gFields = dataModel.fields;
 			if (gFields.length) {
-				this.setFieldData(gFields, jsonObj.Data.Field);
-			} else {
-				delete jsonObj.Data.Field;
+				this.setFieldData(gFields, dataObj.Data.Field);
 			}
 		} else if (this.props.fileType === GDriveConstants.ObjectType.SNIPPET) {
-			jsonObj.Data = { 
+			dataObj.Data = { 
 				_name: name,
 				_typeId: typeId,
+				_type: 'snippet',
+				_identifiable: 'false',
 				Annotation: [{
 					'_name': 'description',
 					'_svalue': description 
 					}, { 
 					'_name': 'type',
-					'_svalue': 'persistentData' 
+					'_svalue': 'snippet' 
 				}],
 				Field: []
 			};
 
-			var gFields = dataModel.fields;
+			gFields = dataModel.fields;
 			if (gFields.length) {
-				this.setFieldData(gFields, jsonObj.Data.Field);
-			} else {
-				delete jsonObj.Data.Field;
+				this.setFieldData(gFields, dataObj.Data.Field);
 			}
 		} else if (this.props.fileType === GDriveConstants.ObjectType.EVENT) {
-			jsonObj.Data = { 
+			dataObj.Data = { 
 				_name: name,
 				_typeId: typeId,
+				_type: 'event',
+				_identifiable: 'false',
 				Annotation: [{
 					'_name': 'description',
 					'_svalue': description 
 					}, { 
 					'_name': 'type',
-					'_svalue': 'persistentData' 
+					'_svalue': 'event' 
 				}],
 				Field: []
 			};
 
-			var gFields = dataModel.fields;
+			gFields = dataModel.fields;
 			if (gFields.length) {
-				this.setFieldData(gFields, jsonObj.Data.Field);
-			} else {
-				delete jsonObj.Data.Field;
+				this.setFieldData(gFields, dataObj.Data.Field);
 			}
 		} else if (this.props.fileType === GDriveConstants.ObjectType.ENUM) {
-			jsonObj.Enum = { 
+			dataObj.Enum = { 
 				_name: name,
 				_typeId: typeId,
 				Annotation: [{
 					'_name': 'description',
 					'_svalue': description 
-					}, { 
-					'_name': 'type',
-					'_svalue': 'persistentData' 
 				}],
 				Choice: []
 			};
 
-			var gFields = dataModel.fields;
+			gFields = dataModel.fields;
 			if (gFields.length) {
-				this.setEnumFieldData(gFields, jsonObj.Enum.Choice);
-			} else {
-				delete jsonObj.Enum.Choice;
+				this.setEnumFieldData(gFields, dataObj.Enum.Choice);
 			}
 		}
 		return jsonObj;
@@ -199,10 +215,12 @@ module.exports = React.createClass({
 					'_name': 'description',
 					'_svalue': gField.get('description').toString()
 				},
-				_default: gField.get('defValue').toString(),
-				_readOnly: gField.get('readOnly').toString(),
-				_optional: gField.get('optional').toString()
+				_default: gField.get('defValue').toString()
+				//_readOnly: gField.get('readOnly').toString(),
 			};
+			if (gField.get('optional')) {
+				jsonField[i]._optional = 'true';
+			}
 			switch (gField.get('type').toString()) {
 				case 'double':
 				case 'float':
@@ -228,7 +246,12 @@ module.exports = React.createClass({
 					break;
 				case 'ref':
 					jsonField[i]._ref = gField.get('refName');
-					jsonField[i]._refType = gField.get('refType');
+					jsonField[i]._refType = '';
+					if (gField.get('refType') === 'soft') {
+						jsonField[i]._refType = 'pointer';
+					} else {
+						jsonField[i]._refType = 'embedded';
+					}
 					break;
 				case 'enum':
 					jsonField[i]._enum = gField.get('enumName');
@@ -268,7 +291,7 @@ module.exports = React.createClass({
 					<div className='modal-content'>
 						<pre><code id='xml-display' className='xml' onDoubleClick={this.highlightAllContent} /></pre>
 					</div>
-					<div className="modal-footer">
+					<div className='modal-footer'>
 						<a id='xml-download-btn' className='modal-close modal-action waves-effect btn-flat'
 							onClick = {this.onDownloadXMLBtnClick}>
 							<i className='mdi-file-file-download' />Download XML</a>

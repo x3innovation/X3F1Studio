@@ -89,7 +89,6 @@ module.exports = React.createClass({
 				},
 			}]
 		});
-		this.table.order([0, 'asc']);
 		$('th').removeClass('enum-cell enum-index-cell enum-name-cell enum-description-cell');
 		$('.dataTables_scrollBody table').css('table-layout', 'fixed');
 		$('.enum-cell').click(this.setSelectedRow);
@@ -168,7 +167,7 @@ module.exports = React.createClass({
 	},
 
 	onAddEnumBtnClick: function(e) {
-		var NEW_ELEMENT_NAME = 'newElement_';
+		var NEW_ELEMENT_NAME = 'newElement';
 		var newElementNum = 0;
 		var digitsList = [];
 		var newIndex = 0;

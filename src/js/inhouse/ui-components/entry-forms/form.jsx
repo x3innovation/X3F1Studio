@@ -122,7 +122,7 @@ module.exports = React.createClass({
 	saveUiToGoogle: function() {
 		var fieldIndex;
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
-			if (this.gFields.get(i).get('ID') === this.fieldData.get('ID')) {
+			if (this.gFields.get(i).id === this.fieldData.id) {
 				fieldIndex = i;
 				break;
 			}
@@ -177,9 +177,9 @@ module.exports = React.createClass({
 			$('form.hide').removeClass('hide');
 		}
 
-		var selectedField = data.selectedField;
+		var selectedFieldId = data.selectedFieldId;
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
-			if (this.gFields.get(i).get('name').toString() === selectedField) {
+			if (this.gFields.get(i).id === selectedFieldId) {
 				this.fieldData = this.gFields.get(i);
 				this.updateUi();
 				this.rebindStrings();
@@ -330,7 +330,7 @@ module.exports = React.createClass({
 
 		var refs = this.refs;
 		this.elements.refNameSelect.empty();
-		var refOptions = "";
+		var refOptions = "<option disabled value='default'>select a ref</option>";
 		for (i = 0, len = refs.length; i<len; i++) {
 			refOptions += '<option data-file-type = "'+refs[i].fileType+'" data-file-id = "'+refs[i].id+'" value = "'+refs[i].id+'">'+refs[i].title+'</option>';
 		}
@@ -354,7 +354,7 @@ module.exports = React.createClass({
 		var enums = this.enums;
 		if (enums.length) {
 			this.elements.enumNameSelect.empty();
-			var enumOptions = "";
+			var enumOptions = "<option disabled value='default'>select an enum</option>";
 			for (i = 0, len = enums.length; i<len; i++) {
 				enumOptions += '<option data-file-type = "'+enums[i].fileType+'" data-file-id = "'+enums[i].id+'" value = "'+enums[i].id+'">'+enums[i].title+'</option>';
 			}
@@ -374,7 +374,7 @@ module.exports = React.createClass({
 					}
 				}
 			});
-		} else {	
+		} else {
 			this.elements.enumNameSelect.material_select(function() {
 				that.onEnumTypeChanged($('#enum-name-dropdown').find('.select-dropdown').val());
 			});
@@ -385,21 +385,24 @@ module.exports = React.createClass({
 		var that = this;
 		that.elements.enumValueSelect.html('<option value="default" disabled>loading enum values...</option>');
 		that.elements.enumValueSelect.material_select();
-		if (!enumId) {
+		if (!enumId || enumId === 'default') {
 			that.elements.enumValueSelect.html('<option value="default" disabled>select default value</option>');
+			that.elements.enumValueSelect.prop('disabled', true);
 			that.elements.enumValueSelect.material_select();
 			return;
 		}
 		gapi.drive.realtime.load(enumId, function(doc) {
 			var enumValues = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.ENUM).fields.asArray();
 			if (enumValues.length) {
-				var enumValueOptions = "";
+				that.elements.enumValueSelect.prop('disabled', false);
+				var enumValueOptions = '<option value = "default">no default value</option>';
 				for (var i = 0, len = enumValues.length; i<len; i++) {
 					enumValueOptions += '<option data-enum-index = "'+enumValues[i].index+'" value = "'+enumValues[i].name+'">'+enumValues[i].name+'</option>';
 				}
 				that.elements.enumValueSelect.html(enumValueOptions);
 			} else {
 				that.elements.enumValueSelect.html('<option value = "default">no enums defined</option>');
+				that.elements.enumValueSelect.prop('disabled', true);
 			}
 			that.elements.enumValueSelect.material_select(that.saveUiToGoogle);
 			that.updateEnumValueSelect();
@@ -604,24 +607,24 @@ module.exports = React.createClass({
 							<label htmlFor='array-checkbox' id='array-label'>array</label>
 						</div>
 						<div id='array-len-wrapper' className='input-field col type-specific-field s4'>
-							<input type='text' id='array-len-field' className='text-input' spellCheck = 'false' />
+							<input type='number' id='array-len-field' className='text-input' />
 							<label htmlFor='array-len-field' id='array-len-label'>array length</label>
 						</div>
 					</div>
 					<div className='row type-specific-field string-specific-field'>
 						<div className='input-field col s4'>
-							<input type='text' id='str-len-field' className='text-input' spellCheck = 'false' />
-							<label htmlFor='str-len-field' id='str-len-label'>string length</label>
+							<input type='number' id='str-len-field' className='text-input' />
+							<label htmlFor='str-len-field' id='str-len-label'>max string length</label>
 						</div>
 					</div>
 					<div className='row type-specific-field double-specific-field float-specific-field byte-specific-field
 					     integer-specific-field long-specific-field short-specific-field'>
 						<div className='input-field col s4'>
-							<input type='text' id='min-value-field' className='text-input' spellCheck = 'false' />
+							<input type='number' id='min-value-field' className='text-input' />
 							<label htmlFor='min-value-field' id='min-value-label'>min value</label>
 						</div>
 						<div className='input-field col s4'>
-							<input type='text' id='max-value-field' className='text-input' />
+							<input type='number' id='max-value-field' className='text-input' />
 							<label htmlFor='max-value-field' id='max-value-label'>max value</label>
 						</div>
 					</div>

@@ -52,7 +52,7 @@ module.exports = React.createClass({
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			gField = this.gFields.get(i);
 			field = {};
-			field.ID = gField.get('ID');
+			field.ID = gField.id;
 			field.name = gField.get('name').toString();
 			this.fields.push(field);
 		}
@@ -126,15 +126,14 @@ module.exports = React.createClass({
 				var $element = $(element);
 				if ($element.text() === selectedFieldID) {
 					var cellIndex = table.cell($element).index();
-					var thisRow = table.row(cellIndex.row).node();
-					$(thisRow).find('td.field-cell').addClass('selected-cell');
-					selectedFieldName = $('.selected-cell').find('input').val();
+					var $thisRow = $element.closest('tr');
+					$thisRow.find('td.field-cell').addClass('selected-cell');
 					$('.dataTables_scrollBody').scrollTop($('.selected-cell').position().top - 100);
 				}
 			});
 		}
 		var data = {
-			selectedField: selectedFieldName,
+			selectedFieldId: selectedFieldID,
 			fieldCount: $idCells.length
 		};
 		Bullet.trigger(EventType.EntryForm.FIELD_SELECTED, data);
@@ -150,7 +149,7 @@ module.exports = React.createClass({
 			var $element = $(element);
 			var fieldId = $element.attr('data-field-id');
 			for (var i = 0, len = that.gFields.length; i<len; i++) {
-				if (that.gFields.get(i).get('ID') === fieldId) {
+				if (that.gFields.get(i).id === fieldId) {
 					that.gBindings.fieldId = bindString(that.gFields.get(i).get('name'), element);
 					break;
 				}
@@ -168,7 +167,6 @@ module.exports = React.createClass({
 			}
 		}
 		var newField = {
-			ID: this.selectedFieldID,
 			name: newFieldName,
 			type: DefaultFields.FIELD_TYPE,
 			description: DefaultFields.FIELD_DESCRIPTION,
@@ -197,6 +195,7 @@ module.exports = React.createClass({
 		newGField.set('maxValue', this.gModel.createString(newField.maxValue));
 		newGField.set('strLen', this.gModel.createString(newField.strLen));
 		newGField.set('arrayLen', this.gModel.createString(newField.arrayLen));
+		this.selectedFieldID = newGField.id;
 		this.gFields.push(newGField);
 	},
 
@@ -205,7 +204,7 @@ module.exports = React.createClass({
 			return false;
 		}
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
-			if ('' + this.gFields.get(i).get('ID') === removedFieldID) {
+			if ('' + this.gFields.get(i).id === removedFieldID) {
 				this.gFields.remove(i);
 				return true;
 			}
@@ -219,13 +218,12 @@ module.exports = React.createClass({
 		}
 		var $selectedCell = $fieldCells.first();
 		$selectedCell.addClass('selected-cell');
-		var cellIndex = this.table.cell($selectedCell).index();
-		var thisRow = this.table.row(cellIndex.row).node();
-		this.selectedFieldID = $(thisRow).find('.field-ID-cell').text();
+		var $thisRow = $selectedCell.closest('tr');
+		this.selectedFieldID = $thisRow.find('.field-ID-cell').text();
 
 		var selectedFieldName = $selectedCell.find('input').val();
 		var data = {
-			selectedField: selectedFieldName,
+			selectedFieldId: this.selectedFieldID,
 			fieldCount: $fieldCells.length
 		};
 		Bullet.trigger(EventType.EntryForm.FIELD_SELECTED, data);
@@ -240,8 +238,8 @@ module.exports = React.createClass({
 	},
 
 	onAddBtnClick: function() {
-		// getting the first value N where newField_ is not currently used
-		var NEW_FIELD_NAME = 'newField_';
+		// getting the first value N where newFieldN is not currently used
+		var NEW_FIELD_NAME = 'newField';
 		var newFieldNum = 0;
 		var digitsList = [];
 		var newIndex = 1;
@@ -251,16 +249,10 @@ module.exports = React.createClass({
 			if ($fieldCellInput.length && $fieldCellInput.val().indexOf(NEW_FIELD_NAME) === 0) {
 				digitsList.push($fieldCellInput.val().substring(NEW_FIELD_NAME.length));
 			}
-
-			var $fieldIdCell = $this.find('.field-ID-cell');
-			if (parseInt($fieldIdCell.text(), 10) >= newIndex) {
-				newIndex = parseInt($fieldIdCell.text(), 10) + 1;
-			}
 		});
 		while (digitsList.indexOf('' + newFieldNum) >= 0) {
 			newFieldNum++;
 		}
-		this.selectedFieldID = '' + newIndex;
 		var newFieldName = NEW_FIELD_NAME + newFieldNum;
 		this.saveNewField(newFieldName);
 	},
@@ -270,9 +262,8 @@ module.exports = React.createClass({
 		if ($selectedCell.length === 0) {
 			return false;
 		}
-		var cellIndex = this.table.cell($selectedCell).index();
-		var thisRow = this.table.row(cellIndex.row).node();
-		var removedFieldID = $(thisRow).find('.field-ID-cell').text();
+		var $thisRow = $selectedCell.closest('tr');
+		var removedFieldID = $thisRow.find('.field-ID-cell').text();
 		this.saveRemovedField(removedFieldID);
 
 		$('.delete-tooltipped').tooltipster('hide');
@@ -286,12 +277,11 @@ module.exports = React.createClass({
 		}
 		this.unselectSelectedCell();
 		$clickedCell.addClass('selected-cell');
-		var cellIndex = this.table.cell($clickedCell).index();
-		var thisRow = this.table.row(cellIndex.row).node();
-		this.selectedFieldID = $(thisRow).find('.field-ID-cell').text();
+		var $thisRow = $clickedCell.closest('tr');
+		this.selectedFieldID = $thisRow.find('.field-ID-cell').text();
 
 		var data = {
-			selectedField: $clickedCell.find('input').val(),
+			selectedFieldId: this.selectedFieldID,
 			fieldCount: $('.field-cell').length
 		};
 		Bullet.trigger(EventType.EntryForm.FIELD_SELECTED, data);

@@ -74,7 +74,12 @@ module.exports = function(grunt) {
 			'main.css',
 			'nav-bar.css',
 			'card.css',
-			'entry-forms.css',
+			'xml-generator.css',
+			'entry-forms/common.css',
+			'entry-forms/enum-elements.css',
+			'entry-forms/field-selector.css',
+			'entry-forms/form.css',
+			'entry-forms/header.css',
 			'project/project.css'
 		];
 

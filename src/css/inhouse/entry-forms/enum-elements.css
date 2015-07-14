@@ -1,0 +1,63 @@
+.enum-col-header {
+    font-weight: 400;
+    color: #9e9e9e;
+}
+
+#enum-add-btn {
+    top: 4%;
+    left: 2%;
+}
+
+#enum-delete-btn {
+    top: 4%;
+    left: 5%;
+}
+
+#enum-table .enum-cell {
+    padding: 0 18px;
+    -webkit-transition: border 0.4s ease;
+    -moz-transition: border 0.4s ease;
+    -o-transition: border 0.4s ease;
+    transition: border 0.4s ease;
+    white-space: nowrap; 
+    overflow: hidden;
+    -o-text-overflow: clip;
+    text-overflow: clip;
+}
+
+.enum-cell > .enum-table-input {
+    margin: 0;
+    border: 2px solid transparent;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+}
+
+.enum-name-input.empty-input:not(:focus) {
+    border: 2px solid #d32f2f;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+}
+
+.enum-cell > .enum-name-input::-webkit-input-placeholder {
+    color: #f44336;
+}
+.enum-cell > .enum-name-input:-ms-input-placeholder {
+    color: #f44336;
+}
+.enum-cell > .enum-name-input::-moz-placeholder {
+    color: #f44336;
+    opacity: 1;
+}
+
+.enum-cell > ::-webkit-input-placeholder {
+    color: #a9a9a9;
+}
+.enum-cell > :-ms-input-placeholder {
+    color: #a9a9a9;
+}
+.enum-cell > ::-moz-placeholder {
+    color: #a9a9a9;
+    opacity: 1;
+}
