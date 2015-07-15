@@ -285,7 +285,8 @@ module.exports = React.createClass({
 			<div className = 'row'>
 				<div id = 'xml-btn-wrapper' className = 'col s3 hide'>
 					<a id = 'generate-xml-btn' onClick = {this.onGenerateXMLBtnClick}
-					   className = {'btn z-depth-1 waves-effect waves-light '+Configs.App.ADD_BUTTON_COLOR}>Generate XML</a>
+					   className = {'btn z-depth-1 waves-effect waves-light '+Configs.App.ADD_BUTTON_COLOR}>
+					   Generate XML</a>
 				</div>
 				<div id='xml-display-modal' className='modal modal-fixed-footer z-depth-2'>
 					<div className='modal-content'>

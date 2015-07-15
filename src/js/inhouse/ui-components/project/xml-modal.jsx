@@ -8,10 +8,8 @@ module.exports = React.createClass({
 				NON LIFE CYCLE FUNCTIONS
 	****************************************** */
 	onGenerateXMLBtnClick: function(e) {
-		if (e.target === e.currentTarget) {
-			this.classifyProjectObjects();
-			this.generateJSONDataAndConvertToXML();
-		}
+		this.classifyProjectObjects();
+		this.generateJSONDataAndConvertToXML();
 	},
 
 	classifyProjectObjects: function() {
