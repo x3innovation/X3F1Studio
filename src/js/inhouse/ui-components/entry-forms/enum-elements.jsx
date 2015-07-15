@@ -21,6 +21,8 @@ module.exports = React.createClass({
 	},
 
 	componentWillUnmount: function() {
+		if (this.gFields) { this.gFields.removeAllEventListeners(); }
+
 		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'enum-elements.jsx>>onGapiFileLoaded');
 		Bullet.off(EventType.EntryForm.METADATA_MODEL_LOADED, 'enum-elements.jsx>>onMetadataModelLoaded');
 	},

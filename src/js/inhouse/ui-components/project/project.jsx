@@ -16,23 +16,23 @@ module.exports = React.createClass({
 	model : {
 		buttons : {
 			persistentData : {
-				color : 'indigo',
+				color : Configs.App.PERSISTENT_DATA_COLOR,
 				isSearchOn : true
 			},
 			enum : {
-				color : 'red',
+				color : Configs.App.ENUM_COLOR,
 				isSearchOn : true
 			},
 			snippet : {
-				color: 'purple',
-				isSearchOn: true
+				color : Configs.App.SNIPPET_COLOR,
+				isSearchOn : true
 			},
 			event : {
-				color : 'orange',
+				color : Configs.App.EVENT_COLOR,
 				isSearchOn : true
 			},
 			flow : {
-				color : 'green',
+				color : Configs.App.FLOW_COLOR,
 				isSearchOn : true
 			}
 		}

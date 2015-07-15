@@ -17,6 +17,8 @@ module.exports = React.createClass({
 	},
 
 	componentWillUnmount: function() {
+		if (this.gQueries) { this.gQueries.removeAllEventListeners(); }
+
 		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'queries.jsx>>onGapiFileLoaded');
 	},
 

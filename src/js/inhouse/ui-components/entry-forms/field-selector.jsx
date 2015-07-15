@@ -9,11 +9,11 @@ module.exports = React.createClass({
 				LIFE CYCLE FUNCTIONS
 	****************************************** */
 	componentWillMount: function() {
-		this.fields = [];
-		this.gBindings = {};
+		this.gBindings = [];
+		this.table = null;
 		this.gFields = null;
 		this.gModel = null;
-		this.selectedFieldID = null;
+		this.selectedFieldId = null;
 		this.table = null;
 
 		Bullet.on(EventType.EntryForm.GAPI_FILE_LOADED, 'field-selector.jsx>>onGapiFileLoaded', this.onGapiFileLoaded);
@@ -24,6 +24,8 @@ module.exports = React.createClass({
 	},
 
 	componentWillUnmount: function() {
+		if (this.gFields) { this.gFields.removeAllEventListeners(); }
+
 		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'field-selector.jsx>>onGapiFileLoaded');
 	},
 
@@ -39,14 +41,14 @@ module.exports = React.createClass({
 	},
 
 	updateUi: function(e) {
-		this.repopulateFields();
-		this.initializeTable();
-		this.selectField();
+		var fields = this.getFields();
+		this.initializeTable(fields);
 		this.rebindStrings();
+		this.selectField(true);
 	},
 
-	repopulateFields: function() {
-		this.fields = [];
+	getFields: function() {
+		var fields = [];
 		var gField;
 		var field;
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
@@ -54,13 +56,14 @@ module.exports = React.createClass({
 			field = {};
 			field.ID = gField.id;
 			field.name = gField.get('name').toString();
-			this.fields.push(field);
+			fields.push(field);
 		}
+		return fields;
 	},
 
-	initializeTable: function() {
+	initializeTable: function(fields) {
 		this.table = $('#field-table').DataTable({
-			data: this.fields,
+			data: fields,
 			destroy: true,
 			scrollY: 330,
 			paging: false,
@@ -77,22 +80,22 @@ module.exports = React.createClass({
 			columnDefs: [{
 				targets: 0,
 				data: 'ID',
-				className: 'field-ID-cell hide'
+				className: 'ID-field hide'
 			}, {
 				targets: 1,
 				data: 'name',
 				render: function(data, type, row, meta) {
 					return '<input readOnly class="field-table-input" type="text" data-field-id="'+row.ID+'" value='+data+'>';
 				},
-				className: 'field-cell'
+				className: 'name-field'
 			}]
 		});
 		this.table.order([0, 'asc']);
-		$('th').removeClass('field-ID-cell field-cell');
+		$('th').removeClass('ID-field name-field');
 		var fieldClickHandler = this.onFieldClick;
-		$('.field-cell').each(function(index, element) {
+		$('.name-field').each(function(index, element) {
 			var $element = $(element);
-			$element.attr('id', '' + $element.find('input').val() + '-cell');
+			$element.attr('id', '' + $element.find('input').val() + '-field');
 			$element.click(fieldClickHandler);
 		});
 	},
@@ -111,61 +114,69 @@ module.exports = React.createClass({
 		});
 	},
 
-	selectField: function() {
-		if (!this.selectedFieldID) {
-			return false;
-		}
-		this.unselectSelectedCell();
-		var table = this.table;
-		var selectedFieldID = this.selectedFieldID;
-		var selectedFieldName = '';
-		var $idCells = $('.field-ID-cell');
+	selectField: function(scroll) {
+		if (!this.selectedFieldId) { return false; }
+		this.unselectSelectedField();
+		var that = this;
+		var $nameFields = $('.name-field');
 
-		if ($idCells.length) {
-			$idCells.each(function(index, element) {
+		if ($nameFields.length) {
+			$nameFields.each(function(index, element) {
 				var $element = $(element);
-				if ($element.text() === selectedFieldID) {
-					var cellIndex = table.cell($element).index();
-					var $thisRow = $element.closest('tr');
-					$thisRow.find('td.field-cell').addClass('selected-cell');
-					$('.dataTables_scrollBody').scrollTop($('.selected-cell').position().top - 100);
+				if ($element.find('input').attr('data-field-id') === that.selectedFieldId) {
+					$element.addClass('selected-cell');
+					if (scroll) {
+						$('.dataTables_scrollBody').scrollTop($element.position().top - 100);
+					}
 				}
 			});
+		} else {
+			this.selectedFieldId = null;
 		}
 		var data = {
-			selectedFieldId: selectedFieldID,
-			fieldCount: $idCells.length
+			selectedFieldId: this.selectedFieldId,
+			fieldCount: $nameFields.length
 		};
 		Bullet.trigger(EventType.EntryForm.FIELD_SELECTED, data);
+	},
+
+
+	selectTopField: function() {
+		var $nameFields = $('.name-field');
+		if ($nameFields.length === 0) { return false; }
+		var $topCell = $nameFields.first();
+		this.selectedFieldId = $topCell.find('input').attr('data-field-id');
+		this.selectField(true);
+	},
+
+	unselectSelectedField: function() {
+		var $selectedCell = $('.selected-cell');
+		if ($selectedCell.length === 0) { return false; }
+		$selectedCell.removeClass('selected-cell');
 	},
 
 	rebindStrings: function() {
 		var that = this;
 		var bindString = gapi.drive.realtime.databinding.bindString;
-		for (var boundObj in this.gBindings) {
-			this.gBindings[boundObj].unbind();
+		for (var i = 0, len = this.gBindings.length; i<len; i++) {
+			this.gBindings[i].unbind();
 		}
 		$('.field-table-input').each(function(index, element) {
 			var $element = $(element);
 			var fieldId = $element.attr('data-field-id');
+			var collabString;
 			for (var i = 0, len = that.gFields.length; i<len; i++) {
 				if (that.gFields.get(i).id === fieldId) {
-					that.gBindings.fieldId = bindString(that.gFields.get(i).get('name'), element);
+					collabName = that.gFields.get(i).get('name');
+					that.gBindings.push(bindString(collabName, element));
 					break;
 				}
 			}
 		});
 	},
 
-	saveNewField: function(newFieldName) {
-		if (!this.gFields) {
-			return false;
-		}
-		for (var i = 0, len = this.gFields.length; i<len; i++) { //don't add if the field already exists
-			if (this.gFields.get(i).get('name').toString() === newFieldName) {
-				return false;
-			}
-		}
+	addField: function(newFieldName) {
+		if (!this.gFields) { return false; }
 		var newField = {
 			name: newFieldName,
 			type: DefaultFields.FIELD_TYPE,
@@ -187,104 +198,64 @@ module.exports = React.createClass({
 			enumValue: DefaultFields.FIELD_ENUM_VALUE,
 			contextId: DefaultFields.FIELD_CONTEXT_ID
 		};
-		var newGField = this.gModel.createMap(newField);
-		newGField.set('name', this.gModel.createString(newField.name));
-		newGField.set('description', this.gModel.createString(newField.description));
-		newGField.set('defValue', this.gModel.createString(newField.defValue));
-		newGField.set('minValue', this.gModel.createString(newField.minValue));
-		newGField.set('maxValue', this.gModel.createString(newField.maxValue));
-		newGField.set('strLen', this.gModel.createString(newField.strLen));
-		newGField.set('arrayLen', this.gModel.createString(newField.arrayLen));
-		this.selectedFieldID = newGField.id;
-		this.gFields.push(newGField);
+		var gField = this.gModel.createMap(newField);
+		gField.set('name', this.gModel.createString(newField.name));
+		gField.set('description', this.gModel.createString(newField.description));
+		gField.set('defValue', this.gModel.createString(newField.defValue));
+		gField.set('minValue', this.gModel.createString(newField.minValue));
+		gField.set('maxValue', this.gModel.createString(newField.maxValue));
+		gField.set('strLen', this.gModel.createString(newField.strLen));
+		gField.set('arrayLen', this.gModel.createString(newField.arrayLen));
+		this.selectedFieldId = gField.id;
+		this.gFields.push(gField);
 	},
 
-	saveRemovedField: function(removedFieldID) {
-		if (!this.gFields) {
-			return false;
-		}
+	removeField: function(removedFieldId) {
+		if (!this.gFields) { return false; }
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
-			if ('' + this.gFields.get(i).id === removedFieldID) {
+			if ('' + this.gFields.get(i).id === removedFieldId) {
 				this.gFields.remove(i);
 				return true;
 			}
 		}
 	},
 
-	selectTopCell: function() {
-		var $fieldCells = $('.field-cell');
-		if ($fieldCells.length === 0) {
-			return false;
-		}
-		var $selectedCell = $fieldCells.first();
-		$selectedCell.addClass('selected-cell');
-		var $thisRow = $selectedCell.closest('tr');
-		this.selectedFieldID = $thisRow.find('.field-ID-cell').text();
-
-		var selectedFieldName = $selectedCell.find('input').val();
-		var data = {
-			selectedFieldId: this.selectedFieldID,
-			fieldCount: $fieldCells.length
-		};
-		Bullet.trigger(EventType.EntryForm.FIELD_SELECTED, data);
-	},
-
-	unselectSelectedCell: function() {
-		var $currSelectedCell = $('.selected-cell');
-		if ($currSelectedCell.length === 0) {
-			return false;
-		}
-		$currSelectedCell.removeClass('selected-cell');
-	},
-
 	onAddBtnClick: function() {
-		// getting the first value N where newFieldN is not currently used
-		var NEW_FIELD_NAME = 'newField';
+		// getting the first value N where newFieldN is not used
+		var NEW_FIELD_NAME = 'NewField';
 		var newFieldNum = 0;
-		var digitsList = [];
 		var newIndex = 1;
+		var digitsList = [];
 		$('#field-table').find('tr').each(function(index, element) {
-			var $this = $(this);
-			var $fieldCellInput = $this.find('.field-cell input');
-			if ($fieldCellInput.length && $fieldCellInput.val().indexOf(NEW_FIELD_NAME) === 0) {
-				digitsList.push($fieldCellInput.val().substring(NEW_FIELD_NAME.length));
+			var $element = $(element);
+			var $fieldInput = $element.find('.field-table-input');
+			if ($fieldInput.length && $fieldInput.val().indexOf(NEW_FIELD_NAME) === 0) {
+				digitsList.push($fieldInput.val().substring(NEW_FIELD_NAME.length));
 			}
 		});
 		while (digitsList.indexOf('' + newFieldNum) >= 0) {
 			newFieldNum++;
 		}
+
 		var newFieldName = NEW_FIELD_NAME + newFieldNum;
-		this.saveNewField(newFieldName);
+		this.addField(newFieldName);
 	},
 
 	onDeleteBtnClick: function() {
 		var $selectedCell = $('.selected-cell');
-		if ($selectedCell.length === 0) {
-			return false;
-		}
-		var $thisRow = $selectedCell.closest('tr');
-		var removedFieldID = $thisRow.find('.field-ID-cell').text();
-		this.saveRemovedField(removedFieldID);
+		if ($selectedCell.length === 0) { return false; }
+		var removedFieldId = $selectedCell.find('input').attr('data-field-id');
+		this.removeField(removedFieldId);
 
 		$('.delete-tooltipped').tooltipster('hide');
-		this.selectTopCell();
+		this.selectTopField();
 	},
 
 	onFieldClick: function(e) {
-		var $clickedCell = $(e.currentTarget);
-		if ($clickedCell.hasClass('selected-cell')) {
-			return false;
-		}
-		this.unselectSelectedCell();
-		$clickedCell.addClass('selected-cell');
-		var $thisRow = $clickedCell.closest('tr');
-		this.selectedFieldID = $thisRow.find('.field-ID-cell').text();
-
-		var data = {
-			selectedFieldId: this.selectedFieldID,
-			fieldCount: $('.field-cell').length
-		};
-		Bullet.trigger(EventType.EntryForm.FIELD_SELECTED, data);
+		var $clickedField = $(e.currentTarget);
+		if ($clickedField.hasClass('selected-cell')) { return false; }
+		this.selectedFieldId = $clickedField.find('input').attr('data-field-id');
+		this.selectField(false);
 	},
 
 	render: function() {

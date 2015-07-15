@@ -4,10 +4,24 @@ var EventType = require('../../constants/event-type.js');
 var Configs = require('../../app-config.js');
 
 module.exports = React.createClass({
+	
+	/* ******************************************
+				 LIFE CYCLE FUNCTIONS
+	****************************************** */
+	componentDidMount: function() {
+		if (!this.props.projectObjects.length) {
+			$('#generate-xml-btn').addClass('disabled').removeClass('z-depth-1 waves-effect waves-light ' + Configs.App.ADD_BUTTON_COLOR);
+		}
+	},
+
 	/* ******************************************
 				NON LIFE CYCLE FUNCTIONS
 	****************************************** */
 	onGenerateXMLBtnClick: function(e) {
+		if ($('#generate-xml-btn').hasClass('disabled')) {
+			e.stopPropagation();
+			return;
+		}
 		this.classifyProjectObjects();
 		this.generateJSONDataAndConvertToXML();
 	},
@@ -130,7 +144,7 @@ module.exports = React.createClass({
 	
 	onDownloadXMLBtnClick: function(e) {
 		var xmlFile = 'data:application/xml;charset=utf-8,' + encodeURIComponent(this.xmlDisplayData);
-		e.currentTarget.setAttribute('download', 'dataModel.xml');
+		e.currentTarget.setAttribute('download', this.props.projectFile.title+'.xml');
 		e.currentTarget.setAttribute('href', xmlFile);
 	},
 
