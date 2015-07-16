@@ -13,8 +13,8 @@ module.exports = React.createClass({
 		this.table = null;
 		this.gFields = null;
 		this.gModel = null;
+		this.fields = null;
 		this.selectedFieldId = null;
-		this.table = null;
 
 		Bullet.on(EventType.EntryForm.GAPI_FILE_LOADED, 'field-selector.jsx>>onGapiFileLoaded', this.onGapiFileLoaded);
 	},
@@ -41,8 +41,8 @@ module.exports = React.createClass({
 	},
 
 	updateUi: function(e) {
-		var fields = this.getFields();
-		this.initializeTable(fields);
+		this.getFields();
+		this.initializeTable();
 		this.rebindStrings();
 		this.selectField(true);
 	},
@@ -54,14 +54,19 @@ module.exports = React.createClass({
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			gField = this.gFields.get(i);
 			field = {};
-			field.ID = gField.id;
+			field.id = gField.id;
 			field.name = gField.get('name').toString();
-			fields.push(field);
+			var dataField = {
+				data: field,
+				name: field.name
+			};
+			fields.push(dataField);
 		}
-		return fields;
+		this.fields = fields;
 	},
 
-	initializeTable: function(fields) {
+	initializeTable: function() {
+		var fields = this.fields;
 		this.table = $('#field-table').DataTable({
 			data: fields,
 			destroy: true,
@@ -77,27 +82,23 @@ module.exports = React.createClass({
 				searchPlaceholder: 'search fields',
 				emptyTable: 'no fields defined'
 			},
-			columnDefs: [{
+			columnDefs: [{ // hidden column to be searched for, dataTable cannot search into inputs
 				targets: 0,
-				data: 'ID',
-				className: 'ID-field hide'
+				data: 'name',
+				className: 'name-search-helper hide'
 			}, {
 				targets: 1,
-				data: 'name',
+				data: 'data',
+				searchable: false, //do not search this column, search the neighboring colomn
 				render: function(data, type, row, meta) {
-					return '<input readOnly class="field-table-input" type="text" data-field-id="'+row.ID+'" value='+data+'>';
+					return '<input readOnly class="field-table-input" type="text" data-field-id="'+data.id+'" value='+data.name+'>';
 				},
 				className: 'name-field'
 			}]
 		});
 		this.table.order([0, 'asc']);
-		$('th').removeClass('ID-field name-field');
-		var fieldClickHandler = this.onFieldClick;
-		$('.name-field').each(function(index, element) {
-			var $element = $(element);
-			$element.attr('id', '' + $element.find('input').val() + '-field');
-			$element.click(fieldClickHandler);
-		});
+		$('th').removeClass('name-field name-search-helper');
+		$('.name-field').click(this.onFieldClick);
 	},
 
 	initializeTooltips: function() {
@@ -125,9 +126,7 @@ module.exports = React.createClass({
 				var $element = $(element);
 				if ($element.find('input').attr('data-field-id') === that.selectedFieldId) {
 					$element.addClass('selected-cell');
-					if (scroll) {
-						$('.dataTables_scrollBody').scrollTop($element.position().top - 100);
-					}
+					if (scroll) { $('.dataTables_scrollBody').scrollTop($element.position().top - 100); }
 				}
 			});
 		} else {
@@ -158,6 +157,16 @@ module.exports = React.createClass({
 	rebindStrings: function() {
 		var that = this;
 		var bindString = gapi.drive.realtime.databinding.bindString;
+		var TextInsertedEvent = gapi.drive.realtime.EventType.TEXT_INSERTED;
+		var TextDeletedEvent = gapi.drive.realtime.EventType.TEXT_DELETED;
+
+		var updateSpanSibling = function(e, $element) {
+			var newText = e.target.toString();
+			var $spanSiblingCell = $element.closest('tr').find('.name-search-helper');
+			that.table.cell($spanSiblingCell).data(newText).draw();
+			console.log(that.table.cell($spanSiblingCell).data());
+		};
+
 		for (var i = 0, len = this.gBindings.length; i<len; i++) {
 			this.gBindings[i].unbind();
 		}
@@ -165,10 +174,13 @@ module.exports = React.createClass({
 			var $element = $(element);
 			var fieldId = $element.attr('data-field-id');
 			var collabString;
+			var functionWrapper = function(e) {updateSpanSibling(e, $element);};
 			for (var i = 0, len = that.gFields.length; i<len; i++) {
 				if (that.gFields.get(i).id === fieldId) {
-					collabName = that.gFields.get(i).get('name');
-					that.gBindings.push(bindString(collabName, element));
+					collabString = that.gFields.get(i).get('name');
+					collabString.addEventListener(TextInsertedEvent, functionWrapper);
+					collabString.addEventListener(TextDeletedEvent, functionWrapper);
+					that.gBindings.push(bindString(collabString, element));
 					break;
 				}
 			}
@@ -265,8 +277,8 @@ module.exports = React.createClass({
 				<table id = 'field-table' className = 'dataTable hoverable'>
 					<thead>
 						<tr>
-							<th><div className = 'hide field-ID-table-header'></div></th>
-							<th><div className = 'field-table-header'>fields</div></th>
+							<th><div className = 'hide name-search-helper-header'/></th>
+							<th><div className = 'name-field-header'>fields</div></th>
 						</tr>
 					</thead>
 					<tbody></tbody>
