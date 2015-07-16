@@ -56,8 +56,8 @@ module.exports = React.createClass({
 		var spacelessName = this.replaceAll(title, ' ', '');
 		var jsonRootObj = {
 			'amx:amxSchema': {
-				'_name' : spacelessName,
-				'_version' : "1",
+				_name : spacelessName,
+				_version : "1",
 				'_xmlns:xi' : "http://www.w3.org/2001/XInclude", 
 				'_xmlns:amx' : "schema.amx.f1.x3", 
 				'_xmlns:dmx' : "schema.dmx.f1.x3", 
@@ -69,11 +69,11 @@ module.exports = React.createClass({
 					"schema.dmx.f1.x3 /dmxSchema.xsd\n"+
 					"schema.fmx.f1.x3 /fmxSchema.xsd\n"+
 					"schema.mx.f1.x3 /mxSchema.xsd",
-				'Application': {
-					'_name': spacelessName,
+				Application: {
+					_name: spacelessName,
 						Annotation: [{
-							"_name": "description",
-							"_svalue": description
+							_name: "description",
+							_svalue: description
 						}],
 						Enum: [],
 						Data: [],
@@ -177,18 +177,18 @@ module.exports = React.createClass({
 						node.Choice[i] = {
 							_name: gField.name,
 							_value: gField.index+'',
-							'Annotation': {
-								'_name': 'description',
-								'_svalue': gField.description
+							Annotation: {
+								_name: 'description',
+								_svalue: gField.description
 							}
 						};
 					} else {
 						node.Choice[i] = {
 							_name: gField.get('name').toString(),
 							_value: gField.get('index').toString(),
-							'Annotation': {
-								'_name': 'description',
-								'_svalue': gField.get('description').toString(),
+							Annotation: {
+								_name: 'description',
+								_svalue: gField.get('description').toString(),
 							}
 						};
 					}
@@ -240,13 +240,12 @@ module.exports = React.createClass({
 				_identifiable: 'false',
 				_type: dataType,
 				Annotation: [{
-					'_name': 'description',
-					'_svalue': description 
+					_name: 'description',
+					_svalue: description 
 					}, { 
-					'_name': 'type',
-					'_svalue': dataType 
-				}],
-				Field: []
+					_name: 'type',
+					_svalue: dataType 
+				}]
 			};
 			if (dataType === 'persisted') {
 				node.Data._identifiable = 'true';
@@ -297,17 +296,42 @@ module.exports = React.createClass({
 			return node;
 		};
 
+		var setJsonQueries = function(node, gModel) {
+			var gQueries = gModel.queries;
+			var gQuery;
+			var queryName;
+			if (gQueries.length) { node.Data.Query = []; }
+			for (var i = 0, len = gQueries.length; i<len; i++) {
+				gQuery = gQueries.get(i);
+				queryName = replaceAll(gQuery.name, ' ', '');
+				node.Data.Query[i] = {
+					_name: queryName,
+					_query: gQuery.description,
+					QueryRequestEvent: {
+						_name: queryName+'Request',
+						_typeId: gQuery.requestId
+					},
+					QueryResponseEvent: {
+						_name: queryName+'Response',
+						_typeId: gQuery.responseId
+					}
+				};
+			}
+			return node;
+		};
+
 		var setJsonFields = function(node, gModel) {
 			var gFields = gModel.fields;
 			var gField;
+			if (gFields.length) { node.Data.Field = []; }
 			for (var i = 0, len = gFields.length; i<len; i++) {
 				gField = gFields.get(i);
 				node.Data.Field[i] = {
 					_name: gField.get('name').toString(),
 					_type: gField.get('type').toString(),
-					'Annotation': {
-						'_name': 'description',
-						'_svalue': gField.get('description').toString()
+					Annotation: {
+						_name: 'description',
+						_svalue: gField.get('description').toString()
 					},
 					_default: gField.get('defValue').toString(),
 					//_readOnly: gField.get('readOnly').toString(),
@@ -379,6 +403,7 @@ module.exports = React.createClass({
 			var node = createDataNode(gModel, dataType);
 			node = setJsonFields(node, gModel);
 			node = setJsonEvents(node, gModel);
+			node = setJsonQueries(node, gModel);
 
 			dataJsonNode.Data.push(node.Data);
 			dataJsonNode.UpdatePersistenceEvent.push(node.UpdatePersistenceEvent);
@@ -401,6 +426,7 @@ module.exports = React.createClass({
 			var gModel = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.EVENT);
 			var node = createDataNode(gModel, dataType);
 			node = setJsonFields(node, gModel);
+			node = setJsonQueries(node, gModel);
 
 			dataJsonNode.Data.push(node.Data);
 
