@@ -59,6 +59,10 @@ function GoogleDriveService()
 		}
 	};
 
+	this.getProjectById = function(projectId, callback) {
+		googleApiInterface.getProjectById(projectId, callback);
+	};
+
 	this.saveProjectTitle = function(projectFileId, newTitle, parentFolderId) {
 		googleApiInterface.saveTitle(projectFileId, newTitle);
 		googleApiInterface.saveTitle(parentFolderId, newTitle);
