@@ -5,16 +5,24 @@ function ParseQueryService() {
 		var qTokens;
 		var token;
 		var paramPos;
+		var paramTokenFound;
 		for (var i = 0, len = queries.length; i<len; i++) {
 			query = queries[i];
 			qTokens = query._query.split(' ');
 			for (j = 0, len2 = qTokens.length; j<len2; j++) {
 				if (qTokens[j].indexOf('.') > 0) {
+					paramTokenFound = true;
 					paramPos = j + 1;
 					while (!qTokens[paramPos].match(/^\[.*\]$/)) { //search until a token matches the pattern [...]
 						paramPos++;
+						if (paramPos > qTokens.length) {
+							paramTokenFound = false;
+							break;
+						}
 					}
-					setQueryParam(qTokens[j].split('.'), qTokens[paramPos], dataObjectsJson, query);
+					if (paramTokenFound) {
+						setQueryParam(qTokens[j].split('.'), qTokens[paramPos], dataObjectsJson, query);
+					}
 				}
 			}
 			var parameterValue;
@@ -37,8 +45,12 @@ function ParseQueryService() {
 			if (dataObjectsJson[i]._name === dataObjName) {
 				fields = dataObjectsJson[i].Field;
 				for (var j = 0, len2 = fields.length; j<len2; j++) {
-					if (fields[j]._name === fieldName) { fieldData = fields[j]; }
+					if (fields[j]._name === fieldName) { 
+						fieldData = fields[j];
+						break;
+					}
 				}
+				break;
 			}
 		}
 		var annotationValue = '';
@@ -67,7 +79,9 @@ function ParseQueryService() {
 				return;
 			}
 		}
-		query.Parameter.push(fieldData);
+
+		var fieldDataCopy = $.extend({}, fieldData); //clone fieldData
+		query.Parameter.push(fieldDataCopy);
 		var lastParam = query.Parameter[query.Parameter.length - 1];
 		lastParam._name = paramName;
 		lastParam._optional = 'false';
