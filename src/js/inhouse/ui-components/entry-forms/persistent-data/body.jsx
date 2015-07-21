@@ -38,7 +38,7 @@ module.exports = React.createClass({
 		return (
 			<div>
 				<div id = 'body-wrapper' className = 'row hide'>
-					<div className = 'row'>
+					<div className = 'form-wrapper-row row'>
 						<div className = 'col s4' id = 'field-selector-wrapper'>
 							<FieldSelector
 								projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
@@ -51,7 +51,7 @@ module.exports = React.createClass({
 						</div>
 					</div>
 					<br />
-					<div id = 'persistent-events-wrapper' className = 'row'>
+					<div id = 'persistent-events-wrapper' className = 'form-wrapper-row row'>
 						<div className = 'col s12'>
 							<PersistentEvents
 								projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
@@ -59,7 +59,7 @@ module.exports = React.createClass({
 						</div>
 					</div>
 					<br />
-					<div id = 'queries-wrapper' className = 'row'>
+					<div id = 'queries-wrapper' className = 'form-wrapper-row  row'>
 						<div className = 'col s12'>
 							<Queries
 								projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}

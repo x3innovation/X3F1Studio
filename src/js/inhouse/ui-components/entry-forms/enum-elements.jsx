@@ -63,7 +63,8 @@ module.exports = React.createClass({
 			language: {
 				search: '_INPUT_', //removes the 'search:' text, puts it directly in the searchbox
 				searchPlaceholder: 'search enums',
-				emptyTable: 'no enums defined'
+				emptyTable: 'no enums defined',
+				zeroRecords: 'no matching enums found'
 			},
 			columnDefs: [{
 				targets: 0,
@@ -166,6 +167,7 @@ module.exports = React.createClass({
 			}
 		});
 		$selectedRow.find('td').addClass('selected-cell');
+		$('.dataTables_scrollBody').scrollTop($selectedRow.position().top - 100);
 	},
 
 	onAddEnumBtnClick: function(e) {

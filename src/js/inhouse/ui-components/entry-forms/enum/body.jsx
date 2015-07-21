@@ -34,7 +34,7 @@ module.exports = React.createClass({
 		return (
 			<div>
 				<div id = 'body-wrapper' className = 'row hide'>
-					<div id = 'enum-elements-wrapper' className = 'row'>
+					<div id = 'enum-elements-wrapper' className = 'row form-wrapper-row '>
 						<div className = 'col s12'>
 							<EnumElements
 								projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}

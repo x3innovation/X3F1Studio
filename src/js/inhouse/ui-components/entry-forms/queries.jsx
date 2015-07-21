@@ -140,7 +140,7 @@ module.exports = React.createClass({
 					<div className = 'col s8 input-field query-description-wrapper'>
 						<textarea id = {'query-' + query.id + '-description-field'} className = 'query-description-field materialize-textarea query-input'
 							onKeyUp = {this.keyUpHandler} defaultValue = {query.description} spellCheck = 'false' />
-						<label htmlFor = {'query-' + query.id + '-description-field'} className = 'query-label'>query description</label>
+						<label htmlFor = {'query-' + query.id + '-description-field'} className = 'query-label'>query body</label>
 					</div>
 					<div className = 'col s1 delete-query-btn-wrapper'>
 						<a id = {'query-' + query.id + '-delete-btn'} onClick = {this.onDeleteQueryBtnClick} data-query-id = {query.id} className = 'query-delete-btn small-btn btn-floating waves-effect waves-light materialize-red'>

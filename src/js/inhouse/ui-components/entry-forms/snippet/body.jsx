@@ -36,7 +36,7 @@ module.exports = React.createClass({
 		return (
 			<div>
 				<div id = 'body-wrapper' className = 'row hide'>
-					<div className = 'row'>
+					<div className = 'row form-wrapper-row '>
 						<div className = 'col s4' id = 'field-selector-wrapper'>
 							<FieldSelector
 								projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}

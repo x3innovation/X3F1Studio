@@ -37,7 +37,7 @@ module.exports = React.createClass({
 		return (
 			<div>
 				<div id = 'body-wrapper' className = 'row hide'>
-					<div className = 'row'>
+					<div className = 'row form-wrapper-row'>
 						<div className = 'col s4' id = 'field-selector-wrapper'>
 							<FieldSelector
 								projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
@@ -50,7 +50,7 @@ module.exports = React.createClass({
 						</div>
 					</div>
 					<br />
-					<div id = 'queries-wrapper' className = 'row'>
+					<div id = 'queries-wrapper' className = 'row form-wrapper-row  '>
 						<div className = 'col s12'>
 							<Queries
 								projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}

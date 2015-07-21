@@ -16,28 +16,69 @@
 }
 
 #menu-nav {
-	background: #222222;
+	background: #000;
 	height: inherit;
 	-webkit-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.16), 0 0 0 0 rgba(0, 0, 0, 0.12);
 	-moz-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.16), 0 0 0 0 rgba(0, 0, 0, 0.12);
 	box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.16), 0 0 0 0 rgba(0, 0, 0, 0.12);
 }
 
-#navbar-buttons{
+#navbar-buttons {
 	position: absolute;
 	height: inherit;
 	top: 0;
 	right: 15px;
 }
 
-a.navbar-btn{
+a.navbar-btn {
 	top: -11px;
 	width: 30px;
 	height: 30px;
 }
 
-a.navbar-btn>i{
+a.navbar-btn>i {
 	position: absolute;
 	top: -18px;
 	font-size: 1.4rem;
+}
+
+#f1-studio-title {
+	position: absolute;
+	top: -3px;
+	left: 50%;
+	text-transform: uppercase;
+	color: #ff7f0e;
+	letter-spacing: 3.2px;
+	text-align: center;
+	font-weight: bold;
+	background-size: 121px 21px;
+	line-height: 2rem;
+	font-size: 1.05rem;
+	-webkit-transform: translate(-50%, 0%);
+	-moz-transform: translate(-50%, 0%);
+	-ms-transform: translate(-50%, 0%);
+	-o-transform: translate(-50%, 0%);
+	transform: translate(-50%, 0%);
+}
+
+#navbar-title {
+	position: absolute;
+	top: 0.9rem;
+	left: 50%;
+	text-transform: uppercase;
+	color: white;
+	font-size: 1.2rem;
+	text-align: center;
+	line-height: 2rem;
+	letter-spacing: 0.2rem;
+	font-weight: 300;
+	-webkit-transform: translate(-50%, 0%);
+	-moz-transform: translate(-50%, 0%);
+	-ms-transform: translate(-50%, 0%);
+	-o-transform: translate(-50%, 0%);
+	transform: translate(-50%, 0%);
+	-webkit-transition: all 0.4s ease;
+	-moz-transition: all 0.4s ease;
+	-o-transition: all 0.4s ease;
+	transition: all 0.4s ease;
 }

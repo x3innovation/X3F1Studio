@@ -80,7 +80,8 @@ module.exports = React.createClass({
 			language: {
 				search: '_INPUT_', //removes the 'search:' text, puts it directly in the searchbox
 				searchPlaceholder: 'search fields',
-				emptyTable: 'no fields defined'
+				emptyTable: 'no fields defined',
+				zeroRecords: 'no matching fields found'
 			},
 			columnDefs: [{ // hidden column to be searched for, dataTable cannot search into inputs
 				targets: 0,
@@ -99,6 +100,7 @@ module.exports = React.createClass({
 		this.table.order([0, 'asc']);
 		$('th').removeClass('name-field name-search-helper');
 		$('.name-field').click(this.onFieldClick);
+		$('.dataTables_scrollBody').css('border-bottom', '0');
 	},
 
 	initializeTooltips: function() {

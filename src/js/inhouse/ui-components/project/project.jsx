@@ -49,6 +49,7 @@ module.exports = React.createClass({
 
 	componentDidMount : function()
 	{
+		Bullet.trigger(EventType.App.PAGE_CHANGE, {title: 'PROJECT DETAIL'});
 
 		// if user is already logged in, still need to initialize
 		if (userStore.isLoggedIn)
