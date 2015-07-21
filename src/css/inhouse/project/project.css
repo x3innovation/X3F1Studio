@@ -49,3 +49,14 @@
 #to-projects-btn:hover{
 	color: #f44336;
 }
+
+#project-object-btns{
+	position: relative;
+	margin-bottom: 1.5rem;
+}
+
+#project-object-add-btn{
+	top: 0;
+	position: relative;
+	left: 3%;
+}

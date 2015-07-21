@@ -2,26 +2,42 @@
 	position: absolute;
 	padding: 0;
 	margin: 0;
-	top: 12px;
+	top: 5px;
 	left: 10px;
-	width: 82px;
-	height: 45px;
+	width: 63px;
+	height: 35px;
 	background: url("../img/logo.svg");
-	background-size: 82px 45px;
+	background-size: 63px 35px;
 	background-repeat: no-repeat; 
 }
 
+.navbar-fixed {
+	height: 44px;
+}
+
 #menu-nav {
-	position: relative;
-	background: white;
-	box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.16), 0 0 0 0 rgba(0, 0, 0, 0.12);
+	background: #222222;
+	height: inherit;
 	-webkit-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.16), 0 0 0 0 rgba(0, 0, 0, 0.12);
 	-moz-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.16), 0 0 0 0 rgba(0, 0, 0, 0.12);
-	-ms-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.16), 0 0 0 0 rgba(0, 0, 0, 0.12);
+	box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.16), 0 0 0 0 rgba(0, 0, 0, 0.12);
 }
 
 #navbar-buttons{
 	position: absolute;
-	top: 12px;
-	right: 35px;
+	height: inherit;
+	top: 0;
+	right: 15px;
+}
+
+a.navbar-btn{
+	top: -11px;
+	width: 30px;
+	height: 30px;
+}
+
+a.navbar-btn>i{
+	position: absolute;
+	top: -18px;
+	font-size: 1.4rem;
 }

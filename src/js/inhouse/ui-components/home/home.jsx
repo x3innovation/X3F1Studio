@@ -1,12 +1,12 @@
 var EventType = require('../../constants/event-type.js');
-var Constant = require('../../constants/constant.js');
+var LocalStorageKey = require('../../constants/local-storage-key.js');
 
 module.exports = React.createClass({
 	mixins: [Navigation],
 
 	componentWillMount : function()
 	{
-		if (store.get(Constant.HAS_USER_PREVIOUSLY_LOGGED_IN))
+		if (store.get(LocalStorageKey.HAS_USER_PREVIOUSLY_LOGGED_IN))
 		{
 			this.replaceWith('projects');
 		}

@@ -1,6 +1,7 @@
 var UserLoginFailRedirectHome = require('../common/user-login-fail-redirect-home.jsx');
 var EventType = require('../../constants/event-type.js');
-var ProjectCard = require('./project-card.jsx');
+var Configs = require('../../app-config.js');
+var Card = require('./card.jsx');
 var googleDriveService = require('../../services/google-drive-service.js');
 var userStore = require('../../stores/user-store.js');
 
@@ -16,12 +17,12 @@ module.exports = React.createClass({
     ****************************************** */
 	componentWillMount : function()
 	{
-		Bullet.on(EventType.App.USER_LOGGED_IN, 'projects.jsx>>user-logged-in', this.onUserLoggedIn);
+		Bullet.on(EventType.App.USER_LOGGED_IN, 'projects.jsx>>user-logged-in', this.initialize);
 
 		// if user is already logged in, still need to initialize
 		if (userStore.isLoggedIn)
 		{
-			this.onUserLoggedIn();
+			this.initialize();
 		}
 	},
 
@@ -29,13 +30,13 @@ module.exports = React.createClass({
 	{
 		// hide placeholder on focus, then display on blur
 		$('#search-input').focus(function(){$(this).attr('placeholder', '');})
-								.blur(function(){$(this).attr('placeholder', 'search title');});
+						   .blur(function(){$(this).attr('placeholder', 'search title');});
 	},
 
 	/* ******************************************
             NON LIFE CYCLE FUNCTIONS
     ****************************************** */
-    onUserLoggedIn : function()
+    initialize : function()
     {
     	googleDriveService.getProjects('', this.onReceiveProjects);
     },
@@ -62,14 +63,29 @@ module.exports = React.createClass({
     	googleDriveService.getProjects(titleSearchString, this.onReceiveProjects);
     },
 
+    onAddProjectBtnClick: function(e) {
+        clearTimeout(this.createProjectTimeout);
+        this.createProjectTimeout = setTimeout(this.createNewProject, 100);
+    },
+
+    createNewProject: function() {
+    	googleDriveService.createNewProject(function(project) { //transition as a callback
+    		var params = {};
+    		params.projectFolderFileId=project.parents[0].id;
+    		params.projectFileId=project.id;
+    		this.transitionTo('project', params);
+    	}.bind(this));
+    },
+
     render: function()
 	{
 		var content;
 		if (!this.projectsReceived)
 		{
-			content = <div id="cards-wrapper">
-						<img id="cards-wrapper-preloader" src="img/loading-spin.svg" />
-					</div>
+			content = 
+				<div id="cards-wrapper">
+					<img id="cards-wrapper-preloader" src="img/loading-spin.svg" />
+				</div>;
 		}
 		else
 		{
@@ -79,26 +95,38 @@ module.exports = React.createClass({
 	        	marginBottom : '30px'
 	        };
 
-	        content = 	<div className="row">
-	        				{
-	        					projects.map(function(project, columnIndex){
-	        						return (
-	        							<div key={columnIndex} className="col s3 f1-project-card" style={cellStyle}>
-                                            <ProjectCard title={project.title} 
-                                            			 fileId={project.id}
-                                            			 projectFolderFileId={project.parents[0].id}
-                                            			 model={{}} />
-										</div>
-	        						)
-	        					})
-	        				}
-	        			</div>;
+	        var addProjectBtnStyle = {
+	        	marginTop: '125px',
+	        	marginBottom: '138px'
+	        };
+
+	        content = 
+	        	<div className="row">
+	        		{projects.map(function(project, columnIndex) {
+	        			return (
+	        				<div key={columnIndex} className="col s3 f1-project-card" style={cellStyle}>
+								<Card
+									title={project.title} 
+								    fileId={project.id}
+									projectFolderFileId={project.parents[0].id}
+									model={{}} />
+							</div>
+	        			);
+	        		})}
+	        		
+					<div className="col s3 center">
+						<a id="project-add-btn" className={"btn-floating waves-effect waves-light " + Configs.App.ADD_BUTTON_COLOR} 
+							onClick={this.onAddProjectBtnClick} style={addProjectBtnStyle}>
+				            <i className="mdi-content-add"></i>
+				        </a>
+					</div>
+	        	</div>;
 		}
 
-        return (
-            <div className="container">
-            	<div className="row">
-					<div className="col s12">
+		return (
+			<div className="container">
+				<div className="row">
+					<div className="col s12 center">
 						<h2>Projects</h2>
 					</div>
     			</div>

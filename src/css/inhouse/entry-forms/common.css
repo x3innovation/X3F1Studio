@@ -1,0 +1,46 @@
+#form-container {
+    position: relative
+}
+
+#to-project-btn {
+    position: fixed;
+    top: 65px;
+    left: 5%;
+    cursor: pointer;
+}
+
+.small-btn {
+    position: absolute;
+    width: 1.6rem;
+    height: 1.6rem;
+}
+
+.small-btn > i {
+    font-size: 1.3rem;
+    position: absolute;
+    top: -6px;
+    left: 0;
+}
+
+#to-project-btn:hover {
+    color: #f44336
+}
+
+.selected-cell {
+    background-color: #cfd8dc;
+}
+
+#body-preloader-wrapper {
+    height: 20rem;
+}
+
+#body-preloader{
+    position: fixed;
+    top: 45%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}

@@ -27,14 +27,20 @@ module.exports = function(grunt) {
 			'jquery-2.1.3.js',
 			'jquery-ui-1.11.3.js',
 			'react-with-addons-0.12.2.min.js',
-			'materialize-0.95.1.js',
+			'vkbeautify-0.99.00.js',
+			'highlight-8.6.js',
+			'materialize-0.96.1.js',
 			'react-router-0.11.6.js',
 			'bullet-1.1.3-Jimin.js',
-            'store-1.3.17.js',
-            'anijs-0.9.2.js',
-            'jquery.slimscroll-1.3.0.js',
-            'jquery.flip-1.0.0.js',
-            'autosize-2.0.0.js'
+			'jquery.tooltipster-3.3.0.js',
+			'store-1.3.17.js',
+			'x2js-1.1.7.js',
+			'anijs-0.9.2.js',
+			'jquery.slimscroll-1.3.0.js',
+			'jquery.flip-1.0.0.js',
+			'autosize-2.0.0.js',
+			'jquery.dataTables-1.10.7.js',
+			'jquery-1.10.7.js'
 		];
 
 		for (var i = 0; i<vendorLibs.length; ++i)
@@ -43,12 +49,15 @@ module.exports = function(grunt) {
 		}
 
 		return vendorLibs;
-	};
+	}
 
 	function getAllVendorCss()
 	{
 		var vendorCss = [
-			'materialize-0.95.1.css'
+			'materialize-0.96.1.css',
+			'jquery.tooltipster-3.3.0.css',
+			'jquery.dataTables-1.10.7.css',
+			'highlight-8.6.css'
 		];
 
 		for (var i = 0; i<vendorCss.length; ++i)
@@ -65,6 +74,12 @@ module.exports = function(grunt) {
 			'main.css',
 			'nav-bar.css',
 			'card.css',
+			'xml-generator.css',
+			'entry-forms/common.css',
+			'entry-forms/enum-elements.css',
+			'entry-forms/field-selector.css',
+			'entry-forms/form.css',
+			'entry-forms/header.css',
 			'project/project.css'
 		];
 
@@ -215,8 +230,8 @@ module.exports = function(grunt) {
 					base : 'dev',
 					hostname: 'x3innovation.github.io',
 					key: grunt.file.read('sslcert/server.key').toString(),
-			        cert: grunt.file.read('sslcert/server.crt').toString(),
-			        ca: grunt.file.read('sslcert/ca.crt').toString()
+					cert: grunt.file.read('sslcert/server.crt').toString(),
+					ca: grunt.file.read('sslcert/ca.crt').toString()
 				}
 			}
 		},
@@ -247,26 +262,26 @@ module.exports = function(grunt) {
 
 	// TASK EXECUTIONS
 	grunt.registerTask('build-dist', [
-	    'remove:cleanDist',
-	    'concat:distVendorCss',
-	    'concat:distInhouseCss',
-	    'cssmin',
-	    'concat:distJs',
+		'remove:cleanDist',
+		'concat:distVendorCss',
+		'concat:distInhouseCss',
+		'cssmin',
+		'concat:distJs',
 		'browserify:dist',
-        'copy:dist',
-        'uglify:dist',
-        'remove:distVendorCss',
-        'remove:distInhouseCss',
-        'remove:distJs'
+		'copy:dist',
+		'uglify:dist',
+		'remove:distVendorCss',
+		'remove:distInhouseCss',
+		'remove:distJs'
 	]);
 
 	grunt.registerTask('build-dev', [
-	    'remove:cleanDev',
-	    'concat:devVendorCss',
-	    'concat:devInhouseCss',
-        'concat:devJs',
-        'browserify:dev',
-        'copy:dev'
+		'remove:cleanDev',
+		'concat:devVendorCss',
+		'concat:devInhouseCss',
+		'concat:devJs',
+		'browserify:dev',
+		'copy:dev'
 	]);
 
 	grunt.registerTask('serve', 'start the server and preview the app', function(target){
