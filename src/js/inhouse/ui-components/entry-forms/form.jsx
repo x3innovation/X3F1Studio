@@ -14,7 +14,6 @@ module.exports = React.createClass({
 		this.fieldData = null;
 		this.fieldSelected = false;
 		this.gBindings = [];
-		this.formKey = 0;
 
 		Bullet.on(EventType.EntryForm.GAPI_FILE_LOADED, 'form.jsx>>onGapiFileLoaded', this.onGapiFileLoaded);
 		Bullet.on(EventType.EntryForm.METADATA_MODEL_LOADED, 'form.jsx>>onMetadataModelLoaded', this.onMetadataModelLoaded);
