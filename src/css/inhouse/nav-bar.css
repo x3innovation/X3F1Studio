@@ -3,11 +3,11 @@
 	padding: 0;
 	margin: 0;
 	top: 5px;
-	left: 10px;
-	width: 63px;
+	left: 15px;
+	width: 27px;
 	height: 35px;
-	background: url("../img/logo.svg");
-	background-size: 63px 35px;
+	background: url("../img/pannaramic_icon.png");
+	background-size: 27px 35px;
 	background-repeat: no-repeat; 
 }
 
@@ -36,7 +36,7 @@ a.navbar-btn {
 	height: 30px;
 }
 
-a.navbar-btn>i {
+a.navbar-btn > i {
 	position: absolute;
 	top: -18px;
 	font-size: 1.4rem;

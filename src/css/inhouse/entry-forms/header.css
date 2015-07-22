@@ -34,10 +34,10 @@
 #header-description:focus {
     outline: none;
     border-bottom-color: #26a69a;
-    -webkit-transition: border 0.4s ease;
-    -moz-transition: border 0.4s ease;
-    -o-transition: border 0.4s ease;
-    transition: border 0.4s ease;
+    -webkit-transition: all 0.4s ease;
+    -moz-transition: all 0.4s ease;
+    -o-transition: all 0.4s ease;
+    transition: all 0.4s ease;
 }
 
 #header-ID {

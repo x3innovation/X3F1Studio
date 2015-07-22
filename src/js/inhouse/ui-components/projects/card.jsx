@@ -1,5 +1,9 @@
 var GDriveConstants = require('../../constants/google-drive-constants.js');
+var ObjectTypeCons = GDriveConstants.ObjectType;
 var Cons = GDriveConstants.Project;
+
+var Configs = require('../../app-config.js');
+var GDriveService = require('../../services/google-drive-service.js');
 
 module.exports = React.createClass({
 	mixins: [Navigation],
@@ -18,6 +22,28 @@ module.exports = React.createClass({
 
 		this.model = this.props.model;
 		this.model.isCardFront = true;
+		this.model.buttons= {
+			PD: {
+				color : Configs.App.PERSISTENT_DATA_COLOR,
+				isSearchOn : true
+			},
+			EN: {
+				color : Configs.App.ENUM_COLOR,
+				isSearchOn : true
+			},
+			SN: {
+				color : Configs.App.SNIPPET_COLOR,
+				isSearchOn : true
+			},
+			EV: {
+				color : Configs.App.EVENT_COLOR,
+				isSearchOn : true
+			},
+			FL: {
+				color : Configs.App.FLOW_COLOR,
+				isSearchOn : true
+			}
+		}
 	},
 
 	componentDidUpdate : function()
@@ -42,28 +68,41 @@ module.exports = React.createClass({
 		// apply slim scroll to description section of card's front face
 		$('#' + this.props.fileId + '-description-wrapper').slimScroll();
 
+		var cardBackSide = document.getElementById(this.props.fileId+'-back-side');
+		if (cardBackSide !== null) {
+			this.setBackSideContent();
+			$(cardBackSide).css('height', 'auto').height(cardBackSide.scrollHeight);
+		}
+		$('#' + this.props.fileId + '-back-side-wrapper').slimScroll({
+			height : '185px'
+		});
+
 		// need to get rid of 25% width once page is rendered
 		var outerWidth = $('.row .col.s3').outerWidth() - 1;
 		$('.row .col.s3').css('width', outerWidth);
 
 		// apply single click to flip
-		// $('#' + this.props.fileId + '-wrapper').on('click', this.onCardSingleClick);
-		var DELAY = 400, clicks = 0, timer = null;
+		var DELAY = 300, clicks = 0, timer = null;
 		var onCardSingleClick = this.onCardSingleClick;
 		var onCardDoubleClick = this.onCardDoubleClick;
 		$('#' + this.props.fileId + '-wrapper').on('click', function(e){
+			if ($(e.target).hasClass('card-back-search') || $(e.target).hasClass('project-object-btn')
+				|| $(e.target).hasClass('project-object-filter-wrapper')) { 
+				return; 
+			}
+
 			clicks++;
 			if(clicks === 1)
 			{
-				timer = setTimeout(function(){
-					onCardSingleClick();
+				timer = setTimeout(function() {
+					onCardSingleClick(e);
 					clicks = 0;
 				}, DELAY);
 			}
 			else
 			{
 				clearTimeout(timer);
-				onCardDoubleClick();
+				onCardDoubleClick(e);
 				clicks = 0;
 			}
 		})
@@ -81,22 +120,23 @@ module.exports = React.createClass({
 	onProjectMouseEnter : function()
 	{
 		$('#' + this.props.fileId + '-title').stop(true, true).animate({
-			borderBottomColor: "#f24235"
+			borderBottomColor: '#f24235'
 		}, 0);
+		
 
 		$('.' + this.props.fileId + '-card-face').stop(true, true).animate({
-			borderBottomColor: "#f24235"
+			borderBottomColor: '#f24235'
 		}, 500);
 	},
 
 	onProjectMouseLeave : function()
 	{
 		$('#' + this.props.fileId + '-title').stop(true, true).animate({
-			borderBottomColor: "#9e9e9e"
+			borderBottomColor: '#9e9e9e'
 		}, 0);
 
 		$('.' + this.props.fileId + '-card-face').stop(true, true).animate({
-			borderBottomColor: "white"
+			borderBottomColor: 'white'
 		}, 500);
 	},
 
@@ -110,6 +150,66 @@ module.exports = React.createClass({
 		this.contentFileLoaded = true;
 		$('#' + this.props.fileId).addClass('fadeIn animated');
 		this.forceUpdate();
+	},
+
+	setBackSideContent: function() {
+		var objectsToGet = {
+			persistentData : true,
+			enum : true,
+			event : true,
+			snippet : true,
+			flow : true
+		};
+
+		var $cardBack = $('#'+this.props.fileId+'-back-side');
+		var content = '';
+
+		var callback = function(projectObjects) {
+			var projectObject;
+			var labelType;
+			var objectDict = {PD: [], EN: [], SN: [], EV: [], FL: []}; //group the objects by type
+			for (i = 0, len = projectObjects.length; i<len; i++) {
+				projectObject = projectObjects[i];
+				switch (projectObject.description) {
+					case ObjectTypeCons.PERSISTENT_DATA:
+						objectDict.PD.push(projectObject);
+						break;
+					case ObjectTypeCons.ENUM:
+						objectDict.EN.push(projectObject);
+						break;
+					case ObjectTypeCons.SNIPPET:
+						objectDict.SN.push(projectObject);
+						break;
+					case ObjectTypeCons.EVENT:
+						objectDict.EV.push(projectObject);
+						break;
+					case ObjectTypeCons.FLOW:
+						objectDict.FL.push(projectObject);
+						break;
+					default: break;
+				}
+			}
+			for (var objectType in objectDict) {
+				for (i = 0, len = objectDict[objectType].length; i<len; i++) {
+					projectObject = objectDict[objectType][i];
+					contentRow = 
+						'<div class="project-object-row"><span class="left project-object-name">'+projectObject.title+'</span>'+ 
+						'<span class="right project-object-tag card-tag-'+objectType+'">'+objectType+'</span></div>';
+					content = content + contentRow;
+				}
+			}
+			$cardBack.html(content);
+		};
+
+		GDriveService.getProjectObjects(this.props.projectFolderFileId, '', objectsToGet, callback);
+	},
+
+	onProjectObjectBtnClick: function(e) {
+		var $clicked = $(e.target);
+		var objectType = $clicked.text();
+		this.model.buttons[objectType].isSearchOn = !this.model.buttons[objectType].isSearchOn;
+		$clicked.toggleClass(this.model.buttons[objectType].color + ' grey');
+		this.searchProjectObjects();
 	},
 
 	getContentBeforeFileLoaded : function()
@@ -126,29 +226,62 @@ module.exports = React.createClass({
 	{
 		var content;
 
-		var cardFaceClassName = 'z-depth-1 ' + this.props.fileId + '-card-face';
+		var fileId = this.props.fileId;
+		var cardFaceClassName = 'z-depth-1 ' + fileId + '-card-face';
 
-		content = <div id={this.props.fileId + '-card'}>
-						<div id={this.props.fileId + '-card-front'} className={"front card-face " + cardFaceClassName}>
-							<input type="text" className="card-header noselect" id={this.props.fileId + '-title'} readOnly />
-							<div id={this.props.fileId + '-description-wrapper'} className="card-description-wrapper">
-								<textarea id={this.props.fileId + '-description'} className="card-description noselect" readOnly></textarea>
-							</div>
+		content =
+			<div id={fileId + '-card'}>
+				<div id={fileId + '-card-front'} className={'front card-face ' + cardFaceClassName}>
+					<input type="text" className="card-header noselect" id={fileId + '-title'} readOnly />
+					<div id={fileId + '-description-wrapper'} className="card-description-wrapper">
+						<textarea id={fileId + '-description'} className="card-description noselect" readOnly />
+					</div>
+				</div>
+				<div id = {fileId + '-card-back'} className={'back card-face ' + cardFaceClassName}>
+					<div className = 'project-object-filter-wrapper'>
+						<input type="text" className="card-back-search noselect" id={fileId + '-back-search'}
+							onChange={this.onSearchBarChange} placeholder='search project objects' />
+						<div id = {fileId + '-card-back-btns'} className ='card-back-btns-wrapper row'>
+							<a className={"waves-effect waves-light btn project-object-btn col s2 offset-s1 "
+							 + Configs.App.PERSISTENT_DATA_COLOR} onClick = {this.onProjectObjectBtnClick}>PD</a>
+							<a className={"waves-effect waves-light btn project-object-btn col s2 "
+							 + Configs.App.ENUM_COLOR} onClick = {this.onProjectObjectBtnClick}>EN</a>
+							<a className={"waves-effect waves-light btn project-object-btn col s2 "
+							 + Configs.App.SNIPPET_COLOR} onClick = {this.onProjectObjectBtnClick}>SN</a>
+							<a className={"waves-effect waves-light btn project-object-btn col s2 "
+							 + Configs.App.EVENT_COLOR} onClick = {this.onProjectObjectBtnClick}>EV</a>
+							<a className={"waves-effect waves-light btn project-object-btn col s2 "
+							 + Configs.App.FLOW_COLOR} onClick = {this.onProjectObjectBtnClick}>FL</a>
 						</div>
-						<div id = {this.props.fileId+'-card-back'} className={"back card-face " + cardFaceClassName}>
-							<input type="text" className="card-back-header noselect" id={this.props.fileId + '-back-header'} readOnly />
-							<div id={this.props.fileId + '-back-side-wrapper'} className="card-back-side-wrapper">
-								Back Side! <br />
-								Back Side! <br />
-								Back Side! <br />
-								Back Side! <br />
-							</div>
-						</div>
-					</div>;
+					</div>
+					<div id={fileId + '-back-side-wrapper'} className="card-back-side-wrapper">
+						<div id={this.props.fileId+'-back-side'} className="card-description card-project-objects" />
+					</div>
+				</div>
+			</div>;
 		return content;
 	},
 
-	onCardSingleClick : function()
+	onSearchBarChange: function (e) {
+		clearTimeout(this.searchBackContentTimeout);
+		this.searchBackContentTimeout = setTimeout(this.searchProjectObjects, 200)
+	},
+
+	searchProjectObjects: function() {
+		var searchString = $('#'+this.props.fileId + '-back-search').val().toLowerCase();
+		var buttons = this.model.buttons;
+		$('#'+this.props.fileId+'-back-side').find('.project-object-row').each(function(index, element) {
+			var $this = $(this);
+			var objectName = $this.find('.project-object-name').text().toLowerCase();
+			var objectType = $this.find('.project-object-tag').text();
+			$this.addClass('hide');
+			if (objectName.indexOf(searchString) >= 0  && buttons[objectType].isSearchOn) {
+				$this.removeClass('hide');
+			}
+		});
+	},
+
+	onCardSingleClick : function(e)
 	{
 		var cardFront = $('#' + this.props.fileId + '-card-front');
 		if (this.model.isCardFront)
@@ -156,7 +289,7 @@ module.exports = React.createClass({
 			cardFront.stop(true, true).fadeOut(300, function(){
 				cardFront.css('visibility', 'hidden');
 			});
-			$('#' + this.props.fileId + '-description-wrapper').css('position', 'initial !important');    
+			$('#' + this.props.fileId + '-description-wrapper').css('position', 'initial !important');
 		}
 		else
 		{
@@ -169,7 +302,7 @@ module.exports = React.createClass({
 		this.model.isCardFront = !this.model.isCardFront;
 	},
 
-	onCardDoubleClick : function()
+	onCardDoubleClick : function(e)
 	{
 		var params = {
 			projectFolderFileId : this.props.projectFolderFileId,

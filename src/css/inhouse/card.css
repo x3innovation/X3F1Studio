@@ -61,6 +61,37 @@
 	font-size: 0.7em;
 	width: 3em;
 	text-align: center;
+	font-weight: normal;
+}
+
+.project-object-name {
+	width: 10rem;
+	white-space: nowrap;      
+	overflow: hidden; 
+	text-overflow: ellipsis;
+}
+
+.project-object-tag {
+	color: white;
+	font-size: 0.7em;
+	width: 3em;
+	text-align: center;
+	font-weight: normal;
+}
+
+.card-back-search {
+	font-weight: 300;
+}
+
+.project-object-btn {
+	height: 1rem;
+	font-size: 0.7rem;
+	line-height: 1rem;
+	border-radius: 0;
+}
+
+.card-back-btns-wrapper {
+	margin-bottom: 1rem;
 }
 
 .card-tag-PD{

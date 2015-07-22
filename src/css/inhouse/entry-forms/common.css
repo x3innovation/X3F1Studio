@@ -13,7 +13,11 @@
     color: #f44336
 }
 
-#body-preloader-wrapper {
+.body-wrapper {
+    margin-bottom: 3rem;
+}
+
+.body-preloader-wrapper {
     height: 20rem;
 }
 

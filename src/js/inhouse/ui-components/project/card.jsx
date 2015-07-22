@@ -1,4 +1,3 @@
-var googleDriveService = require('../../services/google-drive-service.js');
 var GDriveCons = require('../../constants/google-drive-constants.js');
 var DefaultValueCons = require('../../constants/default-value-constants.js');
 
@@ -87,7 +86,7 @@ module.exports = React.createClass({
 		$('.row .col.s3').css('width', outerWidth);
 
 		// apply single click to flip
-		var DELAY = 400, clicks = 0, timer = null;
+		var DELAY = 300, clicks = 0, timer = null;
 		var onCardSingleClick = this.onCardSingleClick;
 		var onCardDoubleClick = this.onCardDoubleClick;
 		$('#' + this.props.fileId + '-wrapper').on('click', function(e){
@@ -259,7 +258,7 @@ module.exports = React.createClass({
 		}
 		return contentHeader;
 	},
-	
+
 	getBackSideContent: function() {
 		var content = '';
 		switch(this.props.objectType) {
@@ -297,7 +296,7 @@ module.exports = React.createClass({
 	getContentAfterFileLoaded : function()
 	{
 		var content;
-		
+
 		var cardFaceClassName = 'z-depth-1 ' + this.props.fileId + '-card-face';
 
 		content =
@@ -322,7 +321,6 @@ module.exports = React.createClass({
 	onCardSingleClick : function()
 	{
 		var cardFront = $('#' + this.props.fileId + '-card-front');
-		var cardBack = $('#' + this.props.fileId+'-card-back');
 		if (this.model.isCardFront)
 		{
 			cardFront.stop(true, true).fadeOut(300, function(){

@@ -44,8 +44,8 @@ function GoogleDriveService()
 			var filteredProjects = [];
 			if (titleSearchString != null && titleSearchString.length > 0) {
 				for (var i in projects) {
-					var projectTitle = projects[i].title;
-					if (projectTitle.indexOf(titleSearchString) > -1) {
+					var projectTitle = projects[i].title.toLowerCase();
+					if (projectTitle.indexOf(titleSearchString.toLowerCase()) > -1) {
 						filteredProjects.push(projects[i]);
 					}
 				}
@@ -203,28 +203,28 @@ function GoogleDriveService()
 		}
 		else
 		{
-			var query = buildQuery(projectFolderFileId, objectsToGet);
-			googleApiInterface.getProjectObjects(query, callbackWrapper);
-
-			function callbackWrapper(projectObjects)
+			var callbackWrapper = function(projectObjects)
 			{
 				var filteredProjectObjects = filterObjectsByTitle(projectObjects, titleSearchString);
 				filteredProjectObjects.sort(sortCompareByFileTitle);
 				callback(filteredProjectObjects);
-			}
+			};
 
-			function filterObjectsByTitle(projectObjects, titleSearchString)
+			var filterObjectsByTitle = function(projectObjects, titleSearchString)
 			{
 				var filteredProjectObjects = [];
 				for (var i in projectObjects)
 				{
-					if (projectObjects[i].title.indexOf(titleSearchString) > -1)
+					if (projectObjects[i].title.toLowerCase().indexOf(titleSearchString.toLowerCase()) > -1)
 					{
 						filteredProjectObjects.push(projectObjects[i]);
 					}
 				}
 				return filteredProjectObjects;
-			}
+			};
+
+			var query = buildQuery(projectFolderFileId, objectsToGet);
+			googleApiInterface.getProjectObjects(query, callbackWrapper);
 		}
 	};
 

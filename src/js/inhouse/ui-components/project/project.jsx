@@ -162,11 +162,13 @@ module.exports = React.createClass({
 			flow: this.model.buttons.flow.isSearchOn
 		};
 
+		var getProjectObjectsCallback = this.onReceiveProjectObjects;
+
 		googleDriveService.getProjectObjects(
 			this.getParams().projectFolderFileId,
 			$('#search-input').val(),
 			objectsToGet,
-			this.onReceiveProjectObjects);
+			getProjectObjectsCallback);
 	},
 
 	onReceiveProjectObjects : function(projectObjects)
