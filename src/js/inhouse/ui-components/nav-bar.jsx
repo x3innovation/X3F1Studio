@@ -21,11 +21,12 @@ module.exports = React.createClass({
 			$('#user-log-in-out-btn').trigger('mouseleave').off('mouseenter mouseleave');
 		}.bind(this));
 
+		var $navbarTitle = $('#navbar-title');
 		Bullet.on(EventType.App.PAGE_CHANGE, 'nav-bar.jsx>>page-change', function(newPageData) {
-			$('#navbar-title').css('opacity', '0').css('margin-top', '2rem');
+			$navbarTitle.css({'opacity': '0', 'margin-top': '30px'});
 			setTimeout(function() {
-				$('#navbar-title').text(newPageData.title).css('opacity', '1').css('margin-top', '0');
-			}, 700);
+				$navbarTitle.text(newPageData.title).css({'opacity': '1', 'margin-top': '0'});
+			}, 600);
 		});
 	},
 
@@ -52,7 +53,7 @@ module.exports = React.createClass({
 			<div className = 'navbar-fixed'>
 				<nav id="menu-nav">
 					<div className="nav-wrapper">
-						<a id='logo' href='javascript:void(0)'></a>
+						<a id='logo' href='#/projects'></a>
 						<div id='f1-studio-title'>F1 STUDIO</div>
 						<div id='navbar-title'/>
 						<div id='navbar-buttons'>

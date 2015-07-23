@@ -38,8 +38,8 @@ a.navbar-btn {
 
 a.navbar-btn > i {
 	position: absolute;
-	top: -18px;
 	font-size: 1.4rem;
+	line-height: 30px;
 }
 
 #f1-studio-title {
@@ -77,8 +77,8 @@ a.navbar-btn > i {
 	-ms-transform: translate(-50%, 0%);
 	-o-transform: translate(-50%, 0%);
 	transform: translate(-50%, 0%);
-	-webkit-transition: all 0.5s ease;
-	-moz-transition: all 0.5s ease;
-	-o-transition: all 0.5s ease;
-	transition: all 0.5s ease;
+	-webkit-transition: all 0.4s ease;
+	-moz-transition: all 0.4s ease;
+	-o-transition: all 0.4s ease;
+	transition: all 0.4s ease;
 }

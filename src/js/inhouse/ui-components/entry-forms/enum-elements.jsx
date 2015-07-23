@@ -118,7 +118,7 @@ module.exports = React.createClass({
 		var $target = $(e.target);
 		var $selectedRow = $target.closest('tr');
 		var index = parseInt($selectedRow.find('.enum-index-cell').text(), 10);
-		if ($target.val() === '') {
+		if (!$target.val()) {
 			$target.addClass('empty-input');
 		} else {
 			$target.removeClass('empty-input');
@@ -169,7 +169,7 @@ module.exports = React.createClass({
 			}
 		});
 		$selectedRow.find('td').addClass('selected-cell');
-		$('.dataTables_scrollBody').scrollTop($selectedRow.position().top - 120);
+		$('.dataTables_scrollBody').scrollTop($selectedRow.position().top - 150);
 	},
 
 	onAddEnumBtnClick: function(e) {
@@ -196,7 +196,7 @@ module.exports = React.createClass({
 		var newEnum = {
 			index: newIndex,
 			name: NEW_ELEMENT_NAME + newElementNum,
-			description: ""
+			description: ''
 		};
 		this.selectedRowIndex = newIndex;
 		this.gFields.push(newEnum);
