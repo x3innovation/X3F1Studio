@@ -111,9 +111,9 @@ module.exports = React.createClass({
 			interactive: true,
 			onlyOne: false
 		});
-
+		var deleteBtnHtml = '<a class="delete-tooltip waves-effect waves btn-flat">delete</a>';
 		$('.delete-tooltipped').tooltipster({
-			content: $('<a class="delete-tooltip waves-effect waves btn-flat">delete</a>').on('click', this.onDeleteBtnClick)
+			content: $(deleteBtnHtml).on('click', this.onDeleteBtnClick)
 		});
 	},
 
@@ -166,7 +166,6 @@ module.exports = React.createClass({
 			var newText = e.target.toString();
 			var $spanSiblingCell = $element.closest('tr').find('.name-search-helper');
 			that.table.cell($spanSiblingCell).data(newText).draw();
-			console.log(that.table.cell($spanSiblingCell).data());
 		};
 
 		for (var i = 0, len = this.gBindings.length; i<len; i++) {

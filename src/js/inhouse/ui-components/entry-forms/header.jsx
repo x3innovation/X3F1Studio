@@ -24,7 +24,6 @@ module.exports = React.createClass({
 			$(this).attr('placeholder', 'enter title');
 			$('#clear-title-btn').css('visibility', 'hidden').css('opacity', '0');
 		});
-		// .autoGrowInput({minWidth: 250, maxWidth: 500, comfortZone: 40});
 
 		$('#header-description').focus(function() {$(this).attr('placeholder', ''); })
 			.blur(function() {$(this).attr('placeholder', 'enter description'); });
@@ -54,7 +53,6 @@ module.exports = React.createClass({
 			$('#header-ID-label').removeClass('hide').addClass('active');
 		}
 		$('#header-wrapper').removeClass('hide');
-		// $('#header-title').trigger('autogrow');
 	},
 
 	onMetadataModelLoaded: function(metadataModel) {
@@ -111,7 +109,7 @@ module.exports = React.createClass({
 							className='small-btn btn-floating waves-effect waves-light materialize-red'>
 							<i className="mdi-content-clear btn-icon" /></a>
 					</div>
-					<div id = 'header-description-wrapper' className = 'col s12'>
+					<div id = 'header-description-wrapper' className = 'col offset-s1 s10'>
 						<textarea rows = '1' className='center' id = 'header-description' spellCheck = 'false'
 							onKeyPress = {this.keyPressHandler} placeholder = 'enter description' />
 					</div>

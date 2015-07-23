@@ -167,7 +167,7 @@ module.exports = React.createClass({
 		var callback = function(projectObjects) {
 			var projectObject;
 			var labelType;
-			var objectDict = {PD: [], EN: [], SN: [], EV: [], FL: []}; //group the objects by type
+			var objectDict = {PD: [], EN: [], SN: [], EV: [], FL: []}; //group the data objects by type
 			for (i = 0, len = projectObjects.length; i<len; i++) {
 				projectObject = projectObjects[i];
 				switch (projectObject.description) {

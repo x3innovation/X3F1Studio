@@ -22,10 +22,10 @@ module.exports = React.createClass({
 		}.bind(this));
 
 		Bullet.on(EventType.App.PAGE_CHANGE, 'nav-bar.jsx>>page-change', function(newPageData) {
-			$('#navbar-title').css('opacity', '0');
+			$('#navbar-title').css('opacity', '0').css('margin-top', '2rem');
 			setTimeout(function() {
-				$('#navbar-title').text(newPageData.title).css('opacity', '1');
-			}, 600);
+				$('#navbar-title').text(newPageData.title).css('opacity', '1').css('margin-top', '0');
+			}, 700);
 		});
 	},
 
