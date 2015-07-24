@@ -121,32 +121,16 @@ module.exports = React.createClass({
 	****************************************** */
 	onProjectMouseEnter : function()
 	{
-		$('#' + this.props.fileId + '-title').stop(true, true).animate({
-			borderBottomColor: this.model.color
-		}, 100);
-
-		$('#' + this.props.fileId + '-back-header').stop(true, true).animate({
-			borderBottomColor: this.model.color
-		}, 100);
-
-		$('.' + this.props.fileId + '-card-face').stop(true, true).animate({
-			borderBottomColor: this.model.color
-		}, 500);
+		$('#' + this.props.fileId + '-title').css('border-bottom-color', this.model.color);
+		$('#' + this.props.fileId + '-back-header').css('border-bottom-color', this.model.color);
+		$('.' + this.props.fileId + '-card-face').css('border-bottom-color', this.model.color);
 	},
 
 	onProjectMouseLeave : function()
 	{
-		$('#' + this.props.fileId + '-title').stop(true, true).animate({
-			borderBottomColor: '#9e9e9e'
-		}, 100);
-
-		$('#' + this.props.fileId + '-back-header').stop(true, true).animate({
-			borderBottomColor: '#9e9e9e'
-		}, 100);
-
-		$('.' + this.props.fileId + '-card-face').stop(true, true).animate({
-			borderBottomColor: 'white'
-		}, 500);
+		$('#' + this.props.fileId + '-title').css('border-bottom-color', '#9e9e9e');
+		$('#' + this.props.fileId + '-back-header').css('border-bottom-color', '#9e9e9e');
+		$('.' + this.props.fileId + '-card-face').css('border-bottom-color', 'transparent');
 	},
 
 	onFileLoaded : function(doc)
@@ -309,7 +293,7 @@ module.exports = React.createClass({
 					<div id={this.props.fileId + '-object-type'}></div>
 				</div>
 				<div id = {this.props.fileId+'-card-back'} className={'back card-face ' + cardFaceClassName}>
-					<input type="text" className="card-back-header noselect" id={this.props.fileId + '-back-header'} readOnly />
+					<input type="text" className="card-header noselect" id={this.props.fileId + '-back-header'} readOnly />
 					<div id={this.props.fileId + '-back-side-wrapper'} className="card-back-side-wrapper">
 						<textarea id={this.props.fileId+'-back-side'} className="card-description noselect" readOnly></textarea>
 					</div>
