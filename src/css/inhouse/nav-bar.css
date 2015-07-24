@@ -4,11 +4,10 @@
 	margin: 0;
 	top: 5px;
 	left: 15px;
-	width: 27px;
+	width: 26px;
 	height: 35px;
-	background: url("../img/pannaramic_icon.png");
-	background-size: 27px 35px;
-	background-repeat: no-repeat; 
+	background: url("../img/pannIcon.png");
+	background-size: 26px 35px;
 }
 
 .navbar-fixed {
@@ -51,7 +50,6 @@ a.navbar-btn > i {
 	letter-spacing: 3.2px;
 	text-align: center;
 	font-weight: bold;
-	background-size: 121px 21px;
 	line-height: 2rem;
 	font-size: 1.05rem;
 	-webkit-transform: translate(-50%, 0%);
@@ -77,8 +75,8 @@ a.navbar-btn > i {
 	-ms-transform: translate(-50%, 0%);
 	-o-transform: translate(-50%, 0%);
 	transform: translate(-50%, 0%);
-	-webkit-transition: all 0.4s ease;
-	-moz-transition: all 0.4s ease;
-	-o-transition: all 0.4s ease;
-	transition: all 0.4s ease;
+	-webkit-transition: margin 0.4s ease, opacity 0.3s ease;
+	-moz-transition: margin 0.4s ease, opacity 0.3s ease;
+	-o-transition: margin 0.4s ease, opacity 0.3s ease;
+	transition: margin 0.4s ease, opacity 0.3s ease;
 }
