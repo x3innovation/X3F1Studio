@@ -5,6 +5,7 @@ function GoogleApiInterface()
 	// //////// private members
 	var shareClient;
 	var user;
+	var tokenRefreshInterval;
 
 	var that = this;
 	function registerCustomDataTypes()
@@ -227,37 +228,48 @@ function GoogleApiInterface()
 	}
 
 	// //////// public members
-	this.userAuthorize = function(immeidate, successCallback, failCallback)
+	this.userAuthorize = function(immediate, successCallback, failCallback)
 	{
-		gapi.load('auth:client,drive-realtime,drive-share', function() {
-	        console.log("Authorizing user with Google");
-	        shareClient = new gapi.drive.share.ShareClient(GDriveConstant.AppId);
-	        gapi.auth.authorize({
-	            client_id: GDriveConstant.ClientId,
-	            scope: [GDriveConstant.InstallScope, 
-	            		GDriveConstant.FileScope,
-	            		GDriveConstant.OpenIdScope],
-	            user_id: user == null ? null : user.id,
-	            immediate: immeidate
-	        }, authorizationCallback);
-	    });
+		var client_id = GDriveConstant.ClientId;
+		var scope = [GDriveConstant.InstallScope, GDriveConstant.FileScope, GDriveConstant.OpenIdScope];
+		var user_id = (user == null) ? null : user.id;
 
-	    // inner functions
-	    function authorizationCallback(authResult)
-	    {
-	    	if (authResult && !authResult.error)
-	    	{
-	    		// loading Google Drive sdk asynchronously
-	    		gapi.client.load('drive', 'v2', function(){
-	    			registerCustomDataTypes();
-	    			successCallback();
-	    		});
-	    	}
-	    	else
-	    	{
-	    		failCallback();
-	    	}
-	    }
+		gapi.load('auth:client,drive-realtime,drive-share', function() {
+			console.log("Authorizing user with Google");
+			shareClient = new gapi.drive.share.ShareClient(GDriveConstant.AppId);
+			gapi.auth.authorize({
+				immediate: immediate,
+				client_id: client_id,
+				user_id: user_id,
+				scope: scope
+			}, authorizationCallback);
+		});
+
+		// inner functions
+		function authorizationCallback(authResult)
+		{
+			if (authResult && !authResult.error)
+			{
+				tokenRefreshInterval = setInterval(function() { 
+					gapi.auth.authorize({
+						immediate: true,
+						client_id: client_id,
+						user_id: user_id,
+						scope: scope
+					});
+				}, 2700000); //refresh token every 45 minutes
+
+				// loading Google Drive sdk asynchronously
+				gapi.client.load('drive', 'v2', function(){
+					registerCustomDataTypes();
+					successCallback();
+				});
+			}
+			else
+			{
+				failCallback();
+			}
+		}
 	};
 
 	this.getProjects = function(callback)
@@ -276,28 +288,28 @@ function GoogleApiInterface()
 	this.saveTitle = function(fileId, title)
 	{
 		var saveTitleRequest = gapi.client.drive.files.patch({
-            'fileId' : fileId,
-            'resource' : {
-                'title' : title
-            }
-        });
+		    'fileId' : fileId,
+		    'resource' : {
+		        'title' : title
+		    }
+		});
 
-        saveTitleRequest.execute();
+		saveTitleRequest.execute();
 	};
 
 	this.setMimeType = function(fileId, mimeType)
 	{
 		var saveTitleRequest = gapi.client.drive.files.patch({
-            'fileId' : fileId,
-            'resource' : {
-                'mimeType' : mimeType
-            }
-        });
+		    'fileId' : fileId,
+		    'resource' : {
+		        'mimeType' : mimeType
+		    }
+		});
 
-        saveTitleRequest.execute();
+		saveTitleRequest.execute();
 	};
 
-	this.getMimeTypeFiles = function(mimeType, callback)
+	this.getFilesByMimeType = function(mimeType, callback)
 	{
 		var request = gapi.client.drive.files.list({
 			corpus : 'DEFAULT',
@@ -338,12 +350,12 @@ function GoogleApiInterface()
 	};
 
 	this.createNewFolder = function(folderCreationParams, callback) {
-	  	var request = gapi.client.drive.files.insert({
-	  		title: folderCreationParams.title,
+		var request = gapi.client.drive.files.insert({
+			title: folderCreationParams.title,
 			mimeType: folderCreationParams.mimeType,
-	  	});
-		
-	  	request.execute(function(folder) {
+		});
+
+		request.execute(function(folder) {
 			callback(folder);
 		});
 	};
@@ -353,18 +365,17 @@ function GoogleApiInterface()
 			'id' : fileCreationParams.parentId
 		};
 
-	  	var request = gapi.client.drive.files.insert({
-	  		title: fileCreationParams.title,
-	  		description: fileCreationParams.description,
-	  		mimeType: fileCreationParams.mimeType,
-	  		parents: [parentId]	// google forces us to pass an array here
-	  	});
-		
-	  	request.execute(function(file){
+		var request = gapi.client.drive.files.insert({
+			title: fileCreationParams.title,
+			description: fileCreationParams.description,
+			mimeType: fileCreationParams.mimeType,
+			parents: [parentId]	// google requires us to pass an array here
+		});
+
+		request.execute(function(file){
 			callback(file);
 		});
 	};
-
 }
 
 module.exports = new GoogleApiInterface();
