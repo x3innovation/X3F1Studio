@@ -119,14 +119,25 @@ module.exports = React.createClass({
 	****************************************** */
 	onProjectMouseEnter : function()
 	{
-		$('#' + this.props.fileId + '-title').css('border-bottom-color', '#f24235');
-		$('.' + this.props.fileId + '-card-face').css('border-bottom-color', '#f24235');
+		$('#' + this.props.fileId + '-title').stop(true, true).animate({
+			borderBottomColor: '#f24235'
+		}, 0);
+		
+
+		$('.' + this.props.fileId + '-card-face').stop(true, true).animate({
+			borderBottomColor: '#f24235'
+		}, 500);
 	},
 
 	onProjectMouseLeave : function()
 	{
-		$('#' + this.props.fileId + '-title').css('border-bottom-color', '#9e9e9e');
-		$('.' + this.props.fileId + '-card-face').css('border-bottom-color', 'transparent');
+		$('#' + this.props.fileId + '-title').stop(true, true).animate({
+			borderBottomColor: '#9e9e9e'
+		}, 0);
+
+		$('.' + this.props.fileId + '-card-face').stop(true, true).animate({
+			borderBottomColor: 'white'
+		}, 500);
 	},
 
 	onFileLoaded : function(doc)
