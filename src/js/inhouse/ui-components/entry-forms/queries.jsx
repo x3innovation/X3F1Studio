@@ -154,7 +154,7 @@ module.exports = React.createClass({
 			<div id = 'query-container' className = 'row'>
 				<div className = 'row'>
 					<div className = 'col s2'>
-						<a id = 'query-add-btn' onClick = {this.onAddQueryBtnClick} className = {'small-btn query-btn btn-floating waves-effect waves-light ' + Configs.App.ADD_BUTTON_COLOR}>
+						<a id = 'query-add-btn' onClick = {this.onAddQueryBtnClick} className = {'small-btn btn-floating waves-effect waves-light ' + Configs.App.ADD_BUTTON_COLOR}>
 							<i className = 'mdi-content-add btn-icon' />
 						</a>
 						<label htmlFor = 'query-add-btn' id = 'add-query-label'>add query</label>

@@ -66,7 +66,9 @@ module.exports = React.createClass({
 		});
 
 		// apply slim scroll to description section of card's front face
-		$('#' + this.props.fileId + '-description-wrapper').slimScroll();
+		$('#' + this.props.fileId + '-description-wrapper').slimScroll({
+			height: '200px'
+		});
 
 		var cardBackSide = document.getElementById(this.props.fileId+'-back-side');
 		if (cardBackSide !== null) {
@@ -119,25 +121,14 @@ module.exports = React.createClass({
 	****************************************** */
 	onProjectMouseEnter : function()
 	{
-		$('#' + this.props.fileId + '-title').stop(true, true).animate({
-			borderBottomColor: '#f24235'
-		}, 0);
-		
-
-		$('.' + this.props.fileId + '-card-face').stop(true, true).animate({
-			borderBottomColor: '#f24235'
-		}, 500);
+		$('#' + this.props.fileId + '-title').css('border-bottom-color', '#f24235');
+		$('.' + this.props.fileId + '-card-face').css('border-bottom-color', '#f24235');
 	},
 
 	onProjectMouseLeave : function()
 	{
-		$('#' + this.props.fileId + '-title').stop(true, true).animate({
-			borderBottomColor: '#9e9e9e'
-		}, 0);
-
-		$('.' + this.props.fileId + '-card-face').stop(true, true).animate({
-			borderBottomColor: 'white'
-		}, 500);
+		$('#' + this.props.fileId + '-title').css('border-bottom-color', '#9e9e9e');
+		$('.' + this.props.fileId + '-card-face').css('border-bottom-color', 'transparent');
 	},
 
 	onFileLoaded : function(doc)
@@ -232,7 +223,7 @@ module.exports = React.createClass({
 		content =
 			<div id={fileId + '-card'}>
 				<div id={fileId + '-card-front'} className={'front card-face ' + cardFaceClassName}>
-					<input type="text" className="card-header noselect" id={fileId + '-title'} readOnly />
+					<input type="text" className={this.props.fileId + '-header card-header noselect'} id={fileId + '-title'} readOnly />
 					<div id={fileId + '-description-wrapper'} className="card-description-wrapper">
 						<textarea id={fileId + '-description'} className="card-description noselect" readOnly />
 					</div>
