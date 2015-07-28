@@ -1,0 +1,33 @@
+#add-query-label {
+    font-size: 1rem;
+    margin-left: 0.5rem;
+    color: #222222;
+}
+
+#query-add-btn {
+    position: relative;
+}
+
+.query-delete-btn-wrapper {
+    margin-top: 1rem;
+}
+
+.query-delete-btn {
+    position: relative;
+    margin-top: 10%;
+    margin-left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+input[type='text'].query-id-field {
+    border: 0;
+}
+
+textarea.query-description-field {
+    padding: 0;
+    padding-top: 11px;
+}

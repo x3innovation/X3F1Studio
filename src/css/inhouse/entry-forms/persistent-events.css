@@ -1,0 +1,11 @@
+input[type='text'].event-display {
+    border-width: 0;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.event-cell {
+    margin-bottom: 1rem;
+}

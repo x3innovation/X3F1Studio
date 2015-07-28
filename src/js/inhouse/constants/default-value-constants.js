@@ -34,5 +34,10 @@ module.exports = {
 		FIELD_ARRAY : false,
 		FIELD_ARRAY_LEN : '1',
 		FIELD_CONTEXT_ID : false
+	},
+
+	DefaultQueryAttributes : {
+		QUERY_NAME : '',
+		QUERY_DESCRIPTION : ''
 	}
 };
