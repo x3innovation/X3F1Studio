@@ -56,16 +56,16 @@ th, td {
 }
 
 #search-input {
-    width: 20em;
-    font-size: 2em;
+    width: 70%;
+    font-size: 2rem;
     font-weight: 200;
     outline: none;
-    margin: 10px 0 10px 0;
+    margin: 10px 0;
     text-align: center;
     border-top: 0;
     border-right: 0;
     border-left: 0;
-    margin-bottom: 1em;
+    margin-bottom: 2rem;
 }
 
 .pannaramic-blue {
@@ -74,4 +74,12 @@ th, td {
 
 .pannaramic-blue-text {
     color: #5d8ce3 !important;
+}
+
+.btn, .btn-floating, .btn-flat, .btn-large {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }

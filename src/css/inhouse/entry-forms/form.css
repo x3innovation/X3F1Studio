@@ -75,12 +75,6 @@ input[type='text'].event-display {
     transform: translate(-50%, -50%);
 }
 
-.query-delete-btn > i {
-    font-size: 1.3rem;
-    position: absolute;
-    top: -6px;
-}
-
 input[type='text'].query-id-field {
     border: 0;
 }

@@ -25,8 +25,8 @@ module.exports = React.createClass({
 	          NON LIFE CYCLE FUNCTIONS
 	****************************************** */
 	onGapiFileLoaded: function() {
-		$('#body-wrapper').removeClass('hide').addClass('loaded');
-		$('#body-preloader-wrapper').addClass('hide');
+		$('.body-wrapper').removeClass('hide').addClass('loaded');
+		$('.body-preloader-wrapper').addClass('hide');
 	},
 
 	render: function() {
@@ -37,8 +37,8 @@ module.exports = React.createClass({
 		var gapiKey = this.props.gapiKey;
 		return (
 			<div>
-				<div id = 'body-wrapper' className = 'row hide'>
-					<div className = 'row'>
+				<div className = 'body-wrapper row hide'>
+					<div className = 'form-wrapper-row row'>
 						<div className = 'col s4' id = 'field-selector-wrapper'>
 							<FieldSelector
 								projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
@@ -51,7 +51,7 @@ module.exports = React.createClass({
 						</div>
 					</div>
 					<br />
-					<div id = 'persistent-events-wrapper' className = 'row'>
+					<div id = 'persistent-events-wrapper' className = 'form-wrapper-row row'>
 						<div className = 'col s12'>
 							<PersistentEvents
 								projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
@@ -59,7 +59,7 @@ module.exports = React.createClass({
 						</div>
 					</div>
 					<br />
-					<div id = 'queries-wrapper' className = 'row'>
+					<div id = 'queries-wrapper' className = 'form-wrapper-row  row'>
 						<div className = 'col s12'>
 							<Queries
 								projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
@@ -68,7 +68,7 @@ module.exports = React.createClass({
 					</div>
 				</div>
 
-				<div id = "body-preloader-wrapper" className = 'preloader'>
+				<div className = 'body-preloader-wrapper preloader'>
 					<img id = "body-preloader" src = "img/loading-spin.svg" />
 				</div>
 			</div>

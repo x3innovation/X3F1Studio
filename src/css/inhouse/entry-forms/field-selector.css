@@ -1,6 +1,6 @@
 #field-selector-wrapper {
     position: relative;
-    border-right: 1px solid #9e9e9e;
+    border-right: 1px solid #dcdcdc;
 }
 
 .field-selector-btn {
@@ -21,10 +21,10 @@
 }
 
 .name-field {
-    -webkit-transition: background-color 0.4s ease-in;
-    -moz-transition: background-color 0.4s ease-in;
-    -o-transition: background-color 0.4s ease-in;
-    transition: background-color 0.4s ease-in;
+    -webkit-transition: all 0.4s ease;
+    -moz-transition: all 0.4s ease;
+    -o-transition: all 0.4s ease;
+    transition: all 0.4s ease;
     min-height: 1.5rem;
     white-space: nowrap;;
     overflow: hidden;

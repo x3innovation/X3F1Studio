@@ -63,7 +63,8 @@ module.exports = React.createClass({
 			language: {
 				search: '_INPUT_', //removes the 'search:' text, puts it directly in the searchbox
 				searchPlaceholder: 'search enums',
-				emptyTable: 'no enums defined'
+				emptyTable: 'no enums defined',
+				zeroRecords: 'no matching enums found'
 			},
 			columnDefs: [{
 				targets: 0,
@@ -78,7 +79,8 @@ module.exports = React.createClass({
 				className: 'enum-cell enum-name-cell',
 				render: function(data, type, row, meta) {
 					return '<input type="text" spellcheck="false" placeholder="please enter a name" data-enum-index='+
-						row.index+' value="'+data+'" class="enum-table-input enum-name-input">';
+						row.index+' value="'+data+'" class="enum-table-input enum-name-input">'+
+						'<span class="hide">'+data+'</span>'; //for searching
 				},
 			}, {
 				targets: 2,
@@ -87,19 +89,19 @@ module.exports = React.createClass({
 				className: 'enum-cell enum-description-cell',
 				render: function(data, type, row, meta) {
 					return '<input type="text" spellcheck="false" placeholder="enter description" data-enum-index='+
-						row.index+' value="'+data+'" class="enum-table-input enum-description-input">';
+						row.index+' value="'+data+'" class="enum-table-input enum-description-input">'+
+						'<span class="hide">'+data+'</span>';
 				},
 			}]
 		});
 		$('th').removeClass('enum-cell enum-index-cell enum-name-cell enum-description-cell');
-		$('.dataTables_scrollBody table').css('table-layout', 'fixed');
+		$('.dataTables_scrollBody').css('border-bottom-color', '#dcdcdc').css('padding-bottom', '1rem')
+		  .find('table').css('table-layout', 'fixed');
 		$('.enum-cell').click(this.setSelectedRow);
 		var that = this;
 		$('.enum-table-input').each(function(index, element) {
 			var $element = $(element);
-			if ($element.val() === '')  {
-				$element.addClass('empty-input');
-			}
+			if ($element.val() === '') { $element.addClass('empty-input'); }
 			$element.keypress(that.keyPressHandler).blur(that.saveCell);
 		});
 	},
@@ -116,7 +118,7 @@ module.exports = React.createClass({
 		var $target = $(e.target);
 		var $selectedRow = $target.closest('tr');
 		var index = parseInt($selectedRow.find('.enum-index-cell').text(), 10);
-		if ($target.val() === '') {
+		if (!$target.val()) {
 			$target.addClass('empty-input');
 		} else {
 			$target.removeClass('empty-input');
@@ -129,6 +131,7 @@ module.exports = React.createClass({
 					name: $selectedRow.find('.enum-name-input').val(),
 					description: $selectedRow.find('.enum-description-input').val()
 				};
+				this.table.row($selectedRow).invalidate('dom');
 				if (renamedEnum.name !== this.gFields.get(i).name) {
 					this.gFields.set(i, renamedEnum);
 					var renameEnumAnnouncement = {
@@ -166,6 +169,7 @@ module.exports = React.createClass({
 			}
 		});
 		$selectedRow.find('td').addClass('selected-cell');
+		$('.dataTables_scrollBody').scrollTop($selectedRow.position().top - 150);
 	},
 
 	onAddEnumBtnClick: function(e) {
@@ -192,7 +196,7 @@ module.exports = React.createClass({
 		var newEnum = {
 			index: newIndex,
 			name: NEW_ELEMENT_NAME + newElementNum,
-			description: ""
+			description: ''
 		};
 		this.selectedRowIndex = newIndex;
 		this.gFields.push(newEnum);

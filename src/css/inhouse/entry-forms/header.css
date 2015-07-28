@@ -1,6 +1,7 @@
 /* ===[ Header ]=== */
 #header-wrapper {
-    position: relative
+    position: relative;
+    margin-top: 1rem;
 }
 
 #header-title {
@@ -8,49 +9,54 @@
     height: 3.5rem;
     font-weight: 400;
     font-size: 3rem;
-    line-height: 3.212rem;
-    margin: 1.25rem 0 1.168rem 0;
+    line-height: 3.2rem;
 }
 
 #header-title:focus {
     outline: none;
-    border-bottom-color: #26a69a ;
+    border-bottom-color: #26a69a;
 }
 
-#description-wrapper {
+#header-description-wrapper {
     overflow-y: auto;
     overflow-x: hidden;
     font-weight: 300;
     color: #9e9e9e;
-    margin-bottom: 0.92rem;
+    margin-bottom: 1rem;
 }
 
 #header-description {
     resize: none;
     border: 0;
-    border-bottom: 1px solid transparent;
+    border-bottom: 2px solid transparent;
+    -webkit-transition: all 0.4s ease;
+    -moz-transition: all 0.4s ease;
+    -o-transition: all 0.4s ease;
+    transition: all 0.4s ease;
 }
 
 #header-description:focus {
     outline: none;
     border-bottom-color: #26a69a;
-    -webkit-transition: border 0.4s ease;
-    -moz-transition: border 0.4s ease;
-    -o-transition: border 0.4s ease;
-    transition: border 0.4s ease;
 }
 
 #header-ID {
     border-bottom: 0;
     height: 1.5rem;
-    font-size: 0.85rem;
+    margin-top: 0.75rem;
+    font-size: 1.2rem;
+}
+
+#header-ID-label {
+    font-size: 1rem;
 }
 
 #clear-title-btn {
-    top: 20%;
-    right: 2%;
-}
-
-#clear-title-btn:hover {
-    background-color: #e51c23 !important;
+    top: 10%;
+    visibility: hidden;
+    right: 11%;
+    -webkit-transition: all 0.4s ease;
+    -moz-transition: all 0.4s ease;
+    -o-transition: all 0.4s ease;
+    transition: all 0.4s ease;
 }

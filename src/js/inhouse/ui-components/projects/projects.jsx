@@ -31,6 +31,8 @@ module.exports = React.createClass({
 		// hide placeholder on focus, then display on blur
 		$('#search-input').focus(function(){$(this).attr('placeholder', '');})
 						   .blur(function(){$(this).attr('placeholder', 'search title');});
+
+		Bullet.trigger(EventType.App.PAGE_CHANGE, {title: 'PROJECTS'});
 	},
 
 	/* ******************************************
@@ -125,11 +127,6 @@ module.exports = React.createClass({
 
 		return (
 			<div className="container">
-				<div className="row">
-					<div className="col s12 center">
-						<h2>Projects</h2>
-					</div>
-    			</div>
     			<div className="row">
     				<div className="col s12 center">
     					<input id="search-input" placeholder="search title" onChange={this.onSearchInputChange} />

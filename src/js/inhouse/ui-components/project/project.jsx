@@ -49,6 +49,7 @@ module.exports = React.createClass({
 
 	componentDidMount : function()
 	{
+		Bullet.trigger(EventType.App.PAGE_CHANGE, {title: 'PROJECT DETAIL'});
 
 		// if user is already logged in, still need to initialize
 		if (userStore.isLoggedIn)
@@ -161,11 +162,13 @@ module.exports = React.createClass({
 			flow: this.model.buttons.flow.isSearchOn
 		};
 
+		var getProjectObjectsCallback = this.onReceiveProjectObjects;
+
 		googleDriveService.getProjectObjects(
 			this.getParams().projectFolderFileId,
 			$('#search-input').val(),
 			objectsToGet,
-			this.onReceiveProjectObjects);
+			getProjectObjectsCallback);
 	},
 
 	onReceiveProjectObjects : function(projectObjects)

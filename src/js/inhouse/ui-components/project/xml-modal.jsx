@@ -19,7 +19,6 @@ module.exports = React.createClass({
 	****************************************** */
 	onGenerateXMLBtnClick: function(e) {
 		if ($('#generate-xml-btn').hasClass('disabled')) {
-			e.stopPropagation();
 			return;
 		}
 		this.classifyProjectObjects();

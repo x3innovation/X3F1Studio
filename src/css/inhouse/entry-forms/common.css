@@ -9,28 +9,15 @@
     cursor: pointer;
 }
 
-.small-btn {
-    position: absolute;
-    width: 1.6rem;
-    height: 1.6rem;
-}
-
-.small-btn > i {
-    font-size: 1.3rem;
-    position: absolute;
-    top: -6px;
-    left: 0;
-}
-
 #to-project-btn:hover {
     color: #f44336
 }
 
-.selected-cell {
-    background-color: #cfd8dc;
+.body-wrapper {
+    margin-bottom: 3rem;
 }
 
-#body-preloader-wrapper {
+.body-preloader-wrapper {
     height: 20rem;
 }
 
@@ -43,4 +30,25 @@
     -ms-transform: translate(-50%, -50%);
     -o-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
+}
+
+.small-btn {
+    position: absolute;
+    width: 1.6rem;
+    height: 1.6rem;
+}
+
+.small-btn > i {
+    font-size: 1.1rem;
+    position: absolute;
+    line-height: 1.6rem;
+}
+
+.selected-cell {
+    background-color: #cfd8dc;
+}
+
+.form-wrapper-row {
+    padding-top: 1rem;
+    border-top: 1px solid #dcdcdc;
 }

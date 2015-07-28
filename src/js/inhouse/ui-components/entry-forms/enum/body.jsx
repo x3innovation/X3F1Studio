@@ -21,8 +21,8 @@ module.exports = React.createClass({
 	          NON LIFE CYCLE FUNCTIONS
 	****************************************** */
 	onGapiFileLoaded: function() {
-		$('#body-wrapper').removeClass('hide').addClass('loaded');
-		$('#body-preloader-wrapper').addClass('hide');
+		$('.body-wrapper').removeClass('hide').addClass('loaded');
+		$('.body-preloader-wrapper').addClass('hide');
 	},
 
 	render: function() {
@@ -33,8 +33,8 @@ module.exports = React.createClass({
 		var gapiKey = this.props.gapiKey;
 		return (
 			<div>
-				<div id = 'body-wrapper' className = 'row hide'>
-					<div id = 'enum-elements-wrapper' className = 'row'>
+				<div className = 'body-wrapper row hide'>
+					<div id = 'enum-elements-wrapper' className = 'row form-wrapper-row '>
 						<div className = 'col s12'>
 							<EnumElements
 								projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
@@ -43,7 +43,7 @@ module.exports = React.createClass({
 					</div>
 				</div>
 
-				<div id = "body-preloader-wrapper" className = 'preloader'>
+				<div className = 'body-preloader-wrapper preloader'>
 					<img id = "body-preloader" src = "img/loading-spin.svg" />
 				</div>
 			</div>

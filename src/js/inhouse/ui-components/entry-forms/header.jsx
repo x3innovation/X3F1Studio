@@ -17,8 +17,14 @@ module.exports = React.createClass({
 	},
 
 	componentDidMount: function() {
-		$('#header-title').focus(function() {$(this).attr('placeholder', ''); })
-			.blur(function() {$(this).attr('placeholder', 'enter title'); });
+		$('#header-title').focus(function() {
+			$(this).attr('placeholder', '');
+			$('#clear-title-btn').css('visibility', 'visible').css('opacity', '1');
+		}).blur(function() {
+			$(this).attr('placeholder', 'enter title');
+			$('#clear-title-btn').css('visibility', 'hidden').css('opacity', '0');
+		});
+
 		$('#header-description').focus(function() {$(this).attr('placeholder', ''); })
 			.blur(function() {$(this).attr('placeholder', 'enter description'); });
 	},
@@ -46,7 +52,6 @@ module.exports = React.createClass({
 		if ($('#header-ID').val().length) {
 			$('#header-ID-label').removeClass('hide').addClass('active');
 		}
-		this.forceUpdate();
 		$('#header-wrapper').removeClass('hide');
 	},
 
@@ -93,17 +98,19 @@ module.exports = React.createClass({
 		return (
 			<div className = 'row'>
 				<div id = 'header-wrapper' className = 'hide col s12 center'>
-					<input type = 'text' id = 'header-title' className = 'center' spellCheck = 'false'
-						onKeyPress = {this.keyPressHandler} placeholder = 'enter title' />
-					<a id="clear-title-btn" onClick = {this.onClearTitleBtnClick}
-						className="small-btn btn-floating waves-effect waves-light grey">
-						<i className="mdi-content-clear btn-icon" /></a>
 					<div id = 'header-ID-wrapper' className = 'input-field col s1'>
 						<input readOnly type = 'text' id = 'header-ID'/>
-						<label htmlFor = 'header-ID' className = 'hide active' id = 'header-ID-label'>ID</label>
+						<label htmlFor = 'header-ID' className = 'hide active' id = 'header-ID-label'>Type ID</label>
 					</div>
-					<div id = 'description-wrapper' className = 'col s11'>
-						<textarea rows = '1' id = 'header-description' spellCheck = 'false'
+					<div id = 'header-title-wrapper' className = 'col s10'>
+						<input type = 'text' id = 'header-title' className ='center' spellCheck = 'false' 
+							onKeyPress = {this.keyPressHandler} placeholder = 'enter title' />
+						<a id="clear-title-btn" onClick = {this.onClearTitleBtnClick}
+							className='small-btn btn-floating waves-effect waves-light materialize-red'>
+							<i className="mdi-content-clear btn-icon" /></a>
+					</div>
+					<div id = 'header-description-wrapper' className = 'col offset-s1 s10'>
+						<textarea rows = '1' className='center' id = 'header-description' spellCheck = 'false'
 							onKeyPress = {this.keyPressHandler} placeholder = 'enter description' />
 					</div>
 				</div>
