@@ -89,7 +89,9 @@ module.exports = React.createClass({
 				<Body
 					projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
 					fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
-				<XMLModal fileType = {fileType} gapiKey = {gapiKey} />
+				<XMLModal 
+					projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
+					fileType = {fileType} gapiKey = {gapiKey} />
 			</div>
 		);
 	}

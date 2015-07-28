@@ -3,11 +3,11 @@
 	padding: 0;
 	margin: 0;
 	top: 5px;
-	left: 10px;
-	width: 63px;
+	left: 15px;
+	width: 26px;
 	height: 35px;
-	background: url("../img/logo.svg");
-	background-size: 63px 35px;
+	background: url("../img/pannIcon.png");
+	background-size: 26px 35px;
 	background-repeat: no-repeat; 
 }
 

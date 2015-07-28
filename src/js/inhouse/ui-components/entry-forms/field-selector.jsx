@@ -80,7 +80,8 @@ module.exports = React.createClass({
 			language: {
 				search: '_INPUT_', //removes the 'search:' text, puts it directly in the searchbox
 				searchPlaceholder: 'search fields',
-				emptyTable: 'no fields defined'
+				emptyTable: 'no fields defined',
+				zeroRecords: 'no fields found'
 			},
 			columnDefs: [{ // hidden column to be searched for, dataTable cannot search into inputs
 				targets: 0,
