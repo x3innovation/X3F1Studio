@@ -80,6 +80,8 @@ module.exports = function(grunt) {
 			'entry-forms/field-selector.css',
 			'entry-forms/form.css',
 			'entry-forms/header.css',
+			'entry-forms/persistent-events.css',
+			'entry-forms/queries.css',
 			'project/project.css'
 		];
 

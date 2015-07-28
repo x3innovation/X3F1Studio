@@ -273,6 +273,17 @@ function GoogleApiInterface()
 		});
 	};
 
+	this.getProjectById = function(projectId, callback)
+	{
+		var request = gapi.client.drive.files.get({
+			'fileId': projectId
+		});
+
+		request.execute(function(project){
+			callback(project);
+		});
+	};
+
 	this.saveTitle = function(fileId, title)
 	{
 		var saveTitleRequest = gapi.client.drive.files.patch({

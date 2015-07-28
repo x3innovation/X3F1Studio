@@ -4,25 +4,35 @@ var EventType = require('../../constants/event-type.js');
 var Configs = require('../../app-config.js');
 
 var generateXMLService = require('../../services/generate-xml-service.js');
+var GDriveService = require('../../services/google-drive-service.js');
 
 module.exports = React.createClass({
 	/* ******************************************
 				 LIFE CYCLE FUNCTIONS
 	****************************************** */
 	componentDidMount: function() {
-		if (!this.props.projectObjects.length) {
-			$('#generate-xml-btn').addClass('disabled').removeClass('z-depth-1 waves-effect waves-light ' + Configs.App.ADD_BUTTON_COLOR);
-		}
+		this.projectFile = {};
+		var that = this;
 	},
 
 	/* ******************************************
 				NON LIFE CYCLE FUNCTIONS
 	****************************************** */
 	onGenerateXMLBtnClick: function(e) {
-		if ($('#generate-xml-btn').hasClass('disabled')) {
-			return;
-		}
-		generateXMLService.generateProjectXML(this.props.projectObjects, this.props.projectFile, this.onXMLGenerated);
+		var objectsToGet = {
+			persistentData: true,
+			enum: true,
+			snippet: true,
+			event: true,
+			flow: true
+		};
+
+		var that = this;
+		GDriveService.getProjectById(this.props.projectFileId, function(project) {
+			GDriveService.getProjectObjects(that.props.projectFolderFileId, '', objectsToGet, function(projectObjects) {
+				generateXMLService.generateProjectXML(projectObjects, project, that.onXMLGenerated);
+			});
+		});
 	},
 
 	onXMLGenerated: function(xmlData) {
