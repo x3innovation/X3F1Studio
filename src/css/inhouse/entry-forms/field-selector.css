@@ -26,7 +26,7 @@
     -o-transition: all 0.4s ease;
     transition: all 0.4s ease;
     min-height: 1.5rem;
-    white-space: nowrap;;
+    white-space: nowrap;
     overflow: hidden;
     -o-text-overflow: clip;
     text-overflow: clip;

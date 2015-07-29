@@ -1,6 +1,7 @@
 var EventType = require('../../constants/event-type.js');
 var AnnouncementType = require('../../constants/announcement-type.js');
 var GDriveConstants = require('../../constants/google-drive-constants.js');
+var FormValueConstants = require('../../constants/form-value-constants.js');
 
 var GDriveService = require('../../services/google-drive-service.js');
 
@@ -21,7 +22,7 @@ module.exports = React.createClass({
 	},
 
 	componentDidMount: function() {
-
+		this.initializeTooltips();
 	},
 
 	componentWillUnmount: function() {
@@ -40,6 +41,15 @@ module.exports = React.createClass({
 		this.gFields = this.gModel.getRoot().get(this.props.gapiKey).fields;
 		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_SET, this.updateUi);
 		this.loadDataFiles();
+	},
+
+	initializeTooltips: function() {
+		$('.error-tooltipped').tooltipster({
+			position: 'right',
+			theme: 'form-error-message',
+			autoClose: 'false',
+			maxWidth: 300
+		});
 	},
 
 	onMetadataModelLoaded: function(metadataModel) {
@@ -132,13 +142,96 @@ module.exports = React.createClass({
 		var fieldType = this.fieldData.get('type');
 		$('.type-specific-field').addClass('hide');
 		$('.'+fieldType+'-specific-field').removeClass('hide');
-		if (['double', 'float', 'byte', 'short', 'integer', 'long'].indexOf(fieldType) >= 0) {
-			$('def-value-field').addClass('numeric-input');
-		} else {
-			$('def-value-field').removeClass('numeric-input');
-		}
 		if (this.fieldData.get('array')) {
 			$('#array-len-wrapper').removeClass('hide');
+		}
+
+		var numberTypes = ['double', 'float', 'integer', 'byte', 'short', 'long'];
+		if (numberTypes.indexOf(fieldType) !== -1) {
+			$('#def-value-field').addClass('numeric-input');
+		} else {
+			$('#def-value-field').removeClass('numeric-input');
+		}
+	},
+
+	enforceValidation: function(e) {
+		var targetField = e.currentTarget;
+		var $targetField = $(targetField);
+		var fieldVal = $targetField.val();
+		var errorMessage = '';
+
+		if ($targetField.attr('required') && !fieldVal) {
+			errorMessage += 'This is a required field!<br>';
+		}
+
+		//numeric fields must only contain numbers
+		if ($targetField.hasClass('numeric-input') &&  
+		    (isNaN(fieldVal) || fieldVal.match(/\s/))) { //isNaN ignores leading/trailing whitespace
+			errorMessage += 'Value must be a number.<br>';
+		}
+
+		//names must start with an alphabetic character and contain only alphanumerics
+		if (targetField.id === 'name-field') {
+			var nameMaxLen = FormValueConstants.NAME_MAX_LENGTH;
+			if (!fieldVal) {
+				errorMessage += 'Please provide a field name.<br>';
+			} 
+			if (fieldVal.length > nameMaxLen) { 
+				errorMessage += 'Names can be '+nameMaxLen+' characters long at most.<br>';
+			}
+			if (!fieldVal.match(/^[A-Za-z][A-Za-z0-9]*$/)) {
+				errorMessage += 'Names must start with a letter and contain only alphanumeric characters.<br>';
+			}
+		}
+
+		//the max field must be >= the min field, and vice versa
+		if (targetField.id === 'max-value-field' && !isNaN($('#min-value-field').val())
+		 	&& parseFloat(fieldVal) < parseFloat($('#min-value-field').val())) {
+			errorMessage += 'Max value must be greater than or equal to min value.<br>';
+		}
+
+		if (targetField.id === 'min-value-field' && !isNaN($('#max-value-field').val())
+		 	&& parseFloat(fieldVal) > parseFloat($('#max-value-field').val())) {
+			errorMessage += 'Min value must be less than or equal to max value.<br>';
+		}
+
+		//default-value field for numbers must be within the min max range
+		if (targetField.id === 'def-value-field' && $targetField.hasClass('numeric-input')) {
+			if (!isNaN($('#max-value-field').val()) &&
+				parseFloat(fieldVal) < parseFloat($('#min-value-field').val())) {
+				errorMessage += 'Default value must be greater than or equal to min value.<br>';
+			}
+			if (!isNaN($('#max-value-field').val()) &&
+				parseFloat(fieldVal) > parseFloat($('#max-value-field').val())) {
+				errorMessage += 'Default value must be less than or equal to max value.<br>';
+			}
+		}
+
+		//default-value field for strings has a user-defined max length
+		if (targetField.id === 'def-value-field' && this.fieldData.get('type') === 'string' &&
+			fieldVal.length > parseInt($('#str-len-field').val(), 10)) {
+			errorMessage += 'Default value must be within defined max length.<br>';
+		}
+
+		//can't store sequences of non-positive length
+		if (targetField.id === 'array-len-field' && parseInt(fieldVal, 10) <= 0 && fieldData.match(/[-\.]/)) {
+			errorMessage += 'Please enter a positive integer.<br>';
+		}
+
+		var $fieldLabel = $targetField.next('label');
+		$fieldLabel.addClass('active');
+
+		if (errorMessage) {
+			if (errorMessage.lastIndexOf('<br>') === errorMessage.length - 4) {
+				errorMessage = errorMessage.substring(0, errorMessage.length - '<br>'.length);
+			}
+			$targetField.addClass('invalid');
+			$fieldLabel.tooltipster('content', $('<span>'+errorMessage+'</span>'));
+			$fieldLabel.tooltipster('show');
+			$targetField.focus(); //force the user to fix it right away
+		} else {
+			$targetField.removeClass('invalid');
+			$fieldLabel.tooltipster('hide');
 		}
 	},
 
@@ -367,7 +460,7 @@ module.exports = React.createClass({
 		$enumValueSelect.html('<option value="default" disabled>loading enum values...</option>');
 		$enumValueSelect.material_select();
 		if (!enumId || enumId === 'default') {
-			$enumValueSelect.html('<option value="default" disabled>select default value</option>');
+			$enumValueSelect.html('<option value="default" disabled>select asdf default asdf value</option>');
 			$enumValueSelect.prop('disabled', true);
 			$enumValueSelect.material_select();
 			return;
@@ -503,12 +596,14 @@ module.exports = React.createClass({
 	},
 
 	getFormContents: function() {
+		var validationHandler = this.enforceValidation;
 		return (
-			<form className='hide col s12' action='#!'>
+			<form id = 'dmx-form' className='hide col s12' action='#!'>
 				<div className='row'>
 					<div className='input-field col s4'>
-						<input type='text' id='name-field' className='text-input' spellCheck = 'false' />
-						<label htmlFor='name-field' id='name-label'>name</label>
+						<input type='text' id='name-field' className='text-input'
+						 onBlur={validationHandler} spellCheck = 'false' required />
+						<label htmlFor='name-field' id='name-label' className='error-tooltipped'>name</label>
 					</div>
 					<div id='field-type-dropdown' className='input-field col offset-s4 s4'>
 						<select id='field-type-select' className='type-selector form-select'>
@@ -558,13 +653,15 @@ module.exports = React.createClass({
 				<div className='row'>
 					<div className='col s4 input-field type-specific-field double-specific-field float-specific-field byte-specific-field
 						integer-specific-field long-specific-field short-specific-field string-specific-field ref-specific-field'>
-						<input type='text' id='def-value-field' className='text-input' spellCheck = 'false' />
-						<label htmlFor='def-value-field' id='def-value-label'>default value</label>
+						<input type='text' id='def-value-field' className='text-input'
+						 onBlur={validationHandler} spellCheck = 'false' />
+						<label htmlFor='def-value-field' id='def-value-label' className='error-tooltipped'>default value</label>
 					</div>
 					<div className='col s4 type-specific-field boolean-specific-field'>
 						<br />
-						<input type='checkbox' id='def-value-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
-						<label htmlFor='def-value-checkbox' id='def-value-bool-label'>default value</label>
+						<input type='checkbox' id='def-value-checkbox' className='filled-in'
+						 onBlur={validationHandler} onChange={this.saveUiToGoogle} />
+						<label htmlFor='def-value-checkbox' id='def-value-bool-label' className='error-tooltipped'>default value</label>
 					</div>
 					<div className='input-field col s4 type-specific-field enum-specific-field'>
 						<div id='enum-value-dropdown'>
@@ -585,25 +682,29 @@ module.exports = React.createClass({
 						<label htmlFor='array-checkbox' id='array-label'>array</label>
 					</div>
 					<div id='array-len-wrapper' className='input-field col type-specific-field s4'>
-						<input type='text' id='array-len-field' className='text-input numeric-input' />
-						<label htmlFor='array-len-field' id='array-len-label'>array length</label>
+						<input type='text' id='array-len-field' className='text-input numeric-input' 
+							   onBlur={validationHandler} required />
+						<label htmlFor='array-len-field' id='array-len-label' className='error-tooltipped'>array length</label>
 					</div>
 				</div>
 				<div className='row type-specific-field string-specific-field'>
 					<div className='input-field col s4'>
-						<input type='text' id='str-len-field' className='text-input numeric-input' />
-						<label htmlFor='str-len-field' id='str-len-label'>max string length</label>
+						<input type='text' id='str-len-field' className='text-input numeric-input'
+						 onBlur={validationHandler} required />
+						<label htmlFor='str-len-field' id='str-len-label' className='error-tooltipped' >max string length</label>
 					</div>
 				</div>
 				<div className='row type-specific-field double-specific-field float-specific-field byte-specific-field
 				     integer-specific-field long-specific-field short-specific-field'>
 					<div className='input-field col s4'>
-						<input type='text' id='min-value-field' className='text-input numeric-input' />
-						<label htmlFor='min-value-field' id='min-value-label'>min value</label>
+						<input type='text' id='min-value-field' className='text-input numeric-input'
+						 onBlur={validationHandler} />
+						<label htmlFor='min-value-field' id='min-value-label' className='error-tooltipped'>min value</label>
 					</div>
 					<div className='input-field col s4'>
-						<input type='text' id='max-value-field' className='text-input numeric-input' />
-						<label htmlFor='max-value-field' id='max-value-label'>max value</label>
+						<input type='text' id='max-value-field' className='text-input numeric-input'
+						 onBlur={validationHandler} />
+						<label htmlFor='max-value-field' id='max-value-label' className='error-tooltipped'>max value</label>
 					</div>
 				</div>
 				<div className='row'>

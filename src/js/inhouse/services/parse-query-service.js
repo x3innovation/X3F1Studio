@@ -13,7 +13,7 @@ function ParseQueryService() {
 				if (qTokens[j].indexOf('.') > 0) {
 					paramTokenFound = true;
 					paramPos = j + 1;
-					while (!qTokens[paramPos].match(/^\[.*\]$/)) { //search until a token matches the pattern [...]
+					while (qTokens[paramPos].indexOf('[') === -1 || qTokens[paramPos].indexOf(']') === -1) {
 						paramPos++;
 						if (paramPos > qTokens.length) {
 							paramTokenFound = false;
@@ -40,7 +40,7 @@ function ParseQueryService() {
 		var fieldName = splitToken[1];
 		var fields;
 		var fieldData;
-		paramName = paramName.replace('[', '').replace(']', '');
+		paramName = paramName.substring(paramName.indexOf('[') + 1, paramName.indexOf(']'));
 		for (i = 0, len = dataObjectsJson.length; i<len; i++) {
 			if (dataObjectsJson[i]._name === dataObjName) {
 				fields = dataObjectsJson[i].Field;

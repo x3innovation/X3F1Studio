@@ -36,7 +36,7 @@ module.exports = function(grunt) {
 			'store-1.3.17.js',
 			'x2js-1.1.7.js',
 			'anijs-0.9.2.js',
-			'jquery.slimscroll-1.3.0.js',
+			'jquery.slimscroll-1.3.6.js',
 			'jquery.flip-1.0.0.js',
 			'autosize-2.0.0.js',
 			'jquery.dataTables-1.10.7.js',

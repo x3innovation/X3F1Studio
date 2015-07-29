@@ -104,16 +104,13 @@ module.exports = React.createClass({
 	},
 
 	initializeTooltips: function() {
-		$.fn.tooltipster('setDefaults', {
+		var deleteBtnHtml = '<a class="delete-tooltip waves-effect waves btn-flat">delete</a>';
+		$('.delete-tooltipped').tooltipster({
+			content: $(deleteBtnHtml).on('click', this.onDeleteBtnClick),
 			position: 'top',
 			trigger: 'click',
 			speed: 250,
-			interactive: true,
-			onlyOne: false
-		});
-		var deleteBtnHtml = '<a class="delete-tooltip waves-effect waves btn-flat">delete</a>';
-		$('.delete-tooltipped').tooltipster({
-			content: $(deleteBtnHtml).on('click', this.onDeleteBtnClick)
+			interactive: true
 		});
 	},
 
