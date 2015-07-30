@@ -110,6 +110,7 @@ module.exports = React.createClass({
 			position: 'top',
 			trigger: 'click',
 			speed: 250,
+			arrow: false, 
 			interactive: true
 		});
 	},
@@ -231,7 +232,10 @@ module.exports = React.createClass({
 	},
 
 	onAddBtnClick: function() {
-		// getting the first value N where newFieldN is not used
+		if ($('#dmx-form').find('.invalid-field').length) {
+			return;
+		}
+		// getting the first value N where NewFieldN is not used
 		var NEW_FIELD_NAME = 'NewField';
 		var newFieldNum = 0;
 		var newIndex = 1;
@@ -262,6 +266,9 @@ module.exports = React.createClass({
 	},
 
 	onFieldClick: function(e) {
+		if ($('form').find('.invalid-field').length) {
+			return;
+		}
 		var $clickedField = $(e.currentTarget);
 		if ($clickedField.hasClass('selected-cell')) { return false; }
 		this.selectedFieldId = $clickedField.find('input').attr('data-field-id');

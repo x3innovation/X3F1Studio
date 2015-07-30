@@ -70,6 +70,9 @@ module.exports = React.createClass({
 	},
 
 	onToProjectBtnClick: function() {
+		if ($('.body-wrapper').find('.invalid-field').length) {
+			return;
+		}
 		var params = {
 			projectFileId: this.getParams().projectFileId,
 			projectFolderFileId: this.getParams().projectFolderFileId

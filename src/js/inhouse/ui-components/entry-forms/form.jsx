@@ -23,6 +23,8 @@ module.exports = React.createClass({
 
 	componentDidMount: function() {
 		this.initializeTooltips();
+		window.onbeforeunload = this.showWarningMessageWhenInvalid;
+		window.onunload = this.showWarningMessageWhenInvalid;
 	},
 
 	componentWillUnmount: function() {
@@ -36,6 +38,13 @@ module.exports = React.createClass({
 	/* ******************************************
 			   NON LIFE CYCLE FUNCTIONS
 	****************************************** */
+	showWarningMessageWhenInvalid: function(e) {
+		if ($('.invalid-field').length) {
+			return "Warning, invalid fields were found, please fix them before navigating away.";
+		}
+		return null;
+	},
+
 	onGapiFileLoaded: function(doc) {
 		this.gModel = doc.getModel();
 		this.gFields = this.gModel.getRoot().get(this.props.gapiKey).fields;
@@ -47,8 +56,9 @@ module.exports = React.createClass({
 		$('.error-tooltipped').tooltipster({
 			position: 'right',
 			theme: 'form-error-message',
-			autoClose: 'false',
-			maxWidth: 300
+			autoClose: false,
+			maxWidth: 300,
+			offsetY: '6px'
 		});
 	},
 
@@ -97,8 +107,6 @@ module.exports = React.createClass({
 
 	updateUi: function() {
 		if (this.fieldData === 0) { return;	}
-
-		this.displayCorrectUiComponents();
 		$('#field-type-select').val(this.fieldData.get('type'));
 		$('#enum-value-select').val(this.fieldData.get('enumValue'));
 		$('#ref-soft-radio').prop('checked', this.fieldData.get('refType') === 'soft');
@@ -138,99 +146,126 @@ module.exports = React.createClass({
 		this.gFields.set(fieldIndex, this.fieldData);
 	},
 
-	displayCorrectUiComponents: function() {
-		var fieldType = this.fieldData.get('type');
+	displayCorrectUiComponents: function(fieldType) {
+		fieldType = fieldType || this.fieldData.get('type');
 		$('.type-specific-field').addClass('hide');
 		$('.'+fieldType+'-specific-field').removeClass('hide');
 		if (this.fieldData.get('array')) {
 			$('#array-len-wrapper').removeClass('hide');
 		}
 
-		var numberTypes = ['double', 'float', 'integer', 'byte', 'short', 'long'];
-		if (numberTypes.indexOf(fieldType) !== -1) {
+		$('.invalid-field.hide').next('label').tooltipster('hide');
+		$('.invalid-field.hide').removeClass('invalid-field');
+
+		var floatTypes = 'double float';
+		var integerTypes = 'integer byte short long';
+		if (floatTypes.indexOf(fieldType) !== -1 || integerTypes.indexOf(fieldType) !== -1) {
 			$('#def-value-field').addClass('numeric-input');
 		} else {
 			$('#def-value-field').removeClass('numeric-input');
+		}
+
+		if (integerTypes.indexOf(fieldType) !== -1) {
+			$('#min-value-field').addClass('integer-input');
+			$('#max-value-field').addClass('integer-input');
+			$('#def-value-field').addClass('integer-input');
+		} else {
+			$('#min-value-field').removeClass('integer-input');
+			$('#max-value-field').removeClass('integer-input');
+			$('#def-value-field').removeClass('integer-input');
 		}
 	},
 
 	enforceValidation: function(e) {
 		var targetField = e.currentTarget;
+		this.validateField(targetField);
+	},
+
+	validateField: function(targetField, fieldType) {
 		var $targetField = $(targetField);
 		var fieldVal = $targetField.val();
 		var errorMessage = '';
 
-		if ($targetField.attr('required') && !fieldVal) {
-			errorMessage += 'This is a required field!<br>';
+		fieldType = fieldType || this.fieldData.get('type');
+
+		if ($targetField.prop('required') && !fieldVal) {
+			errorMessage += 'This is a required field! ';
 		}
 
 		//numeric fields must only contain numbers
-		if ($targetField.hasClass('numeric-input') &&  
-		    (isNaN(fieldVal) || fieldVal.match(/\s/))) { //isNaN ignores leading/trailing whitespace
-			errorMessage += 'Value must be a number.<br>';
+		if (!errorMessage && $targetField.hasClass('numeric-input') &&  
+		    (isNaN(fieldVal) || fieldVal.indexOf(' ') !== -1)) { //isNaN ignores leading/trailing whitespace
+			errorMessage += 'Value should be a number. ';
+		}
+
+		//integer fields must only contain numbers
+		if (!errorMessage && $targetField.hasClass('integer-input') && fieldVal.indexOf('.') !== -1) {
+			errorMessage += 'Value should be an integer. ';
 		}
 
 		//names must start with an alphabetic character and contain only alphanumerics
-		if (targetField.id === 'name-field') {
+		if (!errorMessage && targetField.id === 'name-field') {
 			var nameMaxLen = FormValueConstants.NAME_MAX_LENGTH;
-			if (!fieldVal) {
-				errorMessage += 'Please provide a field name.<br>';
-			} 
+			for (i = 0, len = this.gFields.length; i < len; i++) {
+				if (this.gFields.get(i).get('name').toString() === fieldVal &&
+				    this.gFields.get(i).id != this.fieldData.id) {
+					errorMessage += 'This name is already in use. ';
+					break;
+				}
+			}
 			if (fieldVal.length > nameMaxLen) { 
-				errorMessage += 'Names can be '+nameMaxLen+' characters long at most.<br>';
+				errorMessage += 'Names can be '+nameMaxLen+' characters long at most. ';
 			}
 			if (!fieldVal.match(/^[A-Za-z][A-Za-z0-9]*$/)) {
-				errorMessage += 'Names must start with a letter and contain only alphanumeric characters.<br>';
+				errorMessage += 'Names should start with a letter and contain only alphanumeric characters. ';
 			}
 		}
 
 		//the max field must be >= the min field, and vice versa
-		if (targetField.id === 'max-value-field' && !isNaN($('#min-value-field').val())
+		if (!errorMessage && targetField.id === 'max-value-field' && !isNaN($('#min-value-field').val())
 		 	&& parseFloat(fieldVal) < parseFloat($('#min-value-field').val())) {
-			errorMessage += 'Max value must be greater than or equal to min value.<br>';
+			errorMessage += 'Max value should be greater than or equal to min value. ';
 		}
 
-		if (targetField.id === 'min-value-field' && !isNaN($('#max-value-field').val())
+		if (!errorMessage && targetField.id === 'min-value-field' && !isNaN($('#max-value-field').val())
 		 	&& parseFloat(fieldVal) > parseFloat($('#max-value-field').val())) {
-			errorMessage += 'Min value must be less than or equal to max value.<br>';
+			errorMessage += 'Min value should be less than or equal to max value. ';
 		}
 
 		//default-value field for numbers must be within the min max range
-		if (targetField.id === 'def-value-field' && $targetField.hasClass('numeric-input')) {
+		if (!errorMessage && targetField.id === 'def-value-field' && $targetField.hasClass('numeric-input')  && fieldVal) {
 			if (!isNaN($('#max-value-field').val()) &&
 				parseFloat(fieldVal) < parseFloat($('#min-value-field').val())) {
-				errorMessage += 'Default value must be greater than or equal to min value.<br>';
+				errorMessage += 'Default value should be greater than or equal to min value. ';
 			}
 			if (!isNaN($('#max-value-field').val()) &&
 				parseFloat(fieldVal) > parseFloat($('#max-value-field').val())) {
-				errorMessage += 'Default value must be less than or equal to max value.<br>';
+				errorMessage += 'Default value should be less than or equal to max value. ';
 			}
 		}
 
 		//default-value field for strings has a user-defined max length
-		if (targetField.id === 'def-value-field' && this.fieldData.get('type') === 'string' &&
+		if (!errorMessage && targetField.id === 'def-value-field' && fieldType === 'string' &&
 			fieldVal.length > parseInt($('#str-len-field').val(), 10)) {
-			errorMessage += 'Default value must be within defined max length.<br>';
+			errorMessage += 'Default value should be within defined max string length. ';
 		}
 
-		//can't store sequences of non-positive length
-		if (targetField.id === 'array-len-field' && parseInt(fieldVal, 10) <= 0 && fieldData.match(/[-\.]/)) {
-			errorMessage += 'Please enter a positive integer.<br>';
+		//can't store strings or sequences of non-positive length
+		if (!errorMessage && (targetField.id === 'array-len-field' || targetField.id === 'str-len-field') && 
+			parseInt(fieldVal, 10) <= 0) {
+			errorMessage += 'Please enter a positive integer. ';
 		}
 
 		var $fieldLabel = $targetField.next('label');
 		$fieldLabel.addClass('active');
 
 		if (errorMessage) {
-			if (errorMessage.lastIndexOf('<br>') === errorMessage.length - 4) {
-				errorMessage = errorMessage.substring(0, errorMessage.length - '<br>'.length);
-			}
-			$targetField.addClass('invalid');
-			$fieldLabel.tooltipster('content', $('<span>'+errorMessage+'</span>'));
+			$targetField.addClass('invalid-field');
+			$fieldLabel.tooltipster('content', errorMessage);
 			$fieldLabel.tooltipster('show');
-			$targetField.focus(); //force the user to fix it right away
-		} else {
-			$targetField.removeClass('invalid');
+			//$targetField.focus(); //force user to fix
+		} else if ($targetField.hasClass('invalid-field')) {
+			$targetField.removeClass('invalid-field');
 			$fieldLabel.tooltipster('hide');
 		}
 	},
@@ -256,15 +291,21 @@ module.exports = React.createClass({
 		
 		this.fieldSelected = true;
 		$('form').removeClass('hide');
+
+		var that = this;
 		var selectedFieldId = data.selectedFieldId;
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			if (this.gFields.get(i).id === selectedFieldId) {
 				this.fieldData = this.gFields.get(i);
 				this.updateUi();
+				this.displayCorrectUiComponents();
 				this.setSelectOptions();
 				this.rebindStrings();
 				this.alignAllLabels();
 				this.setEnumValues(this.fieldData.get('enumId'));
+				$('.text-input:visible').each(function() {
+					that.validateField(this);
+				});
 				break;
 			}
 		}
@@ -333,9 +374,16 @@ module.exports = React.createClass({
 	},
 
 	onFieldTypeChanged: function(newFieldType) {
+		var that = this;
+
 		if (newFieldType === 'enum') {
 			this.setEnumValues(this.fieldData.get('enumId'));
 		}
+		
+		this.displayCorrectUiComponents(newFieldType);
+		$('.text-input:visible').each(function() {
+			that.validateField(this);
+		});
 		this.saveUiToGoogle();
 	},
 
@@ -603,7 +651,7 @@ module.exports = React.createClass({
 					<div className='input-field col s4'>
 						<input type='text' id='name-field' className='text-input'
 						 onBlur={validationHandler} spellCheck = 'false' required />
-						<label htmlFor='name-field' id='name-label' className='error-tooltipped'>name</label>
+						<label htmlFor='name-field' id='name-label' className='error-tooltipped'>name *</label>
 					</div>
 					<div id='field-type-dropdown' className='input-field col offset-s4 s4'>
 						<select id='field-type-select' className='type-selector form-select'>
@@ -671,7 +719,7 @@ module.exports = React.createClass({
 							<label htmlFor='enum-value-select' id='enum-value-label'>default enum value</label>
 						</div>
 						</div>
-					<div id='checkbox-field' className='col s3 offset-s1'>
+					<div id='checkbox-field' className='col s4'>
 						<input type='checkbox' id='read-only-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
 						<label htmlFor='read-only-checkbox' id='read-only-label'>read only</label>
 						<br />
@@ -682,16 +730,16 @@ module.exports = React.createClass({
 						<label htmlFor='array-checkbox' id='array-label'>array</label>
 					</div>
 					<div id='array-len-wrapper' className='input-field col type-specific-field s4'>
-						<input type='text' id='array-len-field' className='text-input numeric-input' 
+						<input type='text' id='array-len-field' className='text-input numeric-input integer-input' 
 							   onBlur={validationHandler} required />
-						<label htmlFor='array-len-field' id='array-len-label' className='error-tooltipped'>array length</label>
+						<label htmlFor='array-len-field' id='array-len-label' className='error-tooltipped'>array length *</label>
 					</div>
 				</div>
 				<div className='row type-specific-field string-specific-field'>
 					<div className='input-field col s4'>
-						<input type='text' id='str-len-field' className='text-input numeric-input'
+						<input type='text' id='str-len-field' className='text-input numeric-input integer-input'
 						 onBlur={validationHandler} required />
-						<label htmlFor='str-len-field' id='str-len-label' className='error-tooltipped' >max string length</label>
+						<label htmlFor='str-len-field' id='str-len-label' className='error-tooltipped' >max string length *</label>
 					</div>
 				</div>
 				<div className='row type-specific-field double-specific-field float-specific-field byte-specific-field
