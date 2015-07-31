@@ -1,9 +1,10 @@
 var EventType = require('../../constants/event-type.js');
 var AnnouncementType = require('../../constants/announcement-type.js');
 var GDriveConstants = require('../../constants/google-drive-constants.js');
-var FormValueConstants = require('../../constants/form-value-constants.js');
 
 var GDriveService = require('../../services/google-drive-service.js');
+
+var Configs = require('../../app-config.js');
 
 module.exports = React.createClass({
 	/* ******************************************
@@ -13,6 +14,7 @@ module.exports = React.createClass({
 		this.gModel = null;
 		this.gFields = null;
 		this.fieldData = null;
+		this.fieldDataId = null;
 		this.fieldSelected = false;
 		this.gBindings = [];
 
@@ -31,11 +33,21 @@ module.exports = React.createClass({
 			}
 		});
 		window.onbeforeunload = this.showWarningMessageWhenInvalid;
-		window.onunload = this.showWarningMessageWhenInvalid;
+		window.onhashchange = this.showWarningMessageWhenInvalid;
+
+		setInterval(this.enforceValidation, Configs.EntryForm.VALIDATION_INTERVAL);
 	},
 
 	componentWillUnmount: function() {
+		this.gModel = null;
+		this.gFields = null;
+		this.fieldData = null;
+		this.fieldDataId = null;
+		this.fieldSelected = false;
+		this.gBindings = [];
+
 		if (this.gFields) { this.gFields.removeAllEventListeners(); }
+		$('.error-tooltipped').tooltipster('destroy');
 
 		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'form.jsx>>onGapiFileLoaded');
 		Bullet.off(EventType.EntryForm.METADATA_MODEL_LOADED, 'form.jsx>>onMetadataModelLoaded');
@@ -47,8 +59,8 @@ module.exports = React.createClass({
 	****************************************** */
 	showWarningMessageWhenInvalid: function(e) {
 		this.enforceValidation();
-		if ($('.invalid-field').length) {
-			return "Warning: Invalid fields were found, please fix them before navigating away.";
+		if ($('.invalid-input').length) {
+			return 'Warning: Invalid fields were found, please fix them before navigating away.';
 		}
 		return null;
 	},
@@ -66,7 +78,8 @@ module.exports = React.createClass({
 			theme: 'form-error-message',
 			autoClose: false,
 			maxWidth: 300,
-			offsetY: '6px'
+			offsetY: '6px',
+			trigger: 'custom'
 		});
 	},
 
@@ -114,7 +127,7 @@ module.exports = React.createClass({
 	},
 
 	updateUi: function() {
-		if (this.fieldData === 0) { return;	}
+		if (!this.fieldData) { return;	}
 		this.displayCorrectUiComponents();
 		$('#field-type-select').val(this.fieldData.get('type'));
 		$('#enum-value-select').val(this.fieldData.get('enumValue'));
@@ -163,8 +176,8 @@ module.exports = React.createClass({
 			$('#array-len-wrapper').removeClass('hide');
 		}
 
-		$('.invalid-field.hide').next('label').tooltipster('hide');
-		$('.invalid-field.hide').removeClass('invalid-field');
+		$('.invalid-input.hide').next('label').tooltipster('hide');
+		$('.invalid-input.hide').removeClass('invalid-input');
 
 		var floatTypes = 'double float';
 		var integerTypes = 'integer byte short long';
@@ -185,28 +198,29 @@ module.exports = React.createClass({
 		}
 	},
 
-	enforceValidation: function(fieldType) { //fieldType is optional
+	enforceValidation: function(fieldType) {
+		if (!this.gModel || !this.fieldData) { return; } //if field not selected, validation doesn't make sense
+
 		var validateField = this.validateField;
+		fieldType = fieldType || this.fieldData.get('type');
 		$('.validated-input:visible').each(function() {
 			validateField(this, fieldType);
 		});
 	},
 
 	enforceSingleFieldValidation: function(e) {
-		this.validateField(e.currentTarget);
+		if (!this.gModel || !this.fieldData) { return; } //if google model not connected, validation doesn't make sense
+
+		this.validateField(e.currentTarget, this.fieldData.get('type'));
 	},
 
 	validateField: function(targetField, fieldType) {
-		if (!this.gModel) { return; } //if google model not connected, validation doesn't make sense
-
 		var $targetField = $(targetField);
 		var fieldVal = $targetField.val();
 		var errorMessage = '';
 
-		fieldType = fieldType || this.fieldData.get('type');
-
 		if ($targetField.prop('required') && !fieldVal) {
-			errorMessage += 'This is a required field! ';
+			errorMessage += 'This is a required field. ';
 		}
 
 		//numeric fields must only contain numbers
@@ -222,10 +236,9 @@ module.exports = React.createClass({
 
 		//names must start with an alphabetic character and contain only alphanumerics
 		if (!errorMessage && targetField.id === 'name-field') {
-			var nameMaxLen = FormValueConstants.NAME_MAX_LENGTH;
+			var nameMaxLen = Configs.EntryForm.FIELD_NAME_LENGTH_MAX;
 			for (i = 0, len = this.gFields.length; i < len; i++) {
-				if (this.gFields.get(i).get('name').toString() === fieldVal &&
-				    this.gFields.get(i).id != this.fieldData.id) {
+				if (this.gFields.get(i).get('name').toString() === fieldVal && this.gFields.get(i).id !== this.fieldDataId) {
 					errorMessage += 'This name is already in use. ';
 					break;
 				}
@@ -242,11 +255,6 @@ module.exports = React.createClass({
 		if (!errorMessage && targetField.id === 'max-value-field' && !isNaN($('#min-value-field').val())
 		 	&& parseFloat(fieldVal) < parseFloat($('#min-value-field').val())) {
 			errorMessage += 'Max value should be greater than or equal to min value. ';
-		}
-
-		if (!errorMessage && targetField.id === 'min-value-field' && !isNaN($('#max-value-field').val())
-		 	&& parseFloat(fieldVal) > parseFloat($('#max-value-field').val())) {
-			errorMessage += 'Min value should be less than or equal to max value. ';
 		}
 
 		//default-value field for numbers must be within the min max range
@@ -274,15 +282,22 @@ module.exports = React.createClass({
 		}
 
 		var $fieldLabel = $targetField.next('label');
-		$fieldLabel.addClass('active');
 
 		if (errorMessage) {
-			$targetField.addClass('invalid-field');
-			$fieldLabel.tooltipster('content', errorMessage);
+			$targetField.addClass('invalid-input');
+			if ($fieldLabel.tooltipster('content') !== errorMessage) {
+				$fieldLabel.tooltipster('content', errorMessage);
+			}
+			if (targetField.id === 'max-value-field') {
+				$('#min-value-field').addClass('invalid-input');
+			}
 			$fieldLabel.tooltipster('show');
 			//$targetField.focus(); //force user to fix
-		} else if ($targetField.hasClass('invalid-field')) {
-			$targetField.removeClass('invalid-field');
+		} else if ($targetField.hasClass('invalid-input')) {
+			$targetField.removeClass('invalid-input');
+			if (targetField.id === 'max-value-field') {
+				$('#min-value-field').remove('invalid-input');
+			}
 			$fieldLabel.tooltipster('hide');
 		}
 	},
@@ -300,6 +315,7 @@ module.exports = React.createClass({
 
 	onFieldSelected: function(data) {
 		this.fieldData = null; //clear and get again
+		this.fieldDataId = null;
 		if (data.fieldCount === 0) {
 			this.fieldSelected = false;
 			$('form').addClass('hide');
@@ -314,6 +330,7 @@ module.exports = React.createClass({
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			if (this.gFields.get(i).id === selectedFieldId) {
 				this.fieldData = this.gFields.get(i);
+				this.fieldDataId = selectedFieldId;
 				this.updateUi();
 				this.setSelectOptions();
 				this.rebindStrings();
@@ -340,6 +357,7 @@ module.exports = React.createClass({
 			} else {
 				$label.removeClass('active');
 			}
+			var $textField = $('#'+$label.attr('for'));
 		};
 
 		var nameString = this.fieldData.get('name'); //getting each collaborative string
@@ -411,13 +429,14 @@ module.exports = React.createClass({
 				newEnumId = $element.attr('data-file-id');
 				that.fieldData.set('enumId', newEnumId);
 				that.setEnumValues(newEnumId);
+				return false;
 			}
 		});
 		this.saveUiToGoogle();
 	},
 
 	loadDataFiles: function() {
-		var objectsToGet = {
+		var objectsToGet = { //only need the dmx types
 			persistentData: true,
 			enum: true,
 			snippet: true,
@@ -449,8 +468,7 @@ module.exports = React.createClass({
 						fileType: fileObjects[i].description
 					});
 					break;
-				default:
-					break;
+				default: break;
 			}
 		}
 		this.setSelectOptions();
@@ -492,6 +510,7 @@ module.exports = React.createClass({
 			$enumNameSelect.html(enumOptions);
 			if (this.fieldData) { $enumNameSelect.val(this.fieldData.get('enumId')); }
 			else { $enumNameSelect.val('default'); }
+			
 			$enumNameSelect.material_select(function() {
 				that.onEnumTypeChanged($('#enum-name-dropdown').find('.select-dropdown').val());
 			});
@@ -517,7 +536,7 @@ module.exports = React.createClass({
 		$enumValueSelect.html('<option value="default" disabled>loading enum values...</option>');
 		$enumValueSelect.material_select();
 		if (!enumId || enumId === 'default') {
-			$enumValueSelect.html('<option value="default" disabled>select asdf default asdf value</option>');
+			$enumValueSelect.html('<option value="default" disabled>select default value</option>');
 			$enumValueSelect.prop('disabled', true);
 			$enumValueSelect.material_select();
 			return;
@@ -648,19 +667,19 @@ module.exports = React.createClass({
 			var $element = $(element);
 			if ($element.text() === enumValue) {
 				$('#enum-value-dropdown').find('.select-dropdown').val(enumValue);
+				return false;
 			}
 		});
 	},
 
 	getFormContents: function() {
 		var inputHandler = this.enforceSingleFieldValidation; //only check current field to save time
-		var blurHandler = this.enforceValidation; //check all fields
 		return (
 			<form id = 'dmx-form' className='hide col s12' action='#!'>
 				<div className='row'>
 					<div className='input-field col s4'>
 						<input type='text' id='name-field' className='text-input validated-input'
-						 onInput={inputHandler} onBlur={blurHandler} spellCheck = 'false' required />
+						 onInput={inputHandler} spellCheck = 'false' required />
 						<label htmlFor='name-field' id='name-label' className='error-tooltipped'>name *</label>
 					</div>
 					<div id='field-type-dropdown' className='input-field col offset-s4 s4'>
@@ -712,7 +731,7 @@ module.exports = React.createClass({
 					<div className='col s4 input-field type-specific-field double-specific-field float-specific-field byte-specific-field
 						integer-specific-field long-specific-field short-specific-field string-specific-field ref-specific-field'>
 						<input type='text' id='def-value-field' className='text-input validated-input'
-						 onInput={inputHandler} onBlur={blurHandler} spellCheck = 'false' />
+						 onInput={inputHandler} spellCheck = 'false' />
 						<label htmlFor='def-value-field' id='def-value-label' className='error-tooltipped'>default value</label>
 					</div>
 					<div className='col s4 type-specific-field boolean-specific-field'>
@@ -740,14 +759,14 @@ module.exports = React.createClass({
 					</div>
 					<div id='array-len-wrapper' className='input-field col type-specific-field s4'>
 						<input type='text' id='array-len-field' className='text-input validated-input numeric-input integer-input' 
-							   onInput={inputHandler} onBlur={blurHandler} required />
+							   onInput={inputHandler} required />
 						<label htmlFor='array-len-field' id='array-len-label' className='error-tooltipped'>array length *</label>
 					</div>
 				</div>
 				<div className='row type-specific-field string-specific-field'>
 					<div className='input-field col s4'>
 						<input type='text' id='str-len-field' className='text-input validated-input numeric-input integer-input'
-						 onInput={inputHandler} onBlur={blurHandler} required />
+						 onInput={inputHandler} required />
 						<label htmlFor='str-len-field' id='str-len-label' className='error-tooltipped' >max string length *</label>
 					</div>
 				</div>
@@ -755,12 +774,12 @@ module.exports = React.createClass({
 				     integer-specific-field long-specific-field short-specific-field'>
 					<div className='input-field col s4'>
 						<input type='text' id='min-value-field' className='text-input validated-input numeric-input'
-						 onInput={inputHandler} onBlur={blurHandler} />
+						 onInput={inputHandler} />
 						<label htmlFor='min-value-field' id='min-value-label' className='error-tooltipped'>min value</label>
 					</div>
 					<div className='input-field col s4'>
 						<input type='text' id='max-value-field' className='text-input validated-input numeric-input'
-						 onInput={inputHandler} onBlur={blurHandler} />
+						 onInput={inputHandler} />
 						<label htmlFor='max-value-field' id='max-value-label' className='error-tooltipped'>max value</label>
 					</div>
 				</div>

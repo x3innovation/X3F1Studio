@@ -4,6 +4,7 @@ var AnnouncementType = require('../../constants/announcement-type.js');
 var DefaultFields = DefaultValueConstants.DefaultFieldAttributes;
 
 var GDriveService = require('../../services/google-drive-service.js');
+
 var Configs = require('../../app-config.js');
 
 module.exports = React.createClass({
@@ -12,6 +13,7 @@ module.exports = React.createClass({
 	****************************************** */
 	componentWillMount: function() {
 		this.metadataModel = null;
+		this.gModel = null;
 		this.gFields = null;
 		this.table = null;
 		this.selectedRowIndex = null;
@@ -20,8 +22,22 @@ module.exports = React.createClass({
 		Bullet.on(EventType.EntryForm.METADATA_MODEL_LOADED, 'enum-elements.jsx>>onMetadataModelLoaded', this.onMetadataModelLoaded);
 	},
 
+	componentDidMount: function() {
+		window.onbeforeunload = this.showWarningMessageWhenInvalid;
+		window.onhashchange = this.showWarningMessageWhenInvalid;
+
+		setInterval(this.enforceValidation, Configs.EntryForm.VALIDATION_INTERVAL);
+	},
+
 	componentWillUnmount: function() {
+		this.metadataModel = null;
+		this.gModel = null;
+		this.gFields = null;
+		this.table = null;
+		this.selectedRowIndex = null;
+
 		if (this.gFields) { this.gFields.removeAllEventListeners(); }
+		$('.error-tooltipped').tooltipster('destroy');
 
 		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'enum-elements.jsx>>onGapiFileLoaded');
 		Bullet.off(EventType.EntryForm.METADATA_MODEL_LOADED, 'enum-elements.jsx>>onMetadataModelLoaded');
@@ -30,8 +46,17 @@ module.exports = React.createClass({
 	/* ******************************************
 			NON LIFE CYCLE FUNCTIONS
 	****************************************** */
+	showWarningMessageWhenInvalid: function(e) {
+		this.enforceValidation();
+		if ($('.invalid-input').length) {
+			return "Warning: Invalid fields were found, please fix them before navigating away.";
+		}
+		return null;
+	},
+
 	onGapiFileLoaded: function(doc) {
-		this.gFields = doc.getModel().getRoot().get(this.props.gapiKey).fields;
+		this.gModel = doc.getModel().getRoot().get(this.props.gapiKey);
+		this.gFields = this.gModel.fields;
 		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this.updateUi);
 		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this.updateUi);
 		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_SET, this.updateUi);
@@ -45,6 +70,7 @@ module.exports = React.createClass({
 	updateUi: function() {
 		this.initializeTable();
 		this.selectRow();
+		this.enforceValidation();
 	},
 
 	initializeTable: function() {
@@ -79,7 +105,7 @@ module.exports = React.createClass({
 				className: 'enum-cell enum-name-cell',
 				render: function(data, type, row, meta) {
 					return '<input type="text" spellcheck="false" placeholder="please enter a name" data-enum-index='+
-						row.index+' value="'+data+'" class="enum-table-input enum-name-input">'+
+						row.index+' value="'+data+'" class="enum-table-input enum-name-input error-tooltipped" required>'+
 						'<span class="hide">'+data+'</span>'; //for searching
 				},
 			}, {
@@ -90,7 +116,7 @@ module.exports = React.createClass({
 				render: function(data, type, row, meta) {
 					return '<input type="text" spellcheck="false" placeholder="enter description" data-enum-index='+
 						row.index+' value="'+data+'" class="enum-table-input enum-description-input">'+
-						'<span class="hide">'+data+'</span>';
+						'<span class="hide">'+data+'</span>'; //for searching
 				},
 			}]
 		});
@@ -101,9 +127,75 @@ module.exports = React.createClass({
 		var that = this;
 		$('.enum-table-input').each(function(index, element) {
 			var $element = $(element);
-			if ($element.val() === '') { $element.addClass('empty-input'); }
-			$element.keypress(that.keyPressHandler).blur(that.saveCell);
+			$element.keypress(that.keyPressHandler)
+			        .blur(that.saveCell);
+
+			if ($element.hasClass('error-tooltipped')) {
+				$element.keyup(that.enforceSingleFieldValidation);
+			}
 		});
+
+		$('.error-tooltipped').tooltipster({
+			position: 'right',
+			theme: 'enum-error-message',
+			autoClose: false,
+			maxWidth: 300,
+			trigger: 'custom'
+		});
+	},
+
+	enforceSingleFieldValidation: function(e) {
+		this.validateField(e.currentTarget);
+	},
+
+	enforceValidation: function(e) {
+		var validateField = this.validateField;
+		$('.error-tooltipped').each(function() {
+			validateField(this);
+		});
+	},
+
+	validateField: function(targetField) {
+		if (!this.gModel) { return; } //if google model not connected, validation doesn't make sense
+
+		var $targetField = $(targetField);
+		var fieldVal = $targetField.val();
+		var errorMessage = '';
+
+		if ($targetField.prop('required') && !fieldVal) {
+			errorMessage += 'This is a required field. ';
+		}
+
+		//names must start with an alphabetic character and contain only alphanumerics
+		if (!errorMessage && $targetField.hasClass('enum-name-input')) {
+			var nameMaxLen = Configs.EntryForm.FIELD_NAME_LENGTH_MAX;
+			$('.enum-name-input').each(function() {
+				var $thisField = $(this);
+				if ($thisField.val() === fieldVal && !$thisField.is($targetField)) {
+					errorMessage += 'This name is already in use. ';
+					return false;
+				}
+			})
+
+			if (fieldVal.length > nameMaxLen) { 
+				errorMessage += 'Names can be '+nameMaxLen+' characters long at most. ';
+			}
+			if (!fieldVal.match(/^[A-Za-z][A-Za-z0-9]*$/)) {
+				errorMessage += 'Names should start with a letter and contain only alphanumeric characters. ';
+			}
+		}
+
+		if (errorMessage) {
+			if ($targetField.tooltipster('content') !== errorMessage) {
+				$targetField.tooltipster('content', errorMessage);
+			}
+			$targetField.tooltipster('show');
+			$targetField.addClass('invalid-input');
+			//$targetField.focus(); //force user to fix
+		} else if ($targetField.hasClass('invalid-input')) {
+			$targetField.removeClass('invalid-input');
+			$targetField.tooltipster('hide');
+		}
 	},
 
 	keyPressHandler: function(e) {
@@ -118,19 +210,14 @@ module.exports = React.createClass({
 		var $target = $(e.target);
 		var $selectedRow = $target.closest('tr');
 		var index = parseInt($selectedRow.find('.enum-index-cell').text(), 10);
-		if (!$target.val()) {
-			$target.addClass('empty-input');
-		} else {
-			$target.removeClass('empty-input');
-		}
+		var renamedEnum = {
+			index: index,
+			name: $selectedRow.find('.enum-name-input').val(),
+			description: $selectedRow.find('.enum-description-input').val()
+		};
 
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			if (this.gFields.get(i).index === index) {
-				var renamedEnum = {
-					index: index,
-					name: $selectedRow.find('.enum-name-input').val(),
-					description: $selectedRow.find('.enum-description-input').val()
-				};
 				this.table.row($selectedRow).invalidate('dom');
 				if (renamedEnum.name !== this.gFields.get(i).name) {
 					this.gFields.set(i, renamedEnum);
@@ -166,6 +253,7 @@ module.exports = React.createClass({
 			var $element = $(element);
 			if ($element.text() === ""+that.selectedRowIndex) {
 				$selectedRow = $element.closest('tr');
+				return false;
 			}
 		});
 		$selectedRow.find('td').addClass('selected-cell');

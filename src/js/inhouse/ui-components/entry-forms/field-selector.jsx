@@ -24,6 +24,13 @@ module.exports = React.createClass({
 	},
 
 	componentWillUnmount: function() {
+		this.gBindings = [];
+		this.table = null;
+		this.gFields = null;
+		this.gModel = null;
+		this.fields = null;
+		this.selectedFieldId = null;
+		
 		if (this.gFields) { this.gFields.removeAllEventListeners(); }
 
 		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'field-selector.jsx>>onGapiFileLoaded');
@@ -127,6 +134,7 @@ module.exports = React.createClass({
 				if ($element.find('input').attr('data-field-id') === that.selectedFieldId) {
 					$element.addClass('selected-cell');
 					if (scroll) { $('.dataTables_scrollBody').scrollTop($element.position().top - 100); }
+					return false;
 				}
 			});
 		} else {
@@ -232,7 +240,7 @@ module.exports = React.createClass({
 	},
 
 	onAddBtnClick: function() {
-		if ($('#dmx-form').find('.invalid-field').length) {
+		if ($('#dmx-form').find('.invalid-input').length) {
 			return;
 		}
 		// getting the first value N where NewFieldN is not used
@@ -266,7 +274,7 @@ module.exports = React.createClass({
 	},
 
 	onFieldClick: function(e) {
-		if ($('form').find('.invalid-field').length) {
+		if ($('form').find('.invalid-input').length) {
 			return;
 		}
 		var $clickedField = $(e.currentTarget);

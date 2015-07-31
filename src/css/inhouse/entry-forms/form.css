@@ -45,7 +45,7 @@ select.form-select{
     background-color: #5d8ce3;
 }
 
-[type='text'].invalid-field + label {
+[type='text'].invalid-input + label {
     font-size: 0.8rem;
     color: #f44336 !important;
     -webkit-transform: translateY(-140%);
@@ -55,7 +55,7 @@ select.form-select{
     transform: translateY(-140%);
 }
 
-.invalid-field {
+.invalid-input {
     border-bottom: 1px solid #F44336 !important;
     box-shadow: 0 1px 0 0 #F44336 !important;
 }

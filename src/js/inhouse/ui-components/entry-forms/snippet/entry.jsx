@@ -72,7 +72,7 @@ module.exports = React.createClass({
 	},
 
 	onToProjectBtnClick: function() {
-		if ($('.body-wrapper').find('.invalid-field').length) {
+		if ($('.body-wrapper').find('.invalid-input').length) {
 			return;
 		}
 		var params = {
