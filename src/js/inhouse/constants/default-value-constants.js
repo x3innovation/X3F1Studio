@@ -22,7 +22,7 @@ module.exports = {
 		FIELD_DEF_BOOL_VALUE : false,
 		FIELD_MIN_VALUE : '',
 		FIELD_MAX_VALUE : '',
-		FIELD_STR_LEN : '',
+		FIELD_STR_LEN : '8',
 		FIELD_REF_ID : 'default',
 		FIELD_REF_NAME : '',
 		FIELD_REF_TYPE : '',

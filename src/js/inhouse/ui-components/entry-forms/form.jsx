@@ -23,6 +23,13 @@ module.exports = React.createClass({
 
 	componentDidMount: function() {
 		this.initializeTooltips();
+		$('.text-input').keypress(function(e) {
+			var code = (e.keyCode || e.which);
+			if (code === 13) { //enter was detected, ignore keypress
+				$(e.currentTarget).blur();
+				return false;
+			}
+		});
 		window.onbeforeunload = this.showWarningMessageWhenInvalid;
 		window.onunload = this.showWarningMessageWhenInvalid;
 	},
@@ -39,8 +46,9 @@ module.exports = React.createClass({
 			   NON LIFE CYCLE FUNCTIONS
 	****************************************** */
 	showWarningMessageWhenInvalid: function(e) {
+		this.enforceValidation();
 		if ($('.invalid-field').length) {
-			return "Warning, invalid fields were found, please fix them before navigating away.";
+			return "Warning: Invalid fields were found, please fix them before navigating away.";
 		}
 		return null;
 	},
@@ -107,6 +115,7 @@ module.exports = React.createClass({
 
 	updateUi: function() {
 		if (this.fieldData === 0) { return;	}
+		this.displayCorrectUiComponents();
 		$('#field-type-select').val(this.fieldData.get('type'));
 		$('#enum-value-select').val(this.fieldData.get('enumValue'));
 		$('#ref-soft-radio').prop('checked', this.fieldData.get('refType') === 'soft');
@@ -176,12 +185,20 @@ module.exports = React.createClass({
 		}
 	},
 
-	enforceValidation: function(e) {
-		var targetField = e.currentTarget;
-		this.validateField(targetField);
+	enforceValidation: function(fieldType) { //fieldType is optional
+		var validateField = this.validateField;
+		$('.validated-input:visible').each(function() {
+			validateField(this, fieldType);
+		});
+	},
+
+	enforceSingleFieldValidation: function(e) {
+		this.validateField(e.currentTarget);
 	},
 
 	validateField: function(targetField, fieldType) {
+		if (!this.gModel) { return; } //if google model not connected, validation doesn't make sense
+
 		var $targetField = $(targetField);
 		var fieldVal = $targetField.val();
 		var errorMessage = '';
@@ -298,14 +315,11 @@ module.exports = React.createClass({
 			if (this.gFields.get(i).id === selectedFieldId) {
 				this.fieldData = this.gFields.get(i);
 				this.updateUi();
-				this.displayCorrectUiComponents();
 				this.setSelectOptions();
 				this.rebindStrings();
 				this.alignAllLabels();
 				this.setEnumValues(this.fieldData.get('enumId'));
-				$('.text-input:visible').each(function() {
-					that.validateField(this);
-				});
+				this.enforceValidation();
 				break;
 			}
 		}
@@ -374,16 +388,11 @@ module.exports = React.createClass({
 	},
 
 	onFieldTypeChanged: function(newFieldType) {
-		var that = this;
-
 		if (newFieldType === 'enum') {
 			this.setEnumValues(this.fieldData.get('enumId'));
 		}
-		
 		this.displayCorrectUiComponents(newFieldType);
-		$('.text-input:visible').each(function() {
-			that.validateField(this);
-		});
+		this.enforceValidation(newFieldType);
 		this.saveUiToGoogle();
 	},
 
@@ -644,13 +653,14 @@ module.exports = React.createClass({
 	},
 
 	getFormContents: function() {
-		var validationHandler = this.enforceValidation;
+		var inputHandler = this.enforceSingleFieldValidation; //only check current field to save time
+		var blurHandler = this.enforceValidation; //check all fields
 		return (
 			<form id = 'dmx-form' className='hide col s12' action='#!'>
 				<div className='row'>
 					<div className='input-field col s4'>
-						<input type='text' id='name-field' className='text-input'
-						 onBlur={validationHandler} spellCheck = 'false' required />
+						<input type='text' id='name-field' className='text-input validated-input'
+						 onInput={inputHandler} onBlur={blurHandler} spellCheck = 'false' required />
 						<label htmlFor='name-field' id='name-label' className='error-tooltipped'>name *</label>
 					</div>
 					<div id='field-type-dropdown' className='input-field col offset-s4 s4'>
@@ -701,14 +711,13 @@ module.exports = React.createClass({
 				<div className='row'>
 					<div className='col s4 input-field type-specific-field double-specific-field float-specific-field byte-specific-field
 						integer-specific-field long-specific-field short-specific-field string-specific-field ref-specific-field'>
-						<input type='text' id='def-value-field' className='text-input'
-						 onBlur={validationHandler} spellCheck = 'false' />
+						<input type='text' id='def-value-field' className='text-input validated-input'
+						 onInput={inputHandler} onBlur={blurHandler} spellCheck = 'false' />
 						<label htmlFor='def-value-field' id='def-value-label' className='error-tooltipped'>default value</label>
 					</div>
 					<div className='col s4 type-specific-field boolean-specific-field'>
 						<br />
-						<input type='checkbox' id='def-value-checkbox' className='filled-in'
-						 onBlur={validationHandler} onChange={this.saveUiToGoogle} />
+						<input type='checkbox' id='def-value-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
 						<label htmlFor='def-value-checkbox' id='def-value-bool-label' className='error-tooltipped'>default value</label>
 					</div>
 					<div className='input-field col s4 type-specific-field enum-specific-field'>
@@ -730,28 +739,28 @@ module.exports = React.createClass({
 						<label htmlFor='array-checkbox' id='array-label'>array</label>
 					</div>
 					<div id='array-len-wrapper' className='input-field col type-specific-field s4'>
-						<input type='text' id='array-len-field' className='text-input numeric-input integer-input' 
-							   onBlur={validationHandler} required />
+						<input type='text' id='array-len-field' className='text-input validated-input numeric-input integer-input' 
+							   onInput={inputHandler} onBlur={blurHandler} required />
 						<label htmlFor='array-len-field' id='array-len-label' className='error-tooltipped'>array length *</label>
 					</div>
 				</div>
 				<div className='row type-specific-field string-specific-field'>
 					<div className='input-field col s4'>
-						<input type='text' id='str-len-field' className='text-input numeric-input integer-input'
-						 onBlur={validationHandler} required />
+						<input type='text' id='str-len-field' className='text-input validated-input numeric-input integer-input'
+						 onInput={inputHandler} onBlur={blurHandler} required />
 						<label htmlFor='str-len-field' id='str-len-label' className='error-tooltipped' >max string length *</label>
 					</div>
 				</div>
 				<div className='row type-specific-field double-specific-field float-specific-field byte-specific-field
 				     integer-specific-field long-specific-field short-specific-field'>
 					<div className='input-field col s4'>
-						<input type='text' id='min-value-field' className='text-input numeric-input'
-						 onBlur={validationHandler} />
+						<input type='text' id='min-value-field' className='text-input validated-input numeric-input'
+						 onInput={inputHandler} onBlur={blurHandler} />
 						<label htmlFor='min-value-field' id='min-value-label' className='error-tooltipped'>min value</label>
 					</div>
 					<div className='input-field col s4'>
-						<input type='text' id='max-value-field' className='text-input numeric-input'
-						 onBlur={validationHandler} />
+						<input type='text' id='max-value-field' className='text-input validated-input numeric-input'
+						 onInput={inputHandler} onBlur={blurHandler} />
 						<label htmlFor='max-value-field' id='max-value-label' className='error-tooltipped'>max value</label>
 					</div>
 				</div>
