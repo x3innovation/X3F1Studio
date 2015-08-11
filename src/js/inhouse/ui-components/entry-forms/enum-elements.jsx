@@ -145,10 +145,14 @@ module.exports = React.createClass({
 	},
 
 	enforceSingleFieldValidation: function(e) {
+		if (!this.gModel) { return; } //if google model not connected, validation doesn't make sense
+
 		this.validateField(e.currentTarget);
 	},
 
 	enforceValidation: function(e) {
+		if (!this.gModel) { return; } //if google model not connected, validation doesn't make sense
+
 		var validateField = this.validateField;
 		$('.error-tooltipped').each(function() {
 			validateField(this);
@@ -156,34 +160,8 @@ module.exports = React.createClass({
 	},
 
 	validateField: function(targetField) {
-		if (!this.gModel) { return; } //if google model not connected, validation doesn't make sense
-
 		var $targetField = $(targetField);
-		var fieldVal = $targetField.val();
-		var errorMessage = '';
-
-		if ($targetField.prop('required') && !fieldVal) {
-			errorMessage += 'This is a required field. ';
-		}
-
-		//names must start with an alphabetic character and contain only alphanumerics
-		if (!errorMessage && $targetField.hasClass('enum-name-input')) {
-			var nameMaxLen = Configs.EntryForm.FIELD_NAME_LENGTH_MAX;
-			$('.enum-name-input').each(function() {
-				var $thisField = $(this);
-				if ($thisField.val() === fieldVal && !$thisField.is($targetField)) {
-					errorMessage += 'This name is already in use. ';
-					return false;
-				}
-			})
-
-			if (fieldVal.length > nameMaxLen) { 
-				errorMessage += 'Names can be '+nameMaxLen+' characters long at most. ';
-			}
-			if (!fieldVal.match(/^[A-Za-z][A-Za-z0-9]*$/)) {
-				errorMessage += 'Names should start with a letter and contain only alphanumeric characters. ';
-			}
-		}
+		var errorMessage = this.makeErrorMessage(targetField);
 
 		if (errorMessage) {
 			if ($targetField.tooltipster('content') !== errorMessage) {
@@ -196,6 +174,36 @@ module.exports = React.createClass({
 			$targetField.removeClass('invalid-input');
 			$targetField.tooltipster('hide');
 		}
+	},
+
+	makeErrorMessage: function(targetField) {
+		var $targetField = $(targetField);
+		var fieldVal = $targetField.val();
+		var errorMessage = '';
+
+		if (!errorMessage && $targetField.prop('required') && !fieldVal) {
+			errorMessage += 'This is a required field. ';
+		}
+
+		//names must start with an alphabetic character and contain only alphanumerics
+		if (!errorMessage && $targetField.hasClass('enum-name-input')) {
+			$('.enum-name-input').each(function() {
+				var $thisField = $(this);
+				if ($thisField.val() === fieldVal && !$thisField.is($targetField)) {
+					errorMessage += 'This name is already in use. ';
+					return false;
+				}
+			})
+
+			if (fieldVal.length > Configs.EntryForm.FIELD_NAME_LENGTH_MAX) { 
+				errorMessage += 'Names can be '+Configs.EntryForm.FIELD_NAME_LENGTH_MAX+' characters long at most. ';
+			}
+			if (!fieldVal.match(/^[A-Za-z][A-Za-z0-9]*$/)) {
+				errorMessage += 'Names should start with a letter and contain only alphanumeric characters. ';
+			}
+		}
+
+		return errorMessage;
 	},
 
 	keyPressHandler: function(e) {

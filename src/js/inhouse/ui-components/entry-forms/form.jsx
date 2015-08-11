@@ -216,10 +216,35 @@ module.exports = React.createClass({
 
 	validateField: function(targetField, fieldType) {
 		var $targetField = $(targetField);
+		var errorMessage = this.makeErrorMessage(targetField, fieldType);
+
+		var $fieldLabel = $targetField.next('label');
+
+		if (errorMessage) {
+			$targetField.addClass('invalid-input');
+			if ($fieldLabel.tooltipster('content') !== errorMessage) {
+				$fieldLabel.tooltipster('content', errorMessage);
+			}
+			if (targetField.id === 'max-value-field') {
+				$('#min-value-field').addClass('invalid-input');
+			}
+			$fieldLabel.tooltipster('show');
+			//$targetField.focus(); //force user to fix
+		} else if ($targetField.hasClass('invalid-input')) {
+			$targetField.removeClass('invalid-input');
+			if (targetField.id === 'max-value-field') {
+				$('#min-value-field').remove('invalid-input');
+			}
+			$fieldLabel.tooltipster('hide');
+		}
+	},
+
+	makeErrorMessage: function(targetField, fieldType) {
+		var $targetField = $(targetField);
 		var fieldVal = $targetField.val();
 		var errorMessage = '';
 
-		if ($targetField.prop('required') && !fieldVal) {
+		if (!errorMessage && $targetField.prop('required') && !fieldVal) {
 			errorMessage += 'This is a required field. ';
 		}
 
@@ -229,22 +254,21 @@ module.exports = React.createClass({
 			errorMessage += 'Value should be a number. ';
 		}
 
-		//integer fields must only contain numbers
+		//integer fields must only contain integers
 		if (!errorMessage && $targetField.hasClass('integer-input') && fieldVal.indexOf('.') !== -1) {
 			errorMessage += 'Value should be an integer. ';
 		}
 
 		//names must start with an alphabetic character and contain only alphanumerics
 		if (!errorMessage && targetField.id === 'name-field') {
-			var nameMaxLen = Configs.EntryForm.FIELD_NAME_LENGTH_MAX;
 			for (i = 0, len = this.gFields.length; i < len; i++) {
 				if (this.gFields.get(i).get('name').toString() === fieldVal && this.gFields.get(i).id !== this.fieldDataId) {
 					errorMessage += 'This name is already in use. ';
 					break;
 				}
 			}
-			if (fieldVal.length > nameMaxLen) { 
-				errorMessage += 'Names can be '+nameMaxLen+' characters long at most. ';
+			if (fieldVal.length > Configs.EntryForm.FIELD_NAME_LENGTH_MAX) { 
+				errorMessage += 'Names should be '+Configs.EntryForm.FIELD_NAME_LENGTH_MAX+' characters long at most. ';
 			}
 			if (!fieldVal.match(/^[A-Za-z][A-Za-z0-9]*$/)) {
 				errorMessage += 'Names should start with a letter and contain only alphanumeric characters. ';
@@ -281,25 +305,7 @@ module.exports = React.createClass({
 			errorMessage += 'Please enter a positive integer. ';
 		}
 
-		var $fieldLabel = $targetField.next('label');
-
-		if (errorMessage) {
-			$targetField.addClass('invalid-input');
-			if ($fieldLabel.tooltipster('content') !== errorMessage) {
-				$fieldLabel.tooltipster('content', errorMessage);
-			}
-			if (targetField.id === 'max-value-field') {
-				$('#min-value-field').addClass('invalid-input');
-			}
-			$fieldLabel.tooltipster('show');
-			//$targetField.focus(); //force user to fix
-		} else if ($targetField.hasClass('invalid-input')) {
-			$targetField.removeClass('invalid-input');
-			if (targetField.id === 'max-value-field') {
-				$('#min-value-field').remove('invalid-input');
-			}
-			$fieldLabel.tooltipster('hide');
-		}
+		return errorMessage;
 	},
 
 	alignAllLabels: function() {
