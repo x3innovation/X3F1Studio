@@ -82,7 +82,7 @@ module.exports = React.createClass({
 		});
 
 		// need to get rid of 25% width once page is rendered
-		var outerWidth = $('.row .col.s3').outerWidth() - 1;
+		var outerWidth = $('.f1-project-card').outerWidth() - 1;
 		$('.row .col.s3').css('width', outerWidth);
 
 		// apply single click to flip
@@ -233,7 +233,7 @@ module.exports = React.createClass({
 				contentHeader = 'Enums';
 				break;
 			case GDriveCons.ObjectType.FLOW:
-				/* FLOW OBJECT CONTENT HEADER */
+				/* ***TODO*** */
 				break;
 			default:
 				break;
@@ -326,8 +326,10 @@ module.exports = React.createClass({
 		var params = {
 			projectFileId: this.props.projectFileId,
 			projectFolderFileId: this.props.projectFolderFileId,
-			fileId: this.props.fileId
+			fileId: this.props.fileId,
+			fileType: this.props.objectType
 		};
+		/*
 		if (this.props.objectType === GDriveCons.ObjectType.PERSISTENT_DATA) {
 			this.transitionTo('persistentDataEntry', params);
 		} else if (this.props.objectType === GDriveCons.ObjectType.EVENT) {
@@ -339,6 +341,8 @@ module.exports = React.createClass({
 		} else if (this.props.objectType === GDriveCons.ObjectType.FLOW) {
 			//this.transitionTo('flowEntry', params);
 		}
+		*/
+		this.transitionTo('formEditor', params);
 	},
 
 	render: function()

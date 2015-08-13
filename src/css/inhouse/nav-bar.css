@@ -6,7 +6,7 @@
 	left: 15px;
 	width: 26px;
 	height: 35px;
-	background: url("../img/pannIcon.png");
+	background: url("../img/pannIcon.png") no-repeat;
 	background-size: 26px 35px;
 }
 

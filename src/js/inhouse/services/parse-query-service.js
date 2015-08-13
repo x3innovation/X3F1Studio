@@ -13,7 +13,8 @@ function ParseQueryService() {
 				if (qTokens[j].indexOf('.') > 0) {
 					paramTokenFound = true;
 					paramPos = j + 1;
-					while (!qTokens[paramPos].match(/^\[.*\]$/)) { //search until a token matches the pattern [...]
+					while (qTokens[paramPos].indexOf('[') === -1 || qTokens[paramPos].indexOf(']') === -1 ||
+							qTokens[paramPos].indexOf('[') >= qTokens[paramPos].indexOf(']')) {
 						paramPos++;
 						if (paramPos > qTokens.length) {
 							paramTokenFound = false;
@@ -53,42 +54,47 @@ function ParseQueryService() {
 				break;
 			}
 		}
-		var annotationValue = '';
-		switch (fieldData._type) {
-			case 'double': annotationValue = 'Double Value'; break;
-			case 'float': annotationValue = 'Float Value'; break;
-			case 'byte': annotationValue = 'Byte Value'; break;
-			case 'short': annotationValue = 'Short Value'; break;
-			case 'int': annotationValue = 'Integer Value'; break;
-			case 'long': annotationValue = 'Long Value'; break;
-			case 'string': annotationValue = 'String Value'; break;
-			case 'boolean': annotationValue = 'Boolean Value'; break;
-			case 'datetime': annotationValue = 'Datetime Value'; break;
-			case 'nanotime': annotationValue = 'Nanotime Value'; break;
-			default: break;
-		}
 
+		var paramAlreadySet = false;
 		for (i = 0, len = query.Parameter.length; i<len; i++) {
 			var qParam = query.Parameter[i];
 			if (qParam._name === paramName) { //if the parameter was already set, replace the fields with the max
+				paramAlreadySet = true;
 				for (var paramAttribute in qParam) {
 					if (!isNaN(qParam[paramAttribute])) {
 						qParam[paramAttribute] = '' + Math.max(qParam[paramAttribute], fieldData[paramAttribute]);
 					}
 				}
-				return;
+				break;
 			}
 		}
 
-		var fieldDataCopy = $.extend({}, fieldData); //clone fieldData
-		query.Parameter.push(fieldDataCopy);
-		var lastParam = query.Parameter[query.Parameter.length - 1];
-		lastParam._name = paramName;
-		lastParam._optional = 'false';
-		lastParam.Annotation = [{
-			_name: 'description',
-			_svalue: annotationValue
-		}];
+		if (!paramAlreadySet) {
+			var annotationValue = '';
+			var annotationValueLookup = {
+				'double': 'Double Value',
+				'float': 'Float Value',
+				'byte': 'Byte Value',
+				'short': 'Short Value',
+				'int': 'Integer Value',
+				'long': 'Long Value',
+				'string': 'String Value',
+				'boolean': 'Boolean Value',
+				'datetime': 'Datetime Value',
+				'nanotime': 'Nanotime Value'
+			}
+			annotationValue = annotationValueLookup[fieldData._type];
+
+			var fieldDataCopy = $.extend({}, fieldData); //clone fieldData
+			query.Parameter.push(fieldDataCopy);
+			var lastParam = query.Parameter[query.Parameter.length - 1];
+			lastParam._name = paramName;
+			lastParam._optional = 'false';
+			lastParam.Annotation = [{
+				_name: 'description',
+				_svalue: annotationValue
+			}];
+		}
 	};
 
 	// //////// public members

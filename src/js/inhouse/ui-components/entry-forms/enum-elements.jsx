@@ -11,6 +11,7 @@ module.exports = React.createClass({
 				LIFE CYCLE FUNCTIONS
 	****************************************** */
 	componentWillMount: function() {
+		//***avnd//
 		this.metadataModel = null;
 		this.gFields = null;
 		this.table = null;

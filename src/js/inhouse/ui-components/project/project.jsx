@@ -226,9 +226,10 @@ module.exports = React.createClass({
 		this.createObjectTimeout = setTimeout(function() {
 			var params = {
 				projectFolderFileId: this.getParams().projectFolderFileId,
-				projectFileId: this.getParams().projectFileId
+				projectFileId: this.getParams().projectFileId,
+				fileType: GDriveCons.ObjectType.PERSISTENT_DATA
 			};
-			this.transitionTo('persistentDataCreate', params);
+			this.transitionTo('formCreate', params);
 		}.bind(this), 300);
 	},
 
@@ -238,9 +239,10 @@ module.exports = React.createClass({
 		this.createObjectTimeout = setTimeout(function() {
 			var params = {
 				projectFolderFileId: this.getParams().projectFolderFileId,
-				projectFileId: this.getParams().projectFileId
+				projectFileId: this.getParams().projectFileId,
+				fileType: GDriveCons.ObjectType.ENUM
 			};
-			this.transitionTo('enumCreate', params);
+			this.transitionTo('formCreate', params);
 		}.bind(this), 300);
 	},
 
@@ -250,9 +252,10 @@ module.exports = React.createClass({
 		this.createObjectTimeout = setTimeout(function() {
 			var params = {
 				projectFolderFileId: this.getParams().projectFolderFileId,
-				projectFileId: this.getParams().projectFileId
+				projectFileId: this.getParams().projectFileId,
+				fileType: GDriveCons.ObjectType.SNIPPET
 			};
-			this.transitionTo('snippetCreate', params);
+			this.transitionTo('formCreate', params);
 		}.bind(this), 300);
 	},
 
@@ -262,9 +265,10 @@ module.exports = React.createClass({
 		this.createObjectTimeout = setTimeout(function() {
 			var params = {
 				projectFolderFileId: this.getParams().projectFolderFileId,
-				projectFileId: this.getParams().projectFileId
+				projectFileId: this.getParams().projectFileId,
+				fileType: GDriveCons.ObjectType.EVENT
 			};
-			this.transitionTo('eventCreate', params);
+			this.transitionTo('formCreate', params);
 		}.bind(this), 300);
 	},
 
