@@ -220,61 +220,42 @@ module.exports = React.createClass({
 		this.toggleButton(button, model);
 	},
 
-	onAddPersistentDataBtnClick: function()
-	{
-		clearTimeout(this.createObjectTimeout);
-		this.createObjectTimeout = setTimeout(function() {
-			var params = {
-				projectFolderFileId: this.getParams().projectFolderFileId,
-				projectFileId: this.getParams().projectFileId,
-				fileType: GDriveCons.ObjectType.PERSISTENT_DATA
-			};
-			this.transitionTo('formCreate', params);
-		}.bind(this), 300);
+	onAddPersistentDataBtnClick: function() {
+		this.createObjectAndTransitionTo(GDriveCons.ObjectType.PERSISTENT_DATA);
 	},
 
-	onAddEnumBtnClick: function()
-	{
-		clearTimeout(this.createObjectTimeout);
-		this.createObjectTimeout = setTimeout(function() {
-			var params = {
-				projectFolderFileId: this.getParams().projectFolderFileId,
-				projectFileId: this.getParams().projectFileId,
-				fileType: GDriveCons.ObjectType.ENUM
-			};
-			this.transitionTo('formCreate', params);
-		}.bind(this), 300);
+	onAddEnumBtnClick: function() {
+		this.createObjectAndTransitionTo(GDriveCons.ObjectType.ENUM);
 	},
 
-	onAddSnippetBtnClick: function()
-	{
-		clearTimeout(this.createObjectTimeout);
-		this.createObjectTimeout = setTimeout(function() {
-			var params = {
-				projectFolderFileId: this.getParams().projectFolderFileId,
-				projectFileId: this.getParams().projectFileId,
-				fileType: GDriveCons.ObjectType.SNIPPET
-			};
-			this.transitionTo('formCreate', params);
-		}.bind(this), 300);
+	onAddSnippetBtnClick: function() {
+		this.createObjectAndTransitionTo(GDriveCons.ObjectType.SNIPPET);
 	},
 
-	onAddEventBtnClick: function()
-	{
-		clearTimeout(this.createObjectTimeout);
-		this.createObjectTimeout = setTimeout(function() {
-			var params = {
-				projectFolderFileId: this.getParams().projectFolderFileId,
-				projectFileId: this.getParams().projectFileId,
-				fileType: GDriveCons.ObjectType.EVENT
-			};
-			this.transitionTo('formCreate', params);
-		}.bind(this), 300);
+	onAddEventBtnClick: function() {
+		this.createObjectAndTransitionTo(GDriveCons.ObjectType.EVENT);
 	},
 
-	onAddFlowBtnClick: function()
-	{
+	onAddFlowBtnClick: function() {
 		/*does nothing for now*/
+	},
+
+	createObjectAndTransitionTo: function(fileType) {
+		clearTimeout(this.createObjectTimeout);
+		var that = this;
+		this.createObjectTimeout = setTimeout(function() {
+			var routerParams = that.getParams();
+			googleDriveService.createNewF1Object(fileType, routerParams.projectFolderFileId, function(file) {
+				var params = {
+					projectFolderFileId: routerParams.projectFolderFileId,
+					projectFileId: routerParams.projectFileId,
+					fileType: fileType,
+					fileId: file.id
+				};
+
+				that.transitionTo('editor', params); 
+			});
+		}, 300);
 	},
 
 	toggleButton : function(button, model)

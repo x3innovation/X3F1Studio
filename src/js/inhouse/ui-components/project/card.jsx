@@ -342,7 +342,7 @@ module.exports = React.createClass({
 			//this.transitionTo('flowEntry', params);
 		}
 		*/
-		this.transitionTo('formEditor', params);
+		this.transitionTo('editor', params);
 	},
 
 	render: function()

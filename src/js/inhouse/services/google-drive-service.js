@@ -3,6 +3,7 @@ var userStore = require('../stores/user-store.js');
 var LocalStorageKey = require('../constants/local-storage-key.js');
 var GCons = require('../constants/google-drive-constants.js');
 var DefaultCons = require('../constants/default-value-constants.js');
+var AnnouncementType = require('../constants/announcement-type.js');
 
 function GoogleDriveService()
 {
@@ -249,44 +250,50 @@ function GoogleDriveService()
 		googleApiInterface.createNewFolder(folderCreationParams, createNewF1Metadata);
 	};
 
-	this.createNewPersistentData = function(parentFolderId, callback) {
+	this.createNewF1Object = function(objectType, parentFolderId, callback) {
 		var fileCreationParams = {
-			title: DefaultCons.NewFileValues.PERSISTENT_DATA_TITLE,
-			description: GCons.ObjectType.PERSISTENT_DATA,
-			parentId: parentFolderId,
-			mimeType: GCons.MimeType.DMX
+			description: objectType,
+			parentId: parentFolderId
 		};
-		googleApiInterface.createNewFile(fileCreationParams, callback);
-	};
+		switch (objectType) {
+			case (GCons.ObjectType.PERSISTENT_DATA):
+				fileCreationParams.title = DefaultCons.NewFileValues.PERSISTENT_DATA_TITLE;
+				fileCreationParams.mimeType = GCons.MimeType.DMX;
+				break;
+			case (GCons.ObjectType.EVENT):
+				fileCreationParams.title = DefaultCons.NewFileValues.EVENT_TITLE;
+				fileCreationParams.mimeType = GCons.MimeType.DMX;
+				break;
+			case (GCons.ObjectType.SNIPPET):
+				fileCreationParams.title = DefaultCons.NewFileValues.SNIPPET_TITLE;
+				fileCreationParams.mimeType = GCons.MimeType.DMX;
+				break;
+			case (GCons.ObjectType.ENUM):
+				fileCreationParams.title = DefaultCons.NewFileValues.PERSISTENT_DATA_TITLE;
+				fileCreationParams.mimeType = GCons.MimeType.DMXE;
+				break;
+			case (GCons.ObjectType.FLOW):
+				/*** TODO ***/
+				break;
+			default:
+				break;
+		}
 
-	this.createNewEnum = function(parentFolderId, callback) {
-		var fileCreationParams = {
-			title: DefaultCons.NewFileValues.ENUM_TITLE,
-			description: GCons.ObjectType.ENUM,
-			parentId: parentFolderId,
-			mimeType: GCons.MimeType.DMXE
-		};
-		googleApiInterface.createNewFile(fileCreationParams, callback);
-	};
+		var callbackWrapper = function(file) {
+			var addFileAnnouncement = {
+				action: AnnouncementType.ADD_FILE,
+				fileType: objectType,
+				fileId: file.id,
+				fileName: fileCreationParams.title
+			};
 
-	this.createNewSnippet = function(parentFolderId, callback) {
-		var fileCreationParams = {
-			title: DefaultCons.NewFileValues.SNIPPET_TITLE,
-			description: GCons.ObjectType.SNIPPET,
-			parentId: parentFolderId,
-			mimeType: GCons.MimeType.DMX
-		};
-		googleApiInterface.createNewFile(fileCreationParams, callback);
-	};
-
-	this.createNewEvent = function(parentFolderId, callback) {
-		var fileCreationParams = {
-			title: DefaultCons.NewFileValues.EVENT_TITLE,
-			description: GCons.ObjectType.EVENT,
-			parentId: parentFolderId,
-			mimeType: GCons.MimeType.DMX
-		};
-		googleApiInterface.createNewFile(fileCreationParams, callback);
+			this.getMetadataModel(parentFolderId, function(metadataModel) {
+				this.announce(metadataModel, addFileAnnouncement);
+			});
+			callback(file);
+		}.bind(this);
+		
+		googleApiInterface.createNewFile(fileCreationParams, callbackWrapper);
 	};
 }
 

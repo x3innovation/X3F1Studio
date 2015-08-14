@@ -8,16 +8,13 @@ var App = require('./ui-components/app.jsx');
 var Home = require('./ui-components/home/home.jsx');
 var Projects = require('./ui-components/projects/projects.jsx');
 var Project = require('./ui-components/project/project.jsx');
-
-var FormCreate = require('./ui-components/entry-forms/create.jsx');
-var FormEditor = require('./ui-components/entry-forms/editor.jsx');
+var Editor = require('./ui-components/entry-forms/editor.jsx');
 
 var routes = (
 	<Route name='home' path='/' handler={App}>
 		<Route name='projects' path='/projects' handler={Projects} />
 		<Route name='project' path='/project/:projectFolderFileId/:projectFileId' handler={Project} />
-		<Route name='formCreate' path='/create/:fileType/:projectFolderFileId/:projectFileId' handler={FormCreate} />
-		<Route name='formEditor' path='/editor/:fileType/:projectFolderFileId/:projectFileId/:fileId' handler={FormEditor} />
+		<Route name='editor' path='/editor/:fileType/:projectFolderFileId/:projectFileId/:fileId' handler={Editor} />
 
 		<DefaultRoute handler={Home} />
 	</Route>

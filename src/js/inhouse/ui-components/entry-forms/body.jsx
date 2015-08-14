@@ -15,10 +15,6 @@ module.exports = React.createClass({
 		Bullet.on(EventType.EntryForm.GAPI_FILE_LOADED, 'body.jsx>>onGapiFileLoaded', this.onGapiFileLoaded);
 	},
 
-	componentDidMount: function() {
-
-	},
-
 	componentWillUnmount: function() {
 		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'body.jsx>>onGapiFileLoaded');
 	},
@@ -122,7 +118,7 @@ module.exports = React.createClass({
 				);
 				break;
 
-			case fileType === GDriveConstants.ObjectType.ENUM: 
+			case GDriveConstants.ObjectType.ENUM: 
 				content = (
 					<div className = 'body-wrapper row hide'>
 						<div id = 'enum-elements-wrapper' className = 'row form-wrapper-row '>
@@ -136,9 +132,9 @@ module.exports = React.createClass({
 				);
 				break;
 
-				default:
-					content = (<div></div>);
-					break;
+			default:
+				content = (<div></div>);
+				break;
 			}
 		return content;
 	},
