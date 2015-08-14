@@ -14,7 +14,7 @@ var routes = (
 	<Route name='home' path='/' handler={App}>
 		<Route name='projects' path='/projects' handler={Projects} />
 		<Route name='project' path='/project/:projectFolderFileId/:projectFileId' handler={Project} />
-		<Route name='editor' path='/editor/:fileType/:projectFolderFileId/:projectFileId/:fileId' handler={Editor} />
+		<Route name='editor' path='/editor/:projectFolderFileId/:projectFileId/:fileId/:fileType' handler={Editor} />
 
 		<DefaultRoute handler={Home} />
 	</Route>

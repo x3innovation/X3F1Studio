@@ -91,8 +91,8 @@ module.exports = React.createClass({
 				}, 11);
 				break;
 			case ObjectTypes.EVENT:
-				gModel.title = model.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE);
-				gModel.description = model.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_DESCRIPTION);
+				gModel.title = model.createString(DefaultValueConstants.NewFileValues.EVENT_TITLE);
+				gModel.description = model.createString(DefaultValueConstants.NewFileValues.EVENT_DESCRIPTION);
 				gModel.fields = model.createList();
 				gModel.queries = model.createList();
 				GDriveService.getMetadataModelId(this.getParams().projectFileId, function(id) {
@@ -101,8 +101,8 @@ module.exports = React.createClass({
 				}, 1);
 				break;
 			case ObjectTypes.SNIPPET:
-				gModel.title = model.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE);
-				gModel.description = model.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_DESCRIPTION);
+				gModel.title = model.createString(DefaultValueConstants.NewFileValues.SNIPPET_TITLE);
+				gModel.description = model.createString(DefaultValueConstants.NewFileValues.SNIPPET_DESCRIPTION);
 				gModel.fields = model.createList();
 				GDriveService.getMetadataModelId(this.getParams().projectFileId, function(id) {
 					var thisId = id;
@@ -110,8 +110,8 @@ module.exports = React.createClass({
 				}, 1);
 				break;
 			case ObjectTypes.ENUM:
-				gModel.title = model.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE);
-				gModel.description = model.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_DESCRIPTION);
+				gModel.title = model.createString(DefaultValueConstants.NewFileValues.ENUM_TITLE);
+				gModel.description = model.createString(DefaultValueConstants.NewFileValues.ENUM_DESCRIPTION);
 				gModel.fields = model.createList();
 				GDriveService.getMetadataModelId(this.getParams().projectFileId, function(id) {
 					var thisId = id;
