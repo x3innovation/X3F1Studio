@@ -21,13 +21,15 @@ module.exports = React.createClass({
 			this.initialize();
 		}
 
+		this.fileType = this.getQuery().fileType;
+
 		var gapiKeyMap = {};
 		gapiKeyMap[ObjectTypes.PERSISTENT_DATA] = GDriveConstants.CustomObjectKey.PERSISTENT_DATA;
 		gapiKeyMap[ObjectTypes.ENUM] = GDriveConstants.CustomObjectKey.ENUM;
 		gapiKeyMap[ObjectTypes.EVENT] = GDriveConstants.CustomObjectKey.EVENT;
 		gapiKeyMap[ObjectTypes.SNIPPET] = GDriveConstants.CustomObjectKey.SNIPPET;
 
-		this.gapiKey = gapiKeyMap[this.getParams().fileType];
+		this.gapiKey = gapiKeyMap[this.fileType];
 
 		// load project objects on user logged in
 		Bullet.on(EventType.App.USER_LOGGED_IN, 'entry.jsx>>userLoggedIn', this.initialize);
@@ -41,7 +43,7 @@ module.exports = React.createClass({
 		pageTitleMap[ObjectTypes.EVENT] = PageTitleCons.EVENT_FORM_PAGE_TITLE;
 		pageTitleMap[ObjectTypes.SNIPPET] = PageTitleCons.SNIPPET_FORM_PAGE_TITLE;
 
-		var pageTitle = pageTitleMap[this.getParams().fileType];
+		var pageTitle = pageTitleMap[this.fileType];
 		Bullet.trigger(EventType.App.PAGE_CHANGE, {title: pageTitle});
 	},
 
@@ -70,7 +72,7 @@ module.exports = React.createClass({
 		var gModel = model.create(this.gapiKey);
 		model.getRoot().set(this.gapiKey, gModel);
 
-		switch (this.getParams().fileType) {
+		switch (this.fileType) {
 			case ObjectTypes.PERSISTENT_DATA:
 				gModel.title = model.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE);
 				gModel.description = model.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_DESCRIPTION);
@@ -137,7 +139,7 @@ module.exports = React.createClass({
 		var projectFileId = this.getParams().projectFileId;
 		var projectFolderFileId = this.getParams().projectFolderFileId;
 		var fileId = this.getParams().fileId;
-		var fileType = this.getParams().fileType;
+		var fileType = this.fileType;
 		var gapiKey = this.gapiKey;
 		return (
 			<div id = 'form-container' className = 'persistent-data-form container'>

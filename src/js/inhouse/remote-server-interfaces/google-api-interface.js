@@ -257,7 +257,7 @@ function GoogleApiInterface()
 						user_id: user_id,
 						scope: scope
 					});
-				}, 2700000); //refresh token every 45 minutes
+				}, 45 * 60 * 1000); //refresh token every 45 minutes
 
 				// loading Google Drive sdk asynchronously
 				gapi.client.load('drive', 'v2', function(){

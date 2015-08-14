@@ -326,8 +326,7 @@ module.exports = React.createClass({
 		var params = {
 			projectFileId: this.props.projectFileId,
 			projectFolderFileId: this.props.projectFolderFileId,
-			fileId: this.props.fileId,
-			fileType: this.props.objectType
+			fileId: this.props.fileId
 		};
 		/*
 		if (this.props.objectType === GDriveCons.ObjectType.PERSISTENT_DATA) {
@@ -342,7 +341,7 @@ module.exports = React.createClass({
 			//this.transitionTo('flowEntry', params);
 		}
 		*/
-		this.transitionTo('editor', params);
+		this.transitionTo('editor', params, {fileType: this.props.objectType});
 	},
 
 	render: function()

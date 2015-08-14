@@ -249,11 +249,10 @@ module.exports = React.createClass({
 				var params = {
 					projectFolderFileId: routerParams.projectFolderFileId,
 					projectFileId: routerParams.projectFileId,
-					fileType: fileType,
 					fileId: file.id
 				};
 
-				that.transitionTo('editor', params); 
+				that.transitionTo('editor', params, {fileType: fileType}); 
 			});
 		}, 300);
 	},
