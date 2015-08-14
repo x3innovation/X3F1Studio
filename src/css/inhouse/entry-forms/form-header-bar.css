@@ -1,0 +1,22 @@
+.header-bar-component {
+	display: inline-block;
+	overflow: hidden;
+	text-overflow: clip;
+	border: 1px solid black;
+	border-right: 0;
+	height: 1.5rem;
+
+	-webkit-transition: all 0.4s ease;
+	-moz-transition: all 0.4s ease;
+	-o-transition: all 0.4s ease;
+	transition: all 0.4s ease;
+}
+
+.header-bar-component:hover {
+	background-color: #ff8a80 !important;
+}
+
+#header-bar-row {
+	margin: 0;
+	margin-bottom: 0.5rem;
+}

@@ -50,5 +50,25 @@ module.exports = {
 	DefaultQueryAttributes : {
 		QUERY_NAME : '',
 		QUERY_DESCRIPTION : ''
+	},
+
+	FieldSizeValues : {
+		DMX_HEADER_SIZE : 44,
+
+		BYTE_SIZE : 1,
+		SHORT_SIZE : 2,
+		INTEGER_SIZE : 4,
+		LONG_SIZE : 8,
+		FLOAT_SIZE : 4,
+		DOUBLE_SIZE : 8,
+		STRING_SIZE : 4, //Plus the length of the string
+		BOOLEAN_SIZE : 1,
+		ENUM_SIZE : 4,
+		REF_SIZE : 16,
+
+		NULLBITS_SIZE : 4,
+
+		POINTER_SIZE : 4,
+		SEQUENCE_SIZE : 4
 	}
 };
