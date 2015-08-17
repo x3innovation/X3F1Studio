@@ -4,6 +4,7 @@ var GDriveConstants = require('../../constants/google-drive-constants.js');
 var EnumElements = require('./enum-elements.jsx');
 var FieldSelector = require('./field-selector.jsx');
 var Form = require('./form.jsx');
+var FormHeaderBar = require('./form-header-bar.jsx');
 var PersistentEvents = require('./persistent-events.jsx');
 var Queries = require('./queries.jsx');
 
@@ -41,6 +42,11 @@ module.exports = React.createClass({
 				content = (
 					<div className = 'body-wrapper row hide'>
 						<div className = 'form-wrapper-row row'>
+							<div className = 'col s12' id = 'form-header-bar-wrapper'>
+								<FormHeaderBar
+									projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
+									fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
+							</div>
 							<div className = 'col s4' id = 'field-selector-wrapper'>
 								<FieldSelector
 									projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
@@ -76,6 +82,11 @@ module.exports = React.createClass({
 				content = (
 					<div className = 'body-wrapper row hide'>
 						<div className = 'form-wrapper-row row'>
+							<div className = 'col s12' id = 'form-header-bar-wrapper'>
+								<FormHeaderBar
+									projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
+									fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
+							</div>
 							<div className = 'col s4' id = 'field-selector-wrapper'>
 								<FieldSelector
 									projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
@@ -103,6 +114,11 @@ module.exports = React.createClass({
 				content = (
 					<div className = 'body-wrapper row hide'>
 						<div className = 'form-wrapper-row row'>
+							<div className = 'col s12' id = 'form-header-bar-wrapper'>
+								<FormHeaderBar
+									projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
+									fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
+							</div>
 							<div className = 'col s4' id = 'field-selector-wrapper'>
 								<FieldSelector
 									projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}

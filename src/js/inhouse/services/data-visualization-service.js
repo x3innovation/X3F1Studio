@@ -19,7 +19,7 @@ function DataVisualizationService() {
 	};
 
 	// //////// public members
-	this.generateFieldModel = function(gField) {
+	this.generateFieldModel = function(gField, currByte) {
 		var fieldModel = {};
 		fieldModel.id = gField.id;
 		fieldModel.name = gField.get('name').toString();
@@ -30,13 +30,28 @@ function DataVisualizationService() {
 			fieldModel.size += parseInt(gField.get('strLen').toString(), 10);
 		}
 		if (gField.get('array')) {
-			arrayLen = parseInt(gField.get('arrayLen').toString(), 10);
-			nullBitsLength = Math.ceil(arrayLen / 32);
-			fieldModel.size = (fieldModel.size * arrayLen) + nullBitsLength;
-			fieldModel.nullBitsLength = nullBitsLength;
+			fieldModel.arrayLen = parseInt(gField.get('arrayLen').toString(), 10);
+			fieldModel.arrayNullBits = Math.ceil(fieldModel.arrayLen / 32);
+			fieldModel.size *= fieldModel.arrayLen; 
+			fieldModel.size += fieldModel.arrayNullBits;
 		}
+		fieldModel.startByte = currByte;
+		fieldModel.endByte = currByte + fieldModel.size - 1;
 
 		return fieldModel;
+	}
+
+	this.generateFieldModelDetails = function(fieldModel) {
+		var details = '';
+		details += fieldModel.startByte + ' - ' + fieldModel.endByte + ', ';
+		if (fieldModel.arrayLen) {
+			details += 'Array length: ' + fieldModel.arrayLen + ', ';
+			details += 'Array null bits: ' + fieldModel.arrayNullBits + ', ';
+		}
+		details += 'Name: ' + fieldModel.name + ', ';
+		details += fieldModel.size + ' bytes';
+
+		return details;
 	}
 }
 

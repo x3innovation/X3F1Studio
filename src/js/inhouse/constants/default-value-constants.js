@@ -61,7 +61,7 @@ module.exports = {
 		LONG_SIZE : 8,
 		FLOAT_SIZE : 4,
 		DOUBLE_SIZE : 8,
-		STRING_SIZE : 4, //Plus the length of the string
+		STRING_SIZE : 0, //Plus the length of the string
 		BOOLEAN_SIZE : 1,
 		ENUM_SIZE : 4,
 		REF_SIZE : 16,

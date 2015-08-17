@@ -248,16 +248,15 @@ function GoogleApiInterface()
 		// inner functions
 		function authorizationCallback(authResult)
 		{
-			if (authResult && !authResult.error)
-			{
-				tokenRefreshInterval = setInterval(function() { 
-					gapi.auth.authorize({
-						immediate: true,
-						client_id: client_id,
-						user_id: user_id,
-						scope: scope
-					});
-				}, 45 * 60 * 1000); //refresh token every 45 minutes
+			if (authResult && !authResult.error) {
+				tokenRefreshInterval = setInterval(function() {
+					refreshToken(function(authResult) {
+						//console.log(authResult);
+						setInterval(function() {
+							console.log(authResult);
+						}, 1000);
+					})
+				}, (45 * 60 * 1000)); //refresh token every 45 minutes as suggested by google
 
 				// loading Google Drive sdk asynchronously
 				gapi.client.load('drive', 'v2', function(){
@@ -269,6 +268,20 @@ function GoogleApiInterface()
 			{
 				failCallback();
 			}
+		}
+
+		function refreshToken(refreshCallback) {
+			gapi.auth.authorize({
+				immediate: true,
+				client_id: client_id,
+				scope: scope
+			}, function(authResult) {
+				if (authResult && !authResult.error) {
+					refreshCallback(authResult);
+				} else {
+					refreshToken(refreshCallback);
+				}
+			});
 		}
 	};
 
