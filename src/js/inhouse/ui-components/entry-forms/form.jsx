@@ -128,13 +128,13 @@ module.exports = React.createClass({
 
 	updateUi: function() {
 		if (!this.fieldData) { return;	}
+
 		this.displayCorrectUiComponents();
 		$('#field-type-select').val(this.fieldData.get('type'));
 		$('#enum-value-select').val(this.fieldData.get('enumValue'));
 		$('#ref-soft-radio').prop('checked', this.fieldData.get('refType') === 'soft');
 		$('#ref-hard-radio').prop('checked', this.fieldData.get('refType') === 'hard');
 		$('#def-value-checkbox').prop('checked', this.fieldData.get('defValueBool'));
-		$('#read-only-checkbox').prop('checked', this.fieldData.get('readOnly'));
 		$('#optional-checkbox').prop('checked', this.fieldData.get('optional'));
 		$('#array-checkbox').prop('checked', this.fieldData.get('array'));
 		$('#context-id-checkbox').prop('checked', this.fieldData.get('contextId'));
@@ -161,7 +161,6 @@ module.exports = React.createClass({
 		this.fieldData.set('enumId', $('#enum-name-select').val());
 		this.fieldData.set('enumValue', $('#enum-value-select').val());
 		this.fieldData.set('defValueBool', $('#def-value-checkbox').prop('checked'));
-		this.fieldData.set('readOnly', $('#read-only-checkbox').prop('checked'));
 		this.fieldData.set('optional', $('#optional-checkbox').prop('checked'));
 		this.fieldData.set('array', $('#array-checkbox').prop('checked'));
 		this.fieldData.set('contextId', $('#context-id-checkbox').prop('checked'));
@@ -171,6 +170,7 @@ module.exports = React.createClass({
 	displayCorrectUiComponents: function(fieldType) {
 		fieldType = fieldType || this.fieldData.get('type');
 		$('.type-specific-field').addClass('hide');
+		$('#array-len-wrapper').addClass('hide');
 		$('.'+fieldType+'-specific-field').removeClass('hide');
 		if (this.fieldData.get('array')) {
 			$('#array-len-wrapper').removeClass('hide');
@@ -179,22 +179,17 @@ module.exports = React.createClass({
 		$('.invalid-input.hide').next('label').tooltipster('hide');
 		$('.invalid-input.hide').removeClass('invalid-input');
 
-		var floatTypes = 'double float';
-		var integerTypes = 'integer byte short long';
+		var floatTypes = 'double float', integerTypes = 'integer byte short long';
 		if (floatTypes.indexOf(fieldType) !== -1 || integerTypes.indexOf(fieldType) !== -1) {
-			$('#def-value-field').addClass('numeric-input');
+			$('#def-value-field').addClass('number-input');
 		} else {
-			$('#def-value-field').removeClass('numeric-input');
+			$('#def-value-field').removeClass('number-input');
 		}
 
 		if (integerTypes.indexOf(fieldType) !== -1) {
-			$('#min-value-field').addClass('integer-input');
-			$('#max-value-field').addClass('integer-input');
-			$('#def-value-field').addClass('integer-input');
+			$('#min-value-field, #max-value-field, #def-value-field').addClass('integer-input');
 		} else {
-			$('#min-value-field').removeClass('integer-input');
-			$('#max-value-field').removeClass('integer-input');
-			$('#def-value-field').removeClass('integer-input');
+			$('#min-value-field, #max-value-field, #def-value-field').removeClass('integer-input');
 		}
 	},
 
@@ -216,7 +211,7 @@ module.exports = React.createClass({
 
 	validateField: function(targetField, fieldType) {
 		var $targetField = $(targetField);
-		var errorMessage = this.makeErrorMessage(targetField, fieldType);
+		var errorMessage = this.setErrorMessage(targetField, fieldType);
 
 		var $fieldLabel = $targetField.next('label');
 
@@ -225,31 +220,27 @@ module.exports = React.createClass({
 			if ($fieldLabel.tooltipster('content') !== errorMessage) {
 				$fieldLabel.tooltipster('content', errorMessage);
 			}
-			if (targetField.id === 'max-value-field') {
-				$('#min-value-field').addClass('invalid-input');
-			}
 			$fieldLabel.tooltipster('show');
 			//$targetField.focus(); //force user to fix
 		} else if ($targetField.hasClass('invalid-input')) {
 			$targetField.removeClass('invalid-input');
-			if (targetField.id === 'max-value-field') {
-				$('#min-value-field').remove('invalid-input');
-			}
+			$fieldLabel.tooltipster('show'); // show before hide to ensure tooltipster can be hidden
 			$fieldLabel.tooltipster('hide');
 		}
 	},
 
-	makeErrorMessage: function(targetField, fieldType) {
+	setErrorMessage: function(targetField, fieldType) {
 		var $targetField = $(targetField);
 		var fieldVal = $targetField.val();
 		var errorMessage = '';
+		var fieldId = targetField.id;
 
 		if (!errorMessage && $targetField.prop('required') && !fieldVal) {
 			errorMessage += 'This is a required field. ';
 		}
 
 		//numeric fields must only contain numbers
-		if (!errorMessage && $targetField.hasClass('numeric-input') &&  
+		if (!errorMessage && $targetField.hasClass('number-input') &&  
 		    (isNaN(fieldVal) || fieldVal.indexOf(' ') !== -1)) { //isNaN ignores leading/trailing whitespace
 			errorMessage += 'Value should be a number. ';
 		}
@@ -260,7 +251,7 @@ module.exports = React.createClass({
 		}
 
 		//names must start with an alphabetic character and contain only alphanumerics
-		if (!errorMessage && targetField.id === 'name-field') {
+		if (!errorMessage && fieldId === 'name-field') {
 			for (i = 0, len = this.gFields.length; i < len; i++) {
 				if (this.gFields.get(i).get('name').toString() === fieldVal && this.gFields.get(i).id !== this.fieldDataId) {
 					errorMessage += 'This name is already in use. ';
@@ -275,32 +266,42 @@ module.exports = React.createClass({
 			}
 		}
 
-		//the max field must be >= the min field, and vice versa
-		if (!errorMessage && targetField.id === 'max-value-field' && !isNaN($('#min-value-field').val())
+		//the max field must be >= the min field
+		if (!errorMessage && fieldId === 'max-value-field' && !isNaN($('#min-value-field').val())
 		 	&& parseFloat(fieldVal) < parseFloat($('#min-value-field').val())) {
 			errorMessage += 'Max value should be greater than or equal to min value. ';
+			$('#min-value-field').addClass('invalid-input');
+		}
+		//the max length field must be >= the min length field
+		if (!errorMessage && fieldId === 'max-str-len-field' && !isNaN($('#min-str-len-field').val())
+		 	&& parseFloat(fieldVal) < parseFloat($('#min-str-len-field').val())) {
+			errorMessage += 'Max string length should be greater than or equal to min string length. ';
+			$('#min-str-len-field').addClass('invalid-input');
 		}
 
 		//default-value field for numbers must be within the min max range
-		if (!errorMessage && targetField.id === 'def-value-field' && $targetField.hasClass('numeric-input')  && fieldVal) {
-			if (!isNaN($('#max-value-field').val()) &&
-				parseFloat(fieldVal) < parseFloat($('#min-value-field').val())) {
+		if (!errorMessage && fieldId === 'def-value-field' && $targetField.hasClass('number-input')  && fieldVal) {
+			if (!isNaN($('#min-value-field').val()) && parseFloat(fieldVal) < parseFloat($('#min-value-field').val())) {
 				errorMessage += 'Default value should be greater than or equal to min value. ';
 			}
-			if (!isNaN($('#max-value-field').val()) &&
-				parseFloat(fieldVal) > parseFloat($('#max-value-field').val())) {
+			if (!isNaN($('#max-value-field').val()) && parseFloat(fieldVal) > parseFloat($('#max-value-field').val())) {
 				errorMessage += 'Default value should be less than or equal to max value. ';
 			}
 		}
-
 		//default-value field for strings has a user-defined max length
-		if (!errorMessage && targetField.id === 'def-value-field' && fieldType === 'string' &&
-			fieldVal.length > parseInt($('#str-len-field').val(), 10)) {
-			errorMessage += 'Default value should be within defined max string length. ';
+		if (!errorMessage && fieldId === 'def-value-field' && fieldType === 'string') {
+			if (!isNaN($('#min-str-len-field').val()) && fieldVal.length < parseInt($('#min-str-len-field').val(), 10)) {
+				errorMessage += 'Default value should be longer than defined minimum length. ';
+			}
+			if (!isNaN($('#max-str-len-field').val()) && fieldVal.length > parseInt($('#max-value-field').val(), 10)) {
+				errorMessage += 'Default value should be within defined maximum length. ';
+			}
 		}
 
 		//can't store strings or sequences of non-positive length
-		if (!errorMessage && (targetField.id === 'array-len-field' || targetField.id === 'str-len-field') && 
+		if (!errorMessage && (targetField.id === 'array-len-field' || 
+		    						 targetField.id === 'min-str-len-field' ||
+		    						 targetField.id === 'max-str-len-field') && 
 			parseInt(fieldVal, 10) <= 0) {
 			errorMessage += 'Please enter a positive integer. ';
 		}
@@ -337,6 +338,14 @@ module.exports = React.createClass({
 			if (this.gFields.get(i).id === selectedFieldId) {
 				this.fieldData = this.gFields.get(i);
 				this.fieldDataId = selectedFieldId;
+
+				//* if old model, must update model*/
+				if (this.fieldData.has('strLen')) {
+					this.fieldData.set('maxStrLen', this.fieldData.get('strLen'));
+					this.fieldData.set('minStrLen', this.gModel.createString(''));
+					this.fieldData.delete('strLen');
+				}
+
 				this.updateUi();
 				this.setSelectOptions();
 				this.rebindStrings();
@@ -391,10 +400,15 @@ module.exports = React.createClass({
 		maxValueString.addEventListener(TextDeletedEvent, function(e) {alignLabel(e, $('#max-value-label'));});
 		this.gBindings.push(bindString(maxValueString, $('#max-value-field')[0]));
 
-		var strLenString = this.fieldData.get('strLen');
-		strLenString.addEventListener(TextInsertedEvent, function(e) {alignLabel(e, $('#str-len-label'));});
-		strLenString.addEventListener(TextDeletedEvent, function(e) {alignLabel(e, $('#str-len-label'));});
-		this.gBindings.push(bindString(strLenString, $('#str-len-field')[0]));
+		var minStrLenString = this.fieldData.get('minStrLen');
+		minStrLenString.addEventListener(TextInsertedEvent, function(e) {alignLabel(e, $('#min-str-len-label'));});
+		minStrLenString.addEventListener(TextDeletedEvent, function(e) {alignLabel(e, $('#min-str-len-label'));});
+		this.gBindings.push(bindString(minStrLenString, $('#min-str-len-field')[0]));
+
+		var maxStrLenString = this.fieldData.get('maxStrLen');
+		maxStrLenString.addEventListener(TextInsertedEvent, function(e) {alignLabel(e, $('#max-len-label'));});
+		maxStrLenString.addEventListener(TextDeletedEvent, function(e) {alignLabel(e, $('#max-len-label'));});
+		this.gBindings.push(bindString(maxStrLenString, $('#max-str-len-field')[0]));
 
 		var arrayLenString = this.fieldData.get('arrayLen');
 		arrayLenString.addEventListener(TextInsertedEvent, function(e) {alignLabel(e, $('#array-len-label'));});
@@ -407,8 +421,8 @@ module.exports = React.createClass({
 		$('#field-type-select').material_select(function() {
 			that.onFieldTypeChanged($('#field-type-dropdown').find('input.select-dropdown').val());
 		});
-		this.updateRefSelectOptions();
-		this.updateEnumSelectOptions();
+		this.updateRefNameSelectOptions();
+		this.updateEnumNameSelectOptions();
 	},
 
 	onFieldTypeChanged: function(newFieldType) {
@@ -536,35 +550,6 @@ module.exports = React.createClass({
 		}
 	},
 
-	setEnumValues: function(enumId) {
-		var that = this;
-		var $enumValueSelect = $('#enum-value-select');
-		$enumValueSelect.html('<option value="default" disabled>loading enum values...</option>');
-		$enumValueSelect.material_select();
-		if (!enumId || enumId === 'default') {
-			$enumValueSelect.html('<option value="default" disabled>select default value</option>');
-			$enumValueSelect.prop('disabled', true);
-			$enumValueSelect.material_select();
-			return;
-		}
-		gapi.drive.realtime.load(enumId, function(doc) {
-			var enumValues = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.ENUM).fields.asArray();
-			if (enumValues.length) {
-				$enumValueSelect.prop('disabled', false);
-				var enumValueOptions = '<option value = "default">no default value</option>';
-				for (var i = 0, len = enumValues.length; i<len; i++) {
-					enumValueOptions += '<option data-enum-index = "'+enumValues[i].index+'" value = "'+enumValues[i].name+'">'+enumValues[i].name+'</option>';
-				}
-				$enumValueSelect.html(enumValueOptions);
-			} else {
-				$enumValueSelect.html('<option value = "default">no enums defined</option>');
-				$enumValueSelect.prop('disabled', true);
-			}
-			$enumValueSelect.material_select(that.saveUiToGoogle);
-			that.updateEnumValueSelect();
-		});
-	},
-
 	addToRefs: function(announcement) {
 		var id = announcement.fileId;
 		var title = announcement.fileName;
@@ -586,10 +571,10 @@ module.exports = React.createClass({
 				break;
 			}
 		}
-		this.updateRefSelectOptions();
+		this.updateRefNameSelectOptions();
 	},
 
-	updateRefSelectOptions: function() {
+	updateRefNameSelectOptions: function() {
 		var refs = this.refs;
 		var refId;
 		if (this.fieldData) {
@@ -637,10 +622,10 @@ module.exports = React.createClass({
 				break;
 			}
 		}
-		this.updateEnumSelectOptions();
+		this.updateEnumNameSelectOptions();
 	},
 
-	updateEnumSelectOptions: function() {
+	updateEnumNameSelectOptions: function() {
 		var enums = this.enums;
 		if (this.fieldData) {
 			var enumId = this.fieldData.get('enumId');
@@ -648,7 +633,7 @@ module.exports = React.createClass({
 				$('#enum-name-select').val(enumId);
 				this.setEnumValues(enumId);
 			} else {
-				this.updateEnumValueSelect();
+				this.updateEnumValueSelectOptions();
 			}
 		}
 		$('#enum-name-dropdown').find('span').each(function(index, element) {
@@ -667,7 +652,37 @@ module.exports = React.createClass({
 		});
 	}, 
 
-	updateEnumValueSelect: function() {
+
+	setEnumValues: function(enumId) {
+		var that = this;
+		var $enumValueSelect = $('#enum-value-select');
+		$enumValueSelect.html('<option value="default" disabled>loading enum values...</option>');
+		$enumValueSelect.material_select();
+		if (!enumId || enumId === 'default') {
+			$enumValueSelect.html('<option value="default" disabled>select default value</option>');
+			$enumValueSelect.prop('disabled', true);
+			$enumValueSelect.material_select();
+			return;
+		}
+		gapi.drive.realtime.load(enumId, function(doc) {
+			var enumValues = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.ENUM).fields.asArray();
+			if (enumValues.length) {
+				$enumValueSelect.prop('disabled', false);
+				var enumValueOptions = '<option value = "default">no default value</option>';
+				for (var i = 0, len = enumValues.length; i<len; i++) {
+					enumValueOptions += '<option data-enum-index = "'+enumValues[i].index+'" value = "'+enumValues[i].name+'">'+enumValues[i].name+'</option>';
+				}
+				$enumValueSelect.html(enumValueOptions);
+			} else {
+				$enumValueSelect.html('<option value = "default">no enums defined</option>');
+				$enumValueSelect.prop('disabled', true);
+			}
+			$enumValueSelect.material_select(that.saveUiToGoogle);
+			that.updateEnumValueSelectOptions();
+		});
+	},
+
+	updateEnumValueSelectOptions: function() {
 		var enumValue = this.fieldData.get('enumValue');
 		$('#enum-value-dropdown').find('span').each(function(index, element) {
 			var $element = $(element);
@@ -688,7 +703,17 @@ module.exports = React.createClass({
 						 onInput={inputHandler} spellCheck = 'false' required />
 						<label htmlFor='name-field' id='name-label' className='error-tooltipped'>name *</label>
 					</div>
-					<div id='field-type-dropdown' className='input-field col offset-s4 s4'>
+				</div>
+
+				<div className='row'>
+					<div className='input-field col s12'>
+						<textarea id='description-field' className='materialize-textarea text-input' spellCheck = 'false' />
+						<label htmlFor='description-field' id='description-label'>description</label>
+					</div>
+				</div>
+
+				<div className='row'>
+					<div id='field-type-dropdown' className='input-field col s4'>
 						<select id='field-type-select' className='type-selector form-select'>
 							<option value='double'>double</option>
 							<option value='float'>float</option>
@@ -703,13 +728,36 @@ module.exports = React.createClass({
 						</select>
 						<label htmlFor='field-type-select' id='type-label'>type</label>
 					</div>
-				</div>
-				<div className='row'>
-					<div className='input-field col s12'>
-						<textarea id='description-field' className='materialize-textarea text-input' spellCheck = 'false' />
-						<label htmlFor='description-field' id='description-label'>description</label>
+
+					<div className='input-field col s4 type-specific-field enum-specific-field'>
+						<div id='enum-name-dropdown'>
+							<select id='enum-name-select' className='enum-name-selector form-select' value='default'>
+								<option value='default' disabled>no enums defined</option>
+							</select>
+							<label htmlFor='enum-name-select' id='enum-name-label'>enum type</label>
+						</div>
+					</div>
+					<div className='col s4 input-field type-specific-field
+					 	double-specific-field float-specific-field byte-specific-field integer-specific-field
+					 	long-specific-field short-specific-field string-specific-field ref-specific-field'>
+						<input type='text' id='def-value-field' className='text-input validated-input' spellCheck = 'false' />
+						<label htmlFor='def-value-field' id='def-value-label' className='error-tooltipped'>default value</label>
+					</div>
+					<div className='col s4 type-specific-field boolean-specific-field'>
+						<br />
+						<input type='checkbox' id='def-value-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
+						<label htmlFor='def-value-checkbox' id='def-value-bool-label'>default value</label>
+					</div>
+
+					<div id='checkbox-field' className='col s4'>
+						<input type='checkbox' id='optional-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
+						<label htmlFor='optional-checkbox' id='optional-label'>optional</label>
+						<br />
+						<input type='checkbox' id='array-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
+						<label htmlFor='array-checkbox' id='array-label'>array</label>
 					</div>
 				</div>
+
 				<div className='row type-specific-field ref-specific-field'>
 					<div id='ref-name-dropdown' className='input-field col s4'>
 						<select id='ref-name-select' className='ref-name-selector form-select' value='default'>
@@ -725,73 +773,48 @@ module.exports = React.createClass({
 						<label htmlFor="ref-hard-radio" className='ref-radio-label'>hard</label>
 					</div>
 				</div>
-				<div className='row type-specific-field enum-specific-field'>
-					<div id='enum-name-dropdown' className='input-field col s4'>
-						<select id='enum-name-select' className='enum-name-selector form-select' value='default'>
-							<option value='default' disabled>no enums defined</option>
-						</select>
-						<label htmlFor='enum-name-select' id='enum-name-label'>enum type</label>
-					</div>
-				</div>
+
 				<div className='row'>
-					<div className='col s4 input-field type-specific-field double-specific-field float-specific-field byte-specific-field
-						integer-specific-field long-specific-field short-specific-field string-specific-field ref-specific-field'>
-						<input type='text' id='def-value-field' className='text-input validated-input'
-						 onInput={inputHandler} spellCheck = 'false' />
-						<label htmlFor='def-value-field' id='def-value-label' className='error-tooltipped'>default value</label>
-					</div>
-					<div className='col s4 type-specific-field boolean-specific-field'>
-						<br />
-						<input type='checkbox' id='def-value-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
-						<label htmlFor='def-value-checkbox' id='def-value-bool-label' className='error-tooltipped'>default value</label>
-					</div>
-					<div className='input-field col s4 type-specific-field enum-specific-field'>
-						<div id='enum-value-dropdown'>
+					<div className='type-specific-field enum-specific-field'>
+						<div id='enum-value-dropdown' className='input-field col s4'>
 							<select id='enum-value-select' className='enum-value-selector form-select' value='default'>
 								<option value='default' disabled>loading enum values...</option>
 							</select>
 							<label htmlFor='enum-value-select' id='enum-value-label'>default enum value</label>
 						</div>
-						</div>
-					<div id='checkbox-field' className='col s4'>
-						<input type='checkbox' id='read-only-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
-						<label htmlFor='read-only-checkbox' id='read-only-label'>read only</label>
-						<br />
-						<input type='checkbox' id='optional-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
-						<label htmlFor='optional-checkbox' id='optional-label'>optional</label>
-						<br />
-						<input type='checkbox' id='array-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
-						<label htmlFor='array-checkbox' id='array-label'>array</label>
 					</div>
-					<div id='array-len-wrapper' className='input-field col type-specific-field s4'>
-						<input type='text' id='array-len-field' className='text-input validated-input numeric-input integer-input' 
+					<div className='type-specific-field string-specific-field'>
+						<div className='input-field col s4'>
+							<input type='text' id='min-str-len-field' className='text-input number-input integer-input validated-input' />
+							<label htmlFor='min-str-len-field' id='min-str-len-label' className='error-tooltipped'>min string length</label>
+						</div>
+						<div className='input-field col s4'>
+							<input type='text' id='max-str-len-field' className='text-input number-input integer-input validated-input' />
+							<label htmlFor='max-str-len-field' id='max-str-len-label' className='error-tooltipped'>max string length</label>
+						</div>
+					</div>
+					<div className='type-specific-field double-specific-field float-specific-field byte-specific-field
+					     integer-specific-field long-specific-field short-specific-field'>
+						<div className='input-field col s4'>
+							<input type='text' id='min-value-field' className='text-input number-input validated-input' />
+							<label htmlFor='min-value-field' id='min-value-label' className='error-tooltipped'>min value</label>
+						</div>
+						<div className='input-field col s4'>
+							<input type='text' id='max-value-field' className='text-input number-input validated-input' />
+							<label htmlFor='max-value-field' id='max-value-label' className='error-tooltipped'>max value</label>
+						</div>
+					</div>
+
+					<div id='array-len-wrapper' className='input-field col type-specific-field s4 right'>
+						<input type='text' id='array-len-field' className='text-input validated-input number-input integer-input' 
 							   onInput={inputHandler} required />
 						<label htmlFor='array-len-field' id='array-len-label' className='error-tooltipped'>array length *</label>
 					</div>
 				</div>
-				<div className='row type-specific-field string-specific-field'>
-					<div className='input-field col s4'>
-						<input type='text' id='str-len-field' className='text-input validated-input numeric-input integer-input'
-						 onInput={inputHandler} required />
-						<label htmlFor='str-len-field' id='str-len-label' className='error-tooltipped' >max string length *</label>
-					</div>
-				</div>
-				<div className='row type-specific-field double-specific-field float-specific-field byte-specific-field
-				     integer-specific-field long-specific-field short-specific-field'>
-					<div className='input-field col s4'>
-						<input type='text' id='min-value-field' className='text-input validated-input numeric-input'
-						 onInput={inputHandler} />
-						<label htmlFor='min-value-field' id='min-value-label' className='error-tooltipped'>min value</label>
-					</div>
-					<div className='input-field col s4'>
-						<input type='text' id='max-value-field' className='text-input validated-input numeric-input'
-						 onInput={inputHandler} />
-						<label htmlFor='max-value-field' id='max-value-label' className='error-tooltipped'>max value</label>
-					</div>
-				</div>
+
 				<div className='row'>
-					<br />
 					<div className='col s12'>
+						<br />
 						<input type='checkbox' id='context-id-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
 						<label htmlFor='context-id-checkbox' id='context-id-label'>context identifier</label>
 					</div>

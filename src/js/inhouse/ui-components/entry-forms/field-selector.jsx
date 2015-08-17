@@ -44,7 +44,9 @@ module.exports = React.createClass({
 		this.gFields = this.gModel.getRoot().get(this.props.gapiKey).fields;
 		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this.updateUi);
 		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this.updateUi);
-		this.updateUi();
+		this.updateUi(); 
+		//push to end of thread to make sure all other components have loaded google model
+		setTimeout(this.selectTopField, 0);
 	},
 
 	updateUi: function(e) {
@@ -204,7 +206,8 @@ module.exports = React.createClass({
 			defValueBool: DefaultFields.FIELD_DEF_BOOL_VALUE,
 			minValue: DefaultFields.FIELD_MIN_VALUE,
 			maxValue: DefaultFields.FIELD_MAX_VALUE,
-			strLen: DefaultFields.FIELD_STR_LEN,
+			minStrLen: DefaultFields.FIELD_MIN_STR_LEN,
+			maxStrLen: DefaultFields.FIELD_MAX_STR_LEN,
 			readOnly: DefaultFields.FIELD_READ_ONLY,
 			optional: DefaultFields.FIELD_OPTIONAL,
 			array: DefaultFields.FIELD_ARRAY,
@@ -223,7 +226,8 @@ module.exports = React.createClass({
 		gField.set('defValue', this.gModel.createString(newField.defValue));
 		gField.set('minValue', this.gModel.createString(newField.minValue));
 		gField.set('maxValue', this.gModel.createString(newField.maxValue));
-		gField.set('strLen', this.gModel.createString(newField.strLen));
+		gField.set('minStrLen', this.gModel.createString(newField.minStrLen));
+		gField.set('maxStrLen', this.gModel.createString(newField.maxStrLen));
 		gField.set('arrayLen', this.gModel.createString(newField.arrayLen));
 		this.selectedFieldId = gField.id;
 		this.gFields.push(gField);

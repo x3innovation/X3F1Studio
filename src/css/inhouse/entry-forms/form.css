@@ -22,6 +22,10 @@ select.form-select{
     color: #9a9a9a;
 }
 
+#checkbox-field {
+    padding-left: 1rem;
+}
+
 .ref-radio-label {
     margin-right: 1rem;
 }
@@ -30,10 +34,6 @@ select.form-select{
     max-height: 20rem;
     overflow: auto;
     z-index: 2;
-}
-
-#checkbox-field {
-    padding-left: 0.75rem;
 }
 
 #dmx-form [type="checkbox"]:checked + label {
