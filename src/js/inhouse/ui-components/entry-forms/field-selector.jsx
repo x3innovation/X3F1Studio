@@ -1,8 +1,8 @@
 var EventType = require('../../constants/event-type.js');
-var DefaultValueConstants = require('../../constants/default-value-constants.js');
-var DefaultFields = DefaultValueConstants.DefaultFieldAttributes;
 
 var Configs = require('../../app-config.js');
+
+var GDriveService = require('../../services/google-drive-service.js');
 
 module.exports = React.createClass({
 	/* ******************************************
@@ -198,43 +198,15 @@ module.exports = React.createClass({
 
 	addField: function(newFieldName) {
 		if (!this.gFields) { return false; }
-		var newField = {
-			name: newFieldName,
-			type: DefaultFields.FIELD_TYPE,
-			description: DefaultFields.FIELD_DESCRIPTION,
-			defValue: DefaultFields.FIELD_DEF_VALUE,
-			defValueBool: DefaultFields.FIELD_DEF_BOOL_VALUE,
-			minValue: DefaultFields.FIELD_MIN_VALUE,
-			maxValue: DefaultFields.FIELD_MAX_VALUE,
-			minStrLen: DefaultFields.FIELD_MIN_STR_LEN,
-			maxStrLen: DefaultFields.FIELD_MAX_STR_LEN,
-			readOnly: DefaultFields.FIELD_READ_ONLY,
-			optional: DefaultFields.FIELD_OPTIONAL,
-			array: DefaultFields.FIELD_ARRAY,
-			arrayLen: DefaultFields.FIELD_ARRAY_LEN,
-			refId: DefaultFields.FIELD_REF_ID,
-			refName: DefaultFields.FIELD_REF_NAME,
-			refType: DefaultFields.FIELD_REF_TYPE,
-			enumId: DefaultFields.FIELD_ENUM_ID,
-			enumName: DefaultFields.FIELD_ENUM_NAME,
-			enumValue: DefaultFields.FIELD_ENUM_VALUE,
-			contextId: DefaultFields.FIELD_CONTEXT_ID
-		};
-		var gField = this.gModel.createMap(newField);
-		gField.set('name', this.gModel.createString(newField.name));
-		gField.set('description', this.gModel.createString(newField.description));
-		gField.set('defValue', this.gModel.createString(newField.defValue));
-		gField.set('minValue', this.gModel.createString(newField.minValue));
-		gField.set('maxValue', this.gModel.createString(newField.maxValue));
-		gField.set('minStrLen', this.gModel.createString(newField.minStrLen));
-		gField.set('maxStrLen', this.gModel.createString(newField.maxStrLen));
-		gField.set('arrayLen', this.gModel.createString(newField.arrayLen));
+
+		var gField = GDriveService.createNewField(newFieldName, this.gModel);
 		this.selectedFieldId = gField.id;
 		this.gFields.push(gField);
 	},
 
 	removeField: function(removedFieldId) {
 		if (!this.gFields) { return false; }
+		
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			if ('' + this.gFields.get(i).id === removedFieldId) {
 				this.gFields.remove(i);

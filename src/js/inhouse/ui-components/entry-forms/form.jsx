@@ -119,6 +119,9 @@ module.exports = React.createClass({
 					default: break;
 				}
 				this.setOptions(optionsToSet);
+			},
+			onChangeDateTime: function() {
+				that.saveUiToGoogle();
 			}
 		};
 
@@ -185,6 +188,10 @@ module.exports = React.createClass({
 		getById('field-type-select').value = this.fieldData.get('type');
 		getById('enum-value-select').value = this.fieldData.get('enumValue');
 
+		getById('def-date-field').value = this.fieldData.get('defDate');
+		getById('min-date-field').value = this.fieldData.get('minDate');
+		getById('max-date-field').value = this.fieldData.get('maxDate');
+
 		getById('ref-soft-radio').checked = this.fieldData.get('refType') === 'soft';
 		getById('ref-hard-radio').checked = this.fieldData.get('refType') === 'hard';
 		getById('def-value-checkbox').checked = this.fieldData.get('defValueBool');
@@ -215,6 +222,11 @@ module.exports = React.createClass({
 		this.fieldData.set('refType', newRefType);
 		this.fieldData.set('enumId', getById('enum-name-select').value);
 		this.fieldData.set('enumValue', getById('enum-value-select').value);
+
+		this.fieldData.get('defDate').setText(getById('def-date-field').value));
+		this.fieldData.get('minDate').setText(getById('min-date-field').value));
+		this.fieldData.get('maxDate').setText(getById('max-date-field').value));
+
 		this.fieldData.set('defValueBool', getById('def-value-checkbox').checked);
 		this.fieldData.set('optional', getById('optional-checkbox').checked);
 		this.fieldData.set('array', getById('array-checkbox').checked);
@@ -305,6 +317,20 @@ module.exports = React.createClass({
 			errorMessage += 'Value should be an integer. ';
 		}
 
+		var dateFormat = '';
+		if (fieldType === 'datetime') {
+			dateFormat = 'MM/DD/YYYY HH:mm:ss:SSS'
+		} else if (fieldType === 'date') {
+			dateFormat = 'MM/DD/YYYY'
+		} else if (fieldType === 'time') {
+			dateFormat = 'HH:mm:ss:SSS'
+		}
+		var parseDate = function(dateVal) {return moment(dateVal, dateFormat)};
+		//date fields must be valid
+		if (!errorMessage && $targetField.hasClass('date-input') && fieldVal && !parseDate(fieldVal).isValid()) {
+			errorMessage += 'Value should be a valid date. ';
+		}
+
 		//names must start with an alphabetic character and contain only alphanumerics
 		if (!errorMessage && fieldId === 'name-field') {
 			for (i = 0, len = this.gFields.length; i < len; i++) {
@@ -334,6 +360,13 @@ module.exports = React.createClass({
 			$('#min-str-len-field').addClass('invalid-input');
 		}
 
+		//the max date field must be >= the min date field
+		if (!errorMessage && fieldId === 'max-date-field' && $('#min-date-field').val()
+		 	&& parseDate(fieldVal).isBefore(parseDate($('#min-date-field').val()))) {
+			errorMessage += 'Max date should be after min date. ';
+			$('#min-date-field').addClass('invalid-input');
+		}
+
 		//default-value field for numbers must be within the min max range
 		if (!errorMessage && fieldId === 'def-value-field' && $targetField.hasClass('number-input')  && fieldVal) {
 			if (!isNaN($('#min-value-field').val()) && parseFloat(fieldVal) < parseFloat($('#min-value-field').val())) {
@@ -352,6 +385,17 @@ module.exports = React.createClass({
 				errorMessage += 'Default value should be within defined maximum length. ';
 			}
 		}
+		//default-value field for dates has a user-defined range
+		if (!errorMessage && fieldId === 'def-date-field') {
+			if ($('#max-date-field').val()
+			    && parseDate(fieldVal).isAfter(parseDate($('#max-date-field').val()))) {
+				errorMessage += 'Default date should not be after defined maximum date. ';
+			}
+			if (!isNaN($('#min-date-field').val()) 
+			    && parseDate(fieldVal).isBefore(parseDate($('#min-date-field').val()))) {
+				errorMessage += 'Default date should not be before defined minimum date. ';
+			}
+		}
 
 		//can't store strings or sequences of non-positive length
 		if (!errorMessage && (targetField.id === 'array-len-field' || 
@@ -365,7 +409,7 @@ module.exports = React.createClass({
 	},
 
 	alignAllLabels: function() {
-		$('input:visible').each(function(index, element) {
+		$('input').each(function(index, element) {
 			var $element = $(element);
 			if ($element.val() !== '') {
 				$element.next('label').addClass('active');
@@ -395,16 +439,7 @@ module.exports = React.createClass({
 				this.fieldDataId = selectedFieldId;
 
 				//* if old model, must update model*/
-				if (!this.fieldData.has('maxStrLen')) {
-					this.fieldData.set('maxStrLen', this.fieldData.get('strLen'));
-					this.fieldData.set('minStrLen', this.gModel.createString(''));
-				}
-
-				if (!this.fieldData.has('defDate')) {
-					this.fieldData.set('defDate', this.gModel.createString(''));
-					this.fieldData.set('minDate', this.gModel.createString(''));
-					this.fieldData.set('maxDate', this.gModel.createString(''));
-				}
+				this.updateOldModel();
 
 				this.updateUi();
 				this.setSelectOptions();
@@ -414,6 +449,19 @@ module.exports = React.createClass({
 				this.enforceValidation();
 				break;
 			}
+		}
+	},
+
+	updateOldModel: function() {
+		if (!this.fieldData.has('maxStrLen')) {
+			this.fieldData.set('maxStrLen', this.fieldData.get('strLen'));
+			this.fieldData.set('minStrLen', this.gModel.createString(''));
+		}
+
+		if (!this.fieldData.has('defDate')) {
+			this.fieldData.set('defDate', this.gModel.createString(''));
+			this.fieldData.set('minDate', this.gModel.createString(''));
+			this.fieldData.set('maxDate', this.gModel.createString(''));
 		}
 	},
 
@@ -451,10 +499,6 @@ module.exports = React.createClass({
 		setGBinding(this.fieldData.get('minValue'), getById('min-value-field'));
 		setGBinding(this.fieldData.get('maxValue'), getById('max-value-field'));
 
-		setGBinding(this.fieldData.get('defDate'), getById('def-date-field'));
-		setGBinding(this.fieldData.get('minDate'), getById('min-date-field'));
-		setGBinding(this.fieldData.get('maxDate'), getById('max-date-field'));
-
 		setGBinding(this.fieldData.get('minStrLen'), getById('min-str-len-field'));
 		setGBinding(this.fieldData.get('maxStrLen'), getById('max-str-len-field'));
 
@@ -474,6 +518,8 @@ module.exports = React.createClass({
 		if (newFieldType === 'enum') {
 			this.setEnumValues(this.fieldData.get('enumId'));
 		}
+		GDriveService.resetFieldData(this.fieldData);
+		this.alignAllLabels();
 		this.displayCorrectUiComponents(newFieldType);
 		this.enforceValidation(newFieldType);
 		this.saveUiToGoogle();
@@ -746,14 +792,14 @@ module.exports = React.createClass({
 					<div className='input-field col s4'>
 						<input type='text' id='name-field' className='text-input validated-input'
 						 onInput={inputHandler} required />
-						<label htmlFor='name-field' id='name-label' className='error-tooltipped'>name *</label>
+						<label htmlFor='name-field' className='error-tooltipped'>name *</label>
 					</div>
 				</div>
 
 				<div className='row'>
 					<div className='input-field col s12'>
 						<textarea id='description-field' className='materialize-textarea text-input' />
-						<label htmlFor='description-field' id='description-label'>description</label>
+						<label htmlFor='description-field' >description</label>
 					</div>
 				</div>
 
@@ -774,7 +820,7 @@ module.exports = React.createClass({
 							<option value='datetime'>datetime</option>
 							<option value='time'>time</option>
 						</select>
-						<label htmlFor='field-type-select' id='type-label'>type</label>
+						<label htmlFor='field-type-select' >type</label>
 					</div>
 
 					<div className='input-field col s4 type-specific-field enum-specific-field'>
@@ -782,32 +828,31 @@ module.exports = React.createClass({
 							<select id='enum-name-select' className='enum-name-selector form-select' value='default'>
 								<option value='default' disabled>no enums defined</option>
 							</select>
-							<label htmlFor='enum-name-select' id='enum-name-label'>enum type</label>
+							<label htmlFor='enum-name-select' >enum type</label>
 						</div>
 					</div>
 					<div className='col s4 input-field type-specific-field
 					 	double-specific-field float-specific-field byte-specific-field integer-specific-field
 					 	long-specific-field short-specific-field string-specific-field ref-specific-field'>
 						<input type='text' id='def-value-field' className='text-input validated-input' />
-						<label htmlFor='def-value-field' id='def-value-label' className='error-tooltipped'>default value</label>
+						<label htmlFor='def-value-field' className='error-tooltipped'>default value</label>
 					</div>
 					<div className='col s4 input-field type-specific-field date-specific-field datetime-specific-field time-specific-field'>
 						<input type='text' id='def-date-field' className='date-input validated-input' onChange={this.saveUiToGoogle} />
-						<label htmlFor='def-date-field' id='def-date-label'>default value</label>
+						<label htmlFor='def-date-field' className='error-tooltipped'>default value</label>
 					</div>
 					<div className='col s4 type-specific-field boolean-specific-field'>
 						<br />
 						<input type='checkbox' id='def-value-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
-						<label htmlFor='def-value-checkbox' id='def-value-bool-label'>default value</label>
+						<label htmlFor='def-value-checkbox' >default value</label>
 					</div>
 
 					<div id='checkbox-field' className='col s4'>
-						<br />
 						<input type='checkbox' id='optional-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
-						<label htmlFor='optional-checkbox' id='optional-label'>optional</label>
+						<label htmlFor='optional-checkbox' >optional</label>
 						<br />
 						<input type='checkbox' id='array-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
-						<label htmlFor='array-checkbox' id='array-label'>array</label>
+						<label htmlFor='array-checkbox' >array</label>
 					</div>
 				</div>
 
@@ -816,7 +861,7 @@ module.exports = React.createClass({
 						<select id='ref-name-select' className='ref-name-selector form-select' value='default'>
 							<option value='default' disabled>loading refs...</option>
 						</select>
-						<label htmlFor='ref-name-select' id='ref-name-label'>ref</label>
+						<label htmlFor='ref-name-select' >ref</label>
 					</div>
 					<div className='col s4'>
 						<br />
@@ -833,45 +878,45 @@ module.exports = React.createClass({
 							<select id='enum-value-select' className='enum-value-selector form-select' value='default'>
 								<option value='default' disabled>loading enum values...</option>
 							</select>
-							<label htmlFor='enum-value-select' id='enum-value-label'>default enum value</label>
+							<label htmlFor='enum-value-select' >default enum value</label>
 						</div>
 					</div>
 					<div className='type-specific-field string-specific-field'>
 						<div className='input-field col s4'>
 							<input type='text' id='min-str-len-field' className='text-input number-input integer-input validated-input' />
-							<label htmlFor='min-str-len-field' id='min-str-len-label' className='error-tooltipped'>min string length</label>
+							<label htmlFor='min-str-len-field' className='error-tooltipped'>min string length</label>
 						</div>
 						<div className='input-field col s4'>
 							<input type='text' id='max-str-len-field' className='text-input number-input integer-input validated-input' />
-							<label htmlFor='max-str-len-field' id='max-str-len-label' className='error-tooltipped'>max string length</label>
+							<label htmlFor='max-str-len-field' className='error-tooltipped'>max string length</label>
 						</div>
 					</div>
 					<div className='type-specific-field double-specific-field float-specific-field byte-specific-field
 					     integer-specific-field long-specific-field short-specific-field'>
 						<div className='input-field col s4'>
 							<input type='text' id='min-value-field' className='text-input number-input validated-input' />
-							<label htmlFor='min-value-field' id='min-value-label' className='error-tooltipped'>min value</label>
+							<label htmlFor='min-value-field' className='error-tooltipped'>min value</label>
 						</div>
 						<div className='input-field col s4'>
 							<input type='text' id='max-value-field' className='text-input number-input validated-input' />
-							<label htmlFor='max-value-field' id='max-value-label' className='error-tooltipped'>max value</label>
+							<label htmlFor='max-value-field' className='error-tooltipped'>max value</label>
 						</div>
 					</div>
 					<div className='type-specific-field date-specific-field datetime-specific-field time-specific-field'>
 						<div className='input-field col s4'>
 							<input type='text' id='min-date-field' className='date-input validated-input' />
-							<label htmlFor='min-date-field' id='min-date-label' className='error-tooltipped'>min value</label>
+							<label htmlFor='min-date-field' className='error-tooltipped'>min date</label>
 						</div>
 						<div className='input-field col s4'>
 							<input type='text' id='max-date-field' className='date-input validated-input' />
-							<label htmlFor='max-date-field' id='max-date-label' className='error-tooltipped'>max value</label>
+							<label htmlFor='max-date-field' className='error-tooltipped'>max date</label>
 						</div>
 					</div>
 
 					<div id='array-len-wrapper' className='input-field col type-specific-field s4 right'>
 						<input type='text' id='array-len-field' className='text-input validated-input number-input integer-input' 
 							   onInput={inputHandler} required />
-						<label htmlFor='array-len-field' id='array-len-label' className='error-tooltipped'>array length *</label>
+						<label htmlFor='array-len-field' className='error-tooltipped'>array length *</label>
 					</div>
 				</div>
 
@@ -879,7 +924,7 @@ module.exports = React.createClass({
 					<div className='col s12'>
 						<br />
 						<input type='checkbox' id='context-id-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
-						<label htmlFor='context-id-checkbox' id='context-id-label'>context identifier</label>
+						<label htmlFor='context-id-checkbox' >context identifier</label>
 					</div>
 				</div>
 			</form>
