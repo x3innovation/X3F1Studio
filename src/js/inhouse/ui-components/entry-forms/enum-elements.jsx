@@ -161,7 +161,7 @@ module.exports = React.createClass({
 
 	validateField: function(targetField) {
 		var $targetField = $(targetField);
-		var errorMessage = this.makeErrorMessage(targetField);
+		var errorMessage = this.setErrorMessage(targetField);
 
 		if (errorMessage) {
 			if ($targetField.tooltipster('content') !== errorMessage) {
@@ -176,7 +176,7 @@ module.exports = React.createClass({
 		}
 	},
 
-	makeErrorMessage: function(targetField) {
+	setErrorMessage: function(targetField) {
 		var $targetField = $(targetField);
 		var fieldVal = $targetField.val();
 		var errorMessage = '';

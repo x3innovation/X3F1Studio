@@ -25,6 +25,7 @@ module.exports = React.createClass({
 
 	componentDidMount: function() {
 		this.initializeTooltips();
+		this.initializeDatepicker();
 		$('.text-input').keypress(function(e) {
 			var code = (e.keyCode || e.which);
 			if (code === 13) { //enter was detected, ignore keypress
@@ -83,61 +84,113 @@ module.exports = React.createClass({
 		});
 	},
 
+	initializeDatepicker: function() {
+		var that = this;
+		var DATE_FORMAT = 'MM/DD/YYYY';
+		var TIME_FORMAT = 'HH:mm:ss:SSS';
+		var datepickerOptions = {
+			format: DATE_FORMAT + ' ' + TIME_FORMAT,
+			formatDate: DATE_FORMAT,
+			formatTime: TIME_FORMAT,
+			className: 'form-datetimepicker',
+			datepicker: true,
+			timepicker: true,
+			lazyInit: true,
+			step: 10,
+			onShow: function() {
+				var fieldType = that.fieldData.get('type');
+				var optionsToSet = {};
+				switch (fieldType) {
+					case "datetime":
+						optionsToSet.format = DATE_FORMAT + ' ' + TIME_FORMAT,
+						optionsToSet.datepicker = true;
+						optionsToSet.timepicker = true;
+						break;
+					case "date":
+						optionsToSet.format = DATE_FORMAT,
+						optionsToSet.timepicker = false;
+						optionsToSet.datepicker = true;
+						break;
+					case "time":
+						optionsToSet.format = TIME_FORMAT,
+						optionsToSet.datepicker = true;
+						optionsToSet.timepicker = false;
+						break;
+					default: break;
+				}
+				this.setOptions(optionsToSet);
+			}
+		};
+
+		$('#def-date-field').datetimepicker(datepickerOptions);
+		$('#min-date-field').datetimepicker(datepickerOptions);
+		$('#max-date-field').datetimepicker(datepickerOptions);
+	},
+
 	onMetadataModelLoaded: function(metadataModel) {
 		var that = this;
 		GDriveService.registerAnnouncement(metadataModel, function() {
-			var announcement = metadataModel.announcement.get(0);
-			if (announcement.action === AnnouncementType.ADD_FILE) {
-				// don't catch adding the current file's announcement
-				if (announcement.fileId === that.props.fileId) { return; }
-				if (announcement.fileType === GDriveConstants.ObjectType.PERSISTENT_DATA) {
-					that.addToRefs(announcement);
-				} else if (announcement.fileType === GDriveConstants.ObjectType.ENUM) {
-					that.addToEnums(announcement);
-				} else if (announcement.fileType === GDriveConstants.ObjectType.SNIPPET) {
-					that.addToRefs(announcement);
-				} else if (announcement.fileType === GDriveConstants.ObjectType.EVENT) {
-					that.addToRefs(announcement);
-				}
-			} else if (announcement.action === AnnouncementType.RENAME_FILE) {
-				if (announcement.fileType === GDriveConstants.ObjectType.PERSISTENT_DATA) {
-					that.updateRefNames(announcement);
-				} else if (announcement.fileType === GDriveConstants.ObjectType.ENUM) {
-					that.updateEnums(announcement);
-				} else if (announcement.fileType === GDriveConstants.ObjectType.SNIPPET) {
-					that.updateRefNames(announcement);
-				} else if (announcement.fileType === GDriveConstants.ObjectType.EVENT) {
-					that.updateRefNames(announcement);
-				}
-			} else if (announcement.action === AnnouncementType.ADD_ENUM) {
-				if (announcement.fileId === that.fieldData.get('enumId')) { 
-				// if the active enum doesn't match the updated enum, then any update would be unnoticed to the user
-					that.setEnumValues(announcement.fileId);
-				}
-			} else if (announcement.action === AnnouncementType.DELETE_ENUM) {
-				if (announcement.fileId === that.fieldData.get('enumId')) {
-					that.setEnumValues(announcement.fileId);
-				}
-			} else if (announcement.action === AnnouncementType.RENAME_ENUM) {
-				if (announcement.fileId === that.fieldData.get('enumId')) {
-					that.setEnumValues(announcement.fileId);
-				}
+			var announcement = metadataModel.announcement.get(0); //get first announcement
+			switch (announcement.action) {
+				case AnnouncementType.ADD_FILE:
+					// don't catch adding the current file's announcement
+					if (announcement.fileId === that.props.fileId) { return; }
+					switch (announcement.fileType) {
+						case GDriveConstants.ObjectType.PERSISTENT_DATA:
+						case GDriveConstants.ObjectType.SNIPPET:
+						case GDriveConstants.ObjectType.EVENT:
+							that.addToRefs(announcement);
+							break;
+						case GDriveConstants.ObjectType.ENUM:
+							that.addToEnums(announcement);
+							break;
+						default: break;
+					} break;
+				case AnnouncementType.RENAME_FILE:
+					switch (announcement.fileType) {
+						case GDriveConstants.ObjectType.PERSISTENT_DATA:
+						case GDriveConstants.ObjectType.SNIPPET:
+						case GDriveConstants.ObjectType.EVENT:
+							that.updateRefNames(announcement);
+							break;
+						case GDriveConstants.ObjectType.ENUM:
+							that.updateEnums(announcement);
+							break;
+						default: break;
+					} break;
+				case AnnouncementType.ADD_ENUM:
+					if (announcement.fileId === that.fieldData.get('enumId')) { 
+					// if the active enum doesn't match the updated enum, then any update would be unnoticed to the user anyways
+						that.setEnumValues(announcement.fileId);
+					} break;
+				case AnnouncementType.DELETE_ENUM:
+					if (announcement.fileId === that.fieldData.get('enumId')) {
+						that.setEnumValues(announcement.fileId);
+					} break;
+				case AnnouncementType.RENAME_ENUM:
+					if (announcement.fileId === that.fieldData.get('enumId')) {
+						that.setEnumValues(announcement.fileId);
+					} break;
+				default: break;
 			}
 		});
 	},
 
 	updateUi: function() {
-		if (!this.fieldData) { return;	}
+		if (!this.fieldData) { return; }
 
 		this.displayCorrectUiComponents();
-		$('#field-type-select').val(this.fieldData.get('type'));
-		$('#enum-value-select').val(this.fieldData.get('enumValue'));
-		$('#ref-soft-radio').prop('checked', this.fieldData.get('refType') === 'soft');
-		$('#ref-hard-radio').prop('checked', this.fieldData.get('refType') === 'hard');
-		$('#def-value-checkbox').prop('checked', this.fieldData.get('defValueBool'));
-		$('#optional-checkbox').prop('checked', this.fieldData.get('optional'));
-		$('#array-checkbox').prop('checked', this.fieldData.get('array'));
-		$('#context-id-checkbox').prop('checked', this.fieldData.get('contextId'));
+
+		var getById = document.getElementById.bind(document);
+		getById('field-type-select').value = this.fieldData.get('type');
+		getById('enum-value-select').value = this.fieldData.get('enumValue');
+
+		getById('ref-soft-radio').checked = this.fieldData.get('refType') === 'soft';
+		getById('ref-hard-radio').checked = this.fieldData.get('refType') === 'hard';
+		getById('def-value-checkbox').checked = this.fieldData.get('defValueBool');
+		getById('optional-checkbox').checked = this.fieldData.get('optional');
+		getById('array-checkbox').checked =  this.fieldData.get('array');
+		getById('context-id-checkbox').checked =  this.fieldData.get('contextId');
 		this.updateAllSelect();
 	},
 
@@ -149,21 +202,23 @@ module.exports = React.createClass({
 				break;
 			}
 		}
-		this.fieldData.set('type', $('#field-type-select').val());
-		this.fieldData.set('refId', $('#ref-name-select').val());
+
+		var getById = document.getElementById.bind(document);
+		this.fieldData.set('type', getById('field-type-select').value);
+		this.fieldData.set('refId', getById('ref-name-select').value);
 		var newRefType = '';
-		if ($('#ref-soft-radio').prop('checked')) {
+		if (getById('ref-soft-radio').checked) {
 			newRefType = 'soft';
-		} else if ($('#ref-hard-radio').prop('checked')) {
+		} else if (getById('ref-hard-radio').checked) {
 			newRefType = 'hard';
 		}
 		this.fieldData.set('refType', newRefType);
-		this.fieldData.set('enumId', $('#enum-name-select').val());
-		this.fieldData.set('enumValue', $('#enum-value-select').val());
-		this.fieldData.set('defValueBool', $('#def-value-checkbox').prop('checked'));
-		this.fieldData.set('optional', $('#optional-checkbox').prop('checked'));
-		this.fieldData.set('array', $('#array-checkbox').prop('checked'));
-		this.fieldData.set('contextId', $('#context-id-checkbox').prop('checked'));
+		this.fieldData.set('enumId', getById('enum-name-select').value);
+		this.fieldData.set('enumValue', getById('enum-value-select').value);
+		this.fieldData.set('defValueBool', getById('def-value-checkbox').checked);
+		this.fieldData.set('optional', getById('optional-checkbox').checked);
+		this.fieldData.set('array', getById('array-checkbox').checked);
+		this.fieldData.set('contextId', getById('context-id-checkbox').checked);
 		this.gFields.set(fieldIndex, this.fieldData);
 	},
 
@@ -310,7 +365,7 @@ module.exports = React.createClass({
 	},
 
 	alignAllLabels: function() {
-		$('.text-input').each(function(index, element) {
+		$('input:visible').each(function(index, element) {
 			var $element = $(element);
 			if ($element.val() !== '') {
 				$element.next('label').addClass('active');
@@ -340,10 +395,15 @@ module.exports = React.createClass({
 				this.fieldDataId = selectedFieldId;
 
 				//* if old model, must update model*/
-				if (this.fieldData.has('strLen')) {
+				if (!this.fieldData.has('maxStrLen')) {
 					this.fieldData.set('maxStrLen', this.fieldData.get('strLen'));
 					this.fieldData.set('minStrLen', this.gModel.createString(''));
-					this.fieldData.delete('strLen');
+				}
+
+				if (!this.fieldData.has('defDate')) {
+					this.fieldData.set('defDate', this.gModel.createString(''));
+					this.fieldData.set('minDate', this.gModel.createString(''));
+					this.fieldData.set('maxDate', this.gModel.createString(''));
 				}
 
 				this.updateUi();
@@ -358,62 +418,47 @@ module.exports = React.createClass({
 	},
 
 	rebindStrings: function() {
-		for (var i = 0, len = this.gBindings.length; i<len; i++) {
-			this.gBindings[i].unbind(); //unbind the previous strings
-		}
 		var bindString = gapi.drive.realtime.databinding.bindString;
 		var TextInsertedEvent = gapi.drive.realtime.EventType.TEXT_INSERTED;
 		var TextDeletedEvent = gapi.drive.realtime.EventType.TEXT_DELETED;
+		var getById = document.getElementById.bind(document);
+		var that = this;
 
-		var alignLabel = function(e, $label) {
-			if (e.isLocal) { return; } //if the event was called by self, don't worry about labels
-			if (e.target.length) { //if the string isn't empty
+		var alignLabel = function(evt, $label) {
+			if (evt.isLocal) { return; } //if the event was called by self, don't worry about labels
+			if (evt.target.length) { //if the string isn't empty
 				$label.addClass('active');
 			} else {
 				$label.removeClass('active');
 			}
-			var $textField = $('#'+$label.attr('for'));
 		};
 
-		var nameString = this.fieldData.get('name'); //getting each collaborative string
-		nameString.addEventListener(TextInsertedEvent, function(e) {alignLabel(e, $('#name-label'));});
-		nameString.addEventListener(TextDeletedEvent, function(e) {alignLabel(e, $('#name-label'));});
-		this.gBindings.push(bindString(nameString, $('#name-field')[0]));
+		var setGBinding = function(stringToBind, field) {
+			var $label = $('label[for="'+field.id+'"]');
+			stringToBind.addEventListener(TextInsertedEvent, function(evt) {alignLabel(evt, $label);});
+			stringToBind.addEventListener(TextDeletedEvent, function(evt) {alignLabel(evt, $label);});
+			that.gBindings.push(bindString(stringToBind, field));
+		};
 
-		var descriptionString = this.fieldData.get('description');
-		descriptionString.addEventListener(TextInsertedEvent, function(e) {alignLabel(e, $('#description-label'));});
-		descriptionString.addEventListener(TextDeletedEvent, function(e) {alignLabel(e, $('#description-label'));});
-		this.gBindings.push(bindString(descriptionString, $('#description-field')[0]));
+		for (var i = 0, len = this.gBindings.length; i<len; i++) {
+			this.gBindings[i].unbind(); //unbind the previous strings
+		}
 
-		var defValueString = this.fieldData.get('defValue');
-		defValueString.addEventListener(TextInsertedEvent, function(e) {alignLabel(e, $('#def-value-label'));});
-		defValueString.addEventListener(TextDeletedEvent, function(e) {alignLabel(e, $('#def-value-label'));});
-		this.gBindings.push(bindString(defValueString, $('#def-value-field')[0]));
+		setGBinding(this.fieldData.get('name'), getById('name-field'));
+		setGBinding(this.fieldData.get('description'), getById('description-field'));
+		
+		setGBinding(this.fieldData.get('defValue'), getById('def-value-field'));
+		setGBinding(this.fieldData.get('minValue'), getById('min-value-field'));
+		setGBinding(this.fieldData.get('maxValue'), getById('max-value-field'));
 
-		var minValueString = this.fieldData.get('minValue');
-		minValueString.addEventListener(TextInsertedEvent, function(e) {alignLabel(e, $('#min-value-label'));});
-		minValueString.addEventListener(TextDeletedEvent, function(e) {alignLabel(e, $('#min-value-label'));});
-		this.gBindings.push(bindString(minValueString, $('#min-value-field')[0]));
+		setGBinding(this.fieldData.get('defDate'), getById('def-date-field'));
+		setGBinding(this.fieldData.get('minDate'), getById('min-date-field'));
+		setGBinding(this.fieldData.get('maxDate'), getById('max-date-field'));
 
-		var maxValueString = this.fieldData.get('maxValue');
-		maxValueString.addEventListener(TextInsertedEvent, function(e) {alignLabel(e, $('#max-value-label'));});
-		maxValueString.addEventListener(TextDeletedEvent, function(e) {alignLabel(e, $('#max-value-label'));});
-		this.gBindings.push(bindString(maxValueString, $('#max-value-field')[0]));
+		setGBinding(this.fieldData.get('minStrLen'), getById('min-str-len-field'));
+		setGBinding(this.fieldData.get('maxStrLen'), getById('max-str-len-field'));
 
-		var minStrLenString = this.fieldData.get('minStrLen');
-		minStrLenString.addEventListener(TextInsertedEvent, function(e) {alignLabel(e, $('#min-str-len-label'));});
-		minStrLenString.addEventListener(TextDeletedEvent, function(e) {alignLabel(e, $('#min-str-len-label'));});
-		this.gBindings.push(bindString(minStrLenString, $('#min-str-len-field')[0]));
-
-		var maxStrLenString = this.fieldData.get('maxStrLen');
-		maxStrLenString.addEventListener(TextInsertedEvent, function(e) {alignLabel(e, $('#max-len-label'));});
-		maxStrLenString.addEventListener(TextDeletedEvent, function(e) {alignLabel(e, $('#max-len-label'));});
-		this.gBindings.push(bindString(maxStrLenString, $('#max-str-len-field')[0]));
-
-		var arrayLenString = this.fieldData.get('arrayLen');
-		arrayLenString.addEventListener(TextInsertedEvent, function(e) {alignLabel(e, $('#array-len-label'));});
-		arrayLenString.addEventListener(TextDeletedEvent, function(e) {alignLabel(e, $('#array-len-label'));});
-		this.gBindings.push(bindString(arrayLenString, $('#array-len-field')[0]));
+		setGBinding(this.fieldData.get('arrayLen'), getById('array-len-field'));
 	},
 
 	updateAllSelect: function() {
@@ -469,24 +514,22 @@ module.exports = React.createClass({
 	onFilesLoaded: function(fileObjects) {
 		this.refs = [];
 		this.enums = [];
+		var fileObject;
 		for (var i = 0, len = fileObjects.length; i<len; i++) {
+			fileObject = {
+				id: fileObjects[i].id,
+				title: fileObjects[i].title,
+				fileType: fileObjects[i].description 
+			};
 			//the drive file description contains the object type
 			switch (fileObjects[i].description) {
 				case GDriveConstants.ObjectType.PERSISTENT_DATA:
 				case GDriveConstants.ObjectType.SNIPPET:
 				case GDriveConstants.ObjectType.EVENT:
-					this.refs.push({
-						id: fileObjects[i].id,
-						title: fileObjects[i].title,
-						fileType: fileObjects[i].description 
-					});
+					this.refs.push(fileObject);
 					break;
 				case GDriveConstants.ObjectType.ENUM:
-					this.enums.push({
-						id: fileObjects[i].id,
-						title: fileObjects[i].title,
-						fileType: fileObjects[i].description
-					});
+					this.enums.push(fileObject);
 					break;
 				default: break;
 			}
@@ -606,8 +649,10 @@ module.exports = React.createClass({
 			title: title,
 			fileType: fileType
 		});
-		$('#enum-name-select').append('<option data-file-type = "'+fileType+'" data-file-id = "'+id+'" value = "'+id+'">'+title+'</option>');
-		$('#enum-name-dropdown').find('.dropdown-content').append('<li><span data-file-type = "'+fileType+'" data-file-id = "'+id+'">'+title+'</span></li>');
+		$('#enum-name-select')
+			.append('<option data-file-type = "'+fileType+'" data-file-id = "'+id+'" value = "'+id+'">'+title+'</option>');
+		$('#enum-name-dropdown').find('.dropdown-content')
+			.append('<li><span data-file-type = "'+fileType+'" data-file-id = "'+id+'">'+title+'</span></li>');
 	},
 
 	updateEnums: function(announcement) {
@@ -700,14 +745,14 @@ module.exports = React.createClass({
 				<div className='row'>
 					<div className='input-field col s4'>
 						<input type='text' id='name-field' className='text-input validated-input'
-						 onInput={inputHandler} spellCheck = 'false' required />
+						 onInput={inputHandler} required />
 						<label htmlFor='name-field' id='name-label' className='error-tooltipped'>name *</label>
 					</div>
 				</div>
 
 				<div className='row'>
 					<div className='input-field col s12'>
-						<textarea id='description-field' className='materialize-textarea text-input' spellCheck = 'false' />
+						<textarea id='description-field' className='materialize-textarea text-input' />
 						<label htmlFor='description-field' id='description-label'>description</label>
 					</div>
 				</div>
@@ -725,6 +770,9 @@ module.exports = React.createClass({
 							<option value='boolean'>boolean</option>
 							<option value='ref'>ref</option>
 							<option value='enum'>enum</option>
+							<option value='date'>date</option>
+							<option value='datetime'>datetime</option>
+							<option value='time'>time</option>
 						</select>
 						<label htmlFor='field-type-select' id='type-label'>type</label>
 					</div>
@@ -740,8 +788,12 @@ module.exports = React.createClass({
 					<div className='col s4 input-field type-specific-field
 					 	double-specific-field float-specific-field byte-specific-field integer-specific-field
 					 	long-specific-field short-specific-field string-specific-field ref-specific-field'>
-						<input type='text' id='def-value-field' className='text-input validated-input' spellCheck = 'false' />
+						<input type='text' id='def-value-field' className='text-input validated-input' />
 						<label htmlFor='def-value-field' id='def-value-label' className='error-tooltipped'>default value</label>
+					</div>
+					<div className='col s4 input-field type-specific-field date-specific-field datetime-specific-field time-specific-field'>
+						<input type='text' id='def-date-field' className='date-input validated-input' onChange={this.saveUiToGoogle} />
+						<label htmlFor='def-date-field' id='def-date-label'>default value</label>
 					</div>
 					<div className='col s4 type-specific-field boolean-specific-field'>
 						<br />
@@ -750,6 +802,7 @@ module.exports = React.createClass({
 					</div>
 
 					<div id='checkbox-field' className='col s4'>
+						<br />
 						<input type='checkbox' id='optional-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
 						<label htmlFor='optional-checkbox' id='optional-label'>optional</label>
 						<br />
@@ -802,6 +855,16 @@ module.exports = React.createClass({
 						<div className='input-field col s4'>
 							<input type='text' id='max-value-field' className='text-input number-input validated-input' />
 							<label htmlFor='max-value-field' id='max-value-label' className='error-tooltipped'>max value</label>
+						</div>
+					</div>
+					<div className='type-specific-field date-specific-field datetime-specific-field time-specific-field'>
+						<div className='input-field col s4'>
+							<input type='text' id='min-date-field' className='date-input validated-input' />
+							<label htmlFor='min-date-field' id='min-date-label' className='error-tooltipped'>min value</label>
+						</div>
+						<div className='input-field col s4'>
+							<input type='text' id='max-date-field' className='date-input validated-input' />
+							<label htmlFor='max-date-field' id='max-date-label' className='error-tooltipped'>max value</label>
 						</div>
 					</div>
 

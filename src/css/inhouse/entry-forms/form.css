@@ -76,3 +76,50 @@ select.form-select{
 .form-error-message .tooltipster-arrow {
     top: 6px;
 }
+
+.form-datetimepicker {
+    -webkit-transition: margin 0.4s all;
+    -moz-transition: margin 0.4s all;
+    -o-transition: margin 0.4s all;
+    transition: margin 0.4s all;
+}
+
+.form-datetimepicker > .xdsoft_timepicker {
+    width: 90px;
+}
+
+.xdsoft_datetimepicker .xdsoft_timepicker .xdsoft_time_box {
+    border: 0;
+}
+
+/*custom datetimepicker styling*/
+.form-datetimepicker .xdsoft_calendar td > div {
+    text-align: center;
+    padding-right: 0;
+    font-size: 1rem;
+}
+
+.form-datetimepicker .xdsoft_label > .xdsoft_select > div > .xdsoft_option:hover {
+    color: #fff;
+    background: #ffa000;
+}
+
+.form-datetimepicker .xdsoft_calendar td,
+.form-datetimepicker .xdsoft_calendar th,
+.form-datetimepicker .xdsoft_timepicker .xdsoft_time_box >div >div{
+    border: 0;
+}
+
+.form-datetimepicker .xdsoft_calendar td.xdsoft_default, .xdsoft_datetimepicker .xdsoft_calendar td.xdsoft_current,
+.form-datetimepicker .xdsoft_timepicker .xdsoft_time_box >div >div.xdsoft_current {
+    background: #cfd8dc !important;
+    color: #2a2a2a !important;
+    box-shadow: none !important;
+}
+
+.form-datetimepicker .xdsoft_calendar td:hover,
+.form-datetimepicker .xdsoft_timepicker .xdsoft_time_box >div >div:hover {
+    background: #cfd8dc !important;
+    color: #2a2a2a !important;
+    box-shadow: none !important;
+}

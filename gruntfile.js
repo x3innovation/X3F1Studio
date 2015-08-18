@@ -39,7 +39,9 @@ module.exports = function(grunt) {
 			'jquery.slimscroll-1.3.6.js',
 			'jquery.flip-1.0.0.js',
 			'autosize-2.0.0.js',
+			'moment-2.10.6.js',
 			'jquery.dataTables-1.10.7.js',
+			'jquery.datetimepicker-2.4.5.js',
 			'jquery-1.10.7.js'
 		];
 
@@ -56,6 +58,7 @@ module.exports = function(grunt) {
 		var vendorCss = [
 			'materialize-0.96.1.css',
 			'jquery.tooltipster-3.3.0.css',
+			'jquery.datetimepicker-2.4.5.css',
 			'jquery.dataTables-1.10.7.css',
 			'highlight-8.6.css'
 		];
