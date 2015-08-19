@@ -12,6 +12,9 @@ function DataVisualizationService() {
 		"long": FieldSizeCons.LONG_SIZE,
 		"float": FieldSizeCons.FLOAT_SIZE,
 		"double": FieldSizeCons.DOUBLE_SIZE,
+		"date": FieldSizeCons.DATE_SIZE,
+		"datetime": FieldSizeCons.DATETIME_SIZE,
+		"time": FieldSizeCons.TIME_SIZE,
 		"string": FieldSizeCons.STRING_SIZE,
 		"boolean": FieldSizeCons.BOOLEAN_SIZE,
 		"enum": FieldSizeCons.ENUM_SIZE,
@@ -27,7 +30,14 @@ function DataVisualizationService() {
 		fieldModel.size = fieldSizeLookup[fieldModel.type] || 0;
 
 		if (fieldModel.type === 'string') {
-			fieldModel.size += parseInt(gField.get('strLen').toString(), 10);
+			var maxStrLen = gField.has('maxStrLen') ?
+				parseInt(gField.get('maxStrLen').toString(), 10) :
+				parseInt(gField.get('strLen').toString(), 10);
+			if (!isNaN(maxStrLen)) {
+				fieldModel.size += maxStrLen;
+			} else {
+				fieldModel.size = 0;
+			}
 		}
 		if (gField.get('array')) {
 			fieldModel.arrayLen = parseInt(gField.get('arrayLen').toString(), 10);
@@ -43,12 +53,12 @@ function DataVisualizationService() {
 
 	this.generateFieldModelDetails = function(fieldModel) {
 		var details = '';
+		details += fieldModel.name + ': ';
 		details += fieldModel.startByte + ' - ' + fieldModel.endByte + ', ';
 		if (fieldModel.arrayLen) {
 			details += 'Array length: ' + fieldModel.arrayLen + ', ';
 			details += 'Array null bits: ' + fieldModel.arrayNullBits + ', ';
 		}
-		details += 'Name: ' + fieldModel.name + ', ';
 		details += fieldModel.size + ' bytes';
 
 		return details;

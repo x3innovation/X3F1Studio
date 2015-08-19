@@ -83,3 +83,7 @@ th, td {
     -ms-user-select: none;
     user-select: none;
 }
+
+.no-opacity {
+    opacity: 0;
+}

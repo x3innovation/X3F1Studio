@@ -167,6 +167,11 @@ module.exports = React.createClass({
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			if (this.gFields.get(i).id === selectedFieldId) {
 				this.fieldData = this.gFields.get(i);
+
+				if (!this.fieldData.has('maxStrLen')) {
+					this.fieldData.set('maxStrLen', this.fieldData.get('strLen'));
+				}
+
 				this.updateUi();
 				this.setSelectOptions();
 				this.rebindStrings();
@@ -219,7 +224,7 @@ module.exports = React.createClass({
 		maxValueString.addEventListener(TextDeletedEvent, function(e) {alignLabel(e, $('#max-value-label'));});
 		this.gBindings.push(bindString(maxValueString, $('#max-value-field')[0]));
 
-		var strLenString = this.fieldData.get('strLen');
+		var strLenString = this.fieldData.get('maxStrLen');
 		strLenString.addEventListener(TextInsertedEvent, function(e) {alignLabel(e, $('#str-len-label'));});
 		strLenString.addEventListener(TextDeletedEvent, function(e) {alignLabel(e, $('#str-len-label'));});
 		this.gBindings.push(bindString(strLenString, $('#str-len-field')[0]));

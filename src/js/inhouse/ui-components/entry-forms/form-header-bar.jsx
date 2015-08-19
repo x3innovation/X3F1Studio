@@ -28,13 +28,15 @@ module.exports = React.createClass({
 		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'form-header-bar.jsx>>onGapiFileLoaded');
 	},
 
-
 	/* ******************************************
 	          NON LIFE CYCLE FUNCTIONS
 	****************************************** */
 
 	onGapiFileLoaded: function(doc) {
 		this.gFields = doc.getModel().getRoot().get(this.props.gapiKey).fields;
+		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this.updateUi);
+		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this.updateUi);
+		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_SET, this.updateUi);
 		clearInterval(this.updateInterval);
 		this.updateInterval = setInterval(this.updateUi, 1000);
 		this.updateUi();
@@ -49,58 +51,66 @@ module.exports = React.createClass({
 		if (!this.gFields) { return; }
 		var oldSize = this.totalSize;
 		this.fieldsModel = [];
-		this.totalSize = 0;
+		this.totalSize = FieldSizeCons.DMX_HEADER_SIZE;
 
 		this.fieldsModel.push({
-			name: "Field Null Bits",
+			name: 'Field Null Bits',
+			id: 'field-null-bits',
 			size: FieldSizeCons.NULLBITS_SIZE,
 			startByte: this.totalSize,
-			endByte: this.totalSize + FieldSizeCons.NULLBITS_SIZE
-		})
+			endByte: this.totalSize + FieldSizeCons.NULLBITS_SIZE - 1
+		});
 		this.totalSize += FieldSizeCons.NULLBITS_SIZE;
 
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
-			fieldModel = DataVisualizationService.generateFieldModel(this.gFields.get(i), this.totalSize);
+			var fieldModel = DataVisualizationService.generateFieldModel(this.gFields.get(i), this.totalSize);
 			this.totalSize += fieldModel.size;
 			this.fieldsModel.push(fieldModel);
 		}
 	},
 
-	showFieldModel: function(e) {
-		var fieldSegment = e.currentTarget;
-		var fieldModel = JSON.parse(fieldSegment.dataset.fieldModel);
-		console.log(fieldModel);
+	showFieldModelDetails: function(e) {
+		var $fieldSegment = $(e.currentTarget);
+		$('.header-bar-component-details').addClass('no-opacity')
+		$fieldSegment.find('.header-bar-component-details').removeClass('no-opacity');
 	},
 
-	hideFieldModel: function(e) {
-
+	hideFieldModelDetails: function(e) {
+		var $fieldSegment = $(e.currentTarget);
+		$('.header-bar-component-details').addClass('no-opacity')
 	},
 
 	getHeaderBar: function() {
 		var fieldsModel = this.fieldsModel;
-		var totalSize = this.totalSize;
+		var totalSize = this.totalSize - FieldSizeCons.DMX_HEADER_SIZE;
+
 		//98% of true width to account for margins
 		var PERCENT_MULTIPLIER = 0.98 * 100;
-		var MIN_DISPLAY_PERCENT = PERCENT_MULTIPLIER * 0.12;
+		var MIN_DISPLAY_PERCENT = PERCENT_MULTIPLIER * (6 / 100);
 
 		var that = this;
 		var content = (
 		   <div id = 'header-bar-row' className='row center'>{
 		   	fieldsModel.map(function(fieldModel, index) {
-		   		var widthPercent = (PERCENT_MULTIPLIER * (fieldModel.size / totalSize));
+		   		// round to hundreths, no need for more digits
+		   		var widthPercent = Math.round(PERCENT_MULTIPLIER * (fieldModel.size / totalSize) * 100) / 100;
 		   		var segmentStyle = {
-		   			width: (Math.round(widthPercent * 100) / 100) + '%',
+		   			width: widthPercent + '%',
 		   		}
-		   		var spanContent = (widthPercent >= MIN_DISPLAY_PERCENT) ? fieldModel.name : '';
+		   		if (widthPercent === 0) { segmentStyle.border = '0'; }
+		   		var componentContent = (widthPercent >= MIN_DISPLAY_PERCENT) ? fieldModel.name : '.';
 		   		var fieldModelDetails = DataVisualizationService.generateFieldModelDetails(fieldModel);
-
+		 
 		   		return (
-		   		   <span key={fieldModel.id || 'field-nullbits'} className="header-bar-component" style={segmentStyle}
-		   		    data-field-model = {JSON.stringify(fieldModel)} onMouseEnter = {that.showFieldModel} onMouseLeave = {that.hideFieldModel}>
-		   		    {spanContent}
-		   		    <div className="header-bar-component-details hide">
-		   		    	{fieldModelDetails}
-		   		    </div>
+		   		   <span key={fieldModel.id} className="header-bar-component" style={segmentStyle}
+		   		    onMouseOver={that.showFieldModelDetails} onMouseOut={that.hideFieldModelDetails}>
+		   		    	<div className={'header-bar-component-content' + 
+		   		    	 (componentContent === '.' ? ' transparent-text': '')}>
+		   		    		{componentContent}
+		   		    	</div>
+			   		   <div className="header-bar-component-details no-opacity">
+			   		   	{fieldModelDetails}
+			   		   </div>
 		   		   </span>
 		   		);
 		   	})
