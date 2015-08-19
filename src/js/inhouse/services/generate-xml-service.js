@@ -318,22 +318,49 @@ function GenerateXMLService() {
 					case 'byte':
 					case 'short':
 					case 'long':
-						if (isNaN(gField.get('defValue').toString())) {
+						var defValue = gField.get('defValue').toString();
+						if (isNaN(defValue)) {
 							node.Data.Field[i]._default = ''; //don't send a non-number value
 						}
-						if (gField.get('minValue').toString().length && !isNaN(gField.get('minValue').toString())) {
-							node.Data.Field[i]._min = gField.get('minValue').toString();
+						var minValue = gField.get('minValue').toString();
+						if (minValue && !isNaN(minValue)) {
+							node.Data.Field[i]._min = minValue;
 						}
-						if (gField.get('maxValue').toString().length && !isNaN(gField.get('maxValue').toString())) {
-							node.Data.Field[i]._max = gField.get('maxValue').toString();
+						var maxValue = gField.get('maxValue').toString();
+						if (maxValue && !isNaN(maxValue)) {
+							node.Data.Field[i]._max = maxValue;
+						}
+						break;
+					case 'datetime':
+						node.Data.Field[i]._type = 'dateTime';
+					case 'date':
+					case 'time':
+						var defDate = gField.get('defDate').toString();
+						if (defDate) {
+							node.Data.Field[i]._default = defDate;
+						} else {
+							delete node.Data.Field[i]._default;
+						}
+						var minDate = gField.get('minDate').toString();
+						if (minDate) {
+							node.Data.Field[i]._min = minDate;
+						}
+						var maxDate = gField.get('maxDate').toString();
+						if (maxDate) {
+							node.Data.Field[i]._max = maxDate;
 						}
 						break;
 					case 'boolean':
 						node.Data.Field[i]._default = gField.get('defValueBool').toString();
 						break;
 					case 'string':
-						if (gField.get('strLen').toString().length && !isNaN(gField.get('strLen').toString())) {
-							node.Data.Field[i]._length = gField.get('strLen').toString();
+						var maxStrLen = gField.has('maxStrLen') ? 
+							gField.get('maxStrLen').toString() : gField.get('strLen').toString();
+						var minStrLen = gField.has('minStrLen') ? 
+							gField.get('minStrLen').toString() : '';
+
+						if (maxStrLen && !isNaN(maxStrLen)) {
+							node.Data.Field[i]._length = maxStrLen;
 						} else {
 							node.Data.Field[i]._length = '1'; //sending an invalid length value causes error
 						}

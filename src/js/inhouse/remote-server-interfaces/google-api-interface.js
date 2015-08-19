@@ -256,6 +256,8 @@ function GoogleApiInterface()
 						client_id: client_id,
 						user_id: user_id,
 						scope: scope
+					}, function(authResult) {
+						console.log(authResult);
 					});
 				}, 2700000); //refresh token every 45 minutes
 

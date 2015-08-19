@@ -223,9 +223,9 @@ module.exports = React.createClass({
 		this.fieldData.set('enumId', getById('enum-name-select').value);
 		this.fieldData.set('enumValue', getById('enum-value-select').value);
 
-		this.fieldData.get('defDate').setText(getById('def-date-field').value));
-		this.fieldData.get('minDate').setText(getById('min-date-field').value));
-		this.fieldData.get('maxDate').setText(getById('max-date-field').value));
+		this.fieldData.get('defDate').setText(getById('def-date-field').value);
+		this.fieldData.get('minDate').setText(getById('min-date-field').value);
+		this.fieldData.get('maxDate').setText(getById('max-date-field').value);
 
 		this.fieldData.set('defValueBool', getById('def-value-checkbox').checked);
 		this.fieldData.set('optional', getById('optional-checkbox').checked);
@@ -409,7 +409,7 @@ module.exports = React.createClass({
 	},
 
 	alignAllLabels: function() {
-		$('input').each(function(index, element) {
+		$('.text-input').each(function(index, element) {
 			var $element = $(element);
 			if ($element.val() !== '') {
 				$element.next('label').addClass('active');
@@ -838,7 +838,7 @@ module.exports = React.createClass({
 						<label htmlFor='def-value-field' className='error-tooltipped'>default value</label>
 					</div>
 					<div className='col s4 input-field type-specific-field date-specific-field datetime-specific-field time-specific-field'>
-						<input type='text' id='def-date-field' className='date-input validated-input' onChange={this.saveUiToGoogle} />
+						<input type='text' id='def-date-field' className='text-input date-input validated-input' onChange={this.saveUiToGoogle} />
 						<label htmlFor='def-date-field' className='error-tooltipped'>default value</label>
 					</div>
 					<div className='col s4 type-specific-field boolean-specific-field'>
@@ -905,11 +905,11 @@ module.exports = React.createClass({
 					<div className='type-specific-field date-specific-field datetime-specific-field time-specific-field'>
 						<div className='input-field col s4'>
 							<input type='text' id='min-date-field' className='date-input validated-input' />
-							<label htmlFor='min-date-field' className='error-tooltipped'>min date</label>
+							<label htmlFor='min-date-field' className='text-input error-tooltipped'>min date</label>
 						</div>
 						<div className='input-field col s4'>
 							<input type='text' id='max-date-field' className='date-input validated-input' />
-							<label htmlFor='max-date-field' className='error-tooltipped'>max date</label>
+							<label htmlFor='max-date-field' className='text-input error-tooltipped'>max date</label>
 						</div>
 					</div>
 
