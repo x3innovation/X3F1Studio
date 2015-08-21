@@ -42,6 +42,7 @@
     font-size: 1.1rem;
     position: absolute;
     line-height: 1.6rem;
+    right: 0;
 }
 
 .selected-cell {

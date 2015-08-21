@@ -86,4 +86,5 @@ th, td {
 
 .no-opacity {
     opacity: 0;
+    visibility: hidden;
 }

@@ -35,7 +35,6 @@ module.exports = React.createClass({
 	onGapiFileLoaded: function(doc) {
 		this.gModel = doc.getModel();
 		this.gFields = this.gModel.getRoot().get(this.props.gapiKey).fields;
-		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_SET, this.updateUi);
 		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this.updateUi);
 		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this.updateUi);
 		this.updateUi();

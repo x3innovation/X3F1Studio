@@ -22,18 +22,18 @@ function DataVisualizationService() {
 	};
 
 	// //////// public members
-	this.generateFieldModel = function(gField, currByte) {
+	this.generateFieldModel = function(gField,startByte) {
 		var fieldModel = {};
 		fieldModel.id = gField.id;
 		fieldModel.name = gField.get('name').toString();
-		fieldModel.type = gField.get('type').toString()
+		fieldModel.type = gField.get('type').toString();
 		fieldModel.size = fieldSizeLookup[fieldModel.type] || 0;
 
 		if (fieldModel.type === 'string') {
 			var maxStrLen = gField.has('maxStrLen') ?
 				parseInt(gField.get('maxStrLen').toString(), 10) :
 				parseInt(gField.get('strLen').toString(), 10);
-			if (!isNaN(maxStrLen)) {
+			if (maxStrLen && !isNaN(maxStrLen)) {
 				fieldModel.size += maxStrLen;
 			} else {
 				fieldModel.size = 0;
@@ -41,12 +41,12 @@ function DataVisualizationService() {
 		}
 		if (gField.get('array')) {
 			fieldModel.arrayLen = parseInt(gField.get('arrayLen').toString(), 10);
-			fieldModel.arrayNullBits = Math.ceil(fieldModel.arrayLen / 32);
+			fieldModel.nullBits = Math.ceil(fieldModel.arrayLen / 32);
 			fieldModel.size *= fieldModel.arrayLen; 
-			fieldModel.size += fieldModel.arrayNullBits;
+			fieldModel.size += fieldModel.nullBits;
 		}
-		fieldModel.startByte = currByte;
-		fieldModel.endByte = currByte + fieldModel.size - 1;
+		fieldModel.startByte = startByte;
+		fieldModel.endByte = startByte + fieldModel.size - 1;
 
 		return fieldModel;
 	}
@@ -54,12 +54,14 @@ function DataVisualizationService() {
 	this.generateFieldModelDetails = function(fieldModel) {
 		var details = '';
 		details += fieldModel.name + ': ';
-		details += fieldModel.startByte + ' - ' + fieldModel.endByte + ', ';
-		if (fieldModel.arrayLen) {
-			details += 'Array length: ' + fieldModel.arrayLen + ', ';
-			details += 'Array null bits: ' + fieldModel.arrayNullBits + ', ';
+		if (fieldModel.type) {
+			details += fieldModel.type + ', ';
 		}
-		details += fieldModel.size + ' bytes';
+		details += fieldModel.size + ' bytes (' + fieldModel.startByte + ' - ' + fieldModel.endByte + ')';
+		if (fieldModel.arrayLen) {
+			details += ', array length: ' + fieldModel.arrayLen + ', ';
+			details += 'null bits: ' + fieldModel.nullBits;
+		}
 
 		return details;
 	}

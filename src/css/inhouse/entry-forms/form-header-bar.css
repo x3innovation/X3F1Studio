@@ -1,49 +1,88 @@
-.header-bar-component {
+.header-segment {
 	display: inline-block;
 	overflow: hidden;
 	text-overflow: clip;
 	border-left: 1px solid #9e9e9e;
 	height: 1.5rem;
-	background-color: #dcdcdc;
 	font-size: 0.9rem;
 
-	-webkit-transition: all 0.4s ease;
-	-moz-transition: all 0.4s ease;
-	-o-transition: all 0.4s ease;
-	transition: all 0.4s ease;
+	-webkit-transition: background 0.4s ease;
+	-moz-transition: background 0.4s ease;
+	-ms-transition: background 0.4s ease;
+	-o-transition: background 0.4s ease;
+	transition: background 0.4s ease;
 }
-
-.header-bar-component:first-of-type{
+.header-segment:first-of-type{
 	border-left: 0;
 }
 
-.header-bar-component:hover {
-	background-color: #7986cb;
-}
-
-.header-bar-component-content {
+.segment-content {
 	display: inline-block;
-	padding: 0 3px;
 	height: 1.5rem;
 }
 
-.header-bar-component-details {
+.segment-details {
 	width: 200px;
 	position: absolute;
-	background-color: #7986cb;
-	border-bottom: 2px solid #3f51b5;
 	padding: 10px 8px;
 	z-index: 10;
 	font-size: 0.8rem;
 	margin-left: -1px;
 
-	-webkit-transition: all 0.4s ease;
-	-moz-transition: all 0.4s ease;
-	-o-transition: all 0.4s ease;
-	transition: all 0.4s ease;
+	-webkit-transition: opacity 0.4s ease;
+	-moz-transition: opacity 0.4s ease;
+	-ms-transition: opacity 0.4s ease;
+	-o-transition: opacity 0.4s ease;
+	transition: opacity 0.4s ease;
+}
+.header-segment:first-of-type .segment-details{
+	margin-left: 0;
+}
+
+
+#header-top-bar-row {
+	margin: 0;
+	height: 1.5rem;
+}
+
+.header-top-bar-segment {
+	background-color: #bdbdbd;
+}
+.header-top-bar-segment:hover {
+	background-color: #b0bec5;
+}
+
+.header-top-bar-segment-details {
+	background-color: #b0bec5;
+	border-bottom-color: #263238;
+	transform: translateY(-100%);
 }
 
 #header-bar-row {
 	margin: 0;
-	margin-bottom: 0.5rem;
+	margin-bottom: 1rem;
+}
+
+.header-bar-segment {
+	background-color: #dcdcdc;
+}
+.header-bar-segment:hover {
+	background-color: #c5cae9;
+}
+
+.header-bar-segment-details {
+	background-color: #c5cae9;
+	border-bottom-color: #283593;
+}
+
+.header-bar-segment.null-bits-segment {
+	background-color: #ffcdd2;
+}
+.header-bar-segment.null-bits-segment:hover {
+	background-color: #ff8a80;
+}
+
+.null-bits-segment .segment-details {
+	background-color: #ff8a80;
+	border-bottom-color: #c62828;
 }

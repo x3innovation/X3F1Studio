@@ -52,6 +52,17 @@ module.exports = {
 		QUERY_DESCRIPTION : ''
 	},
 
+	HeaderBarDefaultFields: {
+		LENGTH: {name: 'length', size: 4},
+		TYPE_ID: {name: 'type id', size: 4},
+		VERSION: {name: 'version', size: 4},
+		EXISTS_FLAG: {name: 'exists flag', size: 4},
+		ENCODING: {name: 'encoding', size: 4},
+		CHECKSUM: {name: 'checksum', size: 8},
+		UUID_LOW: {name: 'uuid low', size: 8},
+		UUID_HIGH: {name: 'uuid high', size: 8}
+	},
+
 	FieldSizeValues : {
 		DMX_HEADER_SIZE : 44,
 

@@ -252,9 +252,6 @@ function GoogleApiInterface()
 				tokenRefreshInterval = setInterval(function() {
 					refreshToken(function(authResult) {
 						//console.log(authResult);
-						setInterval(function() {
-							console.log(authResult);
-						}, 1000);
 					})
 				}, (45 * 60 * 1000)); //refresh token every 45 minutes as suggested by google
 
