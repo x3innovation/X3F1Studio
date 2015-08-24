@@ -53,6 +53,9 @@ function DataVisualizationService() {
 
 	this.generateFieldModelDetails = function(fieldModel) {
 		var details = '';
+		if (fieldModel.id === 'field-null-bits') {
+			details += 'Field Null Bits:\n';
+		}
 		if (fieldModel.type) {
 			details += fieldModel.type + ', ';
 		}
