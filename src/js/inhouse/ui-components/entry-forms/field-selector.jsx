@@ -157,7 +157,12 @@ module.exports = React.createClass({
 	},
 
 	rebindStrings: function() {
-		var that = this;
+		// remove previous bindings, then clear the table
+		for (var i = 0, len = this.gBindings.length; i<len; i++) {
+			this.gBindings[i].unbind();
+		}
+		this.gBindings = [];
+
 		var bindString = gapi.drive.realtime.databinding.bindString;
 		var TextInsertedEvent = gapi.drive.realtime.EventType.TEXT_INSERTED;
 		var TextDeletedEvent = gapi.drive.realtime.EventType.TEXT_DELETED;
@@ -168,9 +173,7 @@ module.exports = React.createClass({
 			that.table.cell($spanSiblingCell).data(newText).draw();
 		};
 
-		for (var i = 0, len = this.gBindings.length; i<len; i++) {
-			this.gBindings[i].unbind();
-		}
+		var that = this;
 		$('.field-table-input').each(function(index, element) {
 			var $element = $(element);
 			var fieldId = $element.attr('data-field-id');
@@ -249,8 +252,8 @@ module.exports = React.createClass({
 		while (digitsList.indexOf('' + newFieldNum) >= 0) {
 			newFieldNum++;
 		}
-
 		var newFieldName = NEW_FIELD_NAME + newFieldNum;
+		
 		this.addField(newFieldName);
 	},
 

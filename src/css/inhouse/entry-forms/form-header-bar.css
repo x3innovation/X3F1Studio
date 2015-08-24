@@ -1,7 +1,5 @@
 .header-segment {
 	display: inline-block;
-	overflow: hidden;
-	text-overflow: clip;
 	border-left: 1px solid #9e9e9e;
 	height: 1.5rem;
 	font-size: 0.9rem;
@@ -17,6 +15,8 @@
 }
 
 .segment-content {
+	overflow: hidden;
+	text-overflow: clip;
 	display: inline-block;
 	height: 1.5rem;
 }
@@ -26,14 +26,11 @@
 	position: absolute;
 	padding: 10px 8px;
 	z-index: 10;
-	font-size: 0.8rem;
 	margin-left: -1px;
 
-	-webkit-transition: opacity 0.4s ease;
-	-moz-transition: opacity 0.4s ease;
-	-ms-transition: opacity 0.4s ease;
-	-o-transition: opacity 0.4s ease;
-	transition: opacity 0.4s ease;
+	text-align: left;
+	font-weight: 300;
+	white-space: pre-line;
 }
 .header-segment:first-of-type .segment-details{
 	margin-left: 0;
@@ -54,7 +51,7 @@
 
 .header-top-bar-segment-details {
 	background-color: #b0bec5;
-	border-bottom-color: #263238;
+	border-top: 2px solid #263238;
 	transform: translateY(-100%);
 }
 
@@ -72,17 +69,18 @@
 
 .header-bar-segment-details {
 	background-color: #c5cae9;
-	border-bottom-color: #283593;
+	border-bottom: 2px solid #283593;
+	margin-top: -6px;
 }
 
-.header-bar-segment.null-bits-segment {
+.null-bits-segment {
 	background-color: #ffcdd2;
 }
-.header-bar-segment.null-bits-segment:hover {
+.null-bits-segment:hover {
 	background-color: #ff8a80;
 }
 
 .null-bits-segment .segment-details {
 	background-color: #ff8a80;
-	border-bottom-color: #c62828;
+	border-bottom: 2px solid #c62828;
 }

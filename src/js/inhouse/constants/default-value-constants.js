@@ -59,8 +59,8 @@ module.exports = {
 		EXISTS_FLAG: {name: 'exists flag', size: 4},
 		ENCODING: {name: 'encoding', size: 4},
 		CHECKSUM: {name: 'checksum', size: 8},
-		UUID_LOW: {name: 'uuid low', size: 8},
-		UUID_HIGH: {name: 'uuid high', size: 8}
+		UUID_LOW: {name: 'uuid(low)', size: 8},
+		UUID_HIGH: {name: 'uuid(high)', size: 8}
 	},
 
 	FieldSizeValues : {

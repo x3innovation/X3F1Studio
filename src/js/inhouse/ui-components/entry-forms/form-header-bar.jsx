@@ -2,7 +2,7 @@ var EventType = require('../../constants/event-type.js');
 var DefaultValueConstants = require('../../constants/default-value-constants.js');
 
 var GDriveService = require('../../services/google-drive-service.js');
-var DataVisualizationService = require('../../services/data-visualization-service.js')
+var DataVisualizationService = require('../../services/data-visualization-service.js');
 
 module.exports = React.createClass({
 	/* ******************************************
@@ -44,24 +44,26 @@ module.exports = React.createClass({
 
 		var FieldSizeCons = DefaultValueConstants.FieldSizeValues;
 
-		var oldSize = this.totalSize;
-		this.fieldsModel = [];
-		this.totalSize = FieldSizeCons.DMX_HEADER_SIZE;
+		var fieldsModel = [];
+		var currByte = FieldSizeCons.DMX_HEADER_SIZE;
 
-		this.fieldsModel.push({
+		fieldsModel.push({
 			name: 'Field Null Bits',
 			id: 'field-null-bits',
 			size: FieldSizeCons.NULLBITS_SIZE,
-			startByte: this.totalSize,
-			endByte: this.totalSize + FieldSizeCons.NULLBITS_SIZE - 1
+			startByte: currByte,
+			endByte: currByte + FieldSizeCons.NULLBITS_SIZE - 1
 		});
-		this.totalSize += FieldSizeCons.NULLBITS_SIZE;
+		currByte += FieldSizeCons.NULLBITS_SIZE;
 
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
-			var fieldModel = DataVisualizationService.generateFieldModel(this.gFields.get(i), this.totalSize);
-			this.totalSize += fieldModel.size;
-			this.fieldsModel.push(fieldModel);
+			var fieldModel = DataVisualizationService.generateFieldModel(this.gFields.get(i), currByte);
+			currByte += fieldModel.size;
+			fieldsModel.push(fieldModel);
 		}
+
+		this.fieldsModel = fieldsModel;
+		this.totalSize = currByte;
 	},
 
 	showSegmentDetails: function(e) {
@@ -72,40 +74,40 @@ module.exports = React.createClass({
 
 	hideSegmentDetails: function(e) {
 		var $fieldSegment = $(e.currentTarget);
-		$('.segment-details').addClass('no-opacity')
+		$('.segment-details').addClass('no-opacity');
 	},
 
 	getTopBar: function() {
-		var DefaultSegments = DefaultValueConstants.HeaderBarDefaultFields
-		var defaultSegments = [
-			DefaultSegments.LENGTH,
-			DefaultSegments.TYPE_ID,
-			DefaultSegments.VERSION,
-			DefaultSegments.EXISTS_FLAG,
-			DefaultSegments.ENCODING,
-			DefaultSegments.CHECKSUM,
-			DefaultSegments.UUID_LOW,
-			DefaultSegments.UUID_HIGH
+		var DefaultFields = DefaultValueConstants.HeaderBarDefaultFields;
+		var segments = [
+			DefaultFields.LENGTH,
+			DefaultFields.TYPE_ID,
+			DefaultFields.VERSION,
+			DefaultFields.EXISTS_FLAG,
+			DefaultFields.ENCODING,
+			DefaultFields.CHECKSUM,
+			DefaultFields.UUID_LOW,
+			DefaultFields.UUID_HIGH
 		];
 
-		var PERCENT_MULTIPLIER = .98 * 100;
-
 		var headerTopBarSize = DefaultValueConstants.FieldSizeValues.DMX_HEADER_SIZE;
+		// can't be actually 100% due to margin overflow, 98% is close enough.
+		var PERCENT_MULTIPLIER = 0.98 * 100;
+
 		var currByte = 0;
 
 		var that = this;
 		var content = (
 		   <div id = 'header-top-bar-row' className='header-row row center'>{
-		   	defaultSegments.map(function(segment, index) {
+		   	segments.map(function(segment, index) {
 		   		var widthPercent = Math.round(PERCENT_MULTIPLIER * (segment.size / headerTopBarSize) * 100) / 100;
-		   		var segmentStyle = {
-		   			width: widthPercent + '%',
-		   		}
+		   		var segmentStyle = { width: widthPercent + '%' };
 		   		var segmentContent = segment.name;
+
 		   		var segmentDetails = ''; 
 		   		segmentDetails += segment.name + ': ';
 		   		segmentDetails += segment.size + ' bytes ';
-		   		segmentDetails += ' ('+currByte + ' - ' + (currByte + segment.size - 1)+')';
+		   		segmentDetails += ' ('+currByte + '-' + (currByte + segment.size - 1)+')';
 
 		   		currByte += segment.size;
 		   		return (
@@ -129,10 +131,10 @@ module.exports = React.createClass({
 		var fieldsModel = this.fieldsModel;
 		var totalSize = this.totalSize - DefaultValueConstants.FieldSizeValues.DMX_HEADER_SIZE;
 
-		//98% of true width to account for margins
-		//don't display text for fileds below a width of 3%.
-		var PERCENT_MULTIPLIER = .98 * 100;
-		var MIN_DISPLAY_PERCENT = PERCENT_MULTIPLIER * (6 / 100);
+		// can't be actually 100% due to margin overflow, 98% is close enough.
+		//don't display text for fileds below a width of 5%.
+		var PERCENT_MULTIPLIER = 0.98 * 100;
+		var MIN_DISPLAY_PERCENT = PERCENT_MULTIPLIER * (5 / 100);
 
 		var that = this;
 		var content = (
@@ -143,18 +145,17 @@ module.exports = React.createClass({
 		   		widthPercent = Math.max(0.1, widthPercent); //have a minimum width set of 0.1% of the bar
 		   		var segmentStyle = {
 		   			width: widthPercent + '%',
-		   		}
+		   		};
 		   		if (widthPercent === 0) { segmentStyle.border = '0'; }
 
 		   		// if segment too short, then hide the text
-		   		var PLACEHOLDER_VALUE = '.';
+		   		var PLACEHOLDER_VALUE = '...';
 		   		var segmentContent = (widthPercent >= MIN_DISPLAY_PERCENT) ? fieldModel.name : PLACEHOLDER_VALUE;
 		   		var segmentDetails = DataVisualizationService.generateFieldModelDetails(fieldModel);
 
 		   		var segmentClassName = 'header-segment header-bar-segment' +
 		   			(fieldModel.id === 'field-null-bits' ? ' null-bits-segment' : '');
-		   		var segmentContentClassName = 'header-bar-segment-content segment-content' + 
-		   		   (segmentContent === PLACEHOLDER_VALUE ? ' transparent-text': '')
+		   		var segmentContentClassName = 'header-bar-segment-content segment-content';
 		 
 		   		return (
 		   		   <span key={fieldModel.id} className={segmentClassName} style={segmentStyle}
@@ -183,5 +184,4 @@ module.exports = React.createClass({
 			</div>
 		);
 	}
-
 });

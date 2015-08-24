@@ -53,13 +53,12 @@ function DataVisualizationService() {
 
 	this.generateFieldModelDetails = function(fieldModel) {
 		var details = '';
-		details += fieldModel.name + ': ';
 		if (fieldModel.type) {
 			details += fieldModel.type + ', ';
 		}
-		details += fieldModel.size + ' bytes (' + fieldModel.startByte + ' - ' + fieldModel.endByte + ')';
+		details += fieldModel.size + ' bytes (' + fieldModel.startByte + '-' + fieldModel.endByte + ')';
 		if (fieldModel.arrayLen) {
-			details += ', array length: ' + fieldModel.arrayLen + ', ';
+			details += '\narray length: ' + fieldModel.arrayLen + ', ';
 			details += 'null bits: ' + fieldModel.nullBits;
 		}
 
