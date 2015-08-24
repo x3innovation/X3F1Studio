@@ -17,8 +17,11 @@ module.exports = React.createClass({
 		Bullet.on(EventType.EntryForm.GAPI_FILE_LOADED, 'form-header-bar.jsx>>onGapiFileLoaded', this.onGapiFileLoaded);
 	},
 
+	componentDidMount: function() {
+	},
+
 	componentWillUnmount: function() {
-		if (this.gFields) { this.gFields.removeAllEventListeners(); }
+		if (this.gFields) { this.gFields.removeEventListener(gapi.drive.realtime.EventType.OBJECT_CHANGED, this.updateUi); }
 		clearInterval(this.updateInterval);
 
 		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'form-header-bar.jsx>>onGapiFileLoaded');
@@ -31,12 +34,35 @@ module.exports = React.createClass({
 	onGapiFileLoaded: function(doc) {
 		this.gFields = doc.getModel().getRoot().get(this.props.gapiKey).fields;
 		this.gFields.addEventListener(gapi.drive.realtime.EventType.OBJECT_CHANGED, this.updateUi);
+		this.initializeTooltips();
 		this.updateUi();
 	},
 
 	updateUi: function() {
 		this.mapFieldData();
 		this.forceUpdate();
+		this.reinitializeTooltips();
+	},
+
+	initializeTooltips: function() {
+		$('.header-top-bar-tooltipped').tooltipster({
+			position: 'top',
+			maxWidth: 200,
+			theme: 'header-bar-details top-bar-details',
+			trigger: 'custom'
+		});
+
+		$('.header-bar-tooltipped').tooltipster({
+			position: 'bottom',
+			maxWidth: 200,
+			theme: 'header-bar-details second-bar-details',
+			trigger: 'custom'
+		});
+	},
+
+	reinitializeTooltips: function() {
+		//$('.header-top-bar-tooltipped, .header-bar-tooltipped').tooltipster('destroy');
+		this.initializeTooltips();
 	},
 
 	mapFieldData: function() {
@@ -67,14 +93,23 @@ module.exports = React.createClass({
 	},
 
 	showSegmentDetails: function(e) {
-		var $fieldSegment = $(e.currentTarget);
+		var fieldSegment = e.currentTarget;
+		var $fieldSegment = $(fieldSegment);
+		/*
 		$('.segment-details').addClass('no-opacity');
 		$fieldSegment.find('.segment-details').removeClass('no-opacity');
+		*/
+		$fieldSegment.tooltipster('content', fieldSegment.dataset.details);
+		$fieldSegment.tooltipster('show');
 	},
 
 	hideSegmentDetails: function(e) {
-		var $fieldSegment = $(e.currentTarget);
+		var fieldSegment = e.currentTarget;
+		var $fieldSegment = $(fieldSegment);
+		/*
 		$('.segment-details').addClass('no-opacity');
+		*/
+		$fieldSegment.tooltipster('hide');
 	},
 
 	getTopBar: function() {
@@ -105,17 +140,13 @@ module.exports = React.createClass({
 		   		var segmentContent = segment.name;
 
 		   		var segmentDetails = ''; 
-		   		segmentDetails += segment.name + ': ';
 		   		segmentDetails += segment.size + ' bytes ';
 		   		segmentDetails += ' ('+currByte + '-' + (currByte + segment.size - 1)+')';
 
 		   		currByte += segment.size;
 		   		return (
-		   		   <span key={index} className='header-top-bar-segment header-segment' style={segmentStyle}
-		   		    onMouseOver={that.showSegmentDetails} onMouseOut={that.hideSegmentDetails}>
-			   		   <div className="header-top-bar-segment-details segment-details no-opacity">
-			   		   	{segmentDetails}
-			   		   </div>
+		   		   <span key={index} className='header-top-bar-segment header-segment header-top-bar-tooltipped' style={segmentStyle}
+		   		    onMouseOver={that.showSegmentDetails} onMouseOut={that.hideSegmentDetails} data-details={segmentDetails}>
 		   		    	<div className='header-top-bar-segment-content segment-content'>
 		   		    		{segmentContent}
 		   		    	</div>
@@ -153,19 +184,15 @@ module.exports = React.createClass({
 		   		var segmentContent = (widthPercent >= MIN_DISPLAY_PERCENT) ? fieldModel.name : PLACEHOLDER_VALUE;
 		   		var segmentDetails = DataVisualizationService.generateFieldModelDetails(fieldModel);
 
-		   		var segmentClassName = 'header-segment header-bar-segment' +
+		   		var segmentClassName = 'header-segment header-bar-segment header-bar-tooltipped' +
 		   			(fieldModel.id === 'field-null-bits' ? ' null-bits-segment' : '');
 		   		var segmentContentClassName = 'header-bar-segment-content segment-content';
 		 
 		   		return (
-		   		   <span key={fieldModel.id} className={segmentClassName} style={segmentStyle}
-		   		    onMouseOver={that.showSegmentDetails} onMouseOut={that.hideSegmentDetails}>
+		   		   <span key={fieldModel.id} className={segmentClassName} style={segmentStyle} data-details={segmentDetails} onMouseOver={that.showSegmentDetails} onMouseOut={that.hideSegmentDetails}>
 		   		    	<div className={segmentContentClassName}>
 		   		    		{segmentContent}
 		   		    	</div>
-			   		   <div className="header-bar-segment-details segment-details no-opacity">
-			   		   	{segmentDetails}
-			   		   </div>
 		   		   </span>
 		   		);
 		   	})
