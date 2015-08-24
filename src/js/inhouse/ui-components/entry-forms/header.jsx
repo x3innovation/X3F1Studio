@@ -30,6 +30,8 @@ module.exports = React.createClass({
 	},
 
 	componentWillUnmount: function() {
+		clearTimeout(this.saveTitleTimeout);
+		this.saveTitle();
 		if (this.gModel.title) { this.gModel.title.removeAllEventListeners(); }
 		
 		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'header.jsx>>onGapiFileLoaded');

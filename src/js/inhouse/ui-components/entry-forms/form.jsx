@@ -26,7 +26,7 @@ module.exports = React.createClass({
 	componentDidMount: function() {
 		this.initializeTooltips();
 		this.initializeDatepicker();
-		$('.text-input').keypress(function(e) {
+		$('input[type=text]').keypress(function(e) {
 			var code = (e.keyCode || e.which);
 			if (code === 13) { //enter was detected, ignore keypress
 				$(e.currentTarget).blur();
@@ -86,8 +86,8 @@ module.exports = React.createClass({
 
 	initializeDatepicker: function() {
 		var that = this;
-		var DATE_FORMAT = 'MM/DD/YYYY';
-		var TIME_FORMAT = 'HH:mm:ss:SSS';
+		var DATE_FORMAT = 'YYYY-MM-DD';
+		var TIME_FORMAT = 'HH:mm:ss.SSS';
 		var datepickerOptions = {
 			format: DATE_FORMAT + ' ' + TIME_FORMAT,
 			formatDate: DATE_FORMAT,
@@ -99,35 +99,39 @@ module.exports = React.createClass({
 			step: 10,
 			onShow: function() {
 				var fieldType = that.fieldData.get('type');
-				var optionsToSet = {};
+				var optionsToSet;
 				switch (fieldType) {
 					case "datetime":
-						optionsToSet.format = DATE_FORMAT + ' ' + TIME_FORMAT,
-						optionsToSet.datepicker = true;
-						optionsToSet.timepicker = true;
+						optionsToSet = {
+							format: DATE_FORMAT + ' ' + TIME_FORMAT,
+							datepicker: true,
+							timepicker: true
+						};
 						break;
 					case "date":
-						optionsToSet.format = DATE_FORMAT,
-						optionsToSet.timepicker = false;
-						optionsToSet.datepicker = true;
+						optionsToSet = {
+							format: DATE_FORMAT,
+							datepicker: true,
+							timepicker: false
+						};
 						break;
 					case "time":
-						optionsToSet.format = TIME_FORMAT,
-						optionsToSet.datepicker = true;
-						optionsToSet.timepicker = false;
+						optionsToSet = {
+							format: TIME_FORMAT,
+							datepicker: false,
+							timepicker: true
+						};
 						break;
 					default: break;
 				}
 				this.setOptions(optionsToSet);
 			},
-			onChangeDateTime: function() {
+			onChangeDateTime: function(datetimepicker, $input) {
 				that.saveUiToGoogle();
 			}
 		};
 
-		$('#def-date-field').datetimepicker(datepickerOptions);
-		$('#min-date-field').datetimepicker(datepickerOptions);
-		$('#max-date-field').datetimepicker(datepickerOptions);
+		$('#def-date-field, #min-date-field, #max-date-field').datetimepicker(datepickerOptions);
 	},
 
 	onMetadataModelLoaded: function(metadataModel) {
@@ -188,9 +192,9 @@ module.exports = React.createClass({
 		getById('field-type-select').value = this.fieldData.get('type');
 		getById('enum-value-select').value = this.fieldData.get('enumValue');
 
-		getById('def-date-field').value = this.fieldData.get('defDate');
-		getById('min-date-field').value = this.fieldData.get('minDate');
-		getById('max-date-field').value = this.fieldData.get('maxDate');
+		getById('def-date-field').value = this.fieldData.get('defDate').toString();
+		getById('min-date-field').value = this.fieldData.get('minDate').toString();
+		getById('max-date-field').value = this.fieldData.get('maxDate').toString();
 
 		getById('ref-soft-radio').checked = this.fieldData.get('refType') === 'soft';
 		getById('ref-hard-radio').checked = this.fieldData.get('refType') === 'hard';
@@ -318,14 +322,11 @@ module.exports = React.createClass({
 		}
 
 		var dateFormat = '';
-		if (fieldType === 'datetime') {
-			dateFormat = 'MM/DD/YYYY HH:mm:ss:SSS'
-		} else if (fieldType === 'date') {
-			dateFormat = 'MM/DD/YYYY'
-		} else if (fieldType === 'time') {
-			dateFormat = 'HH:mm:ss:SSS'
+		if (fieldType === 'datetime') { dateFormat = 'YYYY-MM-DD HH:mm:ss.SSS';
+		} else if (fieldType === 'date') { dateFormat = 'YYYY-MM-DD';
+		} else if (fieldType === 'time') { dateFormat = 'HH:mm:ss.SSS';
 		}
-		var parseDate = function(dateVal) {return moment(dateVal, dateFormat)};
+		var parseDate = function(dateVal) {return moment(dateVal, dateFormat);};
 		//date fields must be valid
 		if (!errorMessage && $targetField.hasClass('date-input') && fieldVal && !parseDate(fieldVal).isValid()) {
 			errorMessage += 'Value should be a valid date. ';
@@ -348,21 +349,22 @@ module.exports = React.createClass({
 		}
 
 		//the max field must be >= the min field
-		if (!errorMessage && fieldId === 'max-value-field' && !isNaN($('#min-value-field').val())
-		 	&& parseFloat(fieldVal) < parseFloat($('#min-value-field').val())) {
+		if (!errorMessage && fieldId === 'max-value-field' && !isNaN($('#min-value-field').val()) &&
+		 	 parseFloat(fieldVal) < parseFloat($('#min-value-field').val())) {
 			errorMessage += 'Max value should be greater than or equal to min value. ';
 			$('#min-value-field').addClass('invalid-input');
 		}
+
 		//the max length field must be >= the min length field
-		if (!errorMessage && fieldId === 'max-str-len-field' && !isNaN($('#min-str-len-field').val())
-		 	&& parseFloat(fieldVal) < parseFloat($('#min-str-len-field').val())) {
+		if (!errorMessage && fieldId === 'max-str-len-field' && !isNaN($('#min-str-len-field').val()) &&
+		 	 parseFloat(fieldVal) < parseFloat($('#min-str-len-field').val())) {
 			errorMessage += 'Max string length should be greater than or equal to min string length. ';
 			$('#min-str-len-field').addClass('invalid-input');
 		}
 
 		//the max date field must be >= the min date field
-		if (!errorMessage && fieldId === 'max-date-field' && $('#min-date-field').val()
-		 	&& parseDate(fieldVal).isBefore(parseDate($('#min-date-field').val()))) {
+		if (!errorMessage && fieldId === 'max-date-field' && $('#min-date-field').val() &&
+		 	 parseDate(fieldVal).isBefore(parseDate($('#min-date-field').val()))) {
 			errorMessage += 'Max date should be after min date. ';
 			$('#min-date-field').addClass('invalid-input');
 		}
@@ -387,20 +389,21 @@ module.exports = React.createClass({
 		}
 		//default-value field for dates has a user-defined range
 		if (!errorMessage && fieldId === 'def-date-field') {
-			if ($('#max-date-field').val()
-			    && parseDate(fieldVal).isAfter(parseDate($('#max-date-field').val()))) {
+			if ($('#max-date-field').val() && 
+			    parseDate(fieldVal).isAfter(parseDate($('#max-date-field').val()))) {
 				errorMessage += 'Default date should not be after defined maximum date. ';
 			}
-			if (!isNaN($('#min-date-field').val()) 
-			    && parseDate(fieldVal).isBefore(parseDate($('#min-date-field').val()))) {
+			if ($('#min-date-field').val() &&
+			 	 parseDate(fieldVal).isBefore(parseDate($('#min-date-field').val()))) {
 				errorMessage += 'Default date should not be before defined minimum date. ';
 			}
 		}
 
 		//can't store strings or sequences of non-positive length
-		if (!errorMessage && (targetField.id === 'array-len-field' || 
-		    						 targetField.id === 'min-str-len-field' ||
-		    						 targetField.id === 'max-str-len-field') && 
+		if (!errorMessage && 
+		    (targetField.id === 'array-len-field'    || 
+		     targetField.id === 'min-str-len-field'  ||
+		     targetField.id === 'max-str-len-field') && 
 			parseInt(fieldVal, 10) <= 0) {
 			errorMessage += 'Please enter a positive integer. ';
 		}
@@ -409,7 +412,7 @@ module.exports = React.createClass({
 	},
 
 	alignAllLabels: function() {
-		$('.text-input').each(function(index, element) {
+		$('.labelled-input').each(function(index, element) {
 			var $element = $(element);
 			if ($element.val() !== '') {
 				$element.next('label').addClass('active');
@@ -455,6 +458,8 @@ module.exports = React.createClass({
 	updateOldModel: function() {
 		if (!this.fieldData.has('maxStrLen')) {
 			this.fieldData.set('maxStrLen', this.fieldData.get('strLen'));
+		}
+		if (!this.fieldData.has('minStrLen')) {
 			this.fieldData.set('minStrLen', this.gModel.createString(''));
 		}
 
@@ -465,44 +470,46 @@ module.exports = React.createClass({
 		}
 	},
 
-	rebindStrings: function() {
+	alignLabel: function(evt, $label) {
+		if (evt.isLocal) { return; } //if the event was called by self, don't worry about labels
+		if (evt.target.length) { //if the string isn't empty
+			$label.addClass('active');
+		} else {
+			$label.removeClass('active');
+		}
+	},
+
+	setGBinding : function(stringToBind, field) {
 		var bindString = gapi.drive.realtime.databinding.bindString;
 		var TextInsertedEvent = gapi.drive.realtime.EventType.TEXT_INSERTED;
 		var TextDeletedEvent = gapi.drive.realtime.EventType.TEXT_DELETED;
+
+		var $label = $('label[for="'+field.id+'"]');
+		var that = this;
+		stringToBind.addEventListener(TextInsertedEvent, function(evt) {that.alignLabel(evt, $label);});
+		stringToBind.addEventListener(TextDeletedEvent, function(evt) {that.alignLabel(evt, $label);});
+		that.gBindings.push(bindString(stringToBind, field));
+	},
+
+	rebindStrings: function() {
 		var getById = document.getElementById.bind(document);
 		var that = this;
-
-		var alignLabel = function(evt, $label) {
-			if (evt.isLocal) { return; } //if the event was called by self, don't worry about labels
-			if (evt.target.length) { //if the string isn't empty
-				$label.addClass('active');
-			} else {
-				$label.removeClass('active');
-			}
-		};
-
-		var setGBinding = function(stringToBind, field) {
-			var $label = $('label[for="'+field.id+'"]');
-			stringToBind.addEventListener(TextInsertedEvent, function(evt) {alignLabel(evt, $label);});
-			stringToBind.addEventListener(TextDeletedEvent, function(evt) {alignLabel(evt, $label);});
-			that.gBindings.push(bindString(stringToBind, field));
-		};
 
 		for (var i = 0, len = this.gBindings.length; i<len; i++) {
 			this.gBindings[i].unbind(); //unbind the previous strings
 		}
 
-		setGBinding(this.fieldData.get('name'), getById('name-field'));
-		setGBinding(this.fieldData.get('description'), getById('description-field'));
+		this.setGBinding(this.fieldData.get('name'), getById('name-field'));
+		this.setGBinding(this.fieldData.get('description'), getById('description-field'));
 		
-		setGBinding(this.fieldData.get('defValue'), getById('def-value-field'));
-		setGBinding(this.fieldData.get('minValue'), getById('min-value-field'));
-		setGBinding(this.fieldData.get('maxValue'), getById('max-value-field'));
+		this.setGBinding(this.fieldData.get('defValue'), getById('def-value-field'));
+		this.setGBinding(this.fieldData.get('minValue'), getById('min-value-field'));
+		this.setGBinding(this.fieldData.get('maxValue'), getById('max-value-field'));
 
-		setGBinding(this.fieldData.get('minStrLen'), getById('min-str-len-field'));
-		setGBinding(this.fieldData.get('maxStrLen'), getById('max-str-len-field'));
+		this.setGBinding(this.fieldData.get('minStrLen'), getById('min-str-len-field'));
+		this.setGBinding(this.fieldData.get('maxStrLen'), getById('max-str-len-field'));
 
-		setGBinding(this.fieldData.get('arrayLen'), getById('array-len-field'));
+		this.setGBinding(this.fieldData.get('arrayLen'), getById('array-len-field'));
 	},
 
 	updateAllSelect: function() {
@@ -518,11 +525,12 @@ module.exports = React.createClass({
 		if (newFieldType === 'enum') {
 			this.setEnumValues(this.fieldData.get('enumId'));
 		}
-		GDriveService.resetFieldData(this.fieldData);
+		this.fieldData.set('type', newFieldType);
 		this.alignAllLabels();
 		this.displayCorrectUiComponents(newFieldType);
-		this.enforceValidation(newFieldType);
-		this.saveUiToGoogle();
+		GDriveService.resetFieldData(this.fieldData);
+		this.updateUi();
+		this.enforceValidation();
 	},
 
 	onRefTypeChanged: function(newRefName) {
@@ -535,9 +543,8 @@ module.exports = React.createClass({
 		var newEnumId = '';
 		var that = this;
 		$('#enum-name-dropdown').find('span').each(function(index, element) {
-			var $element = $(element);
-			if ($element.text() === newEnumName) {
-				newEnumId = $element.attr('data-file-id');
+			if (element.text === newEnumName) {
+				newEnumId = element.dataset.fileId;
 				that.fieldData.set('enumId', newEnumId);
 				that.setEnumValues(newEnumId);
 				return false;
@@ -594,16 +601,22 @@ module.exports = React.createClass({
 			refOptions += '<option data-file-type = "'+refs[i].fileType+'" data-file-id = "'+refs[i].id+'" value = "'+refs[i].id+'">'+refs[i].title+'</option>';
 		}
 		$refNameSelect.html(refOptions);
-		if (this.fieldData) { $refNameSelect.val(this.fieldData.get('refId')); } 
-		else { $refNameSelect.val('default'); }
+		if (this.fieldData) {
+			$refNameSelect.val(this.fieldData.get('refId'));
+		} else { 
+			$refNameSelect.val('default');
+		}
+
 		$refNameSelect.material_select(function() {
 			that.onRefTypeChanged($('#ref-name-dropdown').find('.select-dropdown').val());
 		});
+
+		//set the same data attributes in the materialized select
 		$('#ref-name-dropdown').find('span').each(function(index, element) {
-			var $element = $(element);
 			for (i = 0, len = refs.length; i<len; i++) {
-				if ($element.text() === '' + refs[i].title) {
-					$element.attr('data-file-id', refs[i].id).attr('data-file-type', refs[i].fileType);
+				if (element.text === '' + refs[i].title) {
+					element.dataset.fileId = refs[i].id;
+					element.dataset.fileType = refs[i].fileType;
 					break;
 				}
 			}
@@ -614,7 +627,8 @@ module.exports = React.createClass({
 		if (enums.length) {
 			var enumOptions = "<option disabled value='default'>select an enum</option>";
 			for (i = 0, len = enums.length; i<len; i++) {
-				enumOptions += '<option data-file-type = "'+enums[i].fileType+'" data-file-id = "'+enums[i].id+'" value = "'+enums[i].id+'">'+enums[i].title+'</option>';
+				enumOptions += '<option data-file-type = "'+enums[i].fileType+'" data-file-id = "'+enums[i].id+
+									'" value = "'+enums[i].id+'">'+enums[i].title+'</option>';
 			}
 			$enumNameSelect.html(enumOptions);
 			if (this.fieldData) { $enumNameSelect.val(this.fieldData.get('enumId')); }
@@ -623,11 +637,13 @@ module.exports = React.createClass({
 			$enumNameSelect.material_select(function() {
 				that.onEnumTypeChanged($('#enum-name-dropdown').find('.select-dropdown').val());
 			});
+
+			//set the same data attributes in the materialized select
 			$('#enum-name-dropdown').find('span').each(function(index, element) {
-				var $element = $(element);
 				for (i = 0, len = enums.length; i<len; i++) {
-					if ($element.text() === '' + enums[i].title) {
-						$element.attr('data-file-id', enums[i].id).attr('data-file-type', enums[i].fileType);
+					if (element.text === '' + enums[i].title) {
+						element.dataset.fileId = enums[i].id;
+						element.dataset.fileType = enums[i].fileType;
 						break;
 					}
 				}
@@ -790,7 +806,7 @@ module.exports = React.createClass({
 			<form id = 'dmx-form' className='hide col s12' action='#!'>
 				<div className='row'>
 					<div className='input-field col s4'>
-						<input type='text' id='name-field' className='text-input validated-input'
+						<input type='text' id='name-field' className='labelled-input validated-input'
 						 onInput={inputHandler} required />
 						<label htmlFor='name-field' className='error-tooltipped'>name *</label>
 					</div>
@@ -798,7 +814,7 @@ module.exports = React.createClass({
 
 				<div className='row'>
 					<div className='input-field col s12'>
-						<textarea id='description-field' className='materialize-textarea text-input' />
+						<textarea id='description-field' className='materialize-textarea labelled-input' />
 						<label htmlFor='description-field' >description</label>
 					</div>
 				</div>
@@ -834,11 +850,11 @@ module.exports = React.createClass({
 					<div className='col s4 input-field type-specific-field
 					 	double-specific-field float-specific-field byte-specific-field integer-specific-field
 					 	long-specific-field short-specific-field string-specific-field ref-specific-field'>
-						<input type='text' id='def-value-field' className='text-input validated-input' />
+						<input type='text' id='def-value-field' className='labelled-input validated-input' />
 						<label htmlFor='def-value-field' className='error-tooltipped'>default value</label>
 					</div>
 					<div className='col s4 input-field type-specific-field date-specific-field datetime-specific-field time-specific-field'>
-						<input type='text' id='def-date-field' className='text-input date-input validated-input' onChange={this.saveUiToGoogle} />
+						<input type='text' id='def-date-field' className='labelled-input date-input validated-input' onChange={this.saveUiToGoogle} />
 						<label htmlFor='def-date-field' className='error-tooltipped'>default value</label>
 					</div>
 					<div className='col s4 type-specific-field boolean-specific-field'>
@@ -883,38 +899,38 @@ module.exports = React.createClass({
 					</div>
 					<div className='type-specific-field string-specific-field'>
 						<div className='input-field col s4'>
-							<input type='text' id='min-str-len-field' className='text-input number-input integer-input validated-input' />
+							<input type='text' id='min-str-len-field' className='labelled-input number-input integer-input validated-input' />
 							<label htmlFor='min-str-len-field' className='error-tooltipped'>min string length</label>
 						</div>
 						<div className='input-field col s4'>
-							<input type='text' id='max-str-len-field' className='text-input number-input integer-input validated-input' />
+							<input type='text' id='max-str-len-field' className='labelled-input number-input integer-input validated-input' />
 							<label htmlFor='max-str-len-field' className='error-tooltipped'>max string length</label>
 						</div>
 					</div>
 					<div className='type-specific-field double-specific-field float-specific-field byte-specific-field
 					     integer-specific-field long-specific-field short-specific-field'>
 						<div className='input-field col s4'>
-							<input type='text' id='min-value-field' className='text-input number-input validated-input' />
+							<input type='text' id='min-value-field' className='labelled-input number-input validated-input' />
 							<label htmlFor='min-value-field' className='error-tooltipped'>min value</label>
 						</div>
 						<div className='input-field col s4'>
-							<input type='text' id='max-value-field' className='text-input number-input validated-input' />
+							<input type='text' id='max-value-field' className='labelled-input number-input validated-input' />
 							<label htmlFor='max-value-field' className='error-tooltipped'>max value</label>
 						</div>
 					</div>
 					<div className='type-specific-field date-specific-field datetime-specific-field time-specific-field'>
 						<div className='input-field col s4'>
-							<input type='text' id='min-date-field' className='date-input validated-input' />
-							<label htmlFor='min-date-field' className='text-input error-tooltipped'>min date</label>
+							<input type='text' id='min-date-field' className='labelled-input date-input validated-input' />
+							<label htmlFor='min-date-field' className='labelled-input error-tooltipped'>min date</label>
 						</div>
 						<div className='input-field col s4'>
-							<input type='text' id='max-date-field' className='date-input validated-input' />
-							<label htmlFor='max-date-field' className='text-input error-tooltipped'>max date</label>
+							<input type='text' id='max-date-field' className='labelled-input date-input validated-input' />
+							<label htmlFor='max-date-field' className='labelled-input error-tooltipped'>max date</label>
 						</div>
 					</div>
 
 					<div id='array-len-wrapper' className='input-field col type-specific-field s4 right'>
-						<input type='text' id='array-len-field' className='text-input validated-input number-input integer-input' 
+						<input type='text' id='array-len-field' className='labelled-input validated-input number-input integer-input' 
 							   onInput={inputHandler} required />
 						<label htmlFor='array-len-field' className='error-tooltipped'>array length *</label>
 					</div>

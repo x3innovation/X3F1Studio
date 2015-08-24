@@ -322,7 +322,6 @@ function GoogleDriveService()
 	};
 
 	this.resetFieldData = function(fieldData) {
-		fieldData.set('defValueBool', DefaultFields.FIELD_DEF_BOOL_VALUE);
 		fieldData.set('optional', DefaultFields.FIELD_OPTIONAL);
 		fieldData.set('array', DefaultFields.FIELD_ARRAY);
 		fieldData.set('refId', DefaultFields.FIELD_REF_ID);
@@ -331,6 +330,7 @@ function GoogleDriveService()
 		fieldData.set('enumId', DefaultFields.FIELD_ENUM_ID);
 		fieldData.set('enumName', DefaultFields.FIELD_ENUM_NAME);
 		fieldData.set('enumValue', DefaultFields.FIELD_ENUM_VALUE);
+		fieldData.set('defValueBool', DefaultFields.FIELD_DEF_BOOL_VALUE);
 
 		fieldData.get('defValue').setText(DefaultFields.FIELD_DEF_VALUE);
 		fieldData.get('minValue').setText(DefaultFields.FIELD_MIN_VALUE);
