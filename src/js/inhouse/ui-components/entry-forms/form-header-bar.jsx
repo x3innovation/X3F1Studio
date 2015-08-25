@@ -21,6 +21,8 @@ module.exports = React.createClass({
 	},
 
 	componentWillUnmount: function() {
+		$('.tooltip-to-remove').tooltipster('destroy');
+
 		if (this.gFields) { this.gFields.removeEventListener(gapi.drive.realtime.EventType.OBJECT_CHANGED, this.updateUi); }
 		clearInterval(this.updateInterval);
 
@@ -34,7 +36,6 @@ module.exports = React.createClass({
 	onGapiFileLoaded: function(doc) {
 		this.gFields = doc.getModel().getRoot().get(this.props.gapiKey).fields;
 		this.gFields.addEventListener(gapi.drive.realtime.EventType.OBJECT_CHANGED, this.updateUi);
-		this.initializeTooltips();
 		this.updateUi();
 	},
 
@@ -42,6 +43,7 @@ module.exports = React.createClass({
 		this.mapFieldData();
 		this.forceUpdate();
 		setTimeout(function() { //allow DOM to update before attaching tooltips
+			$('.tooltip-to-remove').tooltipster('destroy');
 			this.initializeTooltips();
 		}.bind(this), 0);
 	},
@@ -57,6 +59,9 @@ module.exports = React.createClass({
 			functionBefore: function($origin, continueTooltip) {
 				$origin.tooltipster('content', $origin[0].dataset.details);
 				continueTooltip();
+			},
+			functionInit: function($origin, content) {
+				$origin.addClass('tooltip-to-remove');
 			}
 		});
 
@@ -73,6 +78,9 @@ module.exports = React.createClass({
 					$origin.tooltipster('option', 'theme', 'header-bar-details null-bits-details');
 				}
 				continueTooltip();
+			},
+			functionInit: function($origin, content) {
+				$origin.addClass('tooltip-to-remove');
 			}
 		});
 	},
@@ -175,6 +183,9 @@ module.exports = React.createClass({
 		   		var PLACEHOLDER_VALUE = '...';
 		   		var segmentContent = (widthPercent >= MIN_DISPLAY_PERCENT) ? fieldModel.name : PLACEHOLDER_VALUE;
 		   		var segmentDetails = DataVisualizationService.generateFieldModelDetails(fieldModel);
+		   		if (segmentContent === PLACEHOLDER_VALUE) {
+		   			segmentDetails = fieldModel.name + ':\n' + segmentDetails;
+		   		}
 
 		   		var segmentClassName = 'header-segment header-bar-segment header-bar-tooltipped' +
 		   			(fieldModel.id === 'field-null-bits' ? ' null-bits-segment' : '');
