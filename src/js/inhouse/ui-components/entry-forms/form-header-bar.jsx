@@ -41,7 +41,9 @@ module.exports = React.createClass({
 	updateUi: function() {
 		this.mapFieldData();
 		this.forceUpdate();
-		this.reinitializeTooltips();
+		setTimeout(function() { //allow DOM to update before attaching tooltips
+			this.initializeTooltips();
+		}.bind(this), 0);
 	},
 
 	initializeTooltips: function() {
@@ -49,20 +51,30 @@ module.exports = React.createClass({
 			position: 'top',
 			maxWidth: 200,
 			theme: 'header-bar-details top-bar-details',
-			trigger: 'custom'
+			trigger: 'hover',
+			offsetY: -4,
+			speed: 250,
+			functionBefore: function($origin, continueTooltip) {
+				$origin.tooltipster('content', $origin[0].dataset.details);
+				continueTooltip();
+			}
 		});
 
 		$('.header-bar-tooltipped').tooltipster({
 			position: 'bottom',
 			maxWidth: 200,
 			theme: 'header-bar-details second-bar-details',
-			trigger: 'custom'
+			trigger: 'hover',
+			offsetY: -4,
+			speed: 250,
+			functionBefore: function($origin, continueTooltip) {
+				$origin.tooltipster('content', $origin[0].dataset.details);
+				if ($origin.hasClass('null-bits-segment')) {
+					$origin.tooltipster('option', 'theme', 'header-bar-details null-bits-details');
+				}
+				continueTooltip();
+			}
 		});
-	},
-
-	reinitializeTooltips: function() {
-		//$('.header-top-bar-tooltipped, .header-bar-tooltipped').tooltipster('destroy');
-		this.initializeTooltips();
 	},
 
 	mapFieldData: function() {
@@ -90,26 +102,6 @@ module.exports = React.createClass({
 
 		this.fieldsModel = fieldsModel;
 		this.totalSize = currByte;
-	},
-
-	showSegmentDetails: function(e) {
-		var fieldSegment = e.currentTarget;
-		var $fieldSegment = $(fieldSegment);
-		/*
-		$('.segment-details').addClass('no-opacity');
-		$fieldSegment.find('.segment-details').removeClass('no-opacity');
-		*/
-		$fieldSegment.tooltipster('content', fieldSegment.dataset.details);
-		$fieldSegment.tooltipster('show');
-	},
-
-	hideSegmentDetails: function(e) {
-		var fieldSegment = e.currentTarget;
-		var $fieldSegment = $(fieldSegment);
-		/*
-		$('.segment-details').addClass('no-opacity');
-		*/
-		$fieldSegment.tooltipster('hide');
 	},
 
 	getTopBar: function() {
@@ -145,8 +137,8 @@ module.exports = React.createClass({
 
 		   		currByte += segment.size;
 		   		return (
-		   		   <span key={index} className='header-top-bar-segment header-segment header-top-bar-tooltipped' style={segmentStyle}
-		   		    onMouseOver={that.showSegmentDetails} onMouseOut={that.hideSegmentDetails} data-details={segmentDetails}>
+		   		   <span key={segment.name} className='header-top-bar-segment header-segment header-top-bar-tooltipped' 
+		   		    style={segmentStyle} data-details={segmentDetails}>
 		   		    	<div className='header-top-bar-segment-content segment-content'>
 		   		    		{segmentContent}
 		   		    	</div>
@@ -189,7 +181,8 @@ module.exports = React.createClass({
 		   		var segmentContentClassName = 'header-bar-segment-content segment-content';
 		 
 		   		return (
-		   		   <span key={fieldModel.id} className={segmentClassName} style={segmentStyle} data-details={segmentDetails} onMouseOver={that.showSegmentDetails} onMouseOut={that.hideSegmentDetails}>
+		   		   <span key={fieldModel.id} className={segmentClassName} 
+		   		    style={segmentStyle} data-details={segmentDetails}>
 		   		    	<div className={segmentContentClassName}>
 		   		    		{segmentContent}
 		   		    	</div>

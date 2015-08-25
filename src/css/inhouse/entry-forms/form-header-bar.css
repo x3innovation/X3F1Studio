@@ -21,19 +21,27 @@
 	height: 1.5rem;
 }
 
-.segment-details {
-	width: 200px;
-	position: absolute;
-	padding: 10px 8px;
-	z-index: 10;
-	margin-left: -1px;
-
-	text-align: left;
+.header-bar-details {
 	font-weight: 400;
+	padding: 10px 8px;
+}
+.header-bar-details .tooltipster-content {
+	font-size: 14px;
+	line-height: 16px;
 	white-space: pre-line;
 }
-.header-segment:first-of-type .segment-details{
-	margin-left: 0;
+
+.top-bar-details {
+	background-color: #b0bec5;
+	border-top: 2px solid #263238;
+}
+.second-bar-details {
+	background-color: #c5cae9;
+	border-bottom: 2px solid #283593;
+}
+.null-bits-details {
+	background-color: #ff8a80;
+	border-bottom: 2px solid #c62828;
 }
 
 
@@ -49,11 +57,6 @@
 	background-color: #b0bec5;
 }
 
-.header-top-bar-segment-details {
-	background-color: #b0bec5;
-	border-top: 2px solid #263238;
-	transform: translateY(-100%);
-}
 
 #header-bar-row {
 	margin: 0;
@@ -67,20 +70,9 @@
 	background-color: #c5cae9;
 }
 
-.header-bar-segment-details {
-	background-color: #c5cae9;
-	border-bottom: 2px solid #283593;
-	margin-top: -6px;
-}
-
 .null-bits-segment {
 	background-color: #ffcdd2;
 }
 .null-bits-segment:hover {
 	background-color: #ff8a80;
-}
-
-.null-bits-segment .segment-details {
-	background-color: #ff8a80;
-	border-bottom: 2px solid #c62828;
 }
