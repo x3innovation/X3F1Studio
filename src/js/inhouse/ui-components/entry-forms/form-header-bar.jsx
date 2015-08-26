@@ -42,10 +42,11 @@ module.exports = React.createClass({
 	updateUi: function() {
 		this.mapFieldData();
 		this.forceUpdate();
+		var _this = this;
 		setTimeout(function() { //allow DOM to update before attaching tooltips
 			$('.tooltip-to-remove').tooltipster('destroy');
-			this.initializeTooltips();
-		}.bind(this), 0);
+			_this.initializeTooltips();
+		}, 0);
 	},
 
 	initializeTooltips: function() {
@@ -131,7 +132,7 @@ module.exports = React.createClass({
 
 		var currByte = 0;
 
-		var that = this;
+		var _this = this;
 		var content = (
 		   <div id = 'header-top-bar-row' className='header-row row center'>{
 		   	segments.map(function(segment, index) {
@@ -167,7 +168,7 @@ module.exports = React.createClass({
 		var PERCENT_MULTIPLIER = 0.98 * 100;
 		var MIN_DISPLAY_PERCENT = PERCENT_MULTIPLIER * (5 / 100);
 
-		var that = this;
+		var _this = this;
 		var content = (
 		   <div id = 'header-bar-row' className='header-row row center'>{
 		   	fieldsModel.map(function(fieldModel, index) {

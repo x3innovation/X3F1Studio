@@ -43,43 +43,43 @@ module.exports = React.createClass({
 	},
 
 	onMetadataModelLoaded: function(metadataModel) {
-		var that = this;
+		var _this = this;
 		GDriveService.registerAnnouncement(metadataModel, function() {
 			var announcement = metadataModel.announcement.get(0);
 			if (announcement.action === AnnouncementType.ADD_FILE) {
 				// don't catch adding the current file's announcement
-				if (announcement.fileId === that.props.fileId) { return; }
+				if (announcement.fileId === _this.props.fileId) { return; }
 				if (announcement.fileType === GDriveConstants.ObjectType.PERSISTENT_DATA) {
-					that.addToRefs(announcement);
+					_this.addToRefs(announcement);
 				} else if (announcement.fileType === GDriveConstants.ObjectType.ENUM) {
-					that.addToEnums(announcement);
+					_this.addToEnums(announcement);
 				} else if (announcement.fileType === GDriveConstants.ObjectType.SNIPPET) {
-					that.addToRefs(announcement);
+					_this.addToRefs(announcement);
 				} else if (announcement.fileType === GDriveConstants.ObjectType.EVENT) {
-					that.addToRefs(announcement);
+					_this.addToRefs(announcement);
 				}
 			} else if (announcement.action === AnnouncementType.RENAME_FILE) {
 				if (announcement.fileType === GDriveConstants.ObjectType.PERSISTENT_DATA) {
-					that.updateRefNames(announcement);
+					_this.updateRefNames(announcement);
 				} else if (announcement.fileType === GDriveConstants.ObjectType.ENUM) {
-					that.updateEnums(announcement);
+					_this.updateEnums(announcement);
 				} else if (announcement.fileType === GDriveConstants.ObjectType.SNIPPET) {
-					that.updateRefNames(announcement);
+					_this.updateRefNames(announcement);
 				} else if (announcement.fileType === GDriveConstants.ObjectType.EVENT) {
-					that.updateRefNames(announcement);
+					_this.updateRefNames(announcement);
 				}
 			} else if (announcement.action === AnnouncementType.ADD_ENUM) {
-				if (announcement.fileId === that.fieldData.get('enumId')) { 
+				if (announcement.fileId === _this.fieldData.get('enumId')) { 
 				// if the active enum doesn't match the updated enum, then any update would be unnoticed to the user
-					that.setEnumValues(announcement.fileId);
+					_this.setEnumValues(announcement.fileId);
 				}
 			} else if (announcement.action === AnnouncementType.DELETE_ENUM) {
-				if (announcement.fileId === that.fieldData.get('enumId')) {
-					that.setEnumValues(announcement.fileId);
+				if (announcement.fileId === _this.fieldData.get('enumId')) {
+					_this.setEnumValues(announcement.fileId);
 				}
 			} else if (announcement.action === AnnouncementType.RENAME_ENUM) {
-				if (announcement.fileId === that.fieldData.get('enumId')) {
-					that.setEnumValues(announcement.fileId);
+				if (announcement.fileId === _this.fieldData.get('enumId')) {
+					_this.setEnumValues(announcement.fileId);
 				}
 			}
 		});
@@ -236,9 +236,9 @@ module.exports = React.createClass({
 	},
 
 	updateAllSelect: function() {
-		var that = this;
+		var _this = this;
 		$('#field-type-select').material_select(function() {
-			that.onFieldTypeChanged($('#field-type-dropdown').find('input.select-dropdown').val());
+			_this.onFieldTypeChanged($('#field-type-dropdown').find('input.select-dropdown').val());
 		});
 		this.updateRefSelectOptions();
 		this.updateEnumSelectOptions();
@@ -259,13 +259,13 @@ module.exports = React.createClass({
 	onEnumTypeChanged: function(newEnumName) {
 		this.fieldData.set('enumName', newEnumName);
 		var newEnumId = '';
-		var that = this;
+		var _this = this;
 		$('#enum-name-dropdown').find('span').each(function(index, element) {
 			var $element = $(element);
 			if ($element.text() === newEnumName) {
 				newEnumId = $element.attr('data-file-id');
-				that.fieldData.set('enumId', newEnumId);
-				that.setEnumValues(newEnumId);
+				_this.fieldData.set('enumId', newEnumId);
+				_this.setEnumValues(newEnumId);
 			}
 		});
 		this.saveUiToGoogle();
@@ -312,7 +312,7 @@ module.exports = React.createClass({
 	},
 
 	setSelectOptions: function() {
-		var that = this;
+		var _this = this;
 		if (!this.refs || !this.enums) { return; }
 
 		var refs = this.refs;
@@ -325,7 +325,7 @@ module.exports = React.createClass({
 		if (this.fieldData) { $refNameSelect.val(this.fieldData.get('refId')); } 
 		else { $refNameSelect.val('default'); }
 		$refNameSelect.material_select(function() {
-			that.onRefTypeChanged($('#ref-name-dropdown').find('.select-dropdown').val());
+			_this.onRefTypeChanged($('#ref-name-dropdown').find('.select-dropdown').val());
 		});
 		$('#ref-name-dropdown').find('span').each(function(index, element) {
 			var $element = $(element);
@@ -348,7 +348,7 @@ module.exports = React.createClass({
 			if (this.fieldData) { $enumNameSelect.val(this.fieldData.get('enumId')); }
 			else { $enumNameSelect.val('default'); }
 			$enumNameSelect.material_select(function() {
-				that.onEnumTypeChanged($('#enum-name-dropdown').find('.select-dropdown').val());
+				_this.onEnumTypeChanged($('#enum-name-dropdown').find('.select-dropdown').val());
 			});
 			$('#enum-name-dropdown').find('span').each(function(index, element) {
 				var $element = $(element);
@@ -361,13 +361,13 @@ module.exports = React.createClass({
 			});
 		} else {
 			$enumNameSelect.material_select(function() {
-				that.onEnumTypeChanged($('#enum-name-dropdown').find('.select-dropdown').val());
+				_this.onEnumTypeChanged($('#enum-name-dropdown').find('.select-dropdown').val());
 			});
 		}
 	},
 
 	setEnumValues: function(enumId) {
-		var that = this;
+		var _this = this;
 		var $enumValueSelect = $('#enum-value-select');
 		$enumValueSelect.html('<option value="default" disabled>loading enum values...</option>');
 		$enumValueSelect.material_select();
@@ -390,8 +390,8 @@ module.exports = React.createClass({
 				$enumValueSelect.html('<option value = "default">no enums defined</option>');
 				$enumValueSelect.prop('disabled', true);
 			}
-			$enumValueSelect.material_select(that.saveUiToGoogle);
-			that.updateEnumValueSelect();
+			$enumValueSelect.material_select(_this.saveUiToGoogle);
+			_this.updateEnumValueSelect();
 		});
 	},
 

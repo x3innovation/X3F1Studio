@@ -99,11 +99,11 @@ module.exports = React.createClass({
 		$('.dataTables_scrollBody').css('border-bottom-color', '#dcdcdc').css('padding-bottom', '1rem')
 		  .find('table').css('table-layout', 'fixed');
 		$('.enum-cell').click(this.setSelectedRow);
-		var that = this;
+		var _this = this;
 		$('.enum-table-input').each(function(index, element) {
 			var $element = $(element);
 			if ($element.val() === '') { $element.addClass('empty-input'); }
-			$element.keypress(that.keyPressHandler).blur(that.saveCell);
+			$element.keypress(_this.keyPressHandler).blur(_this.saveCell);
 		});
 	},
 
@@ -159,13 +159,13 @@ module.exports = React.createClass({
 	},
 
 	selectRow: function() {
-		var that = this;
+		var _this = this;
 		if (this.selectedRowIndex === null) { return; }
 		var $selectedRow;
 		$('.selected-cell').removeClass('selected-cell');
 		$('.enum-index-cell').each(function(index, element) {
 			var $element = $(element);
-			if ($element.text() === ""+that.selectedRowIndex) {
+			if ($element.text() === ""+_this.selectedRowIndex) {
 				$selectedRow = $element.closest('tr');
 			}
 		});

@@ -71,12 +71,13 @@ module.exports = React.createClass({
     },
 
     createNewProject: function() {
+    	var _this = this;
     	googleDriveService.createNewProject(function(project) { //transition as a callback
     		var params = {};
     		params.projectFolderFileId=project.parents[0].id;
     		params.projectFileId=project.id;
-    		this.transitionTo('project', params);
-    	}.bind(this));
+    		_this.transitionTo('project', params);
+    	});
     },
 
     render: function()

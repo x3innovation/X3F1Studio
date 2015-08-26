@@ -12,7 +12,7 @@ module.exports = React.createClass({
 	****************************************** */
 	componentDidMount: function() {
 		this.projectFile = {};
-		var that = this;
+		var _this = this;
 	},
 
 	/* ******************************************
@@ -27,10 +27,10 @@ module.exports = React.createClass({
 			flow: true
 		};
 
-		var that = this;
+		var _this = this;
 		GDriveService.getProjectById(this.props.projectFileId, function(project) {
-			GDriveService.getProjectObjects(that.props.projectFolderFileId, '', objectsToGet, function(projectObjects) {
-				generateXMLService.generateProjectXML(projectObjects, project, that.onXMLGenerated);
+			GDriveService.getProjectObjects(_this.props.projectFolderFileId, '', objectsToGet, function(projectObjects) {
+				generateXMLService.generateProjectXML(projectObjects, project, _this.onXMLGenerated);
 			});
 		});
 	},

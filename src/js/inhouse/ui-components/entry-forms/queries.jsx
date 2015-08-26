@@ -90,8 +90,8 @@ module.exports = React.createClass({
 	},
 
 	createNewQuery: function() {
-		var that = this;
-		GDriveService.getMetadataModelId(that.props.projectFileId, function(id) {
+		var _this = this;
+		GDriveService.getMetadataModelId(_this.props.projectFileId, function(id) {
 			var thisId = id;
 			var requestId = thisId++;
 			var responseId = thisId++;
@@ -102,7 +102,7 @@ module.exports = React.createClass({
 				name: DefaultValueConstants.DefaultQueryAttributes.QUERY_NAME,
 				description: DefaultValueConstants.DefaultQueryAttributes.QUERY_DESCRIPTION
 			};
-			that.gQueries.push(newQuery);
+			_this.gQueries.push(newQuery);
 		}, 2);
 	},
 

@@ -279,6 +279,7 @@ function GoogleDriveService()
 				break;
 		}
 
+		var _this = this;
 		var callbackWrapper = function(file) {
 			var addFileAnnouncement = {
 				action: AnnouncementType.ADD_FILE,
@@ -287,11 +288,11 @@ function GoogleDriveService()
 				fileName: fileCreationParams.title
 			};
 
-			this.getMetadataModel(parentFolderId, function(metadataModel) {
-				this.announce(metadataModel, addFileAnnouncement);
+			_this.getMetadataModel(parentFolderId, function(metadataModel) {
+				_this.announce(metadataModel, addFileAnnouncement);
 			});
 			callback(file);
-		}.bind(this);
+		};
 		
 		googleApiInterface.createNewFile(fileCreationParams, callbackWrapper);
 	};

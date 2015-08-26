@@ -7,19 +7,19 @@ function GoogleApiInterface()
 	var user;
 	var tokenRefreshInterval;
 
-	var that = this;
+	var _this = this;
 	function registerCustomDataTypes()
 	{
 		registerLegacyDMXDataModel();
 		registerLegacyDMXEDataModel();
 		registerLegacyFMXDataModel();
 
-		that.ProjectMetadataModel = registerProjectMetadataModel();
-		that.PersistentDataModel = registerPersistentDataModel();
-		that.EventModel = registerEventDataModel();
-		that.SnippetModel = registerSnippetDataModel();
-		that.EnumModel = registerEnumDataModel();
-		that.FlowModel = registerFlowDataModel();
+		_this.ProjectMetadataModel = registerProjectMetadataModel();
+		_this.PersistentDataModel = registerPersistentDataModel();
+		_this.EventModel = registerEventDataModel();
+		_this.SnippetModel = registerSnippetDataModel();
+		_this.EnumModel = registerEnumDataModel();
+		_this.FlowModel = registerFlowDataModel();
 	}
 
 	function registerProjectMetadataModel() {

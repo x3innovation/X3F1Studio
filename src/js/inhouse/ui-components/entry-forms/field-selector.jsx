@@ -120,13 +120,13 @@ module.exports = React.createClass({
 	selectField: function(scroll) {
 		if (!this.selectedFieldId) { return false; }
 		this.unselectSelectedField();
-		var that = this;
+		var _this = this;
 		var $nameFields = $('.name-field');
 
 		if ($nameFields.length) {
 			$nameFields.each(function(index, element) {
 				var $element = $(element);
-				if ($element.find('input').attr('data-field-id') === that.selectedFieldId) {
+				if ($element.find('input').attr('data-field-id') === _this.selectedFieldId) {
 					$element.addClass('selected-cell');
 					if (scroll) { $('.dataTables_scrollBody').scrollTop($element.position().top - 100); }
 				}
@@ -170,21 +170,21 @@ module.exports = React.createClass({
 		var updateSpanSibling = function(e, $element) {
 			var newText = e.target.toString();
 			var $spanSiblingCell = $element.closest('tr').find('.name-search-helper');
-			that.table.cell($spanSiblingCell).data(newText).draw();
+			_this.table.cell($spanSiblingCell).data(newText).draw();
 		};
 
-		var that = this;
+		var _this = this;
 		$('.field-table-input').each(function(index, element) {
 			var $element = $(element);
 			var fieldId = $element.attr('data-field-id');
 			var collabString;
 			var functionWrapper = function(e) {updateSpanSibling(e, $element);};
-			for (var i = 0, len = that.gFields.length; i<len; i++) {
-				if (that.gFields.get(i).id === fieldId) {
-					collabString = that.gFields.get(i).get('name');
+			for (var i = 0, len = _this.gFields.length; i<len; i++) {
+				if (_this.gFields.get(i).id === fieldId) {
+					collabString = _this.gFields.get(i).get('name');
 					collabString.addEventListener(TextInsertedEvent, functionWrapper);
 					collabString.addEventListener(TextDeletedEvent, functionWrapper);
-					that.gBindings.push(bindString(collabString, element));
+					_this.gBindings.push(bindString(collabString, element));
 					break;
 				}
 			}

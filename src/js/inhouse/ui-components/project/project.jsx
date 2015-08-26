@@ -105,6 +105,7 @@ module.exports = React.createClass({
 	onProjectFileLoaded : function(doc)
 	{
 		var gModel = doc.getModel();
+		var _this = this;
 
 		if (!gModel.getRoot().get(GDriveCons.Project.KEY_TITLE)) { // if initializing went wrong, reset to default values
 			gModel.getRoot().set(GDriveCons.Project.KEY_TITLE, gModel.createString(DefaultValueCons.NewFileValues.PROJECT_TITLE));
@@ -130,8 +131,8 @@ module.exports = React.createClass({
 		var onTitleChange = function()
 		{
 			clearTimeout(titleChangeTimeout);
-			titleChangeTimeout = setTimeout(this.saveTitleToFileItself, 500);
-		}.bind(this);
+			titleChangeTimeout = setTimeout(_this.saveTitleToFileItself, 500);
+		};
 		titleModel.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, onTitleChange);
 		titleModel.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, onTitleChange);
 		this.saveTitleToFileItself();
@@ -242,9 +243,9 @@ module.exports = React.createClass({
 
 	createObjectAndTransitionTo: function(fileType) {
 		clearTimeout(this.createObjectTimeout);
-		var that = this;
+		var _this = this;
 		this.createObjectTimeout = setTimeout(function() {
-			var routerParams = that.getParams();
+			var routerParams = _this.getParams();
 			googleDriveService.createNewF1Object(fileType, routerParams.projectFolderFileId, function(file) {
 				var params = {
 					projectFolderFileId: routerParams.projectFolderFileId,
@@ -252,7 +253,7 @@ module.exports = React.createClass({
 					fileId: file.id
 				};
 
-				that.transitionTo('editor', params, {fileType: fileType}); 
+				_this.transitionTo('editor', params, {fileType: fileType}); 
 			});
 		}, 300);
 	},
