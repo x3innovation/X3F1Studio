@@ -31,7 +31,10 @@ module.exports = React.createClass({
 		this.fields = null;
 		this.selectedFieldId = null;
 		
-		if (this.gFields) { this.gFields.removeAllEventListeners(); }
+		if (this.gFields) {
+			this.gFields.removeEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this.updateUi);
+			this.gFields.removeEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this.updateUi);
+		}
 
 		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'field-selector.jsx>>onGapiFileLoaded');
 	},
@@ -127,13 +130,13 @@ module.exports = React.createClass({
 	selectField: function(scroll) {
 		if (!this.selectedFieldId) { return false; }
 		this.unselectSelectedField();
-		var that = this;
+		var _this = this;
 		var $nameFields = $('.name-field');
 
 		if ($nameFields.length) {
 			$nameFields.each(function(index, element) {
 				var $element = $(element);
-				if ($element.find('input').attr('data-field-id') === that.selectedFieldId) {
+				if ($element.find('input').attr('data-field-id') === _this.selectedFieldId) {
 					$element.addClass('selected-cell');
 					if (scroll) { $('.dataTables_scrollBody').scrollTop($element.position().top - 100); }
 					return false;
@@ -165,7 +168,7 @@ module.exports = React.createClass({
 	},
 
 	rebindStrings: function() {
-		var that = this;
+		var _this = this;
 		var bindString = gapi.drive.realtime.databinding.bindString;
 		var TextInsertedEvent = gapi.drive.realtime.EventType.TEXT_INSERTED;
 		var TextDeletedEvent = gapi.drive.realtime.EventType.TEXT_DELETED;
@@ -173,7 +176,7 @@ module.exports = React.createClass({
 		var updateSpanSibling = function(e, $element) {
 			var newText = e.target.toString();
 			var $spanSiblingCell = $element.closest('tr').find('.name-search-helper');
-			that.table.cell($spanSiblingCell).data(newText).draw();
+			_this.table.cell($spanSiblingCell).data(newText).draw();
 		};
 
 		for (var i = 0, len = this.gBindings.length; i<len; i++) {
@@ -184,12 +187,12 @@ module.exports = React.createClass({
 			var fieldId = $element.attr('data-field-id');
 			var collabString;
 			var functionWrapper = function(e) {updateSpanSibling(e, $element);};
-			for (var i = 0, len = that.gFields.length; i<len; i++) {
-				if (that.gFields.get(i).id === fieldId) {
-					collabString = that.gFields.get(i).get('name');
+			for (var i = 0, len = _this.gFields.length; i<len; i++) {
+				if (_this.gFields.get(i).id === fieldId) {
+					collabString = _this.gFields.get(i).get('name');
 					collabString.addEventListener(TextInsertedEvent, functionWrapper);
 					collabString.addEventListener(TextDeletedEvent, functionWrapper);
-					that.gBindings.push(bindString(collabString, element));
+					_this.gBindings.push(bindString(collabString, element));
 					break;
 				}
 			}
@@ -199,9 +202,11 @@ module.exports = React.createClass({
 	addField: function(newFieldName) {
 		if (!this.gFields) { return false; }
 
+		this.gModel.beginCompoundOperation();
 		var gField = GDriveService.createNewField(newFieldName, this.gModel);
 		this.selectedFieldId = gField.id;
 		this.gFields.push(gField);
+		this.gModel.endCompoundOperation();
 	},
 
 	removeField: function(removedFieldId) {

@@ -46,9 +46,12 @@ module.exports = React.createClass({
 		this.fieldDataId = null;
 		this.fieldSelected = false;
 		this.gBindings = [];
-
-		if (this.gFields) { this.gFields.removeAllEventListeners(); }
 		$('.error-tooltipped').tooltipster('destroy');
+		$('#def-date-field, #min-date-field, #max-date-field').datetimepicker('destroy');
+
+		if (this.gFields) { 
+			this.gFields.removeEventListener(gapi.drive.realtime.EventType.VALUES_SET, this.updateUi);
+		}
 
 		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'form.jsx>>onGapiFileLoaded');
 		Bullet.off(EventType.EntryForm.METADATA_MODEL_LOADED, 'form.jsx>>onMetadataModelLoaded');
@@ -85,7 +88,7 @@ module.exports = React.createClass({
 	},
 
 	initializeDatepicker: function() {
-		var that = this;
+		var _this = this;
 		var DATE_FORMAT = 'YYYY-MM-DD';
 		var TIME_FORMAT = 'HH:mm:ss.SSS';
 		var datepickerOptions = {
@@ -98,7 +101,7 @@ module.exports = React.createClass({
 			lazyInit: true,
 			step: 10,
 			onShow: function() {
-				var fieldType = that.fieldData.get('type');
+				var fieldType = _this.fieldData.get('type');
 				var optionsToSet;
 				switch (fieldType) {
 					case "datetime":
@@ -127,7 +130,7 @@ module.exports = React.createClass({
 				this.setOptions(optionsToSet);
 			},
 			onChangeDateTime: function(datetimepicker, $input) {
-				that.saveUiToGoogle();
+				_this.saveUiToGoogle();
 			}
 		};
 
@@ -135,21 +138,21 @@ module.exports = React.createClass({
 	},
 
 	onMetadataModelLoaded: function(metadataModel) {
-		var that = this;
+		var _this = this;
 		GDriveService.registerAnnouncement(metadataModel, function() {
 			var announcement = metadataModel.announcement.get(0); //get first announcement
 			switch (announcement.action) {
 				case AnnouncementType.ADD_FILE:
 					// don't catch adding the current file's announcement
-					if (announcement.fileId === that.props.fileId) { return; }
+					if (announcement.fileId === _this.props.fileId) { return; }
 					switch (announcement.fileType) {
 						case GDriveConstants.ObjectType.PERSISTENT_DATA:
 						case GDriveConstants.ObjectType.SNIPPET:
 						case GDriveConstants.ObjectType.EVENT:
-							that.addToRefs(announcement);
+							_this.addToRefs(announcement);
 							break;
 						case GDriveConstants.ObjectType.ENUM:
-							that.addToEnums(announcement);
+							_this.addToEnums(announcement);
 							break;
 						default: break;
 					} break;
@@ -158,25 +161,25 @@ module.exports = React.createClass({
 						case GDriveConstants.ObjectType.PERSISTENT_DATA:
 						case GDriveConstants.ObjectType.SNIPPET:
 						case GDriveConstants.ObjectType.EVENT:
-							that.updateRefNames(announcement);
+							_this.updateRefNames(announcement);
 							break;
 						case GDriveConstants.ObjectType.ENUM:
-							that.updateEnums(announcement);
+							_this.updateEnums(announcement);
 							break;
 						default: break;
 					} break;
 				case AnnouncementType.ADD_ENUM:
-					if (announcement.fileId === that.fieldData.get('enumId')) { 
+					if (announcement.fileId === _this.fieldData.get('enumId')) { 
 					// if the active enum doesn't match the updated enum, then any update would be unnoticed to the user anyways
-						that.setEnumValues(announcement.fileId);
+						_this.setEnumValues(announcement.fileId);
 					} break;
 				case AnnouncementType.DELETE_ENUM:
-					if (announcement.fileId === that.fieldData.get('enumId')) {
-						that.setEnumValues(announcement.fileId);
+					if (announcement.fileId === _this.fieldData.get('enumId')) {
+						_this.setEnumValues(announcement.fileId);
 					} break;
 				case AnnouncementType.RENAME_ENUM:
-					if (announcement.fileId === that.fieldData.get('enumId')) {
-						that.setEnumValues(announcement.fileId);
+					if (announcement.fileId === _this.fieldData.get('enumId')) {
+						_this.setEnumValues(announcement.fileId);
 					} break;
 				default: break;
 			}
@@ -215,6 +218,8 @@ module.exports = React.createClass({
 		}
 
 		var getById = document.getElementById.bind(document);
+		this.gModel.beginCompoundOperation();
+
 		this.fieldData.set('type', getById('field-type-select').value);
 		this.fieldData.set('refId', getById('ref-name-select').value);
 		var newRefType = '';
@@ -223,6 +228,7 @@ module.exports = React.createClass({
 		} else if (getById('ref-hard-radio').checked) {
 			newRefType = 'hard';
 		}
+
 		this.fieldData.set('refType', newRefType);
 		this.fieldData.set('enumId', getById('enum-name-select').value);
 		this.fieldData.set('enumValue', getById('enum-value-select').value);
@@ -236,10 +242,13 @@ module.exports = React.createClass({
 		this.fieldData.set('array', getById('array-checkbox').checked);
 		this.fieldData.set('contextId', getById('context-id-checkbox').checked);
 		this.gFields.set(fieldIndex, this.fieldData);
+
+		this.gModel.endCompoundOperation();
 	},
 
 	displayCorrectUiComponents: function(fieldType) {
-		fieldType = fieldType || this.fieldData.get('type');
+		fieldType = (typeof fieldType) !== 'undefined' ? fieldType : this.fieldData.get('type');
+		
 		$('.type-specific-field').addClass('hide');
 		$('#array-len-wrapper').addClass('hide');
 		$('.'+fieldType+'-specific-field').removeClass('hide');
@@ -268,9 +277,10 @@ module.exports = React.createClass({
 		if (!this.gModel || !this.fieldData) { return; } //if field not selected, validation doesn't make sense
 
 		var validateField = this.validateField;
-		fieldType = fieldType || this.fieldData.get('type');
-		$('.validated-input:visible').each(function() {
-			validateField(this, fieldType);
+		fieldType = (typeof fieldType) !== 'undefined' ? fieldType : this.fieldData.get('type');
+
+		$('.validated-input:visible').each(function(index, element) {
+			validateField(element, fieldType);
 		});
 	},
 
@@ -288,7 +298,7 @@ module.exports = React.createClass({
 
 		if (errorMessage) {
 			$targetField.addClass('invalid-input');
-			if ($fieldLabel.tooltipster('content') !== errorMessage) {
+			if ($fieldLabel.tooltipster('content') !== errorMessage) { // only change message if message is different
 				$fieldLabel.tooltipster('content', errorMessage);
 			}
 			$fieldLabel.tooltipster('show');
@@ -306,8 +316,12 @@ module.exports = React.createClass({
 		var errorMessage = '';
 		var fieldId = targetField.id;
 
-		if (!errorMessage && $targetField.prop('required') && !fieldVal) {
-			errorMessage += 'This is a required field. ';
+		if (!errorMessage && !fieldVal) {
+			if ($targetField.prop('required')) {
+				errorMessage += 'This is a required field. ';
+			} else {
+				return '';
+			}
 		}
 
 		//numeric fields must only contain numbers
@@ -434,7 +448,7 @@ module.exports = React.createClass({
 		this.fieldSelected = true;
 		$('form').removeClass('hide');
 
-		var that = this;
+		var _this = this;
 		var selectedFieldId = data.selectedFieldId;
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			if (this.gFields.get(i).id === selectedFieldId) {
@@ -456,6 +470,8 @@ module.exports = React.createClass({
 	},
 
 	updateOldModel: function() {
+		this.gModel.beginCompoundOperation();
+
 		if (!this.fieldData.has('maxStrLen')) {
 			this.fieldData.set('maxStrLen', this.fieldData.get('strLen'));
 		}
@@ -468,6 +484,7 @@ module.exports = React.createClass({
 			this.fieldData.set('minDate', this.gModel.createString(''));
 			this.fieldData.set('maxDate', this.gModel.createString(''));
 		}
+		this.gModel.endCompoundOperation();
 	},
 
 	alignLabel: function(evt, $label) {
@@ -485,16 +502,17 @@ module.exports = React.createClass({
 		var TextDeletedEvent = gapi.drive.realtime.EventType.TEXT_DELETED;
 
 		var $label = $('label[for="'+field.id+'"]');
-		var that = this;
-		stringToBind.addEventListener(TextInsertedEvent, function(evt) {that.alignLabel(evt, $label);});
-		stringToBind.addEventListener(TextDeletedEvent, function(evt) {that.alignLabel(evt, $label);});
-		that.gBindings.push(bindString(stringToBind, field));
+		var _this = this;
+		stringToBind.addEventListener(TextInsertedEvent, function(evt) {_this.alignLabel(evt, $label);});
+		stringToBind.addEventListener(TextDeletedEvent, function(evt) {_this.alignLabel(evt, $label);});
+		_this.gBindings.push(bindString(stringToBind, field));
 	},
 
 	rebindStrings: function() {
 		var getById = document.getElementById.bind(document);
-		var that = this;
+		var _this = this;
 
+		this.gModel.beginCompoundOperation();
 		for (var i = 0, len = this.gBindings.length; i<len; i++) {
 			this.gBindings[i].unbind(); //unbind the previous strings
 		}
@@ -510,12 +528,13 @@ module.exports = React.createClass({
 		this.setGBinding(this.fieldData.get('maxStrLen'), getById('max-str-len-field'));
 
 		this.setGBinding(this.fieldData.get('arrayLen'), getById('array-len-field'));
+		this.gModel.endCompoundOperation();
 	},
 
 	updateAllSelect: function() {
-		var that = this;
+		var _this = this;
 		$('#field-type-select').material_select(function() {
-			that.onFieldTypeChanged($('#field-type-dropdown').find('input.select-dropdown').val());
+			_this.onFieldTypeChanged($('#field-type-dropdown').find('input.select-dropdown').val());
 		});
 		this.updateRefNameSelectOptions();
 		this.updateEnumNameSelectOptions();
@@ -525,10 +544,13 @@ module.exports = React.createClass({
 		if (newFieldType === 'enum') {
 			this.setEnumValues(this.fieldData.get('enumId'));
 		}
+		this.gModel.beginCompoundOperation();
 		this.fieldData.set('type', newFieldType);
+		GDriveService.resetFieldData(this.fieldData);
+		this.gModel.endCompoundOperation();
+
 		this.alignAllLabels();
 		this.displayCorrectUiComponents(newFieldType);
-		GDriveService.resetFieldData(this.fieldData);
 		this.updateUi();
 		this.enforceValidation();
 	},
@@ -539,17 +561,21 @@ module.exports = React.createClass({
 	},
 
 	onEnumTypeChanged: function(newEnumName) {
-		this.fieldData.set('enumName', newEnumName);
 		var newEnumId = '';
-		var that = this;
+		var _this = this;
+
+		this.gModel.beginCompoundOperation();
 		$('#enum-name-dropdown').find('span').each(function(index, element) {
 			if (element.text === newEnumName) {
 				newEnumId = element.dataset.fileId;
-				that.fieldData.set('enumId', newEnumId);
-				that.setEnumValues(newEnumId);
+				_this.fieldData.set('enumId', newEnumId);
+				_this.setEnumValues(newEnumId);
 				return false;
 			}
 		});
+		this.fieldData.set('enumName', newEnumName);
+		this.gModel.endCompoundOperation();
+
 		this.saveUiToGoogle();
 	},
 
@@ -591,7 +617,7 @@ module.exports = React.createClass({
 	},
 
 	setSelectOptions: function() {
-		var that = this;
+		var _this = this;
 		if (!this.refs || !this.enums) { return; }
 
 		var refs = this.refs;
@@ -608,7 +634,7 @@ module.exports = React.createClass({
 		}
 
 		$refNameSelect.material_select(function() {
-			that.onRefTypeChanged($('#ref-name-dropdown').find('.select-dropdown').val());
+			_this.onRefTypeChanged($('#ref-name-dropdown').find('.select-dropdown').val());
 		});
 
 		//set the same data attributes in the materialized select
@@ -635,7 +661,7 @@ module.exports = React.createClass({
 			else { $enumNameSelect.val('default'); }
 			
 			$enumNameSelect.material_select(function() {
-				that.onEnumTypeChanged($('#enum-name-dropdown').find('.select-dropdown').val());
+				_this.onEnumTypeChanged($('#enum-name-dropdown').find('.select-dropdown').val());
 			});
 
 			//set the same data attributes in the materialized select
@@ -650,7 +676,7 @@ module.exports = React.createClass({
 			});
 		} else {
 			$enumNameSelect.material_select(function() {
-				that.onEnumTypeChanged($('#enum-name-dropdown').find('.select-dropdown').val());
+				_this.onEnumTypeChanged($('#enum-name-dropdown').find('.select-dropdown').val());
 			});
 		}
 	},
@@ -761,7 +787,7 @@ module.exports = React.createClass({
 
 
 	setEnumValues: function(enumId) {
-		var that = this;
+		var _this = this;
 		var $enumValueSelect = $('#enum-value-select');
 		$enumValueSelect.html('<option value="default" disabled>loading enum values...</option>');
 		$enumValueSelect.material_select();
@@ -784,8 +810,8 @@ module.exports = React.createClass({
 				$enumValueSelect.html('<option value = "default">no enums defined</option>');
 				$enumValueSelect.prop('disabled', true);
 			}
-			$enumValueSelect.material_select(that.saveUiToGoogle);
-			that.updateEnumValueSelectOptions();
+			$enumValueSelect.material_select(_this.saveUiToGoogle);
+			_this.updateEnumValueSelectOptions();
 		});
 	},
 

@@ -19,7 +19,11 @@ module.exports = React.createClass({
 	},
 
 	componentWillUnmount: function() {
-		if (this.gQueries) { this.gQueries.removeAllEventListeners(); }
+		if (this.gQueries) {
+			this.gQueries.removeEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this.updateUi);
+			this.gQueries.removeEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this.updateUi);
+			this.gQueries.removeEventListener(gapi.drive.realtime.EventType.VALUES_SET, this.updateUi);
+		}
 
 		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'queries.jsx>>onGapiFileLoaded');
 	},
@@ -90,8 +94,8 @@ module.exports = React.createClass({
 	},
 
 	createNewQuery: function() {
-		var that = this;
-		GDriveService.getMetadataModelId(that.props.projectFileId, function(id) {
+		var _this = this;
+		GDriveService.getMetadataModelId(_this.props.projectFileId, function(id) {
 			var thisId = id;
 			var requestId = thisId++;
 			var responseId = thisId++;
@@ -102,7 +106,7 @@ module.exports = React.createClass({
 				name: DefaultValueConstants.DefaultQueryAttributes.QUERY_NAME,
 				description: DefaultValueConstants.DefaultQueryAttributes.QUERY_DESCRIPTION
 			};
-			that.gQueries.push(newQuery);
+			_this.gQueries.push(newQuery);
 		}, 2);
 	},
 

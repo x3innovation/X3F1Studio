@@ -61,6 +61,7 @@ module.exports = React.createClass({
 	{
 		var gModel = model.create(GDriveConstants.CustomObjectKey.SNIPPET);
 
+		model.beginCompoundOperation();
 		model.getRoot().set(GDriveConstants.CustomObjectKey.SNIPPET, gModel);
 		gModel.title = model.createString(DefaultValueConstants.NewFileValues.SNIPPET_TITLE);
 		gModel.description = model.createString(DefaultValueConstants.NewFileValues.SNIPPET_DESCRIPTION);
@@ -69,6 +70,7 @@ module.exports = React.createClass({
 			var thisId = id;
 			gModel.id = thisId;
 		}, 1);
+		model.endCompoundOperation();
 	},
 
 	onToProjectBtnClick: function() {

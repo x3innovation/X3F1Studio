@@ -13,13 +13,15 @@ module.exports = React.createClass({
 
 	componentDidMount : function()
 	{
+		var _this = this;
+
 		Bullet.on(EventType.App.USER_LOGGED_IN, 'nav-bar.jsx>>user-logged-in', function(){
-			this.model.isUserLoggedIn = userStore.isLoggedIn;
+			_this.model.isUserLoggedIn = userStore.isLoggedIn;
 
 			// temporarily disable the buttons until log out is implemented
 			$('#user-log-in-out-icon').switchClass('mdi-social-person-outline', 'mdi-social-person');
 			$('#user-log-in-out-btn').trigger('mouseleave').off('mouseenter mouseleave');
-		}.bind(this));
+		});
 
 		var $navbarTitle = $('#navbar-title');
 		Bullet.on(EventType.App.PAGE_CHANGE, 'nav-bar.jsx>>page-change', function(newPageData) {

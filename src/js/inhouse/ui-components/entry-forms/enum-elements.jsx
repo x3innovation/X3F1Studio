@@ -120,18 +120,21 @@ module.exports = React.createClass({
 				},
 			}]
 		});
+
 		$('th').removeClass('enum-cell enum-index-cell enum-name-cell enum-description-cell');
-		$('.dataTables_scrollBody').css('border-bottom-color', '#dcdcdc').css('padding-bottom', '1rem')
-		  .find('table').css('table-layout', 'fixed');
+		$('.dataTables_scrollBody')
+			.css('border-bottom-color', '#dcdcdc').css('padding-bottom', '1rem')
+			.find('table').css('table-layout', 'fixed');
 		$('.enum-cell').click(this.setSelectedRow);
-		var that = this;
+
+		var _this = this;
 		$('.enum-table-input').each(function(index, element) {
 			var $element = $(element);
-			$element.keypress(that.keyPressHandler)
-			        .blur(that.saveCell);
+			$element.keypress(_this.keyPressHandler)
+			        .blur(_this.saveCell);
 
 			if ($element.hasClass('error-tooltipped')) {
-				$element.keyup(that.enforceSingleFieldValidation);
+				$element.keyup(_this.enforceSingleFieldValidation);
 			}
 		});
 
@@ -193,7 +196,7 @@ module.exports = React.createClass({
 					errorMessage += 'This name is already in use. ';
 					return false;
 				}
-			})
+			});
 
 			if (fieldVal.length > Configs.EntryForm.FIELD_NAME_LENGTH_MAX) { 
 				errorMessage += 'Names can be '+Configs.EntryForm.FIELD_NAME_LENGTH_MAX+' characters long at most. ';
@@ -253,13 +256,13 @@ module.exports = React.createClass({
 	},
 
 	selectRow: function() {
-		var that = this;
+		var _this = this;
 		if (this.selectedRowIndex === null) { return; }
 		var $selectedRow;
 		$('.selected-cell').removeClass('selected-cell');
 		$('.enum-index-cell').each(function(index, element) {
 			var $element = $(element);
-			if ($element.text() === ""+that.selectedRowIndex) {
+			if ($element.text() === ""+_this.selectedRowIndex) {
 				$selectedRow = $element.closest('tr');
 				return false;
 			}

@@ -59,6 +59,7 @@ module.exports = React.createClass({
 	{
 		var gModel = model.create(GDriveConstants.CustomObjectKey.EVENT);
 
+		model.beginCompoundOperation();
 		model.getRoot().set(GDriveConstants.CustomObjectKey.EVENT, gModel);
 		gModel.title = model.createString(DefaultValueConstants.NewFileValues.EVENT_TITLE);
 		gModel.description = model.createString(DefaultValueConstants.NewFileValues.EVENT_DESCRIPTION);
@@ -68,6 +69,7 @@ module.exports = React.createClass({
 			var thisId = id;
 			gModel.id = thisId;
 		}, 1);
+		model.endCompoundOperation();
 	},
 
 	onToProjectBtnClick: function() {

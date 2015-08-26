@@ -130,7 +130,7 @@ function GoogleDriveService()
 			// we are doing fullText contains search because at the time of writing this code,
 			// google drive api had bugs in custom properties query. So we are relying on having the object types
 			// right in the file's description and doing fullText search provided by Google to query the files accordingly
-			var query = '"' + projectFolderFileId + '" in parents and (';
+			var query = "'" + projectFolderFileId + "' in parents and (";
 			var isFirstCondition = true;
 
 			// add persistent data query
@@ -138,9 +138,9 @@ function GoogleDriveService()
 			{	
 				if (!isFirstCondition)
 				{
-					query += ' or ';
+					query += " or ";
 				}
-				query += 'fullText contains "' + GCons.ObjectType.PERSISTENT_DATA + '"';
+				query += "fullText contains '" + GCons.ObjectType.PERSISTENT_DATA + "'";
 				isFirstCondition = false;
 			}
 
@@ -149,9 +149,9 @@ function GoogleDriveService()
 			{
 				if (!isFirstCondition)
 				{
-					query += ' or ';
+					query += " or ";
 				}
-				query += 'fullText contains "' + GCons.ObjectType.ENUM + '"';
+				query += "fullText contains '" + GCons.ObjectType.ENUM + "'";
 				isFirstCondition = false;
 			}
 
@@ -160,9 +160,9 @@ function GoogleDriveService()
 			{
 				if (!isFirstCondition)
 				{
-					query += ' or ';
+					query += " or ";
 				}
-				query += 'fullText contains "' + GCons.ObjectType.SNIPPET + '"';
+				query += "fullText contains '" + GCons.ObjectType.SNIPPET + "'";
 				isFirstCondition = false;
 			}
 
@@ -171,9 +171,9 @@ function GoogleDriveService()
 			{
 				if (!isFirstCondition)
 				{
-					query += ' or ';
+					query += " or ";
 				}
-				query += 'fullText contains "' + GCons.ObjectType.EVENT + '"';
+				query += "fullText contains '" + GCons.ObjectType.EVENT + "'";
 				isFirstCondition = false;
 			}
 
@@ -182,9 +182,9 @@ function GoogleDriveService()
 			{
 				if (!isFirstCondition)
 				{
-					query += ' or ';
+					query += " or ";
 				}
-				query += 'fullText contains "' + GCons.ObjectType.FLOW + '"';
+				query += "fullText contains '" + GCons.ObjectType.FLOW + "'";
 				isFirstCondition = false;
 			}
 

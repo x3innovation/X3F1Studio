@@ -104,6 +104,7 @@ module.exports = React.createClass({
 
 	onProjectFileLoaded : function(doc)
 	{
+		var _this = this;
 		var gModel = doc.getModel();
 
 		if (!gModel.getRoot().get(GDriveCons.Project.KEY_TITLE)) { // if initializing went wrong, reset to default values
@@ -130,8 +131,8 @@ module.exports = React.createClass({
 		var onTitleChange = function()
 		{
 			clearTimeout(titleChangeTimeout);
-			titleChangeTimeout = setTimeout(this.saveTitleToFileItself, 500);
-		}.bind(this);
+			titleChangeTimeout = setTimeout(_this.saveTitleToFileItself, 500);
+		};
 		titleModel.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, onTitleChange);
 		titleModel.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, onTitleChange);
 		this.saveTitleToFileItself();
@@ -222,50 +223,54 @@ module.exports = React.createClass({
 
 	onAddPersistentDataBtnClick: function()
 	{
+		var _this = this;
 		clearTimeout(this.createObjectTimeout);
 		this.createObjectTimeout = setTimeout(function() {
 			var params = {
-				projectFolderFileId: this.getParams().projectFolderFileId,
-				projectFileId: this.getParams().projectFileId
+				projectFolderFileId: _this.getParams().projectFolderFileId,
+				projectFileId: _this.getParams().projectFileId
 			};
-			this.transitionTo('persistentDataCreate', params);
-		}.bind(this), 300);
+			_this.transitionTo('persistentDataCreate', params);
+		}, 300);
 	},
 
 	onAddEnumBtnClick: function()
 	{
+		var _this = this;
 		clearTimeout(this.createObjectTimeout);
 		this.createObjectTimeout = setTimeout(function() {
 			var params = {
-				projectFolderFileId: this.getParams().projectFolderFileId,
-				projectFileId: this.getParams().projectFileId
+				projectFolderFileId: _this.getParams().projectFolderFileId,
+				projectFileId: _this.getParams().projectFileId
 			};
-			this.transitionTo('enumCreate', params);
-		}.bind(this), 300);
+			_this.transitionTo('enumCreate', params);
+		}, 300);
 	},
 
 	onAddSnippetBtnClick: function()
 	{
+		var _this = this;
 		clearTimeout(this.createObjectTimeout);
 		this.createObjectTimeout = setTimeout(function() {
 			var params = {
-				projectFolderFileId: this.getParams().projectFolderFileId,
-				projectFileId: this.getParams().projectFileId
+				projectFolderFileId: _this.getParams().projectFolderFileId,
+				projectFileId: _this.getParams().projectFileId
 			};
-			this.transitionTo('snippetCreate', params);
-		}.bind(this), 300);
+			_this.transitionTo('snippetCreate', params);
+		}, 300);
 	},
 
 	onAddEventBtnClick: function()
 	{
+		var _this = this;
 		clearTimeout(this.createObjectTimeout);
 		this.createObjectTimeout = setTimeout(function() {
 			var params = {
-				projectFolderFileId: this.getParams().projectFolderFileId,
-				projectFileId: this.getParams().projectFileId
+				projectFolderFileId: _this.getParams().projectFolderFileId,
+				projectFileId: _this.getParams().projectFileId
 			};
-			this.transitionTo('eventCreate', params);
-		}.bind(this), 300);
+			_this.transitionTo('eventCreate', params);
+		}, 300);
 	},
 
 	onAddFlowBtnClick: function()

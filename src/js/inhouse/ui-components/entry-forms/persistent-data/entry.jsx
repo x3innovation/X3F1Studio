@@ -53,6 +53,7 @@ module.exports = React.createClass({
 	{
 		var gModel = model.create(GDriveConstants.CustomObjectKey.PERSISTENT_DATA);
 
+		model.beginCompoundOperation();
 		model.getRoot().set(GDriveConstants.CustomObjectKey.PERSISTENT_DATA, gModel);
 		gModel.title = model.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE);
 		gModel.description = model.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_DESCRIPTION);
@@ -71,6 +72,8 @@ module.exports = React.createClass({
 			gModel.RejectedCreatePersistenceEventTypeId = ++thisId;
 			gModel.RejectedRemovePersistenceEventTypeId = ++thisId;
 		}, 11);
+		
+		model.endCompoundOperation();
 	},
 
 	onToProjectBtnClick: function() {
