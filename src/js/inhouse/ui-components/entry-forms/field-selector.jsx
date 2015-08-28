@@ -24,13 +24,6 @@ module.exports = React.createClass({
 	},
 
 	componentWillUnmount: function() {
-		this.gBindings = [];
-		this.table = null;
-		this.gFields = null;
-		this.gModel = null;
-		this.fields = null;
-		this.selectedFieldId = null;
-		
 		if (this.gFields) {
 			this.gFields.removeEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this.updateUi);
 			this.gFields.removeEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this.updateUi);
@@ -63,6 +56,9 @@ module.exports = React.createClass({
 		var fields = [];
 		var gField;
 		var field;
+		if (!this.gFields) {
+			this.gFields = this.gModel.getRoot().get(this.props.gapiKey).fields;
+		}
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			gField = this.gFields.get(i);
 			field = {};
@@ -169,6 +165,7 @@ module.exports = React.createClass({
 
 	rebindStrings: function() {
 		var _this = this;
+		var table = this.table;
 		var bindString = gapi.drive.realtime.databinding.bindString;
 		var TextInsertedEvent = gapi.drive.realtime.EventType.TEXT_INSERTED;
 		var TextDeletedEvent = gapi.drive.realtime.EventType.TEXT_DELETED;
@@ -176,7 +173,7 @@ module.exports = React.createClass({
 		var updateSpanSibling = function(e, $element) {
 			var newText = e.target.toString();
 			var $spanSiblingCell = $element.closest('tr').find('.name-search-helper');
-			_this.table.cell($spanSiblingCell).data(newText).draw();
+			table.cell($spanSiblingCell).data(newText).draw();
 		};
 
 		for (var i = 0, len = this.gBindings.length; i<len; i++) {
@@ -192,6 +189,8 @@ module.exports = React.createClass({
 			for (var i = 0, len = _this.gFields.length; i<len; i++) {
 				if (_this.gFields.get(i).id === fieldId) {
 					collabString = _this.gFields.get(i).get('name');
+					collabString.removeEventListener(TextInsertedEvent, functionWrapper); //remove and then add again, as $element may have changed
+					collabString.removeEventListener(TextDeletedEvent, functionWrapper);
 					collabString.addEventListener(TextInsertedEvent, functionWrapper);
 					collabString.addEventListener(TextDeletedEvent, functionWrapper);
 					_this.gBindings.push(bindString(collabString, element));

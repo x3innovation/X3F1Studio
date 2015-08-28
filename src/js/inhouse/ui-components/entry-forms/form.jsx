@@ -336,7 +336,7 @@ module.exports = React.createClass({
 		}
 
 		var dateFormat = '';
-		if (fieldType === 'datetime') { dateFormat = 'YYYY-MM-DD HH:mm:ss.SSS';
+		   if (fieldType === 'datetime') { dateFormat = 'YYYY-MM-DD HH:mm:ss.SSS';
 		} else if (fieldType === 'date') { dateFormat = 'YYYY-MM-DD';
 		} else if (fieldType === 'time') { dateFormat = 'HH:mm:ss.SSS';
 		}
@@ -397,7 +397,7 @@ module.exports = React.createClass({
 			if (!isNaN($('#min-str-len-field').val()) && fieldVal.length < parseInt($('#min-str-len-field').val(), 10)) {
 				errorMessage += 'Default value should be longer than defined minimum length. ';
 			}
-			if (!isNaN($('#max-str-len-field').val()) && fieldVal.length > parseInt($('#max-value-field').val(), 10)) {
+			if (!isNaN($('#max-str-len-field').val()) && fieldVal.length > parseInt($('#max-str-len-field').val(), 10)) {
 				errorMessage += 'Default value should be within defined maximum length. ';
 			}
 		}
@@ -927,7 +927,7 @@ module.exports = React.createClass({
 							<label htmlFor='min-str-len-field' className='error-tooltipped'>min string length</label>
 						</div>
 						<div className='input-field col s4'>
-							<input type='text' id='max-str-len-field' className='labelled-input number-input integer-input validated-input' />
+							<input type='text' id='max-str-len-field' className='labelled-input number-input integer-input validated-input' required />
 							<label htmlFor='max-str-len-field' className='error-tooltipped'>max string length</label>
 						</div>
 					</div>
