@@ -227,10 +227,11 @@ module.exports = React.createClass({
 			description: $selectedRow.find('.enum-description-input').val()
 		};
 
+
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			if (this.gFields.get(i).index === index) {
 				this.table.row($selectedRow).invalidate('dom');
-				if (renamedEnum.name !== this.gFields.get(i).name) {
+				if (renamedEnum.name !== this.gFields.get(i).name) { //only do something if a cell was edited.
 					this.gFields.set(i, renamedEnum);
 					var renameEnumAnnouncement = {
 						action: AnnouncementType.RENAME_ENUM,

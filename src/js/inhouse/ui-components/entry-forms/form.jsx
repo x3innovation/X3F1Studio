@@ -405,11 +405,11 @@ module.exports = React.createClass({
 		if (!errorMessage && fieldId === 'def-date-field') {
 			if ($('#max-date-field').val() && 
 			    parseDate(fieldVal).isAfter(parseDate($('#max-date-field').val()))) {
-				errorMessage += 'Default date should not be after defined maximum date. ';
+				errorMessage += 'Default ' +fieldType+ ' should not be after defined maximum ' +fieldType+ '. ';
 			}
 			if ($('#min-date-field').val() &&
 			 	 parseDate(fieldVal).isBefore(parseDate($('#min-date-field').val()))) {
-				errorMessage += 'Default date should not be before defined minimum date. ';
+				errorMessage += 'Default ' +fieldType+ ' should not be before defined minimum ' +fieldType+ '. ';
 			}
 		}
 
@@ -512,7 +512,6 @@ module.exports = React.createClass({
 		var getById = document.getElementById.bind(document);
 		var _this = this;
 
-		this.gModel.beginCompoundOperation();
 		for (var i = 0, len = this.gBindings.length; i<len; i++) {
 			this.gBindings[i].unbind(); //unbind the previous strings
 		}
@@ -528,7 +527,6 @@ module.exports = React.createClass({
 		this.setGBinding(this.fieldData.get('maxStrLen'), getById('max-str-len-field'));
 
 		this.setGBinding(this.fieldData.get('arrayLen'), getById('array-len-field'));
-		this.gModel.endCompoundOperation();
 	},
 
 	updateAllSelect: function() {
@@ -833,14 +831,14 @@ module.exports = React.createClass({
 				<div className='row'>
 					<div className='input-field col s4'>
 						<input type='text' id='name-field' className='labelled-input validated-input'
-						 onInput={inputHandler} required />
+						 onInput={inputHandler} required spellCheck='false' />
 						<label htmlFor='name-field' className='error-tooltipped'>name *</label>
 					</div>
 				</div>
 
 				<div className='row'>
 					<div className='input-field col s12'>
-						<textarea id='description-field' className='materialize-textarea labelled-input' />
+						<textarea id='description-field' className='materialize-textarea labelled-input' spellCheck='false' />
 						<label htmlFor='description-field' >description</label>
 					</div>
 				</div>
@@ -876,7 +874,7 @@ module.exports = React.createClass({
 					<div className='col s4 input-field type-specific-field
 					 	double-specific-field float-specific-field byte-specific-field integer-specific-field
 					 	long-specific-field short-specific-field string-specific-field ref-specific-field'>
-						<input type='text' id='def-value-field' className='labelled-input validated-input' />
+						<input type='text' id='def-value-field' className='labelled-input validated-input' spellCheck='false' />
 						<label htmlFor='def-value-field' className='error-tooltipped'>default value</label>
 					</div>
 					<div className='col s4 input-field type-specific-field date-specific-field datetime-specific-field time-specific-field'>
@@ -947,11 +945,11 @@ module.exports = React.createClass({
 					<div className='type-specific-field date-specific-field datetime-specific-field time-specific-field'>
 						<div className='input-field col s4'>
 							<input type='text' id='min-date-field' className='labelled-input date-input validated-input' />
-							<label htmlFor='min-date-field' className='labelled-input error-tooltipped'>min date</label>
+							<label htmlFor='min-date-field' className='labelled-input error-tooltipped'>min value</label>
 						</div>
 						<div className='input-field col s4'>
 							<input type='text' id='max-date-field' className='labelled-input date-input validated-input' />
-							<label htmlFor='max-date-field' className='labelled-input error-tooltipped'>max date</label>
+							<label htmlFor='max-date-field' className='labelled-input error-tooltipped'>max value</label>
 						</div>
 					</div>
 

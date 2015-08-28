@@ -107,13 +107,14 @@ module.exports = React.createClass({
 		var _this = this;
 		var gModel = doc.getModel();
 
+		gModel.beginCompoundOperation();
 		if (!gModel.getRoot().get(GDriveCons.Project.KEY_TITLE)) { // if initializing went wrong, reset to default values
 			gModel.getRoot().set(GDriveCons.Project.KEY_TITLE, gModel.createString(DefaultValueCons.NewFileValues.PROJECT_TITLE));
 		}
 		if (!gModel.getRoot().get(GDriveCons.Project.KEY_DESCRIPTION)) {
 			gModel.getRoot().set(GDriveCons.Project.KEY_DESCRIPTION, gModel.createString(DefaultValueCons.NewFileValues.PROJECT_DESCRIPTION));
 		}
-
+		gModel.endCompoundOperation();
 		var titleInput = document.getElementById('project-title');
 		var titleModel = gModel.getRoot().get(GDriveCons.Project.KEY_TITLE);
 		gapi.drive.realtime.databinding.bindString(titleModel, titleInput);
@@ -140,8 +141,10 @@ module.exports = React.createClass({
 
 	onProjectModelInitialize: function(model) {
 		var gRoot = model.getRoot();
+		model.beginCompoundOperation();
 		gRoot.set(GDriveCons.Project.KEY_TITLE, model.createString(DefaultValueCons.NewFileValues.PROJECT_TITLE));
 		gRoot.set(GDriveCons.Project.KEY_DESCRIPTION, model.createString(DefaultValueCons.NewFileValues.PROJECT_DESCRIPTION));
+		model.endCompoundOperation();
 	},
 
 	saveTitleToFileItself : function()

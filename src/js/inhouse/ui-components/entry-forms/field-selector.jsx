@@ -182,6 +182,8 @@ module.exports = React.createClass({
 		for (var i = 0, len = this.gBindings.length; i<len; i++) {
 			this.gBindings[i].unbind();
 		}
+		this.gBindings = [];
+
 		$('.field-table-input').each(function(index, element) {
 			var $element = $(element);
 			var fieldId = $element.attr('data-field-id');
@@ -204,9 +206,9 @@ module.exports = React.createClass({
 
 		this.gModel.beginCompoundOperation();
 		var gField = GDriveService.createNewField(newFieldName, this.gModel);
+		this.gModel.endCompoundOperation();
 		this.selectedFieldId = gField.id;
 		this.gFields.push(gField);
-		this.gModel.endCompoundOperation();
 	},
 
 	removeField: function(removedFieldId) {
