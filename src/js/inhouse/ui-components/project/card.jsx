@@ -328,19 +328,6 @@ module.exports = React.createClass({
 			projectFolderFileId: this.props.projectFolderFileId,
 			fileId: this.props.fileId
 		};
-		/*
-		if (this.props.objectType === GDriveCons.ObjectType.PERSISTENT_DATA) {
-			this.transitionTo('persistentDataEntry', params);
-		} else if (this.props.objectType === GDriveCons.ObjectType.EVENT) {
-			this.transitionTo('eventEntry', params);
-		} else if (this.props.objectType === GDriveCons.ObjectType.SNIPPET) {
-			this.transitionTo('snippetEntry', params);
-		} else if (this.props.objectType === GDriveCons.ObjectType.ENUM) {
-			this.transitionTo('enumEntry', params);
-		} else if (this.props.objectType === GDriveCons.ObjectType.FLOW) {
-			//this.transitionTo('flowEntry', params);
-		}
-		*/
 		this.transitionTo('editor', params, {fileType: this.props.objectType});
 	},
 
