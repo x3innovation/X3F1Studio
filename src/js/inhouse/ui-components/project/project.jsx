@@ -104,15 +104,17 @@ module.exports = React.createClass({
 
 	onProjectFileLoaded : function(doc)
 	{
-		var gModel = doc.getModel();
 		var _this = this;
+		var gModel = doc.getModel();
 
-		if (!gModel.getRoot().get(GDriveCons.Project.KEY_TITLE)) { // if initializing went wrong, reset to default values
+		gModel.beginCompoundOperation();
+		if (!gModel.getRoot().has(GDriveCons.Project.KEY_TITLE)) { // if initializing went wrong, reset to default values
 			gModel.getRoot().set(GDriveCons.Project.KEY_TITLE, gModel.createString(DefaultValueCons.NewFileValues.PROJECT_TITLE));
 		}
-		if (!gModel.getRoot().get(GDriveCons.Project.KEY_DESCRIPTION)) {
+		if (!gModel.getRoot().has(GDriveCons.Project.KEY_DESCRIPTION)) {
 			gModel.getRoot().set(GDriveCons.Project.KEY_DESCRIPTION, gModel.createString(DefaultValueCons.NewFileValues.PROJECT_DESCRIPTION));
 		}
+		gModel.endCompoundOperation();
 
 		var titleInput = document.getElementById('project-title');
 		var titleModel = gModel.getRoot().get(GDriveCons.Project.KEY_TITLE);
@@ -140,8 +142,10 @@ module.exports = React.createClass({
 
 	onProjectModelInitialize: function(model) {
 		var gRoot = model.getRoot();
+		model.beginCompoundOperation();
 		gRoot.set(GDriveCons.Project.KEY_TITLE, model.createString(DefaultValueCons.NewFileValues.PROJECT_TITLE));
 		gRoot.set(GDriveCons.Project.KEY_DESCRIPTION, model.createString(DefaultValueCons.NewFileValues.PROJECT_DESCRIPTION));
+		model.endCompoundOperation();
 	},
 
 	saveTitleToFileItself : function()
@@ -224,19 +228,15 @@ module.exports = React.createClass({
 	onAddPersistentDataBtnClick: function() {
 		this.createObjectAndTransitionTo(GDriveCons.ObjectType.PERSISTENT_DATA);
 	},
-
 	onAddEnumBtnClick: function() {
 		this.createObjectAndTransitionTo(GDriveCons.ObjectType.ENUM);
 	},
-
 	onAddSnippetBtnClick: function() {
 		this.createObjectAndTransitionTo(GDriveCons.ObjectType.SNIPPET);
 	},
-
 	onAddEventBtnClick: function() {
 		this.createObjectAndTransitionTo(GDriveCons.ObjectType.EVENT);
 	},
-
 	onAddFlowBtnClick: function() {
 		/*does nothing for now*/
 	},

@@ -49,6 +49,7 @@
 
 #header-ID-label {
     font-size: 1rem;
+    white-space: nowrap;
 }
 
 #clear-title-btn {
@@ -59,4 +60,8 @@
     -moz-transition: all 0.4s ease;
     -o-transition: all 0.4s ease;
     transition: all 0.4s ease;
+}
+
+#clear-title-btn > i {
+    left: 0;
 }

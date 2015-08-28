@@ -41,7 +41,7 @@ function ParseQueryService() {
 		var fieldName = splitToken[1];
 		var fields;
 		var fieldData;
-		paramName = paramName.replace('[', '').replace(']', '');
+		paramName = paramName.substring(paramName.indexOf('[') + 1, paramName.indexOf(']'));
 		for (i = 0, len = dataObjectsJson.length; i<len; i++) {
 			if (dataObjectsJson[i]._name === dataObjName) {
 				fields = dataObjectsJson[i].Field;

@@ -1,8 +1,8 @@
 var EventType = require('../../constants/event-type.js');
-var DefaultValueConstants = require('../../constants/default-value-constants.js');
-var DefaultFields = DefaultValueConstants.DefaultFieldAttributes;
 
 var Configs = require('../../app-config.js');
+
+var GDriveService = require('../../services/google-drive-service.js');
 
 module.exports = React.createClass({
 	/* ******************************************
@@ -24,7 +24,10 @@ module.exports = React.createClass({
 	},
 
 	componentWillUnmount: function() {
-		if (this.gFields) { this.gFields.removeAllEventListeners(); }
+		if (this.gFields) {
+			this.gFields.removeEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this.updateUi);
+			this.gFields.removeEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this.updateUi);
+		}
 
 		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'field-selector.jsx>>onGapiFileLoaded');
 	},
@@ -37,7 +40,9 @@ module.exports = React.createClass({
 		this.gFields = this.gModel.getRoot().get(this.props.gapiKey).fields;
 		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this.updateUi);
 		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this.updateUi);
-		this.updateUi();
+		this.updateUi(); 
+		//push to end of thread to make sure all other components have loaded google model
+		setTimeout(this.selectTopField, 0);
 	},
 
 	updateUi: function(e) {
@@ -51,6 +56,9 @@ module.exports = React.createClass({
 		var fields = [];
 		var gField;
 		var field;
+		if (!this.gFields) {
+			this.gFields = this.gModel.getRoot().get(this.props.gapiKey).fields;
+		}
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			gField = this.gFields.get(i);
 			field = {};
@@ -104,16 +112,14 @@ module.exports = React.createClass({
 	},
 
 	initializeTooltips: function() {
-		$.fn.tooltipster('setDefaults', {
+		var deleteBtnHtml = '<a class="delete-tooltip waves-effect waves btn-flat">delete</a>';
+		$('.delete-tooltipped').tooltipster({
+			content: $(deleteBtnHtml).on('click', this.onDeleteBtnClick),
 			position: 'top',
 			trigger: 'click',
 			speed: 250,
-			interactive: true,
-			onlyOne: false
-		});
-		var deleteBtnHtml = '<a class="delete-tooltip waves-effect waves btn-flat">delete</a>';
-		$('.delete-tooltipped').tooltipster({
-			content: $(deleteBtnHtml).on('click', this.onDeleteBtnClick)
+			arrow: false, 
+			interactive: true
 		});
 	},
 
@@ -129,6 +135,7 @@ module.exports = React.createClass({
 				if ($element.find('input').attr('data-field-id') === _this.selectedFieldId) {
 					$element.addClass('selected-cell');
 					if (scroll) { $('.dataTables_scrollBody').scrollTop($element.position().top - 100); }
+					return false;
 				}
 			});
 		} else {
@@ -157,12 +164,8 @@ module.exports = React.createClass({
 	},
 
 	rebindStrings: function() {
-		// remove previous bindings, then clear the table
-		for (var i = 0, len = this.gBindings.length; i<len; i++) {
-			this.gBindings[i].unbind();
-		}
-		this.gBindings = [];
-
+		var _this = this;
+		var table = this.table;
 		var bindString = gapi.drive.realtime.databinding.bindString;
 		var TextInsertedEvent = gapi.drive.realtime.EventType.TEXT_INSERTED;
 		var TextDeletedEvent = gapi.drive.realtime.EventType.TEXT_DELETED;
@@ -170,10 +173,15 @@ module.exports = React.createClass({
 		var updateSpanSibling = function(e, $element) {
 			var newText = e.target.toString();
 			var $spanSiblingCell = $element.closest('tr').find('.name-search-helper');
-			_this.table.cell($spanSiblingCell).data(newText).draw();
+			table.cell($spanSiblingCell).data(newText).draw();
 		};
 
-		var _this = this;
+		// remove previous bindings, then clear the table
+		for (var i = 0, len = this.gBindings.length; i<len; i++) {
+			this.gBindings[i].unbind();
+		}
+		this.gBindings = [];
+
 		$('.field-table-input').each(function(index, element) {
 			var $element = $(element);
 			var fieldId = $element.attr('data-field-id');
@@ -182,6 +190,11 @@ module.exports = React.createClass({
 			for (var i = 0, len = _this.gFields.length; i<len; i++) {
 				if (_this.gFields.get(i).id === fieldId) {
 					collabString = _this.gFields.get(i).get('name');
+					
+					//remove and then add again, as $element may have changed
+					collabString.removeEventListener(TextInsertedEvent, functionWrapper); 
+					collabString.removeEventListener(TextDeletedEvent, functionWrapper);
+					
 					collabString.addEventListener(TextInsertedEvent, functionWrapper);
 					collabString.addEventListener(TextDeletedEvent, functionWrapper);
 					_this.gBindings.push(bindString(collabString, element));
@@ -193,41 +206,17 @@ module.exports = React.createClass({
 
 	addField: function(newFieldName) {
 		if (!this.gFields) { return false; }
-		var newField = {
-			name: newFieldName,
-			type: DefaultFields.FIELD_TYPE,
-			description: DefaultFields.FIELD_DESCRIPTION,
-			defValue: DefaultFields.FIELD_DEF_VALUE,
-			defValueBool: DefaultFields.FIELD_DEF_BOOL_VALUE,
-			minValue: DefaultFields.FIELD_MIN_VALUE,
-			maxValue: DefaultFields.FIELD_MAX_VALUE,
-			strLen: DefaultFields.FIELD_STR_LEN,
-			readOnly: DefaultFields.FIELD_READ_ONLY,
-			optional: DefaultFields.FIELD_OPTIONAL,
-			array: DefaultFields.FIELD_ARRAY,
-			arrayLen: DefaultFields.FIELD_ARRAY_LEN,
-			refId: DefaultFields.FIELD_REF_ID,
-			refName: DefaultFields.FIELD_REF_NAME,
-			refType: DefaultFields.FIELD_REF_TYPE,
-			enumId: DefaultFields.FIELD_ENUM_ID,
-			enumName: DefaultFields.FIELD_ENUM_NAME,
-			enumValue: DefaultFields.FIELD_ENUM_VALUE,
-			contextId: DefaultFields.FIELD_CONTEXT_ID
-		};
-		var gField = this.gModel.createMap(newField);
-		gField.set('name', this.gModel.createString(newField.name));
-		gField.set('description', this.gModel.createString(newField.description));
-		gField.set('defValue', this.gModel.createString(newField.defValue));
-		gField.set('minValue', this.gModel.createString(newField.minValue));
-		gField.set('maxValue', this.gModel.createString(newField.maxValue));
-		gField.set('strLen', this.gModel.createString(newField.strLen));
-		gField.set('arrayLen', this.gModel.createString(newField.arrayLen));
+
+		this.gModel.beginCompoundOperation();
+		var gField = GDriveService.createNewField(newFieldName, this.gModel);
+		this.gModel.endCompoundOperation();
 		this.selectedFieldId = gField.id;
 		this.gFields.push(gField);
 	},
 
 	removeField: function(removedFieldId) {
 		if (!this.gFields) { return false; }
+		
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			if ('' + this.gFields.get(i).id === removedFieldId) {
 				this.gFields.remove(i);
@@ -237,7 +226,10 @@ module.exports = React.createClass({
 	},
 
 	onAddBtnClick: function() {
-		// getting the first value N where newFieldN is not used
+		if ($('#dmx-form').find('.invalid-input').length) {
+			return;
+		}
+		// getting the first value N where NewFieldN is not used
 		var NEW_FIELD_NAME = 'NewField';
 		var newFieldNum = 0;
 		var newIndex = 1;
@@ -268,6 +260,9 @@ module.exports = React.createClass({
 	},
 
 	onFieldClick: function(e) {
+		if ($('form').find('.invalid-input').length) {
+			return;
+		}
 		var $clickedField = $(e.currentTarget);
 		if ($clickedField.hasClass('selected-cell')) { return false; }
 		this.selectedFieldId = $clickedField.find('input').attr('data-field-id');

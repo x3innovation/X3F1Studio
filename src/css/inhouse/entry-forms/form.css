@@ -22,6 +22,10 @@ select.form-select{
     color: #9a9a9a;
 }
 
+#checkbox-field {
+    padding-left: 1rem;
+}
+
 .ref-radio-label {
     margin-right: 1rem;
 }
@@ -32,54 +36,90 @@ select.form-select{
     z-index: 2;
 }
 
-#checkbox-field {
-    padding-left: 3.23rem;
+#dmx-form [type="checkbox"]:checked + label {
+    color: #5d8ce3;
 }
 
-/* ===[ Events ]=== */
-input[type='text'].event-display {
-    border-width: 0;
-    font-size: 0.85rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+#dmx-form [type="checkbox"]:checked + label:after {
+    border-color: #5d8ce3;
+    background-color: #5d8ce3;
 }
 
-.event-cell {
-    margin-bottom: 1rem;
+[type='text'].invalid-input + label {
+    font-size: 0.8rem;
+    color: #f44336 !important;
+    -webkit-transform: translateY(-140%);
+    -moz-transform: translateY(-140%);
+    -ms-transform: translateY(-140%);
+    -o-transform: translateY(-140%);
+    transform: translateY(-140%);
 }
 
-/* ===[Queries]=== */
-#add-query-label {
-    font-size: 1rem;
-    margin-left: 0.5rem;
-    color: #222222;
+.invalid-input {
+    border-bottom: 1px solid #F44336 !important;
+    box-shadow: 0 1px 0 0 #F44336 !important;
 }
 
-#query-add-btn {
-    position: relative;
+.form-error-message {
+    border-radius: 3px;
+    background: #ffb74d;
+    color: #2c2c2c;
+    border-bottom: 2px solid #f44336;
 }
 
-.query-delete-btn-wrapper {
-    margin-top: 1rem;
+.form-error-message .tooltipster-content {
+    font-size: 14px;
+    line-height: 16px;
+    padding: 6px 8px;
 }
 
-.query-delete-btn {
-    position: relative;
-    margin-top: 50%;
-    margin-left: 50%;
-    -webkit-transform: translate(-50%, -50%);
-    -moz-transform: translate(-50%, -50%);
-    -ms-transform: translate(-50%, -50%);
-    -o-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
+.form-error-message .tooltipster-arrow {
+    top: 6px;
 }
 
-input[type='text'].query-id-field {
+.form-datetimepicker {
+    -webkit-transition: margin 0.4s all;
+    -moz-transition: margin 0.4s all;
+    -o-transition: margin 0.4s all;
+    transition: margin 0.4s all;
+}
+
+.form-datetimepicker > .xdsoft_timepicker {
+    width: 90px;
+}
+
+.xdsoft_datetimepicker .xdsoft_timepicker .xdsoft_time_box {
     border: 0;
 }
 
-textarea.query-description-field {
-    padding: 0;
-    padding-top: 11px;
+/*custom datetimepicker styling*/
+.form-datetimepicker .xdsoft_calendar td > div {
+    text-align: center;
+    padding-right: 0;
+    font-size: 1rem;
+}
+
+.form-datetimepicker .xdsoft_label > .xdsoft_select > div > .xdsoft_option:hover {
+    color: #fff;
+    background: #ffa000;
+}
+
+.form-datetimepicker .xdsoft_calendar td,
+.form-datetimepicker .xdsoft_calendar th,
+.form-datetimepicker .xdsoft_timepicker .xdsoft_time_box >div >div{
+    border: 0;
+}
+
+.form-datetimepicker .xdsoft_calendar td.xdsoft_default, .xdsoft_datetimepicker .xdsoft_calendar td.xdsoft_current,
+.form-datetimepicker .xdsoft_timepicker .xdsoft_time_box >div >div.xdsoft_current {
+    background: #cfd8dc !important;
+    color: #2a2a2a !important;
+    box-shadow: none !important;
+}
+
+.form-datetimepicker .xdsoft_calendar td:hover,
+.form-datetimepicker .xdsoft_timepicker .xdsoft_time_box >div >div:hover {
+    background: #cfd8dc !important;
+    color: #2a2a2a !important;
+    box-shadow: none !important;
 }

@@ -14,6 +14,7 @@ module.exports = React.createClass({
 	componentDidMount : function()
 	{
 		var _this = this;
+
 		Bullet.on(EventType.App.USER_LOGGED_IN, 'nav-bar.jsx>>user-logged-in', function(){
 			_this.model.isUserLoggedIn = userStore.isLoggedIn;
 

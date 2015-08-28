@@ -9,5 +9,6 @@ module.exports = {
 	},
 	EntryForm : {
 		FIELD_NAME_LENGTH_MAX : 30,
+		VALIDATION_INTERVAL : 1000
 	}
 };

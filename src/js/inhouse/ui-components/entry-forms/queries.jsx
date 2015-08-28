@@ -19,7 +19,11 @@ module.exports = React.createClass({
 	},
 
 	componentWillUnmount: function() {
-		if (this.gQueries) { this.gQueries.removeAllEventListeners(); }
+		if (this.gQueries) {
+			this.gQueries.removeEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this.updateUi);
+			this.gQueries.removeEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this.updateUi);
+			this.gQueries.removeEventListener(gapi.drive.realtime.EventType.VALUES_SET, this.updateUi);
+		}
 
 		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'queries.jsx>>onGapiFileLoaded');
 	},
@@ -28,7 +32,8 @@ module.exports = React.createClass({
 				NON LIFE CYCLE FUNCTIONS
 	****************************************** */
 	onGapiFileLoaded: function(doc) {
-		this.gQueries = doc.getModel().getRoot().get(this.props.gapiKey).queries;
+		this.gModel = doc.getModel();
+		this.gQueries = this.gModel.getRoot().get(this.props.gapiKey).queries;
 		if (!this.gQueries) {
 			this.gQueries = doc.getModel().createList();
 		}
@@ -58,6 +63,8 @@ module.exports = React.createClass({
 	updateQuery: function($fieldAttr) {
 		var $queryRow = $fieldAttr.closest('.query-row');
 		var queryId = parseInt($queryRow.attr('data-query-id'), 10);
+		
+		this.gModel.beginCompoundOperation();
 		for (var i = 0, len = this.gQueries.length; i<len; i++) {
 			if (parseInt(this.gQueries.get(i).id, 10) === queryId) {
 				var newQuery = {
@@ -71,6 +78,7 @@ module.exports = React.createClass({
 				break;
 			}
 		}
+		this.gModel.endCompoundOperation();
 	},
 
 	realignLabels: function() {
