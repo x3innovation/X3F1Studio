@@ -98,14 +98,6 @@ module.exports = React.createClass({
 									fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
 							</div>
 						</div>
-						<br />
-						<div id = 'queries-wrapper' className = 'form-wrapper-row  row'>
-							<div className = 'col s12'>
-								<Queries
-									projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-									fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
-							</div>
-						</div>
 					</div>
 				);
 				break;
