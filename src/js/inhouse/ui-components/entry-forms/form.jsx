@@ -957,7 +957,7 @@ module.exports = React.createClass({
 						</div>
 						<div className='input-field col s4'>
 							<input type='text' id='max-str-len-field' className='labelled-input number-input integer-input validated-input' required />
-							<label htmlFor='max-str-len-field' className='error-tooltipped'>max string length</label>
+							<label htmlFor='max-str-len-field' className='error-tooltipped'>max string length*</label>
 						</div>
 					</div>
 					<div className='type-specific-field double-specific-field float-specific-field byte-specific-field

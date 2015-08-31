@@ -1,5 +1,6 @@
 var EventType = require('../../constants/event-type.js');
 var DefaultValueConstants = require('../../constants/default-value-constants.js');
+var ColorList = require('../../constants/color-list-constants.js');
 
 var GDriveService = require('../../services/google-drive-service.js');
 var DataVisualizationService = require('../../services/data-visualization-service.js');
@@ -114,6 +115,9 @@ module.exports = React.createClass({
 	},
 
 	getTopBar: function() {
+
+		// color pool taken from the blue-grey series from https://www.google.com/design/spec/style/color.html
+		var colorPool = ColorList.BlueGreyPool;
 		var DefaultFields = DefaultValueConstants.HeaderBarDefaultFields;
 		var segments = [
 			DefaultFields.LENGTH,
@@ -137,7 +141,10 @@ module.exports = React.createClass({
 		   <div id = 'header-top-bar-row' className='header-row row center'>{
 		   	segments.map(function(segment, index) {
 		   		var widthPercent = Math.round(PERCENT_MULTIPLIER * (segment.size / headerTopBarSize) * 100) / 100;
-		   		var segmentStyle = { width: widthPercent + '%' };
+		   		var segmentStyle = {
+		   			width: widthPercent + '%',
+		   			backgroundColor: colorPool[index]
+		   		};
 		   		var segmentContent = segment.name;
 
 		   		var segmentDetails = ''; 
@@ -163,8 +170,11 @@ module.exports = React.createClass({
 		var fieldsModel = this.fieldsModel;
 		var totalSize = this.totalSize - DefaultValueConstants.FieldSizeValues.DMX_HEADER_SIZE;
 
+		// color pool taken from of https://www.google.com/design/spec/style/color.html
+		var colorPool = ColorList.FullPool;
+
 		// can't be actually 100% due to margin overflow, 98% is close enough.
-		//don't display text for fileds below a width of 5%.
+		// don't display text for fields below a width of 5%, it'll be cut off anyways
 		var PERCENT_MULTIPLIER = 0.98 * 100;
 		var MIN_DISPLAY_PERCENT = PERCENT_MULTIPLIER * (5 / 100);
 
@@ -177,11 +187,12 @@ module.exports = React.createClass({
 		   		widthPercent = Math.max(0.1, widthPercent); //have a minimum width set of 0.1% of the bar
 		   		var segmentStyle = {
 		   			width: widthPercent + '%',
+		   			backgroundColor: colorPool[index % colorPool.length]
 		   		};
 		   		if (widthPercent === 0) { segmentStyle.border = '0'; }
 
 		   		// if segment too short, then hide the text
-		   		var PLACEHOLDER_VALUE = '...';
+		   		var PLACEHOLDER_VALUE = '';
 		   		var segmentContent = (widthPercent >= MIN_DISPLAY_PERCENT) ? fieldModel.name : PLACEHOLDER_VALUE;
 		   		var segmentDetails = DataVisualizationService.generateFieldModelDetails(fieldModel);
 		   		if (segmentContent === PLACEHOLDER_VALUE) {
