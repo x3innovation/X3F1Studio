@@ -13,7 +13,7 @@ module.exports = React.createClass({
 		this.gModel = null;
 		this.gFields = null;
 		this.fieldsModel = [];
-		this.totalSize = 0;
+		this.totalBytes = 0;
 
 		Bullet.on(EventType.EntryForm.GAPI_FILE_LOADED, 'form-header-bar.jsx>>onGapiFileLoaded', this.onGapiFileLoaded);
 	},
@@ -111,13 +111,10 @@ module.exports = React.createClass({
 		}
 
 		this.fieldsModel = fieldsModel;
-		this.totalSize = currByte;
+		this.totalBytes = currByte;
 	},
 
 	getTopBar: function() {
-
-		// color pool taken from the blue-grey series from https://www.google.com/design/spec/style/color.html
-		var colorPool = ColorList.BlueGreyPool;
 		var DefaultFields = DefaultValueConstants.HeaderBarDefaultFields;
 		var segments = [
 			DefaultFields.LENGTH,
@@ -133,6 +130,7 @@ module.exports = React.createClass({
 		var headerTopBarSize = DefaultValueConstants.FieldSizeValues.DMX_HEADER_SIZE;
 		// can't be actually 100% due to margin overflow, 98% is close enough.
 		var PERCENT_MULTIPLIER = 0.98 * 100;
+		var colorPool = ColorList.BlueGreyPool;
 
 		var currByte = 0;
 
@@ -140,10 +138,10 @@ module.exports = React.createClass({
 		var content = (
 		   <div id = 'header-top-bar-row' className='header-row row center'>{
 		   	segments.map(function(segment, index) {
-		   		var widthPercent = Math.round(PERCENT_MULTIPLIER * (segment.size / headerTopBarSize) * 100) / 100;
+		   		var widthPercent = PERCENT_MULTIPLIER * (segment.size / headerTopBarSize);
 		   		var segmentStyle = {
 		   			width: widthPercent + '%',
-		   			backgroundColor: colorPool[index]
+		   			backgroundColor: colorPool[index % colorPool.length]
 		   		};
 		   		var segmentContent = segment.name;
 
@@ -168,7 +166,7 @@ module.exports = React.createClass({
 
 	getSecondBar: function() {
 		var fieldsModel = this.fieldsModel;
-		var totalSize = this.totalSize - DefaultValueConstants.FieldSizeValues.DMX_HEADER_SIZE;
+		var totalBytes = this.totalBytes - DefaultValueConstants.FieldSizeValues.DMX_HEADER_SIZE;
 
 		// color pool taken from of https://www.google.com/design/spec/style/color.html
 		var colorPool = ColorList.FullPool;
@@ -182,14 +180,12 @@ module.exports = React.createClass({
 		var content = (
 		   <div id = 'header-bar-row' className='header-row row center'>{
 		   	fieldsModel.map(function(fieldModel, index) {
-		   		// round to hundreths, no need for more digits
-		   		var widthPercent = Math.round(PERCENT_MULTIPLIER * (fieldModel.size / totalSize) * 100) / 100;
-		   		widthPercent = Math.max(0.1, widthPercent); //have a minimum width set of 0.1% of the bar
+		   		var widthPercent = PERCENT_MULTIPLIER * (fieldModel.size / totalBytes);
 		   		var segmentStyle = {
 		   			width: widthPercent + '%',
 		   			backgroundColor: colorPool[index % colorPool.length]
 		   		};
-		   		if (widthPercent === 0) { segmentStyle.border = '0'; }
+		   		if (widthPercent <= 0.01) { segmentStyle.border = '0'; } //if a segment is really thin, displaying a border is meaningless
 
 		   		// if segment too short, then hide the text
 		   		var PLACEHOLDER_VALUE = '';
@@ -217,13 +213,28 @@ module.exports = React.createClass({
 		return content;
 	},
 
+	getTotalByteDisplay: function() {
+		var totalBytes = this.totalBytes + ' bytes';
+		return (
+		   <div id="header-bar-bytes-display">
+		   	{totalBytes}
+		   </div>
+		);
+	},
+
 	render: function() {
 		var topBar = this.getTopBar();
 		var secondBar = this.getSecondBar();
+		var totalByteDisplay = this.getTotalByteDisplay();
+
+		var wrapperStyle = {
+			position: 'relative'
+		};
 		return (
-			<div>
+			<div style={wrapperStyle}>
 				{topBar}
 				{secondBar}
+				{totalByteDisplay}
 			</div>
 		);
 	}
