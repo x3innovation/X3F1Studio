@@ -24,7 +24,6 @@ function DataVisualizationService() {
 	// //////// public members
 	this.generateFieldModel = function(gField,startByte) {
 		var fieldModel = {};
-		fieldModel.id = gField.id;
 		fieldModel.name = gField.get('name').toString();
 		fieldModel.type = gField.get('type').toString();
 		fieldModel.size = fieldSizeLookup[fieldModel.type] || 0;

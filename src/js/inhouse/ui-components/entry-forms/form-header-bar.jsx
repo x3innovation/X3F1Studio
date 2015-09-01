@@ -108,20 +108,29 @@ module.exports = React.createClass({
 		currByte += FieldSizeCons.NULLBITS_SIZE;
 
 		var color = null;
+		var index;
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			var fieldModel = DataVisualizationService.generateFieldModel(this.gFields.get(i), currByte);
+			fieldModel.id = this.gFields.get(i).id;
 			currByte += fieldModel.size; 
 
-			//keep track of the color so they don't change when a field is deleted
 			//start from i+1 to account for the first position filled by the null bits
-			if (this.fieldsModel[i+1] && this.fieldsModel[i+1].id === fieldModel.id) {
-				color = this.fieldsModel[i+1].color;
-			} else if (this.fieldsModel[i+2] && this.fieldsModel[i+2].id  === fieldModel.id) {
-				color = this.fieldsModel[i+2].color;
+			index = i+1;
+
+			//keep track of the color so they don't change when a field is deleted
+			if (this.fieldsModel[index] && this.fieldsModel[index].id === fieldModel.id) {
+				color = this.fieldsModel[index].color;
+			} else if (this.fieldsModel[index+1] && this.fieldsModel[index+1].id  === fieldModel.id) {
+				color = this.fieldsModel[index+1].color;
 			} else {
 				color = null;
 			}
 			fieldModel.color = color || colorPool[i % colorPool.length];
+
+			if (fieldsModel[index - 1] && fieldsModel[index - 1].color === fieldModel.color) {
+				fieldModel.color = colorPool[i+1 % colorPool.length];
+			}
+
 			fieldsModel.push(fieldModel);
 		}
 
