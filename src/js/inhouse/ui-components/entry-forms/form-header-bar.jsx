@@ -95,18 +95,33 @@ module.exports = React.createClass({
 		var fieldsModel = [];
 		var currByte = FieldSizeCons.DMX_HEADER_SIZE;
 
+		var colorPool = ColorList.FullPool;
+
 		fieldsModel.push({
 			name: 'Field Null Bits',
 			id: 'field-null-bits',
 			size: FieldSizeCons.NULLBITS_SIZE,
 			startByte: currByte,
-			endByte: currByte + FieldSizeCons.NULLBITS_SIZE - 1
+			endByte: currByte + FieldSizeCons.NULLBITS_SIZE - 1,
+			color: '#e57373'
 		});
 		currByte += FieldSizeCons.NULLBITS_SIZE;
 
+		var color = null;
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			var fieldModel = DataVisualizationService.generateFieldModel(this.gFields.get(i), currByte);
-			currByte += fieldModel.size;
+			currByte += fieldModel.size; 
+
+			//keep track of the color so they don't change when a field is deleted
+			//start from i+1 to account for the first position filled by the null bits
+			if (this.fieldsModel[i+1] && this.fieldsModel[i+1].id === fieldModel.id) {
+				color = this.fieldsModel[i+1].color;
+			} else if (this.fieldsModel[i+2] && this.fieldsModel[i+2].id  === fieldModel.id) {
+				color = this.fieldsModel[i+2].color;
+			} else {
+				color = null;
+			}
+			fieldModel.color = color || colorPool[i % colorPool.length];
 			fieldsModel.push(fieldModel);
 		}
 
@@ -168,13 +183,10 @@ module.exports = React.createClass({
 		var fieldsModel = this.fieldsModel;
 		var totalBytes = this.totalBytes - DefaultValueConstants.FieldSizeValues.DMX_HEADER_SIZE;
 
-		// color pool taken from of https://www.google.com/design/spec/style/color.html
-		var colorPool = ColorList.FullPool;
-
 		// can't be actually 100% due to margin overflow, 98% is close enough.
 		// don't display text for fields below a width of 5%, it'll be cut off anyways
 		var PERCENT_MULTIPLIER = 0.98 * 100;
-		var MIN_DISPLAY_PERCENT = PERCENT_MULTIPLIER * (5 / 100);
+		var MIN_DISPLAY_PERCENT = PERCENT_MULTIPLIER * (6 / 100);
 
 		var _this = this;
 		var content = (
@@ -183,22 +195,21 @@ module.exports = React.createClass({
 		   		var widthPercent = PERCENT_MULTIPLIER * (fieldModel.size / totalBytes);
 		   		var segmentStyle = {
 		   			width: widthPercent + '%',
-		   			backgroundColor: colorPool[index % colorPool.length]
+		   			backgroundColor: fieldModel.color
 		   		};
-		   		if (widthPercent <= 0.01) { segmentStyle.border = '0'; } //if a segment is really thin, displaying a border is meaningless
+
+		   		var segmentClassName = 'header-segment header-bar-segment header-bar-tooltipped' +
+		   			(fieldModel.id === 'field-null-bits' ? ' null-bits-segment' : '');
+		   		var segmentContentClassName = 'header-bar-segment-content segment-content';
 
 		   		// if segment too short, then hide the text
 		   		var PLACEHOLDER_VALUE = '';
 		   		var segmentContent = (widthPercent >= MIN_DISPLAY_PERCENT) ? fieldModel.name : PLACEHOLDER_VALUE;
 		   		var segmentDetails = DataVisualizationService.generateFieldModelDetails(fieldModel);
+
 		   		if (segmentContent === PLACEHOLDER_VALUE) {
 		   			segmentDetails = fieldModel.name + ':\n' + segmentDetails;
 		   		}
-
-		   		var segmentClassName = 'header-segment header-bar-segment header-bar-tooltipped' +
-		   			(fieldModel.id === 'field-null-bits' ? ' null-bits-segment' : '');
-		   		var segmentContentClassName = 'header-bar-segment-content segment-content';
-		 
 		   		return (
 		   		   <span key={fieldModel.id} className={segmentClassName} 
 		   		    style={segmentStyle} data-details={segmentDetails}>
@@ -226,15 +237,15 @@ module.exports = React.createClass({
 		var topBar = this.getTopBar();
 		var secondBar = this.getSecondBar();
 		var totalByteDisplay = this.getTotalByteDisplay();
-
-		var wrapperStyle = {
-			position: 'relative'
-		};
 		return (
-			<div style={wrapperStyle}>
-				{topBar}
-				{secondBar}
-				{totalByteDisplay}
+			<div className='row form-header-bar'>
+				<div className='col s11'>
+					{topBar}
+					{secondBar}
+				</div>
+				<div className='col s1'>
+					{totalByteDisplay}
+				</div>
 			</div>
 		);
 	}

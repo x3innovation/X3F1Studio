@@ -3,6 +3,7 @@ module.exports = {
 	 * all accentable colours from https://www.google.com/design/spec/style/color.html#color-color-palette, range 500 through 900
 	 */
 	FullPool: [ 
+		"#8BC34A", //light green 500
 		"#F44336", //red 500
 		"#00BCD4", //cyan 500
 		"#FFC107", //amber 500
@@ -18,8 +19,8 @@ module.exports = {
 		"#FF5722", //deep orange 500
 		"#03A9F4", //light blue 500
 		"#9C27B0", //purple 500
-		"#8BC34A", //light green 500
 
+		"#7CB342", //light green 600
 		"#E53935", //red 600
 		"#00ACC1", //cyan 600
 		"#FFB300", //amber 600
@@ -35,8 +36,8 @@ module.exports = {
 		"#F4511E", //deep orange 600
 		"#039BE5", //light blue 600
 		"#8E24AA", //purple 600
-		"#7CB342", //light green 600
 
+		"#689F38", //light green 700
 		"#D32F2F", //red 700
 		"#0097A7", //cyan 700
 		"#FFA000", //amber 700
@@ -52,8 +53,8 @@ module.exports = {
 		"#E64A19", //deep orange 700
 		"#0288D1", //light blue 700
 		"#7B1FA2", //purple 700
-		"#689F38", //light green 700
 
+		"#558B2F", //light green 800
 		"#C62828", //red 800
 		"#00838F", //cyan 800
 		"#FF8F00", //amber 800
@@ -69,8 +70,8 @@ module.exports = {
 		"#D84315", //deep orange 800
 		"#0277BD", //light blue 800
 		"#6A1B9A", //purple 800
-		"#558B2F", //light green 800
 
+		"#33691E", //light green 900
 		"#B71C1C", //red 900
 		"#006064", //cyan 900
 		"#FF6F00", //amber 900
@@ -86,7 +87,6 @@ module.exports = {
 		"#BF360C", //deep orange 900
 		"#01579B", //light blue 900
 		"#4A148C", //purple 900
-		"#33691E", //light green 900
 	],
 
 	OrderedFullPool: [ 
