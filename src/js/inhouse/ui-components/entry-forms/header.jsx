@@ -69,9 +69,9 @@ module.exports = React.createClass({
 		}
 		$('#header-wrapper').removeClass('hide');
 
-		var createdData = moment(this.gModel.createdDate).format("MMMM Do YYYY, H:mm:ss");
 		var creatorName = this.gModel.creatingUser.name;
-
+		var createdData = moment(this.gModel.createdDate).format("MMMM Do YYYY, H:mm");
+		
 		var creatorInfo = 'Created by ' + creatorName + ' on ' + createdData;
 		$('#header-creator-info').text(creatorInfo);
 	},
