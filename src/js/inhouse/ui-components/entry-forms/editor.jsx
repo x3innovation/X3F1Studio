@@ -28,6 +28,7 @@ module.exports = React.createClass({
 		gapiKeyMap[ObjectTypes.ENUM] = GDriveConstants.CustomObjectKey.ENUM;
 		gapiKeyMap[ObjectTypes.EVENT] = GDriveConstants.CustomObjectKey.EVENT;
 		gapiKeyMap[ObjectTypes.SNIPPET] = GDriveConstants.CustomObjectKey.SNIPPET;
+		/* TO ADD similar for flows and any other data types to use */
 
 		this.gapiKey = gapiKeyMap[this.fileType];
 
@@ -42,6 +43,7 @@ module.exports = React.createClass({
 		pageTitleMap[ObjectTypes.ENUM] = PageTitleCons.ENUM_FORM_PAGE_TITLE;
 		pageTitleMap[ObjectTypes.EVENT] = PageTitleCons.EVENT_FORM_PAGE_TITLE;
 		pageTitleMap[ObjectTypes.SNIPPET] = PageTitleCons.SNIPPET_FORM_PAGE_TITLE;
+		/* TO ADD similar for flows and any other data types to use */
 
 		var pageTitle = pageTitleMap[this.fileType];
 		Bullet.trigger(EventType.App.PAGE_CHANGE, {title: pageTitle});
@@ -65,7 +67,14 @@ module.exports = React.createClass({
 	},
 
 	onDataFileLoaded: function(doc) {
-		Bullet.trigger(EventType.EntryForm.GAPI_FILE_LOADED, doc);
+		var gModel = doc.getModel().getRoot().get(this.gapiKey);
+		if (!gModel.creatingUser) {
+			this.setCreatingUserData(gModel, function() {
+				Bullet.trigger(EventType.EntryForm.GAPI_FILE_LOADED, doc);
+			});
+		} else {
+			Bullet.trigger(EventType.EntryForm.GAPI_FILE_LOADED, doc);
+		}
 	},
 
 	initializeModel: function(model) {
@@ -122,6 +131,21 @@ module.exports = React.createClass({
 				break;
 			default: break;
 		}
+		this.setCreatingUserData(gModel);
+	},
+
+	setCreatingUserData: function(gModel, callback) {
+		GDriveService.getFileMetadata(this.getParams().fileId, function(respData) {
+			gModel.createdDate = respData.createdDate;
+			gModel.creatingUser = {
+				name: respData.owners[0].displayName,
+				userId: respData.owners[0].permissionId
+			};
+
+			if (typeof callback === 'function') {
+				callback();
+			}
+		});
 	},
 
 	onToProjectBtnClick: function() {
