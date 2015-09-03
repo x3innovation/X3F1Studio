@@ -79,10 +79,6 @@ module.exports = React.createClass({
 			height : '185px'
 		});
 
-		// need to get rid of 25% width once page is rendered
-		var outerWidth = $('.f1-project-card').outerWidth() - 1;
-		$('.row .col.s3').css('width', outerWidth);
-
 		// apply single click to flip
 		var DELAY = 300, clicks = 0, timer = null;
 		var onCardSingleClick = this.onCardSingleClick;

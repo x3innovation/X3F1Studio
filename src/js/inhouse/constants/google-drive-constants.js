@@ -45,6 +45,8 @@ module.exports = {
 	PersistentData : {
 		KEY_INTRODUCED_VERSION : 'introducedVersion',
 		KEY_DEPRECATED_VERSION : 'deprecatedVersion',
+		KEY_CREATING_USER : 'creatingUser',
+		KEY_CREATED_DATE : 'createdDate',
 		KEY_ID : 'id',
 		KEY_TITLE : 'title',
 		KEY_DESCRIPTION : 'description',
@@ -68,6 +70,8 @@ module.exports = {
 	Event : {
 		KEY_INTRODUCED_VERSION : 'introducedVersion',
 		KEY_DEPRECATED_VERSION : 'deprecatedVersion',
+		KEY_CREATING_USER : 'creatingUser',
+		KEY_CREATED_DATE : 'createdDate',
 		KEY_ID : 'id',
 		KEY_TITLE : 'title',
 		KEY_DESCRIPTION : 'description',
@@ -79,6 +83,8 @@ module.exports = {
 	Snippet : {
 		KEY_INTRODUCED_VERSION : 'introducedVersion',
 		KEY_DEPRECATED_VERSION : 'deprecatedVersion',
+		KEY_CREATING_USER : 'creatingUser',
+		KEY_CREATED_DATE : 'createdDate',
 		KEY_ID : 'id',
 		KEY_TITLE : 'title',
 		KEY_DESCRIPTION : 'description',
@@ -89,6 +95,8 @@ module.exports = {
 	Enum : {
 		KEY_INTRODUCED_VERSION : 'introducedVersion',
 		KEY_DEPRECATED_VERSION : 'deprecatedVersion',
+		KEY_CREATING_USER : 'creatingUser',
+		KEY_CREATED_DATE : 'createdDate',
 		KEY_ID : 'id',
 		KEY_TITLE : 'title',
 		KEY_DESCRIPTION : 'description',
@@ -98,6 +106,8 @@ module.exports = {
 	Flow : {
 		KEY_INTRODUCED_VERSION : 'introducedVersion',
 		KEY_DEPRECATED_VERSION : 'deprecatedVersion',
+		KEY_CREATING_USER : 'creatingUser',
+		KEY_CREATED_DATE : 'createdDate',
 		KEY_ID : 'id',
 		KEY_TITLE : 'title',
 		KEY_DESCRIPTION : 'description',

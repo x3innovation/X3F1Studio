@@ -52,6 +52,8 @@ function GoogleApiInterface()
 		custom.registerType(model, GDriveConstant.CustomObjectKey.PERSISTENT_DATA);
 		model.prototype.introducedVersion = custom.collaborativeField(Cons.KEY_INTRODUCED_VERSION);
 		model.prototype.deprecatedVersion = custom.collaborativeField(Cons.KEY_DEPRECATED_VERSION);
+		model.prototype.creatingUser = custom.collaborativeField(Cons.KEY_CREATING_USER);
+		model.prototype.createdDate = custom.collaborativeField(Cons.KEY_CREATED_DATE);
 		model.prototype.id = custom.collaborativeField(Cons.KEY_ID);
 		model.prototype.title = custom.collaborativeField(Cons.KEY_TITLE);
 		model.prototype.description = custom.collaborativeField(Cons.KEY_DESCRIPTION);
@@ -86,6 +88,8 @@ function GoogleApiInterface()
 		custom.registerType(model, GDriveConstant.CustomObjectKey.EVENT);
 		model.prototype.introducedVersion = custom.collaborativeField(Cons.KEY_INTRODUCED_VERSION);
 		model.prototype.deprecatedVersion = custom.collaborativeField(Cons.KEY_DEPRECATED_VERSION);
+		model.prototype.creatingUser = custom.collaborativeField(Cons.KEY_CREATING_USER);
+		model.prototype.createdDate = custom.collaborativeField(Cons.KEY_CREATED_DATE);
 		model.prototype.id = custom.collaborativeField(Cons.KEY_ID);
 		model.prototype.title = custom.collaborativeField(Cons.KEY_TITLE);
 		model.prototype.description = custom.collaborativeField(Cons.KEY_DESCRIPTION);
@@ -108,6 +112,8 @@ function GoogleApiInterface()
 		custom.registerType(model, GDriveConstant.CustomObjectKey.SNIPPET);
 		model.prototype.introducedVersion = custom.collaborativeField(Cons.KEY_INTRODUCED_VERSION);
 		model.prototype.deprecatedVersion = custom.collaborativeField(Cons.KEY_DEPRECATED_VERSION);
+		model.prototype.creatingUser = custom.collaborativeField(Cons.KEY_CREATING_USER);
+		model.prototype.createdDate = custom.collaborativeField(Cons.KEY_CREATED_DATE);
 		model.prototype.id = custom.collaborativeField(Cons.KEY_ID);
 		model.prototype.title = custom.collaborativeField(Cons.KEY_TITLE);
 		model.prototype.description = custom.collaborativeField(Cons.KEY_DESCRIPTION);
@@ -129,6 +135,8 @@ function GoogleApiInterface()
 		custom.registerType(model, GDriveConstant.CustomObjectKey.ENUM);
 		model.prototype.introducedVersion = custom.collaborativeField(Cons.KEY_INTRODUCED_VERSION);
 		model.prototype.deprecatedVersion = custom.collaborativeField(Cons.KEY_DEPRECATED_VERSION);
+		model.prototype.creatingUser = custom.collaborativeField(Cons.KEY_CREATING_USER);
+		model.prototype.createdDate = custom.collaborativeField(Cons.KEY_CREATED_DATE);
 		model.prototype.id = custom.collaborativeField(Cons.KEY_ID);
 		model.prototype.title = custom.collaborativeField(Cons.KEY_TITLE);
 		model.prototype.description = custom.collaborativeField(Cons.KEY_DESCRIPTION);
@@ -149,6 +157,8 @@ function GoogleApiInterface()
 		custom.registerType(model, GDriveConstant.CustomObjectKey.FLOW);
 		model.prototype.introducedVersion = custom.collaborativeField(Cons.KEY_INTRODUCED_VERSION);
 		model.prototype.deprecatedVersion = custom.collaborativeField(Cons.KEY_DEPRECATED_VERSION);
+		model.prototype.creatingUser = custom.collaborativeField(Cons.KEY_CREATING_USER);
+		model.prototype.createdDate = custom.collaborativeField(Cons.KEY_CREATED_DATE);
 		model.prototype.id = custom.collaborativeField(Cons.KEY_ID);
 		model.prototype.title = custom.collaborativeField(Cons.KEY_TITLE);
 		model.prototype.description = custom.collaborativeField(Cons.KEY_DESCRIPTION);
@@ -397,6 +407,22 @@ function GoogleApiInterface()
 			callback(file);
 		});
 	};
+
+	this.getFileMetadata = function(fileId, callback) {
+		var request = gapi.client.drive.files.get({
+		   'fileId': fileId
+		});
+		
+		if (typeof callback === 'function') {
+			request.execute(function(resp){
+				callback(resp);
+			});
+		} else {
+			request.execute(function(resp){
+				console.log(JSON.stringify(resp));
+			});
+		}
+	}
 }
 
 module.exports = new GoogleApiInterface();

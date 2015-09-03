@@ -353,6 +353,10 @@ function GoogleDriveService()
 		fieldData.get('arrayLen').setText(DefaultFields.FIELD_ARRAY_LEN);
 		return fieldData;
 	};
+
+	this.getFileMetadata = function(fileId, callback) {
+		googleApiInterface.getFileMetadata(fileId, callback);
+	}
 }
 
 module.exports = new GoogleDriveService();

@@ -46,15 +46,7 @@ module.exports = React.createClass({
 		this.gModel.title.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, this.saveTitleHandler);
 		this.gModel.title.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, this.saveTitleHandler);
 
-		var titleInput = $('#header-title')[0];
-		var descriptionInput = $('#header-description')[0];
-		gapi.drive.realtime.databinding.bindString(this.gModel.title, titleInput);
-		gapi.drive.realtime.databinding.bindString(this.gModel.description, descriptionInput);
-		$('#header-ID').val(this.gModel.id);
-		if ($('#header-ID').val().length) {
-			$('#header-ID-label').removeClass('hide').addClass('active');
-		}
-		$('#header-wrapper').removeClass('hide');
+		this.setHeader();
 	},
 
 	onMetadataModelLoaded: function(metadataModel) {
@@ -63,6 +55,19 @@ module.exports = React.createClass({
 
 	onClearTitleBtnClick: function(e) {
 		$('#header-title').val('').focus();
+	},
+
+	setHeader: function() {
+		var titleInput = $('#header-title')[0];
+		var descriptionInput = $('#header-description')[0];
+		gapi.drive.realtime.databinding.bindString(this.gModel.title, titleInput);
+		gapi.drive.realtime.databinding.bindString(this.gModel.description, descriptionInput);
+
+		$('#header-ID').val(this.gModel.id);
+		if ($('#header-ID').val().length) {
+			$('#header-ID-label').removeClass('hide').addClass('active');
+		}
+		$('#header-wrapper').removeClass('hide');
 	},
 
 	saveTitleHandler: function(e) {
@@ -99,7 +104,7 @@ module.exports = React.createClass({
 		var fileType = this.props.fileType;
 		return (
 			<div className = 'row'>
-				<div id = 'header-wrapper' className = 'hide col s12 center'>
+				<div id = 'header-wrapper' className = 'hide center'>
 					<div id = 'header-ID-wrapper' className = 'input-field col s1'>
 						<input readOnly type = 'text' id = 'header-ID'/>
 						<label htmlFor = 'header-ID' className = 'hide active' id = 'header-ID-label'>Type ID</label>
@@ -115,6 +120,7 @@ module.exports = React.createClass({
 						<textarea rows = '1' className='center' id = 'header-description' spellCheck = 'false'
 							onKeyPress = {this.keyPressHandler} placeholder = 'enter description' />
 					</div>
+					<div id = 'header-creator-info' className = 'col s12'/>
 				</div>
 			</div>
 		);

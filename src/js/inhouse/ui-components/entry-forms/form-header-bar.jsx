@@ -2,6 +2,8 @@ var EventType = require('../../constants/event-type.js');
 var DefaultValueConstants = require('../../constants/default-value-constants.js');
 var ColorList = require('../../constants/color-list-constants.js');
 
+var Configs = require('../../app-config.js');
+
 var GDriveService = require('../../services/google-drive-service.js');
 var DataVisualizationService = require('../../services/data-visualization-service.js');
 
@@ -35,7 +37,8 @@ module.exports = React.createClass({
 	****************************************** */
 
 	onGapiFileLoaded: function(doc) {
-		this.gFields = doc.getModel().getRoot().get(this.props.gapiKey).fields;
+		this.gModel = doc.getModel().getRoot().get(this.props.gapiKey);
+		this.gFields = this.gModel.fields;
 		this.gFields.addEventListener(gapi.drive.realtime.EventType.OBJECT_CHANGED, this.updateUi);
 		this.updateUi();
 	},
@@ -175,9 +178,9 @@ module.exports = React.createClass({
 
 		   		currByte += segment.size;
 		   		return (
-		   		   <span key={segment.name} className='header-top-bar-segment header-segment header-top-bar-tooltipped' 
+		   		   <span key={segment.name} className='header-segment header-top-bar-tooltipped' 
 		   		    style={segmentStyle} data-details={segmentDetails}>
-		   		    	<div className='header-top-bar-segment-content segment-content'>
+		   		    	<div className='segment-content'>
 		   		    		{segmentContent}
 		   		    	</div>
 		   		   </span>
@@ -207,9 +210,8 @@ module.exports = React.createClass({
 		   			backgroundColor: fieldModel.color
 		   		};
 
-		   		var segmentClassName = 'header-segment header-bar-segment header-bar-tooltipped' +
+		   		var segmentClassName = 'header-segment header-bar-tooltipped' +
 		   			(fieldModel.id === 'field-null-bits' ? ' null-bits-segment' : '');
-		   		var segmentContentClassName = 'header-bar-segment-content segment-content';
 
 		   		// if segment too short, then hide the text
 		   		var PLACEHOLDER_VALUE = '';
@@ -222,7 +224,7 @@ module.exports = React.createClass({
 		   		return (
 		   		   <span key={fieldModel.id} className={segmentClassName} 
 		   		    style={segmentStyle} data-details={segmentDetails}>
-		   		    	<div className={segmentContentClassName}>
+		   		    	<div className='segment-content'>
 		   		    		{segmentContent}
 		   		    	</div>
 		   		   </span>
@@ -242,18 +244,45 @@ module.exports = React.createClass({
 		);
 	},
 
+	getCreatorInfo: function() {
+		if (!this.gModel) { return; }
+
+		var creatorName = this.gModel.creatingUser.name;
+		var createdData = moment(this.gModel.createdDate).format("MMMM Do YYYY, H:mm");
+		
+		var creatorInfo = 'Created by ' + creatorName + ' on ' + createdData;
+		return (
+		   <div id='header-creator-info' className='row'>
+		      {creatorInfo}
+		   </div>
+		);
+	},
+
+	slideButtonHandler: function(e) {
+		var btn=e.currentTarget;
+		var $btn = $(btn);
+
+		$btn.find('i').toggleClass('mdi-navigation-arrow-drop-down mdi-navigation-arrow-drop-up');
+		$('#header-bar-slide-wrapper').toggleClass('slide-up slide-down');
+		return;
+	},
+
 	render: function() {
 		var topBar = this.getTopBar();
 		var secondBar = this.getSecondBar();
-		var totalByteDisplay = this.getTotalByteDisplay();
+		var creatorInfo = this.getCreatorInfo();
 		return (
-			<div className='row form-header-bar'>
-				<div className='col s11'>
+		   <div>
+				<div id='header-bar-slide-wrapper' className='slide-up'>
 					{topBar}
 					{secondBar}
+					{creatorInfo}
 				</div>
-				<div className='col s1'>
-					{totalByteDisplay}
+				<div id='header-bar-slide-btn-wrapper' className='center'>
+					<a className={"btn-floating small-btn waves-effect waves-light " + Configs.App.ADD_BUTTON_COLOR}
+					   onClick={this.slideButtonHandler}>
+						<i className = 'mdi-navigation-arrow-drop-down btn-icon' style={{right: '1px'}}/>
+					</a>
 				</div>
 			</div>
 		);
