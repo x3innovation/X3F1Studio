@@ -44,23 +44,11 @@
 	border-bottom: 2px solid #c62828;
 }
 
-
-#header-top-bar-row {
-	margin: 0;
-	height: 1.5rem;
-}
-
 .header-top-bar-segment {
 	background-color: #bdbdbd;
 }
 .header-top-bar-segment:hover {
 	background-color: #b0bec5;
-}
-
-
-#header-bar-row {
-	margin: 0;
-	margin-bottom: 1rem;
 }
 
 .header-bar-segment {
@@ -75,4 +63,41 @@
 }
 .null-bits-segment:hover {
 	background-color: #ff8a80;
+}
+
+#header-bar-slide-wrapper{
+	height: 4rem;
+
+	-webkit-transition: height 0.4s ease, opacity 0.3s ease;
+	-moz-transition: height 0.4s ease, opacity 0.3s ease;
+	-ms-transition: height 0.4s ease, opacity 0.3s ease;
+	-o-transition: height 0.4s ease, opacity 0.3s ease;
+	transition: height 0.4s ease, opacity 0.3s ease;
+}
+
+#header-bar-slide-wrapper.slide-up {
+	height: 0;
+	opacity: 0;
+}
+
+#header-top-bar-row {
+	margin: 0;
+	height: 1.5rem;
+}
+
+#header-bar-row {
+	margin: 0;
+	height: 1.5rem;
+}
+
+#header-creator-info {
+   text-align: left;
+   white-space: pre;
+	margin-bottom: 1rem;
+	margin-left: 0.5rem;
+}
+
+
+#header-bar-slide-btn-wrapper{
+	margin-bottom: 2rem;
 }

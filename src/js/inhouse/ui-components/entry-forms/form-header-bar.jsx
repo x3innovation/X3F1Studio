@@ -1,6 +1,8 @@
 var EventType = require('../../constants/event-type.js');
 var DefaultValueConstants = require('../../constants/default-value-constants.js');
 
+var Configs = require('../../app-config.js');
+
 var GDriveService = require('../../services/google-drive-service.js');
 var DataVisualizationService = require('../../services/data-visualization-service.js');
 
@@ -34,7 +36,8 @@ module.exports = React.createClass({
 	****************************************** */
 
 	onGapiFileLoaded: function(doc) {
-		this.gFields = doc.getModel().getRoot().get(this.props.gapiKey).fields;
+		this.gModel = doc.getModel().getRoot().get(this.props.gapiKey);
+		this.gFields = this.gModel.fields;
 		this.gFields.addEventListener(gapi.drive.realtime.EventType.OBJECT_CHANGED, this.updateUi);
 		this.updateUi();
 	},
@@ -206,13 +209,53 @@ module.exports = React.createClass({
 		return content;
 	},
 
+	getCreatorInfo: function() {
+		if (!this.gModel) { return; }
+
+		var creatorName = this.gModel.creatingUser.name;
+		var createdData = moment(this.gModel.createdDate).format("MMMM Do YYYY, H:mm");
+		
+		var creatorInfo = 'Created by ' + creatorName + ' on ' + createdData;
+		return (
+		   <div id='header-creator-info' className='row'>
+		      {creatorInfo}
+		   </div>
+		);
+	},
+
+	slideButtonHandler: function(e) {
+		var btn=e.currentTarget;
+		var $btn = $(btn);
+
+		$btn.find('i').toggleClass('mdi-navigation-arrow-drop-down mdi-navigation-arrow-drop-up');
+		if (btn.dataset.currPosition === 'down') {
+			btn.dataset.currPosition = 'up';
+			$('#header-bar-slide-wrapper').removeClass('slide-up');
+		} else if (btn.dataset.currPosition === 'up') {
+			btn.dataset.currPosition = 'down';
+			$('#header-bar-slide-wrapper').addClass('slide-up');
+		}
+
+		return;
+	},
+
 	render: function() {
 		var topBar = this.getTopBar();
 		var secondBar = this.getSecondBar();
+		var creatorInfo = this.getCreatorInfo();
 		return (
-			<div>
-				{topBar}
-				{secondBar}
+		   <div>
+				<div id='header-bar-slide-wrapper' className='slide-up'>
+					{topBar}
+					{secondBar}
+					{creatorInfo}
+				</div>
+				<div id='header-bar-slide-btn-wrapper' className='center'>
+					<a className={"btn-floating small-btn waves-effect waves-light " + Configs.App.ADD_BUTTON_COLOR}
+					   onClick={this.slideButtonHandler} data-curr-position='down'>
+						<i className = 'mdi-navigation-arrow-drop-down btn-icon' style={{right: '1px'}}/>
+					</a>
+				</div>
 			</div>
 		);
 	}
