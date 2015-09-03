@@ -179,6 +179,7 @@ module.exports = function(grunt) {
 								src : [
 									'**/*.html',
 									'**/*.ico',
+									'**/*.png',
 									'font/**/*.*',
 									'img/**/*.*',
 									'resource/**/*.*'
@@ -195,6 +196,7 @@ module.exports = function(grunt) {
 								src : [
 									'**/*.html',
 									'**/*.ico',
+									'**/*.png',
 									'font/**/*.*',
 									'img/**/*.*',
 									'resource/**/*.*',
