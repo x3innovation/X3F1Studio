@@ -236,7 +236,6 @@ module.exports = React.createClass({
 	},
 
 	getTotalByteDisplay: function() {
-		var totalBytes = this.totalBytes + ' bytes';
 		return (
 		   <div id="header-bar-bytes-display">
 		   	{totalBytes}
@@ -244,16 +243,18 @@ module.exports = React.createClass({
 		);
 	},
 
-	getCreatorInfo: function() {
+	getDisplayInfo: function() {
 		if (!this.gModel) { return; }
 
 		var creatorName = this.gModel.creatingUser.name;
 		var createdData = moment(this.gModel.createdDate).format("MMMM Do YYYY, H:mm");
 		
 		var creatorInfo = 'Created by ' + creatorName + ' on ' + createdData;
+		var totalBytesInfo = this.totalBytes + ' bytes';
 		return (
-		   <div id='header-creator-info' className='row'>
-		      {creatorInfo}
+		   <div id='header-display-info' className='row'>
+		      <span className='creator-info'>{creatorInfo}</span>
+		      <span className='total-bytes-info'>{totalBytesInfo}</span>
 		   </div>
 		);
 	},
@@ -261,27 +262,40 @@ module.exports = React.createClass({
 	slideButtonHandler: function(e) {
 		var btn=e.currentTarget;
 		var $btn = $(btn);
+		var $slideWrapper = $('#header-bar-slide-wrapper');
 
-		$btn.find('i').toggleClass('mdi-navigation-arrow-drop-down mdi-navigation-arrow-drop-up');
-		$('#header-bar-slide-wrapper').toggleClass('slide-up slide-down');
+		if ($slideWrapper.hasClass('slide-up')) {
+			$slideWrapper.css('display', 'block');
+			setTimeout(function() {
+				$btn.find('i').toggleClass('mdi-navigation-arrow-drop-down mdi-navigation-arrow-drop-up');
+				$slideWrapper.toggleClass('slide-up slide-down');
+			}, 0);
+		} else {
+			$btn.find('i').toggleClass('mdi-navigation-arrow-drop-down mdi-navigation-arrow-drop-up');
+			$slideWrapper.toggleClass('slide-up slide-down');
+			setTimeout(function() {
+				$slideWrapper.css('display', 'none');
+			}, 200);
+		}
+
 		return;
 	},
 
 	render: function() {
 		var topBar = this.getTopBar();
 		var secondBar = this.getSecondBar();
-		var creatorInfo = this.getCreatorInfo();
+		var displayInfo = this.getDisplayInfo();
 		return (
-		   <div>
-				<div id='header-bar-slide-wrapper' className='slide-up'>
+		   <div style={{marginBottom:'2rem'}}>
+				<div id='header-bar-slide-wrapper' className='slide-down'>
 					{topBar}
 					{secondBar}
-					{creatorInfo}
+					{displayInfo}
 				</div>
-				<div id='header-bar-slide-btn-wrapper' className='center'>
+				<div id='header-bar-slide-btn-wrapper'>
 					<a className={"btn-floating small-btn waves-effect waves-light " + Configs.App.ADD_BUTTON_COLOR}
-					   onClick={this.slideButtonHandler}>
-						<i className = 'mdi-navigation-arrow-drop-down btn-icon' style={{right: '1px'}}/>
+					   id='header-bar-slide-btn' onClick={this.slideButtonHandler}>
+						<i className = 'mdi-navigation-arrow-drop-up btn-icon' style={{right: '1px'}}/>
 					</a>
 				</div>
 			</div>
