@@ -228,14 +228,7 @@ module.exports = React.createClass({
 		var $btn = $(btn);
 
 		$btn.find('i').toggleClass('mdi-navigation-arrow-drop-down mdi-navigation-arrow-drop-up');
-		if (btn.dataset.currPosition === 'down') {
-			btn.dataset.currPosition = 'up';
-			$('#header-bar-slide-wrapper').removeClass('slide-up');
-		} else if (btn.dataset.currPosition === 'up') {
-			btn.dataset.currPosition = 'down';
-			$('#header-bar-slide-wrapper').addClass('slide-up');
-		}
-
+		$('#header-bar-slide-wrapper').toggleClass('slide-up slide-down');
 		return;
 	},
 
@@ -252,7 +245,7 @@ module.exports = React.createClass({
 				</div>
 				<div id='header-bar-slide-btn-wrapper' className='center'>
 					<a className={"btn-floating small-btn waves-effect waves-light " + Configs.App.ADD_BUTTON_COLOR}
-					   onClick={this.slideButtonHandler} data-curr-position='down'>
+					   onClick={this.slideButtonHandler}>
 						<i className = 'mdi-navigation-arrow-drop-down btn-icon' style={{right: '1px'}}/>
 					</a>
 				</div>

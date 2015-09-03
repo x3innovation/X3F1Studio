@@ -80,6 +80,11 @@
 	opacity: 0;
 }
 
+#header-bar-slide-wrapper.slide-down {
+	height: 4rem;
+	opacity: 1;
+}
+
 #header-top-bar-row {
 	margin: 0;
 	height: 1.5rem;
