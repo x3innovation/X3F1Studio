@@ -41,6 +41,8 @@ module.exports = React.createClass({
 		this.gFields = this.gModel.fields;
 		this.gFields.addEventListener(gapi.drive.realtime.EventType.OBJECT_CHANGED, this.updateUi);
 		this.updateUi();
+
+		$('#header-bar-slide-wrapper').css('display', 'none');
 	},
 
 	updateUi: function() {
@@ -173,6 +175,7 @@ module.exports = React.createClass({
 		   		var segmentContent = segment.name;
 
 		   		var segmentDetails = ''; 
+		   		segmentDetails = segment.name + ':\n' + segmentDetails;
 		   		segmentDetails += segment.size + ' bytes ';
 		   		segmentDetails += ' ('+currByte + '-' + (currByte + segment.size - 1)+')';
 
@@ -218,9 +221,6 @@ module.exports = React.createClass({
 		   		var segmentContent = (widthPercent >= MIN_DISPLAY_PERCENT) ? fieldModel.name : PLACEHOLDER_VALUE;
 		   		var segmentDetails = DataVisualizationService.generateFieldModelDetails(fieldModel);
 
-		   		if (segmentContent === PLACEHOLDER_VALUE) {
-		   			segmentDetails = fieldModel.name + ':\n' + segmentDetails;
-		   		}
 		   		return (
 		   		   <span key={fieldModel.id} className={segmentClassName} 
 		   		    style={segmentStyle} data-details={segmentDetails}>
@@ -264,14 +264,23 @@ module.exports = React.createClass({
 		var $btn = $(btn);
 		var $slideWrapper = $('#header-bar-slide-wrapper');
 
+		if (btn.dataset.inTransition === 'true') {
+			return;
+		} else {
+			btn.dataset.inTransition = 'true';
+			setTimeout(function() {
+				btn.dataset.inTransition = 'false';
+			}, 400);
+		}
+
+		$btn.find('i').toggleClass('mdi-navigation-arrow-drop-down mdi-navigation-arrow-drop-up');
+		
 		if ($slideWrapper.hasClass('slide-up')) {
 			$slideWrapper.css('display', 'block');
 			setTimeout(function() {
-				$btn.find('i').toggleClass('mdi-navigation-arrow-drop-down mdi-navigation-arrow-drop-up');
 				$slideWrapper.toggleClass('slide-up slide-down');
 			}, 0);
 		} else {
-			$btn.find('i').toggleClass('mdi-navigation-arrow-drop-down mdi-navigation-arrow-drop-up');
 			$slideWrapper.toggleClass('slide-up slide-down');
 			setTimeout(function() {
 				$slideWrapper.css('display', 'none');
@@ -287,15 +296,15 @@ module.exports = React.createClass({
 		var displayInfo = this.getDisplayInfo();
 		return (
 		   <div style={{marginBottom:'2rem'}}>
-				<div id='header-bar-slide-wrapper' className='slide-down'>
+				<div id='header-bar-slide-wrapper' className='slide-up'>
 					{topBar}
 					{secondBar}
 					{displayInfo}
 				</div>
 				<div id='header-bar-slide-btn-wrapper'>
 					<a className={"btn-floating small-btn waves-effect waves-light " + Configs.App.ADD_BUTTON_COLOR}
-					   id='header-bar-slide-btn' onClick={this.slideButtonHandler}>
-						<i className = 'mdi-navigation-arrow-drop-up btn-icon' style={{right: '1px'}}/>
+					   id='header-bar-slide-btn' onClick={this.slideButtonHandler} data-in-transition='false'>
+						<i className = 'mdi-navigation-arrow-drop-down btn-icon' style={{right: '1px'}}/>
 					</a>
 				</div>
 			</div>

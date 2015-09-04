@@ -75,7 +75,7 @@ a.navbar-btn > i {
 	-ms-transform: translate(-50%, 0%);
 	-o-transform: translate(-50%, 0%);
 	transform: translate(-50%, 0%);
-	-webkit-transition: margin 0.4s cubic-bezier(0.68, 0, 0.265, 1), opacity 0.3s ease;
+	-webkit-transition: margin 0.4s cubic-bezier(0.68, 0, 0.265, 1), opacity 0.3s ease; /* Safari doesn't support <0 or >1 */
 	-webkit-transition: margin 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.3s ease;
 	-moz-transition: margin 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.3s ease;
 	-o-transition: margin 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.3s ease;

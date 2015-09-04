@@ -52,6 +52,8 @@ function DataVisualizationService() {
 
 	this.generateFieldModelDetails = function(fieldModel) {
 		var details = '';
+		
+		details = fieldModel.name + ':\n' + details;
 		if (fieldModel.type) {
 			details += fieldModel.type + ', ';
 		}

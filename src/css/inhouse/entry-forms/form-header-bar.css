@@ -1,7 +1,7 @@
 #header-bar-slide-wrapper{
 	height: 4rem;
 
-	-webkit-transition: height 0.4s cubic-bezier(0.68, 0, 0.265, 1), opacity 0.3s ease;
+	-webkit-transition: height 0.4s cubic-bezier(0.68, 0, 0.265, 1), opacity 0.3s ease; /* Safari doesn't support <0 or >1 */
 	-webkit-transition: height 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.3s ease;
 	-moz-transition: height 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.3s ease;
 	-o-transition: height 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.3s ease;
