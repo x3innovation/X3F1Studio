@@ -86,7 +86,7 @@ module.exports = React.createClass({
 		if (!this.projectsReceived)
 		{
 			content = 
-				<div id="cards-wrapper">
+				<div id="cards-wrapper" className='preloader'>
 					<img id="cards-wrapper-preloader" src="img/loading-spin.svg" />
 				</div>;
 		}

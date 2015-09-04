@@ -90,5 +90,10 @@ module.exports = {
 
 		POINTER_SIZE : 4,
 		SEQUENCE_SIZE : 4
+	},
+
+	ProjectDefaults : {
+		VERSION_NUMBER: 1,
+		VERSION_DESCRIPTION : ''
 	}
 };

@@ -49,17 +49,6 @@
 	position: relative;
 }
 
-.card-tag {
-	position: absolute;
-	top: 3px;
-	left: 0;
-	color: white;
-	font-size: 0.7rem;
-	width: 2rem;
-	text-align: center;
-	font-weight: normal;
-}
-
 .project-object-name {
 	width: 10rem;
 	white-space: nowrap;      
@@ -85,6 +74,18 @@
 	font-size: 0.7rem;
 	line-height: 1rem;
 	border-radius: 0;
+}
+
+
+.card-tag {
+	position: absolute;
+	top: 3px;
+	left: 0;
+	color: white;
+	font-size: 0.7rem;
+	width: 2rem;
+	text-align: center;
+	font-weight: normal;
 }
 
 .card-back-btns-wrapper {

@@ -153,7 +153,7 @@ module.exports = React.createClass({
 			<div>
 				{content}
 				<div className = 'body-preloader-wrapper preloader'>
-					<img id = "body-preloader" src = "img/loading-spin.svg" />
+					<img className='body-preloader' src = "img/loading-spin.svg" />
 				</div>
 			</div>
 		);

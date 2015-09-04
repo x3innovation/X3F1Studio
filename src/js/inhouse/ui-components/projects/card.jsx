@@ -202,7 +202,7 @@ module.exports = React.createClass({
 	getContentBeforeFileLoaded : function()
 	{
 		var content =
-			<div className="list-group card-preloader-wrapper">
+			<div className="list-group card-preloader-wrapper" className='preloader'>
 				<img className="card-preloader" src="img/loading-spin.svg" />
 			</div>;
 

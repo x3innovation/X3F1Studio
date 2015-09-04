@@ -60,3 +60,11 @@
 	position: relative;
 	left: 3%;
 }
+
+#version-num-select{
+	display: none;
+}
+
+#change-version-num-btn{
+	margin-top: 1.5rem;
+}

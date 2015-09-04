@@ -89,6 +89,14 @@ module.exports = React.createClass({
 				$('#lean-overlay').css('width', '100%').css('height', '100%').css('z-index', '10');
 			}
 		});
+
+		$('#project-version-btn').leanModal({
+			modalInitialTopPosition: '20%',
+			modalEndTopPosition: '30%',
+			ready: function() {
+				$('#lean-overlay').css('width', '100%').css('height', '100%').css('z-index', '10');
+			}
+		});
 	},
 
 	/* ******************************************
@@ -114,7 +122,16 @@ module.exports = React.createClass({
 		if (!gModel.getRoot().has(GDriveCons.Project.KEY_DESCRIPTION)) {
 			gModel.getRoot().set(GDriveCons.Project.KEY_DESCRIPTION, gModel.createString(DefaultValueCons.NewFileValues.PROJECT_DESCRIPTION));
 		}
+		if (!gModel.getRoot().has(GDriveCons.ProjectMetadata.KEY_VERSION)) {
+			gModel.getRoot().set(GDriveCons.ProjectMetadata.KEY_VERSION, [{
+				versionNum: DefaultValueCons.ProjectDefaults.VERSION_NUMBER,
+				versionDescription: DefaultValueCons.ProjectDefaults.VERSION_DESCRIPTION,
+				active: true
+			}]);
+		}
 		gModel.endCompoundOperation();
+
+		this.model.gModel = gModel;
 
 		var titleInput = document.getElementById('project-title');
 		var titleModel = gModel.getRoot().get(GDriveCons.Project.KEY_TITLE);
@@ -138,6 +155,20 @@ module.exports = React.createClass({
 		titleModel.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, onTitleChange);
 		titleModel.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, onTitleChange);
 		this.saveTitleToFileItself();
+
+		var versionList = gModel.getRoot().get(GDriveCons.ProjectMetadata.KEY_VERSION);
+		var versionOptions = '';
+		for (var i = 0, len=versionList.length; i<len; ++i) {
+			if (versionList[i].active) {
+				versionOptions+='<option selected value="'+versionList[i].versionNum+'">'+versionList[i].versionNum+'</option>';
+				$('#version-description-input').val(versionList[i].versionDescription);
+			} else {
+				versionOptions+='<option value="'+versionList[i].versionNum+'">'+versionList[i].versionNum+'</option>';
+			}
+		}
+		var $versionSelect = $('#version-num-select');
+		$versionSelect.html(versionOptions).material_select();
+
 	},
 
 	onProjectModelInitialize: function(model) {
@@ -145,6 +176,11 @@ module.exports = React.createClass({
 		model.beginCompoundOperation();
 		gRoot.set(GDriveCons.Project.KEY_TITLE, model.createString(DefaultValueCons.NewFileValues.PROJECT_TITLE));
 		gRoot.set(GDriveCons.Project.KEY_DESCRIPTION, model.createString(DefaultValueCons.NewFileValues.PROJECT_DESCRIPTION));
+		gRoot.set(GDriveCons.ProjectMetadata.KEY_VERSION, [{
+			versionNum: DefaultValueCons.ProjectDefaults.VERSION_NUMBER,
+			versionDescription: DefaultValueCons.ProjectDefaults.VERSION_DESCRIPTION,
+			active: true
+		}]);
 		model.endCompoundOperation();
 	},
 
@@ -190,93 +226,89 @@ module.exports = React.createClass({
 		this.searchTypingTimeout = setTimeout(this.getProjectObjects, 500);
 	},
 
-	onPersistentDataBtnClick : function(event)
+	onFilterBtnClick : function(e)
 	{
-		var button = $(event.currentTarget);
-		var model = this.model.buttons.persistentData;
-		this.toggleButton(button, model);
-	},
+		var btn = e.currentTarget;
+		var $btn = $(btn);
+		var model = btn.dataset.objectType;
 
-	onEnumBtnClick : function(event)
-	{
-		var button = $(event.currentTarget);
-		var model = this.model.buttons.enum;
-		this.toggleButton(button, model);
-	},
-
-	onSnippetBtnClick : function(event)
-	{
-		var button = $(event.currentTarget);
-		var model = this.model.buttons.snippet;
-		this.toggleButton(button, model);
-	},
-
-	onEventBtnClick : function(event)
-	{
-		var button = $(event.currentTarget);
-		var model = this.model.buttons.event;
-		this.toggleButton(button, model);
-	},
-
-	onFlowBtnClick : function(event)
-	{
-		var button = $(event.currentTarget);
-		var model = this.model.buttons.flow;
-		this.toggleButton(button, model);
-	},
-
-	onAddPersistentDataBtnClick: function() {
-		this.createObjectAndTransitionTo(GDriveCons.ObjectType.PERSISTENT_DATA);
-	},
-	onAddEnumBtnClick: function() {
-		this.createObjectAndTransitionTo(GDriveCons.ObjectType.ENUM);
-	},
-	onAddSnippetBtnClick: function() {
-		this.createObjectAndTransitionTo(GDriveCons.ObjectType.SNIPPET);
-	},
-	onAddEventBtnClick: function() {
-		this.createObjectAndTransitionTo(GDriveCons.ObjectType.EVENT);
-	},
-	onAddFlowBtnClick: function() {
-		/*does nothing for now*/
-	},
-
-	createObjectAndTransitionTo: function(fileType) {
-		clearTimeout(this.createObjectTimeout);
-		var _this = this;
-		this.createObjectTimeout = setTimeout(function() {
-			var routerParams = _this.getParams();
-			googleDriveService.createNewF1Object(fileType, routerParams.projectFolderFileId, function(file) {
-				var params = {
-					projectFolderFileId: routerParams.projectFolderFileId,
-					projectFileId: routerParams.projectFileId,
-					fileId: file.id
-				};
-
-				_this.transitionTo('editor', params, {fileType: fileType}); 
-			});
-		}, 300);
-	},
-
-	toggleButton : function(button, model)
-	{
-		if (button.hasClass(model.color))
+		if ($btn.hasClass(model.color))
 		{
-			button.switchClass(model.color, 'grey');
+			$btn.switchClass(model.color, 'grey');
 			model.isSearchOn = false;
 		}
-		else if (button.hasClass('grey'))
+		else if ($btn.hasClass('grey'))
 		{
-			button.switchClass('grey', model.color);
+			$btn.switchClass('grey', model.color);
 			model.isSearchOn = true;
 		}
 
 		this.getProjectObjects();
 	},
 
+	onAddObjectBtnClick: function(e) {
+		var btn = e.currentTarget;
+
+		// for now, there is nothing for flows
+		if (btn.dataset.objectType === GDriveCons.ObjectType.FLOW) {
+			return;
+		}
+		this.createObjectAndTransitionTo(btn.dataset.objectType);
+	},
+
+	createObjectAndTransitionTo: function(objectType) {
+		clearTimeout(this.createObjectTimeout);
+		var _this = this;
+		this.createObjectTimeout = setTimeout(function() {
+			var routerParams = _this.getParams();
+			googleDriveService.createNewF1Object(objectType, routerParams.projectFolderFileId, function(file) {
+				var params = {
+					projectFolderFileId: routerParams.projectFolderFileId,
+					projectFileId: routerParams.projectFileId,
+					fileId: file.id
+				};
+
+				_this.transitionTo('editor', params, {fileType: objectType}); 
+			});
+		}, 300);
+	},
+
 	onToProjectsBtnClick : function()
 	{
 		this.transitionTo('projects');
+	},
+
+	onAddNewVersionBtnClick: function(e) {
+		var versionToAdd=$('#add-version-num-input').val();
+		var $versionSelect = $('#version-num-select');
+		var versionFound = false;
+		$versionSelect.find('option').each(function(index, element){
+		   if (element.value === versionToAdd) {
+		      $versionSelect.val(versionToAdd);
+		      versionFound = true;
+		      return false;
+		   }
+		});
+
+		if (!versionFound) {
+			var versionList = this.model.gModel.getRoot().get(GDriveCons.ProjectMetadata.KEY_VERSION).slice(0);
+			for (var i=0, len=versionList.length; i<len; ++i) {
+				versionList[i].active = false;
+			}
+			versionList.push({
+				versionNum: versionToAdd,
+				versionDescription: '',
+				active: true
+			});
+
+			$versionSelect.append('<option value="'+versionToAdd+'">'+versionToAdd+'</option>')
+				.val(versionToAdd)
+				.material_select();
+			$('#version-description-input').val('');
+
+			this.model.gModel.getRoot().set(GDriveCons.ProjectMetadata.KEY_VERSION, versionList);
+		}
+		return;
 	},
 
 	render: function()
@@ -286,9 +318,10 @@ module.exports = React.createClass({
 		var content;
 		if (!this.projectsReceived)
 		{
-			content = <div id='cards-wrapper' className='preloader'>
-						<img id='cards-wrapper-preloader' src='img/loading-spin.svg' />
-					</div>;
+			content = 
+				<div id='cards-wrapper' className='preloader'>
+					<img id='cards-wrapper-preloader' src='img/loading-spin.svg' />
+				</div>;
 		}
 		else
 		{
@@ -331,7 +364,10 @@ module.exports = React.createClass({
 					<div id='project-title-description-wrapper' className='col s12'>
 						<input type='text' id='project-title' className='center' />
 						<div id='project-description-wrapper'>
-							<textarea rows='1' id='project-description' />
+							<textarea rows='1' id='project-description'  className='col s8 offset-s2' />
+							<a id='project-version-btn' href='#project-version-modal'
+								className={'col s2 waves-effect waves-light btn ' + Configs.App.ADD_BUTTON_COLOR}>
+								Version</a>
 						</div>
 					</div>
 				</div>
@@ -342,11 +378,16 @@ module.exports = React.createClass({
 				</div>
 				<div className='row' style={{marginBottom: '10px'}}>
 					<div id='project-object-btns' className='col s12 center'>
-						<a className={'waves-effect waves-light btn ' + Configs.App.PERSISTENT_DATA_COLOR} onClick={this.onPersistentDataBtnClick}>Persistent Data</a>
-						<a className={'waves-effect waves-light btn ' + Configs.App.ENUM_COLOR} onClick={this.onEnumBtnClick}>Enum</a>
-						<a className={'waves-effect waves-light btn ' + Configs.App.SNIPPET_COLOR} onClick={this.onSnippetBtnClick}>Snippet</a>
-						<a className={'waves-effect waves-light btn ' + Configs.App.EVENT_COLOR} onClick={this.onEventBtnClick}>Event</a>
-						<a className={'waves-effect waves-light btn ' + Configs.App.FLOW_COLOR} onClick={this.onFlowBtnClick}>Flow</a>
+						<a className={'waves-effect waves-light btn ' + Configs.App.PERSISTENT_DATA_COLOR} 
+							onClick={this.onFilterBtnClick} data-object-type={this.model.buttons.persistentData}>Persistent Data</a>
+						<a className={'waves-effect waves-light btn ' + Configs.App.ENUM_COLOR}
+							onClick={this.onFilterBtnClick} data-object-type={this.model.buttons.enum}>Enum</a>
+						<a className={'waves-effect waves-light btn ' + Configs.App.SNIPPET_COLOR}
+							onClick={this.onFilterBtnClick}  data-object-type={this.model.buttons.snippet}>Snippet</a>
+						<a className={'waves-effect waves-light btn ' + Configs.App.EVENT_COLOR}
+							onClick={this.onFilterBtnClick} data-object-type={this.model.buttons.event}>Event</a>
+						<a className={'waves-effect waves-light btn ' + Configs.App.FLOW_COLOR}
+							onClick={this.onFilterBtnClick} data-object-type={this.model.buttons.flow}>Flow</a>
 						<a className={'btn-floating disabled waves-effect waves-light ' + Configs.App.ADD_BUTTON_COLOR}
 							href='#add-project-object-modal' id='project-object-add-btn'>
 							<i className='mdi-content-add' />
@@ -359,16 +400,36 @@ module.exports = React.createClass({
 						<h4>Select a data type:</h4>
 						<div className = 'modal-btn-row center'>
 							<a className={'modal-close waves-effect waves-light btn ' + Configs.App.PERSISTENT_DATA_COLOR}
-								onClick={this.onAddPersistentDataBtnClick}>Persistent Data</a>
+								onClick={this.onAddObjectBtnClick} data-object-type={GDriveCons.ObjectType.PERSISTENT_DATA}>Persistent Data</a>
 							<a className={'modal-close waves-effect waves-light btn ' + Configs.App.ENUM_COLOR}
-								onClick={this.onAddEnumBtnClick}>Enum</a>
+								onClick={this.onAddObjectBtnClick} data-object-type={GDriveCons.ObjectType.ENUM}>Enum</a>
 							<a className={'modal-close waves-effect waves-light btn ' + Configs.App.SNIPPET_COLOR}
-								onClick={this.onAddSnippetBtnClick}>Snippet</a>
+								onClick={this.onAddObjectBtnClick} data-object-type={GDriveCons.ObjectType.SNIPPET}>Snippet</a>
 							<a className={'modal-close waves-effect waves-light btn ' + Configs.App.EVENT_COLOR}
-								onClick={this.onAddEventBtnClick}>Event</a>
+								onClick={this.onAddObjectBtnClick} data-object-type={GDriveCons.ObjectType.EVENT}>Event</a>
 							<a className={'modal-close waves-effect waves-light btn ' + Configs.App.FLOW_COLOR}
-								onClick={this.onAddFlowBtnClick}>Flow</a>
+								onClick={this.onAddObjectBtnClick} data-object-type={GDriveCons.ObjectType.FLOW}>Flow</a>
 						</div>
+					</div>
+				</div>
+
+				<div id='project-version-modal' className='modal z-depth-2'>
+					<div className='modal-content'>
+						<div className='row'>
+							<div className='col s3 input-field'>
+								<select id='version-num-select'/>
+								<label for='version-num-select'>select version</label>
+							</div>
+							<div className='col s3 offset-s3 input-field'>
+								<input id='add-version-num-input' type='text'/>
+								<label for='add-version-num-input'>change to version</label>
+							</div>
+							<a id='change-version-num-btn'className={'col s3 btn waves-effect waves-light ' + Configs.App.ADD_BUTTON_COLOR} onClick={this.onAddNewVersionBtnClick}>Change Version</a>
+						</div>
+						<div className='row'>
+							<textarea type='description' id='version-description-input' className='materialize-textarea' />
+	          			<label for="version-description-input">version description</label>
+          			</div>
 					</div>
 				</div>
 
