@@ -446,7 +446,7 @@ function GenerateXMLService() {
 			}
 		};
 
-		if (dataCount === 0 && typeof callback === 'function') {
+		if (dataCount !== 0 && typeof callback === 'function') {
 			callback(dataJsonNode);
 		}
 
