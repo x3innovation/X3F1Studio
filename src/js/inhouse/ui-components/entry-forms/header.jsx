@@ -9,11 +9,9 @@ module.exports = React.createClass({
 				LIFE CYCLE FUNCTIONS
 	****************************************** */
 	componentWillMount: function() {
+		this.controller = this.props.controller;
 		this.gModel = null;
 		this.metadataModel = null;
-
-		Bullet.on(EventType.EntryForm.GAPI_FILE_LOADED, 'header.jsx>>onGapiFileLoaded', this.onGapiFileLoaded);
-		Bullet.on(EventType.EntryForm.METADATA_MODEL_LOADED, 'header.jsx>>onMetadataModelLoaded', this.onMetadataModelLoaded);
 	},
 
 	componentDidMount: function() {
@@ -33,9 +31,6 @@ module.exports = React.createClass({
 		clearTimeout(this.saveTitleTimeout);
 		this.saveTitle();
 		if (this.gModel.title) { this.gModel.title.removeAllEventListeners(); }
-		
-		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'header.jsx>>onGapiFileLoaded');
-		Bullet.off(EventType.EntryForm.METADATA_MODEL_LOADED, 'header.jsx>>onMetadataModelLoaded');
 	},
 
 	/* ******************************************
