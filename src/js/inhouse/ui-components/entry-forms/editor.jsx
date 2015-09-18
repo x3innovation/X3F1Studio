@@ -10,6 +10,8 @@ var GDriveService = require('../../services/google-drive-service.js');
 var Body = require('./body.jsx');
 var Header = require('./header.jsx');
 
+var Controller = require('./editor-controller.js');
+
 module.exports = React.createClass({
 	mixins: [Navigation, State, UserLoginFailRedirectHome],
 	/* ******************************************
@@ -21,16 +23,9 @@ module.exports = React.createClass({
 			this.initialize();
 		}
 
-		this.fileType = this.getQuery().fileType;
-
-		var gapiKeyMap = {};
-		gapiKeyMap[ObjectTypes.PERSISTENT_DATA] = GDriveConstants.CustomObjectKey.PERSISTENT_DATA;
-		gapiKeyMap[ObjectTypes.ENUM] = GDriveConstants.CustomObjectKey.ENUM;
-		gapiKeyMap[ObjectTypes.EVENT] = GDriveConstants.CustomObjectKey.EVENT;
-		gapiKeyMap[ObjectTypes.SNIPPET] = GDriveConstants.CustomObjectKey.SNIPPET;
-		/* TO ADD similar for flows and any other data types to use */
-
-		this.gapiKey = gapiKeyMap[this.fileType];
+		var fileType = this.getQuery().fileType;
+		var projectFileId = this.getParams().projectFileId;
+		this.controller = new Controller(fileType, projectFileId);
 
 		// load project objects on user logged in
 		Bullet.on(EventType.App.USER_LOGGED_IN, 'entry.jsx>>userLoggedIn', this.initialize);
