@@ -3,25 +3,25 @@ function EditorController(fileType, projectFileId, objectFileId)
 	// //////// private members
 	var projectFileId = projectFileId;
 	var objectFileId = objectFileId;
-	var gDriveInterface = require('../../remote-server-interface/google-api-interface.js');
+	var gDriveInterface = require('../../remote-server-interfaces/google-api-interface.js');
 	var GDriveConstants = require('../../constants/google-drive-constants.js');
 	var DefaultValueConstants = require('../../constants/default-value-constants.js');
-	var ObjectTypes = GDriveConstants.ObjectTypes;
+	var ObjectType = GDriveConstants.ObjectType;
 	
 	var customObjectKeys = {};
-	customObjectKeys[ObjectTypes.PERSISTENT_DATA] = GDriveConstants.CustomObjectKey.PERSISTENT_DATA;
-	customObjectKeys[ObjectTypes.ENUM] = GDriveConstants.CustomObjectKey.ENUM;
-	customObjectKeys[ObjectTypes.EVENT] = GDriveConstants.CustomObjectKey.EVENT;
-	customObjectKeys[ObjectTypes.SNIPPET] = GDriveConstants.CustomObjectKey.SNIPPET;
+	customObjectKeys[ObjectType.PERSISTENT_DATA] = GDriveConstants.CustomObjectKey.PERSISTENT_DATA;
+	customObjectKeys[ObjectType.ENUM] = GDriveConstants.CustomObjectKey.ENUM;
+	customObjectKeys[ObjectType.EVENT] = GDriveConstants.CustomObjectKey.EVENT;
+	customObjectKeys[ObjectType.SNIPPET] = GDriveConstants.CustomObjectKey.SNIPPET;
 	var customObjectKey = customObjectKeys[fileType];
 
 	var PageTitleConstants = DefaultValueConstants.PageTitleValues;
 	var pageTitles = {};
-	pageTitleMap[ObjectTypes.PERSISTENT_DATA] = PageTitleConstants.PERSISTENT_DATA_FORM_PAGE_TITLE;
-	pageTitleMap[ObjectTypes.ENUM] = PageTitleConstants.ENUM_FORM_PAGE_TITLE;
-	pageTitleMap[ObjectTypes.EVENT] = PageTitleConstants.EVENT_FORM_PAGE_TITLE;
-	pageTitleMap[ObjectTypes.SNIPPET] = PageTitleConstants.SNIPPET_FORM_PAGE_TITLE;
-	var pageTitle = pageTitleMap[fileType];
+	pageTitles[ObjectType.PERSISTENT_DATA] = PageTitleConstants.PERSISTENT_DATA_FORM_PAGE_TITLE;
+	pageTitles[ObjectType.ENUM] = PageTitleConstants.ENUM_FORM_PAGE_TITLE;
+	pageTitles[ObjectType.EVENT] = PageTitleConstants.EVENT_FORM_PAGE_TITLE;
+	pageTitles[ObjectType.SNIPPET] = PageTitleConstants.SNIPPET_FORM_PAGE_TITLE;
+	var pageTitle = pageTitles[fileType];
 
 	var gMetadataDoc;
 	var gMetadataModel;
@@ -54,14 +54,15 @@ function EditorController(fileType, projectFileId, objectFileId)
 	    };
 
 	    function updateMetadataModel(gMetadataModel, doc) {
-		if (gMetadataModel.version == null) {
-		    gMetadataModel.version = 1;
-		}
-		if (gMetadataModel.nextId == null) {
-		    gMetadataModel.nextId = 10;
-		}
-		if (gMetadataModel.announcement == null) {
-		    gMetadataModel.announcement = doc.getModel().createList();
+			if (gMetadataModel.version == null) {
+			    gMetadataModel.version = 1;
+			}
+			if (gMetadataModel.nextId == null) {
+			    gMetadataModel.nextId = 10;
+			}
+			if (gMetadataModel.announcement == null) {
+			    gMetadataModel.announcement = doc.getModel().createList();
+			}
 		};
 	}
 
@@ -72,18 +73,18 @@ function EditorController(fileType, projectFileId, objectFileId)
 		function onDataFileLoaded(doc)
 		{
 			gDoc = doc;
-			model = doc.getModel().getRoot().get(customObjectKey);
-			if (!model.creatingUser) {
-				this.setCreator(model, callback);
+			gModel = doc.getModel().getRoot().get(customObjectKey);
+			if (!gModel.creatingUser) {
+				this.setCreator(gModel, callback);
 			}
 
-			onInitializeFinished();
+			onInitializeFinished(gMetadataModel, gModel);
 		};
 
-		function setCreator(model) {
+		function setCreator(gModel) {
 			gDriverInterface.getFileMetadata(objectFileId, function(respData) {
-				model.createdDate = respData.createdDate;
-				model.creatingUser = {
+				gModel.createdDate = respData.createdDate;
+				gModel.creatingUser = {
 					name: respData.owners[0].displayName,
 					userId: respData.owners[0].permissionId
 				};
@@ -95,7 +96,7 @@ function EditorController(fileType, projectFileId, objectFileId)
 			gModel.getRoot().set(customObjectKey, model);
 
 			switch (fileType) {
-				case ObjectTypes.PERSISTENT_DATA:
+				case ObjectType.PERSISTENT_DATA:
 					gModel.title = model.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE);
 					gModel.description = model.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_DESCRIPTION);
 					gModel.fields = model.createList();
@@ -111,20 +112,20 @@ function EditorController(fileType, projectFileId, objectFileId)
 					gModel.RejectedCreatePersistenceEventTypeId = setAndGetNextMetadataModelId();
 					gModel.RejectedRemovePersistenceEventTypeId = setAndGetNextMetadataModelId();
 					break;
-				case ObjectTypes.EVENT:
+				case ObjectType.EVENT:
 					gModel.title = model.createString(DefaultValueConstants.NewFileValues.EVENT_TITLE);
 					gModel.description = model.createString(DefaultValueConstants.NewFileValues.EVENT_DESCRIPTION);
 					gModel.fields = model.createList();
 					gModel.queries = model.createList();
 					gModel.id = setAndGetNextMetadataModelId();
 					break;
-				case ObjectTypes.SNIPPET:
+				case ObjectType.SNIPPET:
 					gModel.title = model.createString(DefaultValueConstants.NewFileValues.SNIPPET_TITLE);
 					gModel.description = model.createString(DefaultValueConstants.NewFileValues.SNIPPET_DESCRIPTION);
 					gModel.fields = model.createList();
 					gModel.id = setAndGetNextMetadataModelId();
 					break;
-				case ObjectTypes.ENUM:
+				case ObjectType.ENUM:
 					gModel.title = model.createString(DefaultValueConstants.NewFileValues.ENUM_TITLE);
 					gModel.description = model.createString(DefaultValueConstants.NewFileValues.ENUM_DESCRIPTION);
 					gModel.fields = model.createList();

@@ -7,7 +7,7 @@ var UserLoginFailRedirectHome = require('../common/user-login-fail-redirect-home
 var UserStore = require('../../stores/user-store.js');
 var GDriveService = require('../../services/google-drive-service.js');
 
-var Body = require('./body.jsx');
+// var Body = require('./body.jsx');
 var Header = require('./header.jsx');
 
 var Controller = require('./editor-controller.js');
@@ -18,15 +18,15 @@ module.exports = React.createClass({
 	            LIFE CYCLE FUNCTIONS
 	****************************************** */ 
 	componentWillMount: function() {
+		this.objectFileType = this.getQuery().fileType;
+		var projectFileId = this.getParams().projectFileId;
+		this.objectFileId = this.getParams().fileId;
+		this.controller = new Controller(this.objectFileType, projectFileId, this.objectFileId);
+
 		if (UserStore.isLoggedIn) {
 			// if user is already logged in, just initialize
 			this.initialize();
 		}
-
-		var fileType = this.getQuery().fileType;
-		var projectFileId = this.getParams().projectFileId;
-		var objectFileId = this.getParams().fileId;
-		this.controller = new Controller(fileType, projectFileId, objectFileId);
 
 		// load project objects on user logged in
 		Bullet.on(EventType.App.USER_LOGGED_IN, 'entry.jsx>>userLoggedIn', this.initialize);
@@ -44,12 +44,17 @@ module.exports = React.createClass({
 		var _this = this;
 		this.controller.initialize(onInitializeFinished);
 
-		function onInitializeFinished()
+		function onInitializeFinished(gMetadataModel, gModel)
 		{
 			_this.editor = 	<div>
-								<Header controller={_this.controller} />
-								<Body controller={_this.controller} />
+								<Header gMetadataModel={gMetadataModel}
+									gModel={gModel}
+									objectFileId={_this.objectFileId}
+									objectFileType={_this.objectFileType} />
+								<Body controller={_this.controller} />								
 							</div>
+
+			_this.forceUpdate();
 		}
 	},
 
@@ -65,11 +70,6 @@ module.exports = React.createClass({
 	},
 
 	render: function() {
-		var projectFileId = this.getParams().projectFileId;
-		var projectFolderFileId = this.getParams().projectFolderFileId;
-		var fileId = this.getParams().fileId;
-		var fileType = this.fileType;
-		var gapiKey = this.gapiKey;
 		return (
 			<div id = 'form-container' className = 'persistent-data-form container'>
 				<i id = "to-project-btn" className = 'medium mdi-navigation-arrow-back' onClick = {this.onToProjectBtnClick} />
