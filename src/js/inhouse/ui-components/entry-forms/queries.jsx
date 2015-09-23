@@ -3,7 +3,7 @@ var DefaultValueConstants = require('../../constants/default-value-constants.js'
 
 var Configs = require('../../app-config.js');
 
-var GDriveService = require('../../services/google-drive-service.js');
+var GDriveUtils = require('../../utils/google-drive-utils.js');
 
 module.exports = React.createClass({
 	/* ******************************************
@@ -14,35 +14,18 @@ module.exports = React.createClass({
 		this.gQueries = null;
 		this.queries = [];
 		this.fieldAttr = {};
-
-		Bullet.on(EventType.EntryForm.GAPI_FILE_LOADED, 'queries.jsx>>onGapiFileLoaded', this.onGapiFileLoaded);
+		this.controller = this.props.controller;
 	},
 
-	componentWillUnmount: function() {
-		if (this.gQueries) {
-			this.gQueries.removeEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this.updateUi);
-			this.gQueries.removeEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this.updateUi);
-			this.gQueries.removeEventListener(gapi.drive.realtime.EventType.VALUES_SET, this.updateUi);
-		}
-
-		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'queries.jsx>>onGapiFileLoaded');
+	componentDidMount: function()
+	{
+		this.controller.addQueriesUpdateListener(this.updateUi);
+		this.updateUi();
 	},
 
 	/* ******************************************
 				NON LIFE CYCLE FUNCTIONS
 	****************************************** */
-	onGapiFileLoaded: function(doc) {
-		this.gModel = doc.getModel();
-		this.gQueries = this.gModel.getRoot().get(this.props.gapiKey).queries;
-		if (!this.gQueries) {
-			this.gQueries = doc.getModel().createList();
-		}
-		this.gQueries.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this.updateUi);
-		this.gQueries.addEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this.updateUi);
-		this.gQueries.addEventListener(gapi.drive.realtime.EventType.VALUES_SET, this.updateUi);
-		this.updateUi();
-	},
-
 	updateUi: function() {
 		this.forceUpdate();
 		this.setCursorPos();
@@ -63,22 +46,10 @@ module.exports = React.createClass({
 	updateQuery: function($fieldAttr) {
 		var $queryRow = $fieldAttr.closest('.query-row');
 		var queryId = parseInt($queryRow.attr('data-query-id'), 10);
-		
-		this.gModel.beginCompoundOperation();
-		for (var i = 0, len = this.gQueries.length; i<len; i++) {
-			if (parseInt(this.gQueries.get(i).id, 10) === queryId) {
-				var newQuery = {
-					requestId: queryId,
-					responseId: queryId + 1,
-					id: queryId,
-					name: $queryRow.find('.query-name-field').val(),
-					description: $queryRow.find('.query-description-field').val()
-				};
-				this.gQueries.set(i, newQuery);
-				break;
-			}
-		}
-		this.gModel.endCompoundOperation();
+		var name = $queryRow.find('.query-name-field').val();
+		var description = $queryRow.find('.query-description-field').val();
+
+		this.controller.updateQuery(queryId, name, description);
 	},
 
 	realignLabels: function() {
@@ -98,20 +69,7 @@ module.exports = React.createClass({
 	},
 
 	createNewQuery: function() {
-		var _this = this;
-		GDriveService.getMetadataModelId(_this.props.projectFileId, function(id) {
-			var thisId = id;
-			var requestId = thisId++;
-			var responseId = thisId++;
-			var newQuery = {
-				requestId: requestId,
-				responseId: responseId,
-				id: requestId,
-				name: DefaultValueConstants.DefaultQueryAttributes.QUERY_NAME,
-				description: DefaultValueConstants.DefaultQueryAttributes.QUERY_DESCRIPTION
-			};
-			_this.gQueries.push(newQuery);
-		}, 2);
+		this.controller.createNewQuery();
 	},
 
 	onAddQueryBtnClick: function(e) {
@@ -120,20 +78,12 @@ module.exports = React.createClass({
 	},
 
 	onDeleteQueryBtnClick: function(e) {
-		var qId  = e.currentTarget.dataset.queryId;
-		for (var i = 0, len = this.gQueries.length; i<len; i++) {
-			if ('' + this.gQueries.get(i).id === '' + qId) {
-				this.gQueries.remove(i);
-				break;
-			}
-		}
+		var queryId  = e.currentTarget.dataset.queryId;
+		this.controller.deleteQuery(queryId);
 	},
 
 	render: function() {
-		var queries = [];
-		if (this.gQueries) {
-			queries = this.gQueries.asArray();
-		}
+		var queries = this.controller.getQueries();
 		var queryContents = queries.map(function(query) {
 			return (
 				<div className = 'query-row row' key = {query.id} data-query-id = {query.id}>

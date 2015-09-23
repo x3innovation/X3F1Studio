@@ -3,7 +3,7 @@ var ObjectTypeCons = GDriveConstants.ObjectType;
 var Cons = GDriveConstants.Project;
 
 var Configs = require('../../app-config.js');
-var GDriveService = require('../../services/google-drive-service.js');
+var GDriveUtils = require('../../utils/google-drive-utils.js');
 
 module.exports = React.createClass({
 	mixins: [Navigation],
@@ -188,7 +188,7 @@ module.exports = React.createClass({
 			$cardBack.html(content);
 		};
 
-		GDriveService.getProjectObjects(this.props.projectFolderFileId, '', objectsToGet, callback);
+		GDriveUtils.getProjectObjects(this.props.projectFolderFileId, '', objectsToGet, callback);
 	},
 
 	onProjectObjectBtnClick: function(e) {

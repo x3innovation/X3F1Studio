@@ -1,4 +1,4 @@
-function HeaderController(objectFileId, objectFileType, gMetadataModel, gModel)
+function HeaderController(objectFileId, objectFileType, gMetadataModel, gFileCustomModel)
 {
 	// //////// private members
 	var googleApiInterface = require('../../remote-server-interfaces/google-api-interface.js');
@@ -6,17 +6,17 @@ function HeaderController(objectFileId, objectFileType, gMetadataModel, gModel)
 	var objectFileId = objectFileId;
 	var objectFileType = objectFileType;
 	var gMetadataModel = gMetadataModel;
-	var gModel = gModel;
+	var gFileCustomModel = gFileCustomModel;
 
 	// //////// public members
 	this.getTitle = function()
 	{
-		return gModel.title.getText();
+		return gFileCustomModel.title.getText();
 	}
 
 	this.setTitle = function(title)
 	{
-		gModel.title.setText(title);
+		gFileCustomModel.title.setText(title);
 		
 		// change the physical google drive file name to reflect the change
 		googleApiInterface.saveTitle(objectFileId, title);
@@ -33,29 +33,35 @@ function HeaderController(objectFileId, objectFileType, gMetadataModel, gModel)
 
 	this.addTitleUpdateListener = function(listener)
 	{
-		gModel.title.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, listener);
-		gModel.title.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, listener);
+		gFileCustomModel.title.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, listener);
+		gFileCustomModel.title.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, listener);
 	}
 
 	this.getDescription = function()
 	{
-		return gModel.description.getText();
+		return gFileCustomModel.description.getText();
 	}
 
 	this.setDescription = function(description)
 	{
-		gModel.description.setText(description);
+		gFileCustomModel.description.setText(description);
 	}
 
 	this.addDescriptionUpdateListener = function(listener)
 	{
-		gModel.description.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, listener);
-		gModel.description.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, listener);
+		gFileCustomModel.description.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, listener);
+		gFileCustomModel.description.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, listener);
 	}
 
 	this.getId = function()
 	{
-		return gModel.id;
+		return gFileCustomModel.id;
+	}
+
+	this.dispose = function()
+	{
+		gFileCustomModel.title.removeAllEventListeners()
+		gFileCustomModel.description.removeAllEventListeners();
 	}
 }
 

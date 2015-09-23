@@ -3,7 +3,7 @@ var DefaultValueConstants = require('../../constants/default-value-constants.js'
 var AnnouncementType = require('../../constants/announcement-type.js');
 var DefaultFields = DefaultValueConstants.DefaultFieldAttributes;
 
-var GDriveService = require('../../services/google-drive-service.js');
+var GDriveUtils = require('../../utils/google-drive-utils.js');
 
 var Configs = require('../../app-config.js');
 
@@ -12,15 +12,11 @@ module.exports = React.createClass({
 				LIFE CYCLE FUNCTIONS
 	****************************************** */
 	componentWillMount: function() {
-		//***avnd//
-		this.metadataModel = null;
-		this.gModel = null;
 		this.gFields = null;
 		this.table = null;
 		this.selectedRowIndex = null;
-
-		Bullet.on(EventType.EntryForm.GAPI_FILE_LOADED, 'enum-elements.jsx>>onGapiFileLoaded', this.onGapiFileLoaded);
-		Bullet.on(EventType.EntryForm.METADATA_MODEL_LOADED, 'enum-elements.jsx>>onMetadataModelLoaded', this.onMetadataModelLoaded);
+		this.controller = this.props.controller;
+		this.metadataModel = this.controller.getMetadataModel();
 	},
 
 	componentDidMount: function() {
@@ -28,44 +24,29 @@ module.exports = React.createClass({
 		window.onhashchange = this.showWarningMessageWhenInvalid;
 
 		setInterval(this.enforceValidation, Configs.EntryForm.VALIDATION_INTERVAL);
+
+		this.initialize();
+		this.updateUi();
 	},
 
 	componentWillUnmount: function() {
-		this.metadataModel = null;
-		this.gModel = null;
-		this.gFields = null;
-		this.table = null;
-		this.selectedRowIndex = null;
-
-		if (this.gFields) { this.gFields.removeAllEventListeners(); }
 		$('.error-tooltipped').tooltipster('destroy');
-
-		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'enum-elements.jsx>>onGapiFileLoaded');
-		Bullet.off(EventType.EntryForm.METADATA_MODEL_LOADED, 'enum-elements.jsx>>onMetadataModelLoaded');
 	},
 
 	/* ******************************************
 			NON LIFE CYCLE FUNCTIONS
 	****************************************** */
+	initialize: function()
+	{
+		this.controller.addFieldsUpdateListener(this.updateUi);
+	},
+
 	showWarningMessageWhenInvalid: function(e) {
 		this.enforceValidation();
 		if ($('.invalid-input').length) {
 			return "Warning: Invalid fields were found, please fix them before navigating away.";
 		}
 		return null;
-	},
-
-	onGapiFileLoaded: function(doc) {
-		this.gModel = doc.getModel().getRoot().get(this.props.gapiKey);
-		this.gFields = this.gModel.fields;
-		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this.updateUi);
-		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this.updateUi);
-		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_SET, this.updateUi);
-		this.updateUi();
-	},
-
-	onMetadataModelLoaded: function(metadataModel) {
-		this.metadataModel = metadataModel;
 	},
 
 	updateUi: function() {
@@ -75,7 +56,7 @@ module.exports = React.createClass({
 	},
 
 	initializeTable: function() {
-		var fields = this.gFields.asArray();
+		var fields = this.controller.getFieldsAsArray();
 		this.table = $('#enum-table').DataTable({
 			data: fields,
 			autoWidth: false,
@@ -149,14 +130,10 @@ module.exports = React.createClass({
 	},
 
 	enforceSingleFieldValidation: function(e) {
-		if (!this.gModel) { return; } //if google model not connected, validation doesn't make sense
-
 		this.validateField(e.currentTarget);
 	},
 
 	enforceValidation: function(e) {
-		if (!this.gModel) { return; } //if google model not connected, validation doesn't make sense
-
 		var validateField = this.validateField;
 		$('.error-tooltipped').each(function() {
 			validateField(this);
@@ -219,6 +196,7 @@ module.exports = React.createClass({
 	},
 
 	saveCell: function(e) {
+		this.gFields = this.controller.getFields();
 		var $target = $(e.target);
 		var $selectedRow = $target.closest('tr');
 		var index = parseInt($selectedRow.find('.enum-index-cell').text(), 10);
@@ -227,7 +205,6 @@ module.exports = React.createClass({
 			name: $selectedRow.find('.enum-name-input').val(),
 			description: $selectedRow.find('.enum-description-input').val()
 		};
-
 
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			if (this.gFields.get(i).index === index) {
@@ -240,7 +217,7 @@ module.exports = React.createClass({
 						enumIndex: renamedEnum.index,
 						enumNewName: renamedEnum.name
 					};
-					GDriveService.announce(this.metadataModel, renameEnumAnnouncement);
+					GDriveUtils.announce(this.metadataModel, renameEnumAnnouncement);
 				} else if (renamedEnum.description !== this.gFields.get(i).description) {
 					this.gFields.set(i, renamedEnum);
 				}
@@ -274,6 +251,7 @@ module.exports = React.createClass({
 	},
 
 	onAddEnumBtnClick: function(e) {
+		this.gFields = this.controller.getFields();
 		var NEW_ELEMENT_NAME = 'newElement';
 		var newElementNum = 0;
 		var digitsList = [];
@@ -307,7 +285,7 @@ module.exports = React.createClass({
 			enumIndex: newEnum.index,
 			enumNewName: newEnum.name
 		};
-		GDriveService.announce(this.metadataModel, addEnumAnnouncement);
+		GDriveUtils.announce(this.metadataModel, addEnumAnnouncement);
 	},
 
 	onDeleteEnumBtnClick: function(e) {
@@ -327,7 +305,7 @@ module.exports = React.createClass({
 					enumIndex: deletedEnum.index,
 					enumNewName: deletedEnum.name
 				};
-				GDriveService.announce(this.metadataModel, deleteEnumAnnouncement);
+				GDriveUtils.announce(this.metadataModel, deleteEnumAnnouncement);
 				this.gFields.remove(i);
 				break;
 			}

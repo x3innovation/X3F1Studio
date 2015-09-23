@@ -4,59 +4,49 @@ module.exports = React.createClass({
 	/* ******************************************
 				LIFE CYCLE FUNCTIONS
 	****************************************** */
-	componentWillMount: function() {
-		Bullet.on(EventType.EntryForm.GAPI_FILE_LOADED, 'persistent-events.jsx>>onGapiFileLoaded', this.onGapiFileLoaded);
+	componentWillMount: function()
+	{
+		this.controller = this.props.controller;
 	},
 
-	componentDidMount: function() {
-
-	},
-
-	componentWillUnmount: function() {
-		if (this.gModel.title) { this.gModel.title.removeAllEventListeners(); }
-
-		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'persistent-events.jsx>>onGapiFileLoaded');
+	componentDidMount: function()
+	{
+		this.controller.addModelUpdateListener(this.updateUi);
+		this.updateUi();
 	},
 
 	/* ******************************************
 				NON LIFE CYCLE FUNCTIONS
 	****************************************** */
-	onGapiFileLoaded: function(doc) {
-		this.gModel = doc.getModel().getRoot().get(this.props.gapiKey);
-		this.gModel.title.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, this.updateUi);
-		this.gModel.title.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, this.updateUi);
-		this.updateUi();
-	},
-
 	updateUi: function() {
-		var gModel = this.gModel;
-		var title = gModel.title.toString();
+		var title = this.controller.getTitle();
+		var persistenceEvents = this.controller.getPersistenceEvents();
 		this.events = [
-			{id: gModel.UpdatePersistenceEventTypeId,
+			{id: persistenceEvents.UpdatePersistenceEventTypeId,
 			 label: 'Update',
 			 name: 'Update' + title }, 
-			{id: gModel.CreatePersistenceEventTypeId,
+			{id: persistenceEvents.CreatePersistenceEventTypeId,
 			 label: 'Create',
 			 name: 'Create' + title }, 
-			{id: gModel.RemovePersistenceEventTypeId,
+			{id: persistenceEvents.RemovePersistenceEventTypeId,
 			 label: 'Remove',
 			 name: 'Remove' + title },
-			{id: gModel.UpdatedPersistenceEventTypeId,
+			{id: persistenceEvents.UpdatedPersistenceEventTypeId,
 			 label: 'Updated',
 			 name: title + 'Updated' },
-			{id: gModel.CreatedPersistenceEventTypeId,
+			{id: persistenceEvents.CreatedPersistenceEventTypeId,
 			 label: 'Created',
 			 name: title + 'Created' },
-			{id: gModel.RemovedPersistenceEventTypeId,
+			{id: persistenceEvents.RemovedPersistenceEventTypeId,
 			 label: 'Removed',
 			 name: title + 'Removed' },
-			{id: gModel.RejectedUpdatePersistenceEventTypeId,
+			{id: persistenceEvents.RejectedUpdatePersistenceEventTypeId,
 			 label: 'Update Rejected',
 			 name: 'Update' + title + 'Rejected' },
-			{id: gModel.RejectedCreatePersistenceEventTypeId,
+			{id: persistenceEvents.RejectedCreatePersistenceEventTypeId,
 			 label: 'Create Rejected',
 			 name: 'Create' + title + 'Rejected' },
-			{id: gModel.RejectedRemovePersistenceEventTypeId,
+			{id: persistenceEvents.RejectedRemovePersistenceEventTypeId,
 			 label: 'Remove Rejected',
 			 name: 'Remove' + title + 'Rejected' }
 		];

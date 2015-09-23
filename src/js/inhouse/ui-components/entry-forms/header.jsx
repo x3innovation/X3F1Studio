@@ -1,7 +1,7 @@
 var EventType = require('../../constants/event-type.js');
 var AnnouncementType = require('../../constants/announcement-type.js');
 var GDriveConstants = require('../../constants/google-drive-constants.js');
-var GDriveService = require('../../services/google-drive-service.js');
+var GDriveUtils = require('../../utils/google-drive-utils.js');
 
 var HeaderController = require('./header-controller.js');
 
@@ -18,7 +18,7 @@ module.exports = React.createClass({
 		this.controller = new HeaderController(this.props.objectFileId, 
 			this.props.objectFileType,
 			this.props.gMetadataModel, 
-			this.props.gModel);
+			this.props.gFileCustomModel);
 	},
 
 	componentDidMount: function() {

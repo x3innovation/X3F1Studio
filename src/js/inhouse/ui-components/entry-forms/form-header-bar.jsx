@@ -1,10 +1,7 @@
 var EventType = require('../../constants/event-type.js');
 var DefaultValueConstants = require('../../constants/default-value-constants.js');
 var ColorList = require('../../constants/color-list-constants.js');
-
 var Configs = require('../../app-config.js');
-
-var GDriveService = require('../../services/google-drive-service.js');
 var DataVisualizationService = require('../../services/data-visualization-service.js');
 
 module.exports = React.createClass({
@@ -12,36 +9,27 @@ module.exports = React.createClass({
 	            LIFE CYCLE FUNCTIONS
 	****************************************** */
 	componentWillMount: function() {
-		this.gModel = null;
-		this.gFields = null;
 		this.fieldsModel = [];
 		this.totalBytes = 0;
-
-		Bullet.on(EventType.EntryForm.GAPI_FILE_LOADED, 'form-header-bar.jsx>>onGapiFileLoaded', this.onGapiFileLoaded);
+		this.controller = this.props.controller;
 	},
 
 	componentDidMount: function() {
+		this.initialize();
 	},
 
 	componentWillUnmount: function() {
 		$('.tooltip-to-remove').tooltipster('destroy');
-
-		if (this.gFields) { this.gFields.removeEventListener(gapi.drive.realtime.EventType.OBJECT_CHANGED, this.updateUi); }
-		clearInterval(this.updateInterval);
-
-		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'form-header-bar.jsx>>onGapiFileLoaded');
 	},
 
 	/* ******************************************
 	          NON LIFE CYCLE FUNCTIONS
 	****************************************** */
 
-	onGapiFileLoaded: function(doc) {
-		this.gModel = doc.getModel().getRoot().get(this.props.gapiKey);
-		this.gFields = this.gModel.fields;
-		this.gFields.addEventListener(gapi.drive.realtime.EventType.OBJECT_CHANGED, this.updateUi);
+	initialize: function(doc) {
+		this.fields = this.controller.getFields();
+		this.controller.addObjectChangedListener(this.updateUi);
 		this.updateUi();
-
 		$('#header-bar-slide-wrapper').css('display', 'none');
 	},
 
@@ -93,7 +81,7 @@ module.exports = React.createClass({
 	},
 
 	mapFieldData: function() {
-		if (!this.gFields) { return; }
+		if (!this.fields) { return; }
 
 		var FieldSizeCons = DefaultValueConstants.FieldSizeValues;
 
@@ -114,9 +102,9 @@ module.exports = React.createClass({
 
 		var color = null;
 		var index;
-		for (var i = 0, len = this.gFields.length; i<len; i++) {
-			var fieldModel = DataVisualizationService.generateFieldModel(this.gFields.get(i), currByte);
-			fieldModel.id = this.gFields.get(i).id;
+		for (var i = 0, len = this.fields.length; i<len; i++) {
+			var fieldModel = DataVisualizationService.generateFieldModel(this.fields.get(i), currByte);
+			fieldModel.id = this.fields.get(i).id;
 			currByte += fieldModel.size; 
 
 			//start from i+1 to account for the first position filled by the null bits
@@ -244,12 +232,10 @@ module.exports = React.createClass({
 	},
 
 	getDisplayInfo: function() {
-		if (!this.gModel) { return; }
-
-		var creatorName = this.gModel.creatingUser.name;
-		var createdData = moment(this.gModel.createdDate).format("MMMM Do YYYY, H:mm");
+		var creatorName = this.controller.getCreatorName();
+		var createdDate = moment(this.controller.getCreatedDate()).format("MMMM Do YYYY, H:mm");
 		
-		var creatorInfo = 'Created by ' + creatorName + ' on ' + createdData;
+		var creatorInfo = 'Created by ' + creatorName + ' on ' + createdDate;
 		var totalBytesInfo = this.totalBytes + ' bytes';
 		return (
 		   <div id='header-display-info' className='row'>

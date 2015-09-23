@@ -5,9 +5,9 @@ var ObjectTypes = GDriveConstants.ObjectType;
 
 var UserLoginFailRedirectHome = require('../common/user-login-fail-redirect-home.jsx');
 var UserStore = require('../../stores/user-store.js');
-var GDriveService = require('../../services/google-drive-service.js');
+var GDriveUtils = require('../../utils/google-drive-utils.js');
 
-// var Body = require('./body.jsx');
+var Body = require('./body.jsx');
 var Header = require('./header.jsx');
 
 var Controller = require('./editor-controller.js');
@@ -20,6 +20,7 @@ module.exports = React.createClass({
 	componentWillMount: function() {
 		this.objectFileType = this.getQuery().fileType;
 		var projectFileId = this.getParams().projectFileId;
+		this.projectFolderFileId = this.getParams().projectFolderFileId;
 		this.objectFileId = this.getParams().fileId;
 		this.controller = new Controller(this.objectFileType, projectFileId, this.objectFileId);
 
@@ -32,8 +33,15 @@ module.exports = React.createClass({
 		Bullet.on(EventType.App.USER_LOGGED_IN, 'entry.jsx>>userLoggedIn', this.initialize);
 	},
 
+	componentDidMount: function()
+	{
+		var pageTitle = this.controller.getPageTitle();
+		Bullet.trigger(EventType.App.PAGE_CHANGE, {title: pageTitle});
+	},
+
 	componentWillUnmount: function() {
 		Bullet.off(EventType.App.USER_LOGGED_IN, 'entry.jsx>>userLoggedIn');
+		this.controller.dispose();
 	},
 
 	/* ******************************************
@@ -44,14 +52,19 @@ module.exports = React.createClass({
 		var _this = this;
 		this.controller.initialize(onInitializeFinished);
 
-		function onInitializeFinished(gMetadataModel, gModel)
+		function onInitializeFinished(gMetadataModel, gFileCustomModel, gFileModel)
 		{
 			_this.editor = 	<div>
 								<Header gMetadataModel={gMetadataModel}
-									gModel={gModel}
+									gFileCustomModel={gFileCustomModel}
 									objectFileId={_this.objectFileId}
 									objectFileType={_this.objectFileType} />
-								<Body controller={_this.controller} />								
+								<Body gFileCustomModel={gFileCustomModel} 
+									objectFileType={_this.objectFileType}
+									gMetadataModel={gMetadataModel}
+									projectFolderFileId={_this.projectFolderFileId}
+									objectFileId={_this.objectFileId}
+									gFileModel = {gFileModel} />
 							</div>
 
 			_this.forceUpdate();
@@ -64,7 +77,7 @@ module.exports = React.createClass({
 		}
 		var params = {
 			projectFileId: this.getParams().projectFileId,
-			projectFolderFileId: this.getParams().projectFolderFileId
+			projectFolderFileId: this.projectFolderFileId
 		};
 		this.transitionTo('project', params);
 	},

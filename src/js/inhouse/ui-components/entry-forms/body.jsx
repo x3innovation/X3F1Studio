@@ -8,13 +8,32 @@ var FormHeaderBar = require('./form-header-bar.jsx');
 var PersistentEvents = require('./persistent-events.jsx');
 var Queries = require('./queries.jsx');
 
+var FormHeaderBarController = require('./form-header-bar-controller.js');
+var FieldSelectorController = require('./field-selector-controller.js');
+var FormController = require('./form-controller.js');
+var PersistentEventsController = require('./persistent-events-controller.js');
+var QueriesController = require('./queries-controller.js');
+var EnumElementsController = require('./enum-elements-controller.js');
+
 module.exports = React.createClass({
 	/* ******************************************
 	            LIFE CYCLE FUNCTIONS
 	****************************************** */
-	componentDidMount: function() {
-		$('.body-wrapper').removeClass('hide').addClass('loaded');
-		$('.body-preloader-wrapper').addClass('hide');
+	componentWillMount: function()
+	{
+		this.formHeaderBarController = new FormHeaderBarController(this.props.gFileCustomModel);
+		this.fieldSelectorController = new FieldSelectorController(this.props.gFileCustomModel);
+		this.formController = new FormController(this.props.gFileCustomModel,
+			this.props.gMetadataModel,
+			this.props.projectFolderFileId,
+			this.props.objectFileId,
+			this.props.gFileModel);
+		this.persistentEventsController = new PersistentEventsController(this.props.gFileCustomModel);
+		this.queriesController = new QueriesController(this.props.gFileCustomModel,
+			this.props.gMetadataModel,
+			this.props.gFileModel);
+		this.enumElementsController = new EnumElementsController(this.props.gFileCustomModel,
+			this.props.gMetadataModel);
 	},
 
 	/* ******************************************
@@ -23,47 +42,31 @@ module.exports = React.createClass({
 	getContent: function() {
 		var content;
 
-		var projectFileId = this.props.projectFileId;
-		var projectFolderFileId = this.props.projectFolderFileId;
-		var fileId = this.props.fileId;
-		var fileType = this.props.fileType;
-		var gapiKey = this.props.gapiKey;
-
-		switch (fileType) {
+		switch (this.props.objectFileType) {
 			case GDriveConstants.ObjectType.PERSISTENT_DATA:
 				content = (
-					<div className = 'body-wrapper row hide'>
+					<div className = 'body-wrapper row'>
 						<div className = 'form-wrapper-row row'>
 							<div className = 'col s12' id = 'form-header-bar-wrapper'>
-								<FormHeaderBar
-									projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-									fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
+								<FormHeaderBar controller={this.formHeaderBarController} />
 							</div>
 							<div className = 'col s4' id = 'field-selector-wrapper'>
-								<FieldSelector
-									projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-									fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
+								<FieldSelector controller={this.fieldSelectorController} />
 							</div>
 							<div className = 'col s8' id = 'form-wrapper'>
-								<Form
-									projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-									fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
+								<Form controller={this.formController} />
 							</div>
 						</div>
 						<br />
 						<div id = 'persistent-events-wrapper' className = 'form-wrapper-row row'>
 							<div className = 'col s12'>
-								<PersistentEvents
-									projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-									fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
+								<PersistentEvents controller={this.persistentEventsController} />
 							</div>
 						</div>
 						<br />
 						<div id = 'queries-wrapper' className = 'form-wrapper-row  row'>
 							<div className = 'col s12'>
-								<Queries
-									projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-									fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
+								<Queries controller={this.queriesController} />
 							</div>
 						</div>
 					</div>
@@ -72,22 +75,16 @@ module.exports = React.createClass({
 
 			case GDriveConstants.ObjectType.EVENT:
 				content = (
-					<div className = 'body-wrapper row hide'>
+					<div className = 'body-wrapper row'>
 						<div className = 'form-wrapper-row row'>
 							<div className = 'col s12' id = 'form-header-bar-wrapper'>
-								<FormHeaderBar
-									projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-									fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
+								<FormHeaderBar controller={this.formHeaderBarController} />
 							</div>
 							<div className = 'col s4' id = 'field-selector-wrapper'>
-								<FieldSelector
-									projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-									fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
+								<FieldSelector controller={this.fieldSelectorController} />
 							</div>
 							<div className = 'col s8' id = 'form-wrapper'>
-								<Form
-									projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-									fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
+								<Form controller={this.formController} />
 							</div>
 						</div>
 					</div>
@@ -96,22 +93,16 @@ module.exports = React.createClass({
 
 			case GDriveConstants.ObjectType.SNIPPET:
 				content = (
-					<div className = 'body-wrapper row hide'>
+					<div className = 'body-wrapper row'>
 						<div className = 'form-wrapper-row row'>
 							<div className = 'col s12' id = 'form-header-bar-wrapper'>
-								<FormHeaderBar
-									projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-									fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
+								<FormHeaderBar controller={this.formHeaderBarController} />
 							</div>
 							<div className = 'col s4' id = 'field-selector-wrapper'>
-								<FieldSelector
-									projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-									fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
+								<FieldSelector controller={this.fieldSelectorController} />
 							</div>
 							<div className = 'col s8' id = 'form-wrapper'>
-								<Form
-									projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-									fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
+								<Form controller={this.formController} />
 							</div>
 						</div>
 					</div>
@@ -120,12 +111,10 @@ module.exports = React.createClass({
 
 			case GDriveConstants.ObjectType.ENUM: 
 				content = (
-					<div className = 'body-wrapper row hide'>
+					<div className = 'body-wrapper row'>
 						<div id = 'enum-elements-wrapper' className = 'row form-wrapper-row '>
 							<div className = 'col s12'>
-								<EnumElements
-									projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-									fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
+								<EnumElements controller={this.enumElementsController} />
 							</div>
 						</div>
 					</div>
@@ -144,9 +133,6 @@ module.exports = React.createClass({
 		return (
 			<div>
 				{content}
-				<div className = 'body-preloader-wrapper preloader'>
-					<img id = "body-preloader" src = "img/loading-spin.svg" />
-				</div>
 			</div>
 		);
 	}
