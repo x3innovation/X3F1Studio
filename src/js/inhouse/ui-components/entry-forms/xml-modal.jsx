@@ -4,7 +4,7 @@ var EventType = require('../../constants/event-type.js');
 var Configs = require('../../app-config.js');
 
 var generateXMLService = require('../../services/generate-xml-service.js');
-var GDriveService = require('../../services/google-drive-service.js');
+var GDriveUtils = require('../../utils/google-drive-utils.js');
 
 module.exports = React.createClass({
 	/* ******************************************
@@ -28,8 +28,8 @@ module.exports = React.createClass({
 		};
 
 		var _this = this;
-		GDriveService.getProjectById(this.props.projectFileId, function(project) {
-			GDriveService.getProjectObjects(_this.props.projectFolderFileId, '', objectsToGet, function(projectObjects) {
+		GDriveUtils.getProjectById(this.props.projectFileId, function(project) {
+			GDriveUtils.getProjectObjects(_this.props.projectFolderFileId, '', objectsToGet, function(projectObjects) {
 				generateXMLService.generateProjectXML(projectObjects, project, _this.onXMLGenerated);
 			});
 		});

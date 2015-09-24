@@ -1,7 +1,7 @@
 var UserLoginFailRedirectHome = require('../common/user-login-fail-redirect-home.jsx');
 var EventType = require('../../constants/event-type.js');
 var userStore = require('../../stores/user-store.js');
-var googleDriveService = require('../../services/google-drive-service.js');
+var googleDriveUtils = require('../../utils/google-drive-utils.js');
 var Card = require('./card.jsx');
 var GDriveCons = require('../../constants/google-drive-constants.js');
 var DefaultValueCons = require('../../constants/default-value-constants.js');
@@ -91,6 +91,11 @@ module.exports = React.createClass({
 		});
 	},
 
+	componentWillUnmount : function()
+	{
+		this.gDoc.close();
+	},
+
 	/* ******************************************
 			NON LIFE CYCLE FUNCTIONS
 	****************************************** */
@@ -105,6 +110,7 @@ module.exports = React.createClass({
 	onProjectFileLoaded : function(doc)
 	{
 		var _this = this;
+		this.gDoc = doc;
 		var gModel = doc.getModel();
 
 		gModel.beginCompoundOperation();
@@ -151,7 +157,7 @@ module.exports = React.createClass({
 	saveTitleToFileItself : function()
 	{
 		var newTitle = $('#project-title').val();
-		googleDriveService.saveProjectTitle(this.getParams().projectFileId, newTitle, this.getParams().projectFolderFileId);
+		googleDriveUtils.saveProjectTitle(this.getParams().projectFileId, newTitle, this.getParams().projectFolderFileId);
 	},
 
 	getProjectObjects : function()
@@ -169,7 +175,7 @@ module.exports = React.createClass({
 
 		var getProjectObjectsCallback = this.onReceiveProjectObjects;
 
-		googleDriveService.getProjectObjects(
+		googleDriveUtils.getProjectObjects(
 			this.getParams().projectFolderFileId,
 			$('#search-input').val(),
 			objectsToGet,
@@ -246,7 +252,7 @@ module.exports = React.createClass({
 		var _this = this;
 		this.createObjectTimeout = setTimeout(function() {
 			var routerParams = _this.getParams();
-			googleDriveService.createNewF1Object(fileType, routerParams.projectFolderFileId, function(file) {
+			googleDriveUtils.createNewF1Object(fileType, routerParams.projectFolderFileId, function(file) {
 				var params = {
 					projectFolderFileId: routerParams.projectFolderFileId,
 					projectFileId: routerParams.projectFileId,

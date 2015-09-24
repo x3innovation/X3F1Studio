@@ -103,18 +103,19 @@ function GoogleDriveService()
 	    gapi.drive.realtime.load(fileId, onMetadataFileLoaded, initializeMetadataModel);
 	};
 
-	this.getMetadataModelId = function(projectFileId, callback, step) {
-	    if (typeof step == 'undefined') {
-	    	step = 1;
-	    }
-	    this.getMetadataModel(projectFileId, function(metadataModel) {
-	        if (typeof metadataModel.nextId == 'undefined') {
-	            metadataModel.nextId = 0;
-	        }
-	        var thisId = metadataModel.nextId;
-	        metadataModel.nextId = metadataModel.nextId+step;
-	        callback(thisId);
-		});
+	this.setAndGetNextMetadataModelId = function(gMetadataModel, step) {
+		if (step == null)
+		{
+			step = 1;
+		}
+
+	    if (gMetadataModel.nextId == null)
+		{
+			gMetadataModel.nextId = 0;
+		}
+		
+		gMetadataModel.nextId = gMetadataModel.nextId + step;
+		return gMetadataModel.nextId;
 	};
 
 	this.announce = function(metadataModel, announcement) {

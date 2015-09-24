@@ -1,8 +1,5 @@
 var EventType = require('../../constants/event-type.js');
-
 var Configs = require('../../app-config.js');
-
-var GDriveService = require('../../services/google-drive-service.js');
 
 module.exports = React.createClass({
 	/* ******************************************
@@ -11,70 +8,33 @@ module.exports = React.createClass({
 	componentWillMount: function() {
 		this.gBindings = [];
 		this.table = null;
-		this.gFields = null;
-		this.gModel = null;
-		this.fields = null;
 		this.selectedFieldId = null;
-
-		Bullet.on(EventType.EntryForm.GAPI_FILE_LOADED, 'field-selector.jsx>>onGapiFileLoaded', this.onGapiFileLoaded);
+		this.controller = this.props.controller;
 	},
 
 	componentDidMount: function() {
-		this.initializeTooltips();
-	},
-
-	componentWillUnmount: function() {
-		if (this.gFields) {
-			this.gFields.removeEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this.updateUi);
-			this.gFields.removeEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this.updateUi);
-		}
-
-		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'field-selector.jsx>>onGapiFileLoaded');
+		this.initialize();
+		this.updateUi();
+		this.selectTopField();
 	},
 
 	/* ******************************************
 			NON LIFE CYCLE FUNCTIONS
 	****************************************** */
-	onGapiFileLoaded: function(doc) {
-		this.gModel = doc.getModel();
-		this.gFields = this.gModel.getRoot().get(this.props.gapiKey).fields;
-		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this.updateUi);
-		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this.updateUi);
-		this.updateUi(); 
-		//push to end of thread to make sure all other components have loaded google model
-		setTimeout(this.selectTopField, 0);
+	initialize: function()
+	{
+		this.controller.addFieldsUpdateListener(this.updateUi);
+		this.initializeTooltips();
 	},
 
 	updateUi: function(e) {
-		this.getFields();
-		this.initializeTable();
-		this.rebindStrings();
+		var fields = this.controller.getFields();
+		this.initializeTable(fields);
+		this.rebindStrings(fields);
 		this.selectField(true);
 	},
 
-	getFields: function() {
-		var fields = [];
-		var gField;
-		var field;
-		if (!this.gFields) {
-			this.gFields = this.gModel.getRoot().get(this.props.gapiKey).fields;
-		}
-		for (var i = 0, len = this.gFields.length; i<len; i++) {
-			gField = this.gFields.get(i);
-			field = {};
-			field.id = gField.id;
-			field.name = gField.get('name').toString();
-			var dataField = {
-				data: field,
-				name: field.name
-			};
-			fields.push(dataField);
-		}
-		this.fields = fields;
-	},
-
-	initializeTable: function() {
-		var fields = this.fields;
+	initializeTable: function(fields) {
 		this.table = $('#field-table').DataTable({
 			data: fields,
 			destroy: true,
@@ -165,6 +125,7 @@ module.exports = React.createClass({
 
 	rebindStrings: function() {
 		var _this = this;
+		var gModelFields = this.controller.getGoogleModelFields();
 		var table = this.table;
 		var bindString = gapi.drive.realtime.databinding.bindString;
 		var TextInsertedEvent = gapi.drive.realtime.EventType.TEXT_INSERTED;
@@ -187,9 +148,9 @@ module.exports = React.createClass({
 			var fieldId = $element.attr('data-field-id');
 			var collabString;
 			var functionWrapper = function(e) {updateSpanSibling(e, $element);};
-			for (var i = 0, len = _this.gFields.length; i<len; i++) {
-				if (_this.gFields.get(i).id === fieldId) {
-					collabString = _this.gFields.get(i).get('name');
+			for (var i = 0, len = gModelFields.length; i<len; i++) {
+				if (gModelFields.get(i).id === fieldId) {
+					collabString = gModelFields.get(i).get('name');
 					
 					//remove and then add again, as $element may have changed
 					collabString.removeEventListener(TextInsertedEvent, functionWrapper); 
@@ -207,9 +168,9 @@ module.exports = React.createClass({
 	addField: function(newFieldName) {
 		if (!this.gFields) { return false; }
 
-		this.gModel.beginCompoundOperation();
-		var gField = GDriveService.createNewField(newFieldName, this.gModel);
-		this.gModel.endCompoundOperation();
+		this.gFileModel.beginCompoundOperation();
+		var gField = GDriveService.createNewField(newFieldName, this.gFileModel);
+		this.gFileModel.endCompoundOperation();
 		this.selectedFieldId = gField.id;
 		this.gFields.push(gField);
 	},

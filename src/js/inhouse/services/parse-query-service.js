@@ -13,16 +13,20 @@ function ParseQueryService() {
 				if (qTokens[j].indexOf('.') > 0) {
 					paramTokenFound = true;
 					paramPos = j + 1;
-					while (qTokens[paramPos].indexOf('[') === -1 || qTokens[paramPos].indexOf(']') === -1 ||
-							qTokens[paramPos].indexOf('[') >= qTokens[paramPos].indexOf(']')) {
-						paramPos++;
-						if (paramPos > qTokens.length) {
-							paramTokenFound = false;
-							break;
+					if (paramPos < qTokens.length)
+					{
+						while (qTokens[paramPos].indexOf('[') === -1 || qTokens[paramPos].indexOf(']') === -1 ||
+								qTokens[paramPos].indexOf('[') >= qTokens[paramPos].indexOf(']')) {
+							paramPos++;
+						
+							if (paramPos >= qTokens.length) {
+								paramTokenFound = false;
+								break;
+							}
 						}
-					}
-					if (paramTokenFound) {
-						setQueryParam(qTokens[j].split('.'), qTokens[paramPos], dataObjectsJson, query);
+						if (paramTokenFound) {
+							setQueryParam(qTokens[j].split('.'), qTokens[paramPos], dataObjectsJson, query);
+						}
 					}
 				}
 			}

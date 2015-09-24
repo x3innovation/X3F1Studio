@@ -2,7 +2,7 @@ var UserLoginFailRedirectHome = require('../common/user-login-fail-redirect-home
 var EventType = require('../../constants/event-type.js');
 var Configs = require('../../app-config.js');
 var Card = require('./card.jsx');
-var googleDriveService = require('../../services/google-drive-service.js');
+var googleDriveUtils = require('../../utils/google-drive-utils.js');
 var userStore = require('../../stores/user-store.js');
 
 module.exports = React.createClass({
@@ -40,7 +40,7 @@ module.exports = React.createClass({
     ****************************************** */
     initialize : function()
     {
-    	googleDriveService.getProjects('', this.onReceiveProjects);
+    	googleDriveUtils.getProjects('', this.onReceiveProjects);
     },
 
     onReceiveProjects : function(projects)
@@ -62,7 +62,7 @@ module.exports = React.createClass({
     	this.forceUpdate();
 
     	var titleSearchString = $('#search-input').val();
-    	googleDriveService.getProjects(titleSearchString, this.onReceiveProjects);
+    	googleDriveUtils.getProjects(titleSearchString, this.onReceiveProjects);
     },
 
     onAddProjectBtnClick: function(e) {
@@ -72,7 +72,7 @@ module.exports = React.createClass({
 
     createNewProject: function() {
     	var _this = this;
-    	googleDriveService.createNewProject(function(project) { //transition as a callback
+    	googleDriveUtils.createNewProject(function(project) { //transition as a callback
     		var params = {};
     		params.projectFolderFileId=project.parents[0].id;
     		params.projectFileId=project.id;

@@ -11,6 +11,11 @@ module.exports = React.createClass({
 	/* ******************************************
 				LIFE CYCLE FUNCTIONS
 	****************************************** */
+	componentWillMount : function()
+	{
+		this.isUnmounted = false;
+	},
+
 	componentDidMount : function()
 	{
 		gapi.drive.realtime.load(this.props.fileId, this.onFileLoaded, null);
@@ -46,70 +51,85 @@ module.exports = React.createClass({
 
 	componentDidUpdate : function()
 	{
-		$('#' + this.props.fileId + '-title').val(this.model.title.toString());
-
-		var descriptionInput = document.getElementById(this.props.fileId + '-description');
-		if (descriptionInput !== null) { //if the description text area exists
-			$(descriptionInput).val(this.model.description);
-			// resize description text area
-			$(descriptionInput).css('height', 'auto').height(descriptionInput.scrollHeight);
-		}
-		// highlight card animation
-		$('#' + this.props.fileId + '-wrapper').mouseenter(this.onProjectMouseEnter).mouseleave(this.onProjectMouseLeave);
-
-		// apply card flip
-		$('#' + this.props.fileId + '-card').flip({
-			axis : 'y',
-			trigger : 'manual'
-		});
-
-		// apply slim scroll to description section of card's front face
-		$('#' + this.props.fileId + '-description-wrapper').slimScroll({
-			height : '220px'
-		});
-
-		var backSideHeader = this.getBackSideHeader();
-		$('#'+ this.props.fileId + '-back-header').val(backSideHeader);
-
-		var cardBackSide = document.getElementById(this.props.fileId+'-back-side');
-		if (cardBackSide !== null) {
-			var backSideContent = this.getBackSideContent();
-			$(cardBackSide).val(backSideContent);
-			$(cardBackSide).css('height', 'auto').height(cardBackSide.scrollHeight);
-		}
-		$('#' + this.props.fileId + '-back-side-wrapper').slimScroll({
-			height : '220px'
-		});
-
-		// apply single click to flip
-		var DELAY = 300, clicks = 0, timer = null;
-		var onCardSingleClick = this.onCardSingleClick;
-		var onCardDoubleClick = this.onCardDoubleClick;
-		$('#' + this.props.fileId + '-wrapper').on('click', function(e){
-			clicks++;
-			if(clicks === 1)
+		if (!this.isUnmounted)
+		{
+			if (this.model.title != null)
 			{
-				timer = setTimeout(function(){
-					onCardSingleClick();
+				$('#' + this.props.fileId + '-title').val(this.model.title.toString());
+			}
+
+			var descriptionInput = document.getElementById(this.props.fileId + '-description');
+			if (descriptionInput !== null) { //if the description text area exists
+				$(descriptionInput).val(this.model.description);
+				// resize description text area
+				$(descriptionInput).css('height', 'auto').height(descriptionInput.scrollHeight);
+			}
+			// highlight card animation
+			$('#' + this.props.fileId + '-wrapper').mouseenter(this.onProjectMouseEnter).mouseleave(this.onProjectMouseLeave);
+
+			// apply card flip
+			$('#' + this.props.fileId + '-card').flip({
+				axis : 'y',
+				trigger : 'manual'
+			});
+
+			// apply slim scroll to description section of card's front face
+			$('#' + this.props.fileId + '-description-wrapper').slimScroll({
+				height : '220px'
+			});
+
+			var backSideHeader = this.getBackSideHeader();
+			$('#'+ this.props.fileId + '-back-header').val(backSideHeader);
+
+			var cardBackSide = document.getElementById(this.props.fileId+'-back-side');
+			if (cardBackSide !== null) {
+				var backSideContent = this.getBackSideContent();
+				$(cardBackSide).val(backSideContent);
+				$(cardBackSide).css('height', 'auto').height(cardBackSide.scrollHeight);
+			}
+			$('#' + this.props.fileId + '-back-side-wrapper').slimScroll({
+				height : '220px'
+			});
+
+			// apply single click to flip
+			var DELAY = 300, clicks = 0, timer = null;
+			var onCardSingleClick = this.onCardSingleClick;
+			var onCardDoubleClick = this.onCardDoubleClick;
+			$('#' + this.props.fileId + '-wrapper').on('click', function(e){
+				clicks++;
+				if(clicks === 1)
+				{
+					timer = setTimeout(function(){
+						onCardSingleClick();
+						clicks = 0;
+					}, DELAY);
+				}
+				else
+				{
+					clearTimeout(timer);
+					onCardDoubleClick();
 					clicks = 0;
-				}, DELAY);
-			}
-			else
-			{
-				clearTimeout(timer);
-				onCardDoubleClick();
-				clicks = 0;
-			}
-		})
-		.on('dblclick', function(e){
-			e.preventDefault();
-		});
+				}
+			})
+			.on('dblclick', function(e){
+				e.preventDefault();
+			});
 
-		// disable select
-		$('#' + this.props.fileId + '-card').disableSelection();
+			// disable select
+			$('#' + this.props.fileId + '-card').disableSelection();
 
-		// display object type tag on the front of the card
-		$('#' + this.props.fileId + '-object-type').addClass('card-tag card-tag-' + this.model.objectType).text(this.model.objectType);
+			// display object type tag on the front of the card
+			$('#' + this.props.fileId + '-object-type').addClass('card-tag card-tag-' + this.model.objectType).text(this.model.objectType);
+		}
+	},
+
+	componentWillUnmount : function()
+	{
+		this.isUnmounted = true;
+		if (this.gDoc != null)
+		{
+			this.gDoc.close();
+		}
 	},
 
 	/* ******************************************
@@ -129,92 +149,100 @@ module.exports = React.createClass({
 
 	onFileLoaded : function(doc)
 	{
-		var key;
-		switch(this.props.objectType) {
-			case GDriveCons.ObjectType.PERSISTENT_DATA:
-				key = GDriveCons.CustomObjectKey.PERSISTENT_DATA;
-				break;
-			case GDriveCons.ObjectType.ENUM:
-				key = GDriveCons.CustomObjectKey.ENUM;
-				break;
-			case GDriveCons.ObjectType.SNIPPET:
-				key = GDriveCons.CustomObjectKey.SNIPPET;
-				break;
-			case GDriveCons.ObjectType.EVENT:
-				key = GDriveCons.CustomObjectKey.EVENT;
-				break;
-			case GDriveCons.ObjectType.FLOW:
-				key = GDriveCons.CustomObjectKey.FLOW;
-				break;
-			default:
-				break;
-		}
+		if (!this.isUnmounted)
+		{
+			this.gDoc = doc;
+			var key;
+			switch(this.props.objectType) {
+				case GDriveCons.ObjectType.PERSISTENT_DATA:
+					key = GDriveCons.CustomObjectKey.PERSISTENT_DATA;
+					break;
+				case GDriveCons.ObjectType.ENUM:
+					key = GDriveCons.CustomObjectKey.ENUM;
+					break;
+				case GDriveCons.ObjectType.SNIPPET:
+					key = GDriveCons.CustomObjectKey.SNIPPET;
+					break;
+				case GDriveCons.ObjectType.EVENT:
+					key = GDriveCons.CustomObjectKey.EVENT;
+					break;
+				case GDriveCons.ObjectType.FLOW:
+					key = GDriveCons.CustomObjectKey.FLOW;
+					break;
+				default:
+					break;
+			}
 
-		var gModel = doc.getModel().getRoot().get(key);
-		var fields;
-		if (this.props.objectType === GDriveCons.ObjectType.PERSISTENT_DATA) {
-			this.model.fieldNames = [];
-			if (gModel) {
-				this.model.title = gModel.title.toString();
-				this.model.description = gModel.description.toString();
-				fields = gModel.fields;
-				for (i = 0, len = fields.length; i<len; i++) {
-					this.model.fieldNames.push(fields.get(i).get('name').toString());
+			var gModel = doc.getModel().getRoot().get(key);
+			var fields;
+			if (this.props.objectType === GDriveCons.ObjectType.PERSISTENT_DATA) {
+				this.model.fieldNames = [];
+				if (gModel) {
+					this.model.title = gModel.title.toString();
+					this.model.description = gModel.description.toString();
+					fields = gModel.fields;
+					for (i = 0, len = fields.length; i<len; i++) {
+						this.model.fieldNames.push(fields.get(i).get('name').toString());
+					}
+				} else { //gModel was not properly initialized, but still need to load
+					this.model.title = DefaultValueCons.NewFileValues.PERSISTENT_DATA_TITLE;
+					this.model.description = DefaultValueCons.NewFileValues.PERSISTENT_DATA_DESCRIPTION;
 				}
-			} else { //gModel was not properly initialized, but still need to load
-				this.model.title = DefaultValueCons.NewFileValues.PERSISTENT_DATA_TITLE;
-				this.model.description = DefaultValueCons.NewFileValues.PERSISTENT_DATA_DESCRIPTION;
 			}
-		}
-		else if (this.props.objectType === GDriveCons.ObjectType.ENUM) {
-			this.model.enumNames = [];
-			if (gModel) {
-				this.model.title = gModel.title.toString();
-				this.model.description = gModel.description.toString();
-				fields = gModel.fields;
-				for (i = 0, len = fields.length; i<len; i++) {
-					this.model.enumNames.push(fields.get(i).name);
+			else if (this.props.objectType === GDriveCons.ObjectType.ENUM) {
+				this.model.enumNames = [];
+				if (gModel) {
+					this.model.title = gModel.title.toString();
+					this.model.description = gModel.description.toString();
+					fields = gModel.fields;
+					for (i = 0, len = fields.length; i<len; i++) {
+						this.model.enumNames.push(fields.get(i).name);
+					}
+				} else { //gModel was not properly initialized, but still need to load
+					this.model.title = DefaultValueCons.NewFileValues.ENUM_TITLE;
+					this.model.description = DefaultValueCons.NewFileValues.ENUM_DESCRIPTION;
 				}
-			} else { //gModel was not properly initialized, but still need to load
-				this.model.title = DefaultValueCons.NewFileValues.ENUM_TITLE;
-				this.model.description = DefaultValueCons.NewFileValues.ENUM_DESCRIPTION;
 			}
-		}
-		else if (this.props.objectType === GDriveCons.ObjectType.SNIPPET) {
-			this.model.fieldNames = [];
-			if (gModel) {
-				this.model.title = gModel.title.toString();
-				this.model.description = gModel.description.toString();
-				fields = gModel.fields;
-				for (i = 0, len = fields.length; i<len; i++) {
-					this.model.fieldNames.push(fields.get(i).get('name').toString());
+			else if (this.props.objectType === GDriveCons.ObjectType.SNIPPET) {
+				this.model.fieldNames = [];
+				if (gModel) {
+					this.model.title = gModel.title.toString();
+					this.model.description = gModel.description.toString();
+					fields = gModel.fields;
+					for (i = 0, len = fields.length; i<len; i++) {
+						this.model.fieldNames.push(fields.get(i).get('name').toString());
+					}
+				} else { //gModel was not properly initialized, but still need to load
+					this.model.title = DefaultValueCons.NewFileValues.SNIPPET_TITLE;
+					this.model.description = DefaultValueCons.NewFileValues.SNIPPET_DESCRIPTION;
 				}
-			} else { //gModel was not properly initialized, but still need to load
-				this.model.title = DefaultValueCons.NewFileValues.SNIPPET_TITLE;
-				this.model.description = DefaultValueCons.NewFileValues.SNIPPET_DESCRIPTION;
 			}
-		}
-		else if (this.props.objectType === GDriveCons.ObjectType.EVENT) {
-			this.model.fieldNames = [];
-			if (gModel) {
-				this.model.title = gModel.title.toString();
-				this.model.description = gModel.description.toString();
-				fields = gModel.fields;
-				for (i = 0, len = fields.length; i<len; i++) {
-					this.model.fieldNames.push(fields.get(i).get('name').toString());
+			else if (this.props.objectType === GDriveCons.ObjectType.EVENT) {
+				this.model.fieldNames = [];
+				if (gModel) {
+					this.model.title = gModel.title.toString();
+					this.model.description = gModel.description.toString();
+					fields = gModel.fields;
+					for (i = 0, len = fields.length; i<len; i++) {
+						this.model.fieldNames.push(fields.get(i).get('name').toString());
+					}
+				} else { //gModel was not properly initialized, but still need to load
+					this.model.title = DefaultValueCons.NewFileValues.EVENT_TITLE;
+					this.model.description = DefaultValueCons.NewFileValues.EVENT_DESCRIPTION;
 				}
-			} else { //gModel was not properly initialized, but still need to load
-				this.model.title = DefaultValueCons.NewFileValues.EVENT_TITLE;
-				this.model.description = DefaultValueCons.NewFileValues.EVENT_DESCRIPTION;
 			}
-		}
-		else if (this.props.objectType === GDriveCons.ObjectType.FLOW) {
-			/* ***TODO*** */
-		}
+			else if (this.props.objectType === GDriveCons.ObjectType.FLOW) {
+				/* ***TODO*** */
+			}
 
-		this.contentFileLoaded = true;
-		$('#' + this.props.fileId).addClass('fadeIn animated');
-		this.forceUpdate();
+			this.contentFileLoaded = true;
+			$('#' + this.props.fileId).addClass('fadeIn animated');
+			this.forceUpdate();
+		}
+		else
+		{
+			doc.close();
+		}
 	},
 
 	getBackSideHeader: function() {
@@ -243,15 +271,21 @@ module.exports = React.createClass({
 			case GDriveCons.ObjectType.PERSISTENT_DATA:
 			case GDriveCons.ObjectType.EVENT:
 			case GDriveCons.ObjectType.SNIPPET:
-				for (i = 0, len = this.model.fieldNames.length; i<len; i++) {
-					content = content + this.model.fieldNames[i] + '\n';
+				if (this.model.fieldNames != null)
+				{
+					for (i = 0, len = this.model.fieldNames.length; i<len; i++) {
+						content = content + this.model.fieldNames[i] + '\n';
+					}
+					break;
 				}
-				break;
 			case GDriveCons.ObjectType.ENUM:
-				for (i = 0, len = this.model.enumNames.length; i<len; i++) {
-					content = content + this.model.enumNames[i] + '\n';
+				if (this.model.enumNames != null)
+				{
+					for (i = 0, len = this.model.enumNames.length; i<len; i++) {
+						content = content + this.model.enumNames[i] + '\n';
+					}
+					break;
 				}
-				break;
 			case GDriveCons.ObjectType.FLOW:
 				/* FLOW OBJECT CONTENT */
 				break;

@@ -1,31 +1,29 @@
 var EventType = require('../../constants/event-type.js');
-var AnnouncementType = require('../../constants/announcement-type.js');
 var GDriveConstants = require('../../constants/google-drive-constants.js');
-
-var GDriveService = require('../../services/google-drive-service.js');
-
 var Configs = require('../../app-config.js');
+var GDriveUtils = require('../../utils/google-drive-utils.js');
 
 module.exports = React.createClass({
 	/* ******************************************
 				LIFE CYCLE FUNCTIONS
 	****************************************** */
 	componentWillMount: function() {
-		this.gModel = null;
-		this.gFields = null;
 		this.fieldData = null;
 		this.fieldDataId = null;
 		this.fieldSelected = false;
-		this.gBindings = [];
+		this.updateListeningModels = [];
+		this.controller = this.props.controller;
+		this.gFileModel = this.controller.getFileModel();
+		this.gFileCustomModel = this.controller.getFileCustomModel();
+		this.gFields = this.controller.getFields();
+		this.isInitialized = false;
 
-		Bullet.on(EventType.EntryForm.GAPI_FILE_LOADED, 'form.jsx>>onGapiFileLoaded', this.onGapiFileLoaded);
-		Bullet.on(EventType.EntryForm.METADATA_MODEL_LOADED, 'form.jsx>>onMetadataModelLoaded', this.onMetadataModelLoaded);
 		Bullet.on(EventType.EntryForm.FIELD_SELECTED, 'form.jsx>>onFieldSelected', this.onFieldSelected);
 	},
 
 	componentDidMount: function() {
-		this.initializeTooltips();
-		this.initializeDatepicker();
+		this.initialize();
+		
 		$('input[type=text]').keypress(function(e) {
 			var code = (e.keyCode || e.which);
 			if (code === 13) { //enter was detected, ignore keypress
@@ -33,19 +31,21 @@ module.exports = React.createClass({
 				return false;
 			}
 		});
+
 		window.onbeforeunload = this.showWarningMessageWhenInvalid;
 		window.onhashchange = this.showWarningMessageWhenInvalid;
 
-		setInterval(this.enforceValidation, Configs.EntryForm.VALIDATION_INTERVAL);
+		this.isInitialized = true;
+		this.updateForSelectedField();
 	},
 
 	componentWillUnmount: function() {
-		this.gModel = null;
+		this.gFileCustomModel = null;
 		this.gFields = null;
 		this.fieldData = null;
 		this.fieldDataId = null;
 		this.fieldSelected = false;
-		this.gBindings = [];
+		this.updateListeningModels = [];
 		$('.error-tooltipped').tooltipster('destroy');
 		$('#def-date-field, #min-date-field, #max-date-field').datetimepicker('destroy');
 
@@ -53,27 +53,79 @@ module.exports = React.createClass({
 			this.gFields.removeEventListener(gapi.drive.realtime.EventType.VALUES_SET, this.updateUi);
 		}
 
-		Bullet.off(EventType.EntryForm.GAPI_FILE_LOADED, 'form.jsx>>onGapiFileLoaded');
-		Bullet.off(EventType.EntryForm.METADATA_MODEL_LOADED, 'form.jsx>>onMetadataModelLoaded');
 		Bullet.off(EventType.EntryForm.FIELD_SELECTED, 'form.jsx>>onFieldSelected');
 	},
 
 	/* ******************************************
 			   NON LIFE CYCLE FUNCTIONS
 	****************************************** */
+	initialize: function()
+	{
+		var _this = this;
+		this.initializeTooltips();
+		this.initializeDatepicker();
+		this.controller.addFieldsUpdateListener(this.updateUi);
+		this.controller.loadProjectObjects(onProjectObjectsLoaded);
+		this.controller.addAnnouncementListener(this.onAnnouncement);
+
+		function onProjectObjectsLoaded(refs, enums)
+		{
+			_this.refs = refs;
+			_this.enums = enums;
+			_this.setSelectOptions();
+		}
+	},
+
+	onAnnouncement: function(announcement)
+	{
+		switch (announcement.action) {
+			case AnnouncementType.ADD_FILE:
+				switch (announcement.fileType) {
+					case GDriveConstants.ObjectType.PERSISTENT_DATA:
+					case GDriveConstants.ObjectType.SNIPPET:
+					case GDriveConstants.ObjectType.EVENT:
+						this.addToRefs(announcement);
+						break;
+					case GDriveConstants.ObjectType.ENUM:
+						this.addToEnums(announcement);
+						break;
+					default: break;
+				} break;
+			case AnnouncementType.RENAME_FILE:
+				switch (announcement.fileType) {
+					case GDriveConstants.ObjectType.PERSISTENT_DATA:
+					case GDriveConstants.ObjectType.SNIPPET:
+					case GDriveConstants.ObjectType.EVENT:
+						this.updateRefNames(announcement);
+						break;
+					case GDriveConstants.ObjectType.ENUM:
+						this.updateEnums(announcement);
+						break;
+					default: break;
+				} break;
+			case AnnouncementType.ADD_ENUM:
+				if (announcement.fileId === _this.fieldData.get('enumId')) { 
+				// if the active enum doesn't match the updated enum, then any update would be unnoticed to the user anyways
+					this.setEnumValues(announcement.fileId);
+				} break;
+			case AnnouncementType.DELETE_ENUM:
+				if (announcement.fileId === _this.fieldData.get('enumId')) {
+					this.setEnumValues(announcement.fileId);
+				} break;
+			case AnnouncementType.RENAME_ENUM:
+				if (announcement.fileId === _this.fieldData.get('enumId')) {
+					this.setEnumValues(announcement.fileId);
+				} break;
+			default: break;
+		}
+	},
+
 	showWarningMessageWhenInvalid: function(e) {
 		this.enforceValidation();
 		if ($('.invalid-input').length) {
 			return 'Warning: Invalid fields were found, please fix them before navigating away.';
 		}
 		return null;
-	},
-
-	onGapiFileLoaded: function(doc) {
-		this.gModel = doc.getModel();
-		this.gFields = this.gModel.getRoot().get(this.props.gapiKey).fields;
-		this.gFields.addEventListener(gapi.drive.realtime.EventType.VALUES_SET, this.updateUi);
-		this.loadDataFiles();
 	},
 
 	initializeTooltips: function() {
@@ -137,61 +189,21 @@ module.exports = React.createClass({
 		$('#def-date-field, #min-date-field, #max-date-field').datetimepicker(datepickerOptions);
 	},
 
-	onMetadataModelLoaded: function(metadataModel) {
-		var _this = this;
-		GDriveService.registerAnnouncement(metadataModel, function() {
-			var announcement = metadataModel.announcement.get(0); //get first announcement
-			switch (announcement.action) {
-				case AnnouncementType.ADD_FILE:
-					// don't catch adding the current file's announcement
-					if (announcement.fileId === _this.props.fileId) { return; }
-					switch (announcement.fileType) {
-						case GDriveConstants.ObjectType.PERSISTENT_DATA:
-						case GDriveConstants.ObjectType.SNIPPET:
-						case GDriveConstants.ObjectType.EVENT:
-							_this.addToRefs(announcement);
-							break;
-						case GDriveConstants.ObjectType.ENUM:
-							_this.addToEnums(announcement);
-							break;
-						default: break;
-					} break;
-				case AnnouncementType.RENAME_FILE:
-					switch (announcement.fileType) {
-						case GDriveConstants.ObjectType.PERSISTENT_DATA:
-						case GDriveConstants.ObjectType.SNIPPET:
-						case GDriveConstants.ObjectType.EVENT:
-							_this.updateRefNames(announcement);
-							break;
-						case GDriveConstants.ObjectType.ENUM:
-							_this.updateEnums(announcement);
-							break;
-						default: break;
-					} break;
-				case AnnouncementType.ADD_ENUM:
-					if (announcement.fileId === _this.fieldData.get('enumId')) { 
-					// if the active enum doesn't match the updated enum, then any update would be unnoticed to the user anyways
-						_this.setEnumValues(announcement.fileId);
-					} break;
-				case AnnouncementType.DELETE_ENUM:
-					if (announcement.fileId === _this.fieldData.get('enumId')) {
-						_this.setEnumValues(announcement.fileId);
-					} break;
-				case AnnouncementType.RENAME_ENUM:
-					if (announcement.fileId === _this.fieldData.get('enumId')) {
-						_this.setEnumValues(announcement.fileId);
-					} break;
-				default: break;
-			}
-		});
-	},
-
 	updateUi: function() {
 		if (!this.fieldData) { return; }
 
 		this.displayCorrectUiComponents();
-
 		var getById = document.getElementById.bind(document);
+
+		getById('name-field').value = this.fieldData.get('name').text;
+		getById('description-field').value = this.fieldData.get('description').text;
+		getById('def-value-field').value = this.fieldData.get('defValue').text;
+		getById('min-value-field').value = this.fieldData.get('minValue').text;
+		getById('max-value-field').value = this.fieldData.get('maxValue').text;
+		getById('min-str-len-field').value = this.fieldData.get('minStrLen').text;
+		getById('max-str-len-field').value = this.fieldData.get('maxStrLen').text;
+		getById('array-len-field').value = this.fieldData.get('arrayLen').text;
+
 		getById('field-type-select').value = this.fieldData.get('type');
 		getById('enum-value-select').value = this.fieldData.get('enumValue');
 
@@ -218,7 +230,7 @@ module.exports = React.createClass({
 		}
 
 		var getById = document.getElementById.bind(document);
-		this.gModel.beginCompoundOperation();
+		this.gFileModel.beginCompoundOperation();
 
 		this.fieldData.set('type', getById('field-type-select').value);
 		this.fieldData.set('refId', getById('ref-name-select').value);
@@ -243,7 +255,7 @@ module.exports = React.createClass({
 		this.fieldData.set('contextId', getById('context-id-checkbox').checked);
 		this.gFields.set(fieldIndex, this.fieldData);
 
-		this.gModel.endCompoundOperation();
+		this.gFileModel.endCompoundOperation();
 	},
 
 	displayCorrectUiComponents: function(fieldType) {
@@ -274,7 +286,7 @@ module.exports = React.createClass({
 	},
 
 	enforceValidation: function(fieldType) {
-		if (!this.gModel || !this.fieldData) { return; } //if field not selected, validation doesn't make sense
+		if (!this.gFileCustomModel || !this.fieldData) { return; } //if field not selected, validation doesn't make sense
 
 		var validateField = this.validateField;
 		fieldType = (typeof fieldType) !== 'undefined' ? fieldType : this.fieldData.get('type');
@@ -282,12 +294,6 @@ module.exports = React.createClass({
 		$('.validated-input:visible').each(function(index, element) {
 			validateField(element, fieldType);
 		});
-	},
-
-	enforceSingleFieldValidation: function(e) {
-		if (!this.gModel || !this.fieldData) { return; } //if google model not connected, validation doesn't make sense
-
-		this.validateField(e.currentTarget, this.fieldData.get('type'));
 	},
 
 	validateField: function(targetField, fieldType) {
@@ -302,12 +308,15 @@ module.exports = React.createClass({
 				$fieldLabel.tooltipster('content', errorMessage);
 			}
 			$fieldLabel.tooltipster('show');
+			return false;
 			//$targetField.focus(); //force user to fix
 		} else if ($targetField.hasClass('invalid-input')) {
 			$targetField.removeClass('invalid-input');
 			$fieldLabel.tooltipster('show'); // show before hide to ensure tooltipster can be hidden
 			$fieldLabel.tooltipster('hide');
 		}
+
+		return true;
 	},
 
 	setErrorMessage: function(targetField, fieldType) {
@@ -436,10 +445,20 @@ module.exports = React.createClass({
 		});
 	},
 
-	onFieldSelected: function(data) {
+	onFieldSelected: function(selectedField) {
+		this.selectedField = selectedField;
+
+		if (this.isInitialized)
+		{
+			this.updateForSelectedField();
+		}
+	},
+
+	updateForSelectedField: function()
+	{
 		this.fieldData = null; //clear and get again
 		this.fieldDataId = null;
-		if (data.fieldCount === 0) {
+		if (this.selectedField.fieldCount === 0) {
 			this.fieldSelected = false;
 			$('form').addClass('hide');
 			return false;
@@ -449,7 +468,7 @@ module.exports = React.createClass({
 		$('form').removeClass('hide');
 
 		var _this = this;
-		var selectedFieldId = data.selectedFieldId;
+		var selectedFieldId = this.selectedField.selectedFieldId;
 		for (var i = 0, len = this.gFields.length; i<len; i++) {
 			if (this.gFields.get(i).id === selectedFieldId) {
 				this.fieldData = this.gFields.get(i);
@@ -460,7 +479,7 @@ module.exports = React.createClass({
 
 				this.updateUi();
 				this.setSelectOptions();
-				this.rebindStrings();
+				this.addModelUpdateListeners();
 				this.alignAllLabels();
 				this.setEnumValues(this.fieldData.get('enumId'));
 				this.enforceValidation();
@@ -470,21 +489,21 @@ module.exports = React.createClass({
 	},
 
 	updateOldModel: function() {
-		this.gModel.beginCompoundOperation();
+		this.gFileModel.beginCompoundOperation();
 
 		if (!this.fieldData.has('maxStrLen')) {
 			this.fieldData.set('maxStrLen', this.fieldData.get('strLen'));
 		}
 		if (!this.fieldData.has('minStrLen')) {
-			this.fieldData.set('minStrLen', this.gModel.createString(''));
+			this.fieldData.set('minStrLen', this.gFileCustomModel.createString(''));
 		}
 
 		if (!this.fieldData.has('defDate')) {
-			this.fieldData.set('defDate', this.gModel.createString(''));
-			this.fieldData.set('minDate', this.gModel.createString(''));
-			this.fieldData.set('maxDate', this.gModel.createString(''));
+			this.fieldData.set('defDate', this.gFileCustomModel.createString(''));
+			this.fieldData.set('minDate', this.gFileCustomModel.createString(''));
+			this.fieldData.set('maxDate', this.gFileCustomModel.createString(''));
 		}
-		this.gModel.endCompoundOperation();
+		this.gFileModel.endCompoundOperation();
 	},
 
 	alignLabel: function(evt, $label) {
@@ -496,37 +515,42 @@ module.exports = React.createClass({
 		}
 	},
 
-	setGBinding : function(stringToBind, field) {
-		var bindString = gapi.drive.realtime.databinding.bindString;
-		var TextInsertedEvent = gapi.drive.realtime.EventType.TEXT_INSERTED;
-		var TextDeletedEvent = gapi.drive.realtime.EventType.TEXT_DELETED;
-
-		var $label = $('label[for="'+field.id+'"]');
-		var _this = this;
-		stringToBind.addEventListener(TextInsertedEvent, function(evt) {_this.alignLabel(evt, $label);});
-		stringToBind.addEventListener(TextDeletedEvent, function(evt) {_this.alignLabel(evt, $label);});
-		_this.gBindings.push(bindString(stringToBind, field));
-	},
-
-	rebindStrings: function() {
+	addModelUpdateListeners: function() {
 		var getById = document.getElementById.bind(document);
 		var _this = this;
 
-		for (var i = 0, len = this.gBindings.length; i<len; i++) {
-			this.gBindings[i].unbind(); //unbind the previous strings
+		for (var i = 0, len = this.updateListeningModels.length; i<len; i++) {
+			this.updateListeningModels[i].removeAllEventListeners(); //remove all previous event listeners
 		}
 
-		this.setGBinding(this.fieldData.get('name'), getById('name-field'));
-		this.setGBinding(this.fieldData.get('description'), getById('description-field'));
+		this.addListenerForString(this.fieldData.get('name'), getById('name-field'));
+		this.addListenerForString(this.fieldData.get('description'), getById('description-field'));
 		
-		this.setGBinding(this.fieldData.get('defValue'), getById('def-value-field'));
-		this.setGBinding(this.fieldData.get('minValue'), getById('min-value-field'));
-		this.setGBinding(this.fieldData.get('maxValue'), getById('max-value-field'));
+		this.addListenerForString(this.fieldData.get('defValue'), getById('def-value-field'));
+		this.addListenerForString(this.fieldData.get('minValue'), getById('min-value-field'));
+		this.addListenerForString(this.fieldData.get('maxValue'), getById('max-value-field'));
 
-		this.setGBinding(this.fieldData.get('minStrLen'), getById('min-str-len-field'));
-		this.setGBinding(this.fieldData.get('maxStrLen'), getById('max-str-len-field'));
+		this.addListenerForString(this.fieldData.get('minStrLen'), getById('min-str-len-field'));
+		this.addListenerForString(this.fieldData.get('maxStrLen'), getById('max-str-len-field'));
 
-		this.setGBinding(this.fieldData.get('arrayLen'), getById('array-len-field'));
+		this.addListenerForString(this.fieldData.get('arrayLen'), getById('array-len-field'));
+	},
+
+	addListenerForString: function(googleModel, element) {
+		var _this = this;
+		var TextInsertedEvent = gapi.drive.realtime.EventType.TEXT_INSERTED;
+		var TextDeletedEvent = gapi.drive.realtime.EventType.TEXT_DELETED;
+
+		var $label = $('label[for="'+element.id+'"]');
+		googleModel.addEventListener(TextInsertedEvent, onModelUpdate);
+		googleModel.addEventListener(TextDeletedEvent, onModelUpdate);
+		_this.updateListeningModels.push(googleModel);
+
+		function onModelUpdate(evt)
+		{
+			_this.alignLabel(evt, $label);
+			element.value = googleModel.text;
+		}
 	},
 
 	updateAllSelect: function() {
@@ -542,10 +566,10 @@ module.exports = React.createClass({
 		if (newFieldType === 'enum') {
 			this.setEnumValues(this.fieldData.get('enumId'));
 		}
-		this.gModel.beginCompoundOperation();
+		this.gFileModel.beginCompoundOperation();
 		this.fieldData.set('type', newFieldType);
-		GDriveService.resetFieldData(this.fieldData);
-		this.gModel.endCompoundOperation();
+		GDriveUtils.resetFieldData(this.fieldData);
+		this.gFileModel.endCompoundOperation();
 
 		this.alignAllLabels();
 		this.displayCorrectUiComponents(newFieldType);
@@ -562,7 +586,7 @@ module.exports = React.createClass({
 		var newEnumId = '';
 		var _this = this;
 
-		this.gModel.beginCompoundOperation();
+		this.gFileModel.beginCompoundOperation();
 		$('#enum-name-dropdown').find('span').each(function(index, element) {
 			if (element.text === newEnumName) {
 				newEnumId = element.dataset.fileId;
@@ -572,46 +596,9 @@ module.exports = React.createClass({
 			}
 		});
 		this.fieldData.set('enumName', newEnumName);
-		this.gModel.endCompoundOperation();
+		this.gFileModel.endCompoundOperation();
 
 		this.saveUiToGoogle();
-	},
-
-	loadDataFiles: function() {
-		var objectsToGet = { //only need the dmx types
-			persistentData: true,
-			enum: true,
-			snippet: true,
-			event: true,
-			flow: false
-		};
-		GDriveService.getProjectObjects(this.props.projectFolderFileId, '', objectsToGet, this.onFilesLoaded);
-	},
-
-	onFilesLoaded: function(fileObjects) {
-		this.refs = [];
-		this.enums = [];
-		var fileObject;
-		for (var i = 0, len = fileObjects.length; i<len; i++) {
-			fileObject = {
-				id: fileObjects[i].id,
-				title: fileObjects[i].title,
-				fileType: fileObjects[i].description 
-			};
-			//the drive file description contains the object type
-			switch (fileObjects[i].description) {
-				case GDriveConstants.ObjectType.PERSISTENT_DATA:
-				case GDriveConstants.ObjectType.SNIPPET:
-				case GDriveConstants.ObjectType.EVENT:
-					this.refs.push(fileObject);
-					break;
-				case GDriveConstants.ObjectType.ENUM:
-					this.enums.push(fileObject);
-					break;
-				default: break;
-			}
-		}
-		this.setSelectOptions();
 	},
 
 	setSelectOptions: function() {
@@ -810,8 +797,7 @@ module.exports = React.createClass({
 				}
 			}
 		});
-	}, 
-
+	},
 
 	setEnumValues: function(enumId) {
 		var _this = this;
@@ -853,21 +839,39 @@ module.exports = React.createClass({
 		});
 	},
 
+	onNameChange: function(e)
+	{
+		if (this.validateField(e.currentTarget, this.fieldData.get('type')))
+		{
+			this.fieldData.get('name').setText(e.currentTarget.value);
+		}
+	},
+
+	onDescriptionChange: function(e)
+	{
+		if (this.validateField(e.currentTarget, this.fieldData.get('type')))
+		{
+			this.fieldData.get('description').setText(e.currentTarget.value);
+		}
+	},
+
 	getFormContents: function() {
 		var inputHandler = this.enforceSingleFieldValidation; //only check current field to save time
 		return (
-			<form id = 'dmx-form' className='hide col s12' action='#!'>
+			<form id = 'dmx-form' className='col s12' action='#!'>
 				<div className='row'>
 					<div className='input-field col s4'>
 						<input type='text' id='name-field' className='labelled-input validated-input'
-						 onInput={inputHandler} required spellCheck='false' />
+						 onChange={this.onNameChange} required spellCheck='false' />
 						<label htmlFor='name-field' className='error-tooltipped'>name *</label>
 					</div>
 				</div>
 
 				<div className='row'>
 					<div className='input-field col s12'>
-						<textarea id='description-field' className='materialize-textarea labelled-input' spellCheck='false' />
+						<textarea id='description-field' className='materialize-textarea labelled-input' 
+							spellCheck='false' 
+							onChange={this.onDescriptionChange} />
 						<label htmlFor='description-field' >description</label>
 					</div>
 				</div>
@@ -1004,7 +1008,7 @@ module.exports = React.createClass({
 		var formContents = this.getFormContents();
 		return (
 			<div className='row'>
-				{formContents}
+				{formContents}	
 			</div>
 		);
 	}

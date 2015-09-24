@@ -5,10 +5,12 @@ var ObjectTypes = GDriveConstants.ObjectType;
 
 var UserLoginFailRedirectHome = require('../common/user-login-fail-redirect-home.jsx');
 var UserStore = require('../../stores/user-store.js');
-var GDriveService = require('../../services/google-drive-service.js');
+var GDriveUtils = require('../../utils/google-drive-utils.js');
 
 var Body = require('./body.jsx');
 var Header = require('./header.jsx');
+
+var Controller = require('./editor-controller.js');
 
 module.exports = React.createClass({
 	mixins: [Navigation, State, UserLoginFailRedirectHome],
@@ -16,41 +18,30 @@ module.exports = React.createClass({
 	            LIFE CYCLE FUNCTIONS
 	****************************************** */ 
 	componentWillMount: function() {
+		this.objectFileType = this.getQuery().fileType;
+		var projectFileId = this.getParams().projectFileId;
+		this.projectFolderFileId = this.getParams().projectFolderFileId;
+		this.objectFileId = this.getParams().fileId;
+		this.controller = new Controller(this.objectFileType, projectFileId, this.objectFileId);
+
 		if (UserStore.isLoggedIn) {
 			// if user is already logged in, just initialize
 			this.initialize();
 		}
 
-		this.fileType = this.getQuery().fileType;
-
-		var gapiKeyMap = {};
-		gapiKeyMap[ObjectTypes.PERSISTENT_DATA] = GDriveConstants.CustomObjectKey.PERSISTENT_DATA;
-		gapiKeyMap[ObjectTypes.ENUM] = GDriveConstants.CustomObjectKey.ENUM;
-		gapiKeyMap[ObjectTypes.EVENT] = GDriveConstants.CustomObjectKey.EVENT;
-		gapiKeyMap[ObjectTypes.SNIPPET] = GDriveConstants.CustomObjectKey.SNIPPET;
-		/* TO ADD similar for flows and any other data types to use */
-
-		this.gapiKey = gapiKeyMap[this.fileType];
-
 		// load project objects on user logged in
 		Bullet.on(EventType.App.USER_LOGGED_IN, 'entry.jsx>>userLoggedIn', this.initialize);
 	},
 
-	componentDidMount: function() {
-		var PageTitleCons = DefaultValueConstants.PageTitleValues;
-		var pageTitleMap = {};
-		pageTitleMap[ObjectTypes.PERSISTENT_DATA] = PageTitleCons.PERSISTENT_DATA_FORM_PAGE_TITLE;
-		pageTitleMap[ObjectTypes.ENUM] = PageTitleCons.ENUM_FORM_PAGE_TITLE;
-		pageTitleMap[ObjectTypes.EVENT] = PageTitleCons.EVENT_FORM_PAGE_TITLE;
-		pageTitleMap[ObjectTypes.SNIPPET] = PageTitleCons.SNIPPET_FORM_PAGE_TITLE;
-		/* TO ADD similar for flows and any other data types to use */
-
-		var pageTitle = pageTitleMap[this.fileType];
+	componentDidMount: function()
+	{
+		var pageTitle = this.controller.getPageTitle();
 		Bullet.trigger(EventType.App.PAGE_CHANGE, {title: pageTitle});
 	},
 
 	componentWillUnmount: function() {
 		Bullet.off(EventType.App.USER_LOGGED_IN, 'entry.jsx>>userLoggedIn');
+		this.controller.dispose();
 	},
 
 	/* ******************************************
@@ -58,94 +49,26 @@ module.exports = React.createClass({
 	****************************************** */
 	initialize: function()
 	{
-		GDriveService.getMetadataModel(this.getParams().projectFileId, this.onMetadataModelLoaded);
-		gapi.drive.realtime.load(this.getParams().fileId, this.onDataFileLoaded, this.initializeModel);
-	},
+		var _this = this;
+		this.controller.initialize(onInitializeFinished);
 
-	onMetadataModelLoaded: function(metadataModel) {
-		Bullet.trigger(EventType.EntryForm.METADATA_MODEL_LOADED, metadataModel);
-	},
+		function onInitializeFinished(gMetadataModel, gFileCustomModel, gFileModel)
+		{
+			_this.editor = 	<div>
+								<Header gMetadataModel={gMetadataModel}
+									gFileCustomModel={gFileCustomModel}
+									objectFileId={_this.objectFileId}
+									objectFileType={_this.objectFileType} />
+								<Body gFileCustomModel={gFileCustomModel} 
+									objectFileType={_this.objectFileType}
+									gMetadataModel={gMetadataModel}
+									projectFolderFileId={_this.projectFolderFileId}
+									objectFileId={_this.objectFileId}
+									gFileModel = {gFileModel} />
+							</div>
 
-	onDataFileLoaded: function(doc) {
-		var gModel = doc.getModel().getRoot().get(this.gapiKey);
-		if (!gModel.creatingUser) {
-			this.setCreatingUserData(gModel, function() {
-				Bullet.trigger(EventType.EntryForm.GAPI_FILE_LOADED, doc);
-			});
-		} else {
-			Bullet.trigger(EventType.EntryForm.GAPI_FILE_LOADED, doc);
+			_this.forceUpdate();
 		}
-	},
-
-	initializeModel: function(model) {
-		var gModel = model.create(this.gapiKey);
-		model.getRoot().set(this.gapiKey, gModel);
-
-		switch (this.fileType) {
-			case ObjectTypes.PERSISTENT_DATA:
-				gModel.title = model.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE);
-				gModel.description = model.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_DESCRIPTION);
-				gModel.fields = model.createList();
-				gModel.queries = model.createList();
-				GDriveService.getMetadataModelId(this.getParams().projectFileId, function(id) {
-					var thisId = id;
-					gModel.id = thisId;
-					gModel.UpdatePersistenceEventTypeId = ++thisId;
-					gModel.CreatePersistenceEventTypeId = ++thisId;
-					gModel.RemovePersistenceEventTypeId = ++thisId;
-					gModel.UpdatedPersistenceEventTypeId = ++thisId;
-					gModel.CreatedPersistenceEventTypeId = ++thisId;
-					gModel.RemovedPersistenceEventTypeId = ++thisId;
-					gModel.RejectedUpdatePersistenceEventTypeId = ++thisId;
-					gModel.RejectedCreatePersistenceEventTypeId = ++thisId;
-					gModel.RejectedRemovePersistenceEventTypeId = ++thisId;
-				}, 11);
-				break;
-			case ObjectTypes.EVENT:
-				gModel.title = model.createString(DefaultValueConstants.NewFileValues.EVENT_TITLE);
-				gModel.description = model.createString(DefaultValueConstants.NewFileValues.EVENT_DESCRIPTION);
-				gModel.fields = model.createList();
-				gModel.queries = model.createList();
-				GDriveService.getMetadataModelId(this.getParams().projectFileId, function(id) {
-					var thisId = id;
-					gModel.id = thisId;
-				}, 1);
-				break;
-			case ObjectTypes.SNIPPET:
-				gModel.title = model.createString(DefaultValueConstants.NewFileValues.SNIPPET_TITLE);
-				gModel.description = model.createString(DefaultValueConstants.NewFileValues.SNIPPET_DESCRIPTION);
-				gModel.fields = model.createList();
-				GDriveService.getMetadataModelId(this.getParams().projectFileId, function(id) {
-					var thisId = id;
-					gModel.id = thisId;
-				}, 1);
-				break;
-			case ObjectTypes.ENUM:
-				gModel.title = model.createString(DefaultValueConstants.NewFileValues.ENUM_TITLE);
-				gModel.description = model.createString(DefaultValueConstants.NewFileValues.ENUM_DESCRIPTION);
-				gModel.fields = model.createList();
-				GDriveService.getMetadataModelId(this.getParams().projectFileId, function(id) {
-					var thisId = id;
-					gModel.id = thisId;
-				}, 1);
-				break;
-			default: break;
-		}
-		this.setCreatingUserData(gModel);
-	},
-
-	setCreatingUserData: function(gModel, callback) {
-		GDriveService.getFileMetadata(this.getParams().fileId, function(respData) {
-			gModel.createdDate = respData.createdDate;
-			gModel.creatingUser = {
-				name: respData.owners[0].displayName,
-				userId: respData.owners[0].permissionId
-			};
-
-			if (typeof callback === 'function') {
-				callback();
-			}
-		});
 	},
 
 	onToProjectBtnClick: function() {
@@ -154,26 +77,16 @@ module.exports = React.createClass({
 		}
 		var params = {
 			projectFileId: this.getParams().projectFileId,
-			projectFolderFileId: this.getParams().projectFolderFileId
+			projectFolderFileId: this.projectFolderFileId
 		};
 		this.transitionTo('project', params);
 	},
 
 	render: function() {
-		var projectFileId = this.getParams().projectFileId;
-		var projectFolderFileId = this.getParams().projectFolderFileId;
-		var fileId = this.getParams().fileId;
-		var fileType = this.fileType;
-		var gapiKey = this.gapiKey;
 		return (
 			<div id = 'form-container' className = 'persistent-data-form container'>
 				<i id = "to-project-btn" className = 'medium mdi-navigation-arrow-back' onClick = {this.onToProjectBtnClick} />
-				<Header
-					projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-					fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
-				<Body
-					projectFileId = {projectFileId} projectFolderFileId = {projectFolderFileId}
-					fileId = {fileId} fileType = {fileType} gapiKey = {gapiKey} />
+				{this.editor}
 			</div>
 		);
 	}
