@@ -15,6 +15,11 @@ module.exports = React.createClass({
 	/* ******************************************
 				LIFE CYCLE FUNCTIONS
 	****************************************** */
+	componentWillMount: function()
+	{
+		this.isUnmounted = false;
+	},
+
 	componentDidMount : function()
 	{
 		gapi.drive.realtime.load(this.props.fileId, this.onFileLoaded, null);
@@ -112,6 +117,15 @@ module.exports = React.createClass({
 		$('#' + this.props.fileId + '-card').disableSelection();
 	},
 
+	componentWillUnmount: function()
+	{
+		this.isUnmounted = true;
+		if (this.gDoc != null)
+		{
+			this.gDoc.close();
+		}
+	},
+
 	/* ******************************************
 			NON LIFE CYCLE FUNCTIONS
 	****************************************** */
@@ -129,14 +143,18 @@ module.exports = React.createClass({
 
 	onFileLoaded : function(doc)
 	{
-		var gModel = doc.getModel().getRoot();
+		if (!this.isUnmounted)
+		{
+			this.gDoc = doc;
+			var gModel = doc.getModel().getRoot();
 
-		this.model.title = gModel.get(Cons.KEY_TITLE);
-		this.model.description = gModel.get(Cons.KEY_DESCRIPTION);
+			this.model.title = gModel.get(Cons.KEY_TITLE);
+			this.model.description = gModel.get(Cons.KEY_DESCRIPTION);
 
-		this.contentFileLoaded = true;
-		$('#' + this.props.fileId).addClass('fadeIn animated');
-		this.forceUpdate();
+			this.contentFileLoaded = true;
+			$('#' + this.props.fileId).addClass('fadeIn animated');
+			this.forceUpdate();
+		}
 	},
 
 	setBackSideContent: function() {

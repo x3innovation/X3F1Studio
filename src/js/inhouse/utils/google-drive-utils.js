@@ -77,7 +77,7 @@ function GoogleDriveService()
 		googleApiInterface.saveTitle(fileId, title);
 	};
 
-	this.getMetadataModel = function(fileId, callback) {
+	this.getMetadataModel = function(projectFileId, callback) {
 	    var metadataModel;
 
 	    var initializeMetadataModel = function(model) {
@@ -100,7 +100,7 @@ function GoogleDriveService()
 	    	}
 	    };
 
-	    gapi.drive.realtime.load(fileId, onMetadataFileLoaded, initializeMetadataModel);
+	    gapi.drive.realtime.load(projectFileId, onMetadataFileLoaded, initializeMetadataModel);
 	};
 
 	this.setAndGetNextMetadataModelId = function(gMetadataModel, step) {

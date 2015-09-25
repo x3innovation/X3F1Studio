@@ -458,7 +458,8 @@ module.exports = React.createClass({
 	{
 		this.fieldData = null; //clear and get again
 		this.fieldDataId = null;
-		if (this.selectedField.fieldCount === 0) {
+		if (this.selectedField == null || this.selectedField.fieldCount === 0)
+		{
 			this.fieldSelected = false;
 			$('form').addClass('hide');
 			return false;

@@ -5,7 +5,8 @@ module.exports = {
 		ENUM_COLOR : 'red',
 		SNIPPET_COLOR : 'purple darken-2',
 		EVENT_COLOR : 'orange',
-		FLOW_COLOR : 'green'
+		FLOW_COLOR : 'green',
+		ALL_COLOR : 'yellow darken-2'
 	},
 	EntryForm : {
 		FIELD_NAME_LENGTH_MAX : 30,

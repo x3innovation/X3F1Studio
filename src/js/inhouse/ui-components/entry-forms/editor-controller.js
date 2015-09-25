@@ -33,15 +33,7 @@ function EditorController(fileType, projectFileId, objectFileId)
 
 	function loadMetadataModel(onMetadataLoaded, onInitializeFinished)
 	{
-		gapi.drive.realtime.load(projectFileId, onMetadataFileLoaded, initializeMetadataModel);
-
-		function initializeMetadataModel(model) {
-	        var field = model.create(GCons.CustomObjectKey.PROJECT_METADATA);
-	        field.announcement = model.createList();
-	        field.nextId = 0;
-	        field.version = 1;
-	        model.getRoot().set(GDriveConstants.CustomObjectKey.PROJECT_METADATA, field);
-	    };
+		gapi.drive.realtime.load(projectFileId, onMetadataFileLoaded);
 
 		function onMetadataFileLoaded(doc) {
 			gMetadataDoc = doc;
@@ -81,8 +73,10 @@ function EditorController(fileType, projectFileId, objectFileId)
 			if (!gFileCustomModel.creatingUser) {
 				setCreator(gFileCustomModel);
 			}
-
-			onInitializeFinished(gMetadataModel, gFileCustomModel, gFileModel);
+			else
+			{
+				onInitializeFinished(gMetadataModel, gFileCustomModel, gFileModel);
+			}
 		};
 
 		function setCreator(gFileCustomModel) {
@@ -92,19 +86,21 @@ function EditorController(fileType, projectFileId, objectFileId)
 					name: respData.owners[0].displayName,
 					userId: respData.owners[0].permissionId
 				};
+
+				onInitializeFinished(gMetadataModel, gFileCustomModel, gFileModel);
 			});
 		};
 
-		function initializeModel(model) {
-			gFileCustomModel = model.create(customObjectKey);
-			gFileModel.getRoot().set(customObjectKey, model);
+		function initializeModel(gFileModel) {
+			gFileCustomModel = gFileModel.create(customObjectKey);
+			gFileModel.getRoot().set(customObjectKey, gFileCustomModel);
 
 			switch (fileType) {
 				case ObjectType.PERSISTENT_DATA:
-					gFileCustomModel.title = model.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE);
-					gFileCustomModel.description = model.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_DESCRIPTION);
-					gFileCustomModel.fields = model.createList();
-					gFileCustomModel.queries = model.createList();
+					gFileCustomModel.title = gFileModel.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE);
+					gFileCustomModel.description = gFileModel.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_DESCRIPTION);
+					gFileCustomModel.fields = gFileModel.createList();
+					gFileCustomModel.queries = gFileModel.createList();
 					gFileCustomModel.id = gDriveUtils.setAndGetNextMetadataModelId(gMetadataModel);
 					gFileCustomModel.UpdatePersistenceEventTypeId = gDriveUtils.setAndGetNextMetadataModelId(gMetadataModel);
 					gFileCustomModel.CreatePersistenceEventTypeId = gDriveUtils.setAndGetNextMetadataModelId(gMetadataModel);
@@ -117,22 +113,22 @@ function EditorController(fileType, projectFileId, objectFileId)
 					gFileCustomModel.RejectedRemovePersistenceEventTypeId = gDriveUtils.setAndGetNextMetadataModelId(gMetadataModel);
 					break;
 				case ObjectType.EVENT:
-					gFileCustomModel.title = model.createString(DefaultValueConstants.NewFileValues.EVENT_TITLE);
-					gFileCustomModel.description = model.createString(DefaultValueConstants.NewFileValues.EVENT_DESCRIPTION);
-					gFileCustomModel.fields = model.createList();
-					gFileCustomModel.queries = model.createList();
+					gFileCustomModel.title = gFileModel.createString(DefaultValueConstants.NewFileValues.EVENT_TITLE);
+					gFileCustomModel.description = gFileModel.createString(DefaultValueConstants.NewFileValues.EVENT_DESCRIPTION);
+					gFileCustomModel.fields = gFileModel.createList();
+					gFileCustomModel.queries = gFileModel.createList();
 					gFileCustomModel.id = gDriveUtils.setAndGetNextMetadataModelId(gMetadataModel);
 					break;
 				case ObjectType.SNIPPET:
-					gFileCustomModel.title = model.createString(DefaultValueConstants.NewFileValues.SNIPPET_TITLE);
-					gFileCustomModel.description = model.createString(DefaultValueConstants.NewFileValues.SNIPPET_DESCRIPTION);
-					gFileCustomModel.fields = model.createList();
+					gFileCustomModel.title = gFileModel.createString(DefaultValueConstants.NewFileValues.SNIPPET_TITLE);
+					gFileCustomModel.description = gFileModel.createString(DefaultValueConstants.NewFileValues.SNIPPET_DESCRIPTION);
+					gFileCustomModel.fields = gFileModel.createList();
 					gFileCustomModel.id = gDriveUtils.setAndGetNextMetadataModelId(gMetadataModel);
 					break;
 				case ObjectType.ENUM:
-					gFileCustomModel.title = model.createString(DefaultValueConstants.NewFileValues.ENUM_TITLE);
-					gFileCustomModel.description = model.createString(DefaultValueConstants.NewFileValues.ENUM_DESCRIPTION);
-					gFileCustomModel.fields = model.createList();
+					gFileCustomModel.title = gFileModel.createString(DefaultValueConstants.NewFileValues.ENUM_TITLE);
+					gFileCustomModel.description = gFileModel.createString(DefaultValueConstants.NewFileValues.ENUM_DESCRIPTION);
+					gFileCustomModel.fields = gFileModel.createList();
 					gFileCustomModel.id = gDriveUtils.setAndGetNextMetadataModelId(gMetadataModel);
 					break;
 				default: break;

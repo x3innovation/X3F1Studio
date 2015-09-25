@@ -25,11 +25,6 @@ function FormHeaderBarController(gFileCustomModel)
 	{
 		return gFileCustomModel.createdDate;
 	}
-
-	this.dispose = function()
-	{
-		
-	}
 }
 
 module.exports = FormHeaderBarController;

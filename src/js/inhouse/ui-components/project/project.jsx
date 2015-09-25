@@ -15,6 +15,10 @@ module.exports = React.createClass({
 
 	model : {
 		buttons : {
+			all : {
+				color : Configs.App.ALL_COLOR,
+				isSearchOn : true
+			},
 			persistentData : {
 				color : Configs.App.PERSISTENT_DATA_COLOR,
 				isSearchOn : true
@@ -165,14 +169,28 @@ module.exports = React.createClass({
 		this.model.projectObjects = [];
 		this.forceUpdate();
 
-		var objectsToGet = {
-			persistentData: this.model.buttons.persistentData.isSearchOn,
-			enum: this.model.buttons.enum.isSearchOn,
-			snippet: this.model.buttons.snippet.isSearchOn,
-			event: this.model.buttons.event.isSearchOn,
-			flow: this.model.buttons.flow.isSearchOn
-		};
-
+		var objectsToGet;
+		if (this.model.buttons.all.isSearchOn)
+		{
+			objectsToGet = {
+				persistentData: true,
+				enum: true,
+				snippet: true,
+				event: true,
+				flow: true
+			}
+		}
+		else
+		{
+			objectsToGet = {
+				persistentData: this.model.buttons.persistentData.isSearchOn,
+				enum: this.model.buttons.enum.isSearchOn,
+				snippet: this.model.buttons.snippet.isSearchOn,
+				event: this.model.buttons.event.isSearchOn,
+				flow: this.model.buttons.flow.isSearchOn
+			};
+		}
+		
 		var getProjectObjectsCallback = this.onReceiveProjectObjects;
 
 		googleDriveUtils.getProjectObjects(
@@ -196,39 +214,74 @@ module.exports = React.createClass({
 		this.searchTypingTimeout = setTimeout(this.getProjectObjects, 500);
 	},
 
-	onPersistentDataBtnClick : function(event)
+	onFilterBtnClick: function(event)
 	{
-		var button = $(event.currentTarget);
-		var model = this.model.buttons.persistentData;
-		this.toggleButton(button, model);
-	},
+		var _this = this;
+		$clickedBtn = $(event.currentTarget);
+		if (isTurnedOff($clickedBtn))
+		{
+			$('.filter-btn').each(function(){
+				if (isClickedBtn(this))
+				{
+					turnOn(this);
+				}
+				else
+				{
+					turnOff(this);
+				}
+			});
 
-	onEnumBtnClick : function(event)
-	{
-		var button = $(event.currentTarget);
-		var model = this.model.buttons.enum;
-		this.toggleButton(button, model);
-	},
+			_this.getProjectObjects();
+		}
 
-	onSnippetBtnClick : function(event)
-	{
-		var button = $(event.currentTarget);
-		var model = this.model.buttons.snippet;
-		this.toggleButton(button, model);
-	},
+		function isTurnedOff($button)
+		{
+			if ($button.hasClass('grey'))
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
 
-	onEventBtnClick : function(event)
-	{
-		var button = $(event.currentTarget);
-		var model = this.model.buttons.event;
-		this.toggleButton(button, model);
-	},
+		function isClickedBtn(btnElement)
+		{
+			return btnElement === event.currentTarget;
+		}
 
-	onFlowBtnClick : function(event)
-	{
-		var button = $(event.currentTarget);
-		var model = this.model.buttons.flow;
-		this.toggleButton(button, model);
+		function turnOn(btnElement)
+		{
+			var $button = $(btnElement);
+			var modelName = $button.attr('data-model-name');
+			var model = _this.model.buttons[modelName];
+			$button.switchClass('grey', model.color);
+			model.isSearchOn = true;
+
+			if (modelName === 'all')
+			{
+				turnSearchOnForAllDataTypes();
+			}
+		}
+
+		function turnOff(btnElement)
+		{
+			var $button = $(btnElement);
+			var modelName = $button.attr('data-model-name');
+			var model = _this.model.buttons[modelName];
+			$button.switchClass(model.color, 'grey');
+			model.isSearchOn = false;
+		}
+
+		function turnSearchOnForAllDataTypes()
+		{
+			for (var dataType in _this.model.buttons)
+			{
+				var model = _this.model.buttons[dataType];
+				model.isSearchOn = true;
+			}
+		}
 	},
 
 	onAddPersistentDataBtnClick: function() {
@@ -262,22 +315,6 @@ module.exports = React.createClass({
 				_this.transitionTo('editor', params, {fileType: fileType}); 
 			});
 		}, 300);
-	},
-
-	toggleButton : function(button, model)
-	{
-		if (button.hasClass(model.color))
-		{
-			button.switchClass(model.color, 'grey');
-			model.isSearchOn = false;
-		}
-		else if (button.hasClass('grey'))
-		{
-			button.switchClass('grey', model.color);
-			model.isSearchOn = true;
-		}
-
-		this.getProjectObjects();
 	},
 
 	onToProjectsBtnClick : function()
@@ -348,11 +385,12 @@ module.exports = React.createClass({
 				</div>
 				<div className='row' style={{marginBottom: '10px'}}>
 					<div id='project-object-btns' className='col s12 center'>
-						<a className={'waves-effect waves-light btn ' + Configs.App.PERSISTENT_DATA_COLOR} onClick={this.onPersistentDataBtnClick}>Persistent Data</a>
-						<a className={'waves-effect waves-light btn ' + Configs.App.ENUM_COLOR} onClick={this.onEnumBtnClick}>Enum</a>
-						<a className={'waves-effect waves-light btn ' + Configs.App.SNIPPET_COLOR} onClick={this.onSnippetBtnClick}>Snippet</a>
-						<a className={'waves-effect waves-light btn ' + Configs.App.EVENT_COLOR} onClick={this.onEventBtnClick}>Event</a>
-						<a className={'waves-effect waves-light btn ' + Configs.App.FLOW_COLOR} onClick={this.onFlowBtnClick}>Flow</a>
+						<a className={'waves-effect waves-light btn filter-btn ' + Configs.App.ALL_COLOR} onClick={this.onFilterBtnClick} data-model-name="all">All</a>
+						<a className={'waves-effect waves-light btn filter-btn grey'} onClick={this.onFilterBtnClick} data-model-name="persistentData">Persistent Data</a>
+						<a className={'waves-effect waves-light btn filter-btn grey'} onClick={this.onFilterBtnClick} data-model-name="enum">Enum</a>
+						<a className={'waves-effect waves-light btn filter-btn grey'} onClick={this.onFilterBtnClick} data-model-name="snippet">Snippet</a>
+						<a className={'waves-effect waves-light btn filter-btn grey'} onClick={this.onFilterBtnClick} data-model-name="event">Event</a>
+						<a className={'waves-effect waves-light btn filter-btn grey'} onClick={this.onFilterBtnClick} data-model-name="flow">Flow</a>
 						<a className={'btn-floating disabled waves-effect waves-light ' + Configs.App.ADD_BUTTON_COLOR}
 							href='#add-project-object-modal' id='project-object-add-btn'>
 							<i className='mdi-content-add' />
