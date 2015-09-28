@@ -24,13 +24,16 @@ module.exports = React.createClass({
 		this.events = [
 			{id: persistenceEvents.UpdatePersistenceEventTypeId,
 			 label: 'Update',
-			 name: 'Update' + title }, 
+			 name: 'Update' + title ,
+			 isBusinessRequest: true}, 
 			{id: persistenceEvents.CreatePersistenceEventTypeId,
 			 label: 'Create',
-			 name: 'Create' + title }, 
+			 name: 'Create' + title,
+			 isBusinessRequest: true }, 
 			{id: persistenceEvents.RemovePersistenceEventTypeId,
 			 label: 'Remove',
-			 name: 'Remove' + title },
+			 name: 'Remove' + title,
+			 isBusinessRequest: true },
 			{id: persistenceEvents.UpdatedPersistenceEventTypeId,
 			 label: 'Updated',
 			 name: title + 'Updated' },
@@ -57,8 +60,20 @@ module.exports = React.createClass({
 		var events = this.events || [];
 
 		var eventContents = events.map(function(event, index) {
+			var checkBox;
+			if (event.isBusinessRequest)
+			{
+				var checkBoxId = event.id + '-id';
+				checkBox = 	<div className='row'>
+								<input type='checkbox' id={checkBoxId} className='filled-in' />
+								<label htmlFor={checkBoxId}>Business Request</label>
+							</div>
+
+			}
+
 			return (
 				<div key = {event.id} className = 'col s4'>
+					{checkBox}
 					<div className = 'row'>
 						<div className = 'col s2 input-field'>
 							<input type = 'text' className = 'event-display' readOnly value = {event.id} id = {'event-' + event.id + '-name'} />

@@ -77,7 +77,8 @@ module.exports = {
 		KEY_DESCRIPTION : 'description',
 		KEY_FIELDS : 'fields',
 		KEY_QUERIES : 'queries',
-		KEY_APP_STATE_ID : 'appStateId'
+		KEY_APP_STATE_ID : 'appStateId',
+		KEY_IS_BUSINESS_REQUEST : 'isBusinessRequest'
 	},
 
 	Snippet : {

@@ -22,7 +22,7 @@ module.exports = React.createClass({
 
 	componentDidMount : function()
 	{
-		gapi.drive.realtime.load(this.props.fileId, this.onFileLoaded, null);
+		GDriveUtils.loadDriveFileDoc(this.props.fileId, this.onFileLoaded, null);
 		this.titleChangeTimeout = null;
 
 		this.model = this.props.model;

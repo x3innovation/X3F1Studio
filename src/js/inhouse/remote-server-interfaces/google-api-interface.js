@@ -96,6 +96,7 @@ function GoogleApiInterface()
 		model.prototype.fields = custom.collaborativeField(Cons.KEY_FIELDS);
 		model.prototype.queries = custom.collaborativeField(Cons.KEY_QUERIES);
 		model.prototype.appStateId = custom.collaborativeField(Cons.KEY_APP_STATE_ID);
+		model.prototype.isBusinessRequest = custom.collaborativeField(Cons.KEY_IS_BUSINESS_REQUEST);
 		custom.setInitializer(model, model.prototype.initialize);
 
 		return model;

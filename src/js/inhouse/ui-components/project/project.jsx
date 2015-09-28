@@ -106,7 +106,7 @@ module.exports = React.createClass({
 	initialize : function()
 	{
 		// load google drive project metadata file
-		gapi.drive.realtime.load(this.getParams().projectFileId, this.onProjectFileLoaded, this.onProjectModelInitialize);
+		googleDriveUtils.loadDriveFileDoc(this.getParams().projectFileId, this.onProjectFileLoaded, this.onProjectModelInitialize);
 
 		this.getProjectObjects();
 	},

@@ -1,5 +1,6 @@
 var GDriveCons = require('../../constants/google-drive-constants.js');
 var DefaultValueCons = require('../../constants/default-value-constants.js');
+var googleDriveUtils = require('../../utils/google-drive-utils.js');
 
 module.exports = React.createClass({
 	mixins: [Navigation],
@@ -18,7 +19,7 @@ module.exports = React.createClass({
 
 	componentDidMount : function()
 	{
-		gapi.drive.realtime.load(this.props.fileId, this.onFileLoaded, null);
+		googleDriveUtils.loadDriveFileDoc(this.props.fileId, this.props.objectType, this.onFileLoaded);
 
 		this.model = this.props.model;
 		this.model.isCardFront = true;

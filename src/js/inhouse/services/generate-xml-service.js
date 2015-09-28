@@ -1,4 +1,5 @@
 var GDriveConstants = require('../constants/google-drive-constants.js');
+var googleDriveUtils = require('../utils/google-drive-utils.js');
 
 var ParseQueryService = require('./parse-query-service.js');
 
@@ -162,7 +163,7 @@ function GenerateXMLService() {
 			callback(enumJsonNode);
 		}
 		for (var i = 0; i<enumCount; i++) {
-			gapi.drive.realtime.load(enums[i].id, onEnumLoad);
+			googleDriveUtils.loadDriveFileDoc(enums[i].id, onEnumLoad);
 		}
 	};
 
@@ -452,11 +453,11 @@ function GenerateXMLService() {
 
 		for (var i = 0; i<dataCount; i++) {
 			if (datas[i].description === GDriveConstants.ObjectType.PERSISTENT_DATA){
-				gapi.drive.realtime.load(datas[i].id, onPersistentDataLoad);
+				googleDriveUtils.loadDriveFileDoc(datas[i].id, onPersistentDataLoad);
 			} else if (datas[i].description === GDriveConstants.ObjectType.SNIPPET){
-				gapi.drive.realtime.load(datas[i].id, onSnippetLoad);
+				googleDriveUtils.loadDriveFileDoc(datas[i].id, onSnippetLoad);
 			} else if (datas[i].description === GDriveConstants.ObjectType.EVENT){
-				gapi.drive.realtime.load(datas[i].id, onEventLoad);
+				googleDriveUtils.loadDriveFileDoc(datas[i].id, onEventLoad);
 			}
 		}
 	};

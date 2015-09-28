@@ -29,11 +29,6 @@ function PersistentEventsController(gFileCustomModel)
 		persistenceEvents.RejectedRemovePersistenceEventTypeId = gFileCustomModel.RejectedRemovePersistenceEventTypeId;
 		return persistenceEvents;
 	}
-
-	this.dispose = function()
-	{
-		
-	}
 }
 
 module.exports = PersistentEventsController;

@@ -1,17 +1,20 @@
 var googleApiInterface = require('../remote-server-interfaces/google-api-interface.js');
-var userStore = require('../stores/user-store.js');
-
-var LocalStorageKey = require('../constants/local-storage-key.js');
 var GCons = require('../constants/google-drive-constants.js');
 var DefaultCons = require('../constants/default-value-constants.js');
-
 var AnnouncementType = require('../constants/announcement-type.js');
-
 var DefaultFields = DefaultCons.DefaultFieldAttributes;
+var ObjectType = GCons.ObjectType;
 
 function GoogleDriveService()
 {
 	// //////// private members
+	var _this = this;
+	var customObjectKeys = {};
+	customObjectKeys[ObjectType.PERSISTENT_DATA] = GCons.CustomObjectKey.PERSISTENT_DATA;
+	customObjectKeys[ObjectType.ENUM] = GCons.CustomObjectKey.ENUM;
+	customObjectKeys[ObjectType.EVENT] = GCons.CustomObjectKey.EVENT;
+	customObjectKeys[ObjectType.SNIPPET] = GCons.CustomObjectKey.SNIPPET;
+
 	var sortCompareByFileTitle = function(a,b) {
 		var titleA = a.title.toLowerCase(), titleB = b.title.toLowerCase();
 		if (titleA < titleB) //sort string ascending
@@ -75,32 +78,6 @@ function GoogleDriveService()
 
 	this.saveFileTitle = function(fileId, title) {
 		googleApiInterface.saveTitle(fileId, title);
-	};
-
-	this.getMetadataModel = function(projectFileId, callback) {
-	    var metadataModel;
-
-	    var initializeMetadataModel = function(model) {
-	        var field = model.create(GCons.CustomObjectKey.PROJECT_METADATA);
-	        field.announcement = model.createList();
-	        field.nextId = 0;
-	        field.version = 1;
-	        model.getRoot().set(GCons.CustomObjectKey.PROJECT_METADATA, field);
-	    };
-
-	    var onMetadataFileLoaded = function(doc) {
-	        metadataModel = doc.getModel().getRoot().get(GCons.CustomObjectKey.PROJECT_METADATA);
-	        if (metadataModel == null) {
-	        	initializeMetadataModel(doc.getModel());
-	        	onMetadataFileLoaded(doc);
-	        }
-	        else {
-	        	updateMetadataModel(metadataModel);//if not properly initialized, update it
-	        	callback(metadataModel);
-	    	}
-	    };
-
-	    gapi.drive.realtime.load(projectFileId, onMetadataFileLoaded, initializeMetadataModel);
 	};
 
 	this.setAndGetNextMetadataModelId = function(gMetadataModel, step) {
@@ -357,6 +334,101 @@ function GoogleDriveService()
 
 	this.getFileMetadata = function(fileId, callback) {
 		googleApiInterface.getFileMetadata(fileId, callback);
+	}
+
+	this.loadMetadataDoc = function(projectFileId, callback)
+	{
+		gapi.drive.realtime.load(projectFileId, onMetadataFileLoaded, initializeMetadataModel);
+
+		function onMetadataFileLoaded(doc) {
+	        var metadataModel = doc.getModel().getRoot().get(GCons.CustomObjectKey.PROJECT_METADATA);
+	        if (metadataModel == null) {
+	        	initializeMetadataModel(doc.getModel());
+	        }
+	        callback(doc, metadataModel);
+	    }
+
+	    function initializeMetadataModel(model) {
+	        var field = model.create(GCons.CustomObjectKey.PROJECT_METADATA);
+	        field.announcement = model.createList();
+	        field.nextId = 0;
+	        field.version = 1;
+	        model.getRoot().set(GCons.CustomObjectKey.PROJECT_METADATA, field);
+	    };
+	}
+
+	this.loadDriveFileDoc = function(fileId, fileType, callback)
+	{
+		gapi.drive.realtime.load(fileId, onDocumentLoaded, initializeDocument);
+
+		function initializeDocument(docModel)
+		{
+			var customObjectKey = customObjectKeys[fileType];
+			customObject = docModel.create(customObjectKey);
+
+			// initialize custom object depending on filetype
+			switch (fileType) {
+				case ObjectType.PERSISTENT_DATA:
+					customObject.title = gFileModel.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE);
+					customObject.description = gFileModel.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_DESCRIPTION);
+					customObject.fields = gFileModel.createList();
+					customObject.queries = gFileModel.createList();
+					customObject.id = _this.setAndGetNextMetadataModelId(gMetadataModel);
+					customObject.UpdatePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(gMetadataModel);
+					customObject.CreatePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(gMetadataModel);
+					customObject.RemovePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(gMetadataModel);
+					customObject.UpdatedPersistenceEventTypeId = _this.setAndGetNextMetadataModelId(gMetadataModel);
+					customObject.CreatedPersistenceEventTypeId = _this.setAndGetNextMetadataModelId(gMetadataModel);
+					customObject.RemovedPersistenceEventTypeId = _this.setAndGetNextMetadataModelId(gMetadataModel);
+					customObject.RejectedUpdatePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(gMetadataModel);
+					customObject.RejectedCreatePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(gMetadataModel);
+					customObject.RejectedRemovePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(gMetadataModel);
+					break;
+				case ObjectType.EVENT:
+					customObject.title = gFileModel.createString(DefaultValueConstants.NewFileValues.EVENT_TITLE);
+					customObject.description = gFileModel.createString(DefaultValueConstants.NewFileValues.EVENT_DESCRIPTION);
+					customObject.fields = gFileModel.createList();
+					customObject.queries = gFileModel.createList();
+					customObject.id = _this.setAndGetNextMetadataModelId(gMetadataModel);
+					customObject.isBusinessRequest = false;
+					break;
+				case ObjectType.SNIPPET:
+					customObject.title = gFileModel.createString(DefaultValueConstants.NewFileValues.SNIPPET_TITLE);
+					customObject.description = gFileModel.createString(DefaultValueConstants.NewFileValues.SNIPPET_DESCRIPTION);
+					customObject.fields = gFileModel.createList();
+					customObject.id = _this.setAndGetNextMetadataModelId(gMetadataModel);
+					break;
+				case ObjectType.ENUM:
+					customObject.title = gFileModel.createString(DefaultValueConstants.NewFileValues.ENUM_TITLE);
+					customObject.description = gFileModel.createString(DefaultValueConstants.NewFileValues.ENUM_DESCRIPTION);
+					customObject.fields = gFileModel.createList();
+					customObject.id = _this.setAndGetNextMetadataModelId(gMetadataModel);
+					break;
+				default: break;
+			}
+		}
+
+		function onDocumentLoaded(doc)
+		{
+			var customObjectKey = customObjectKeys[fileType];
+			var customObject = doc.getModel().getRoot().get(customObjectKey);
+			if (!customObject.creatingUser) {
+				setCreator(customObject);
+			}
+			
+			callback(doc, doc.getModel(), customObject);
+		}
+
+		function setCreator(customObject)
+		{
+			googleApiInterface.getFileMetadata(objectFileId, function(respData) {
+				customObject.createdDate = respData.createdDate;
+				customObject.creatingUser = {
+					name: respData.owners[0].displayName,
+					userId: respData.owners[0].permissionId
+				};
+			});
+		}
 	}
 }
 

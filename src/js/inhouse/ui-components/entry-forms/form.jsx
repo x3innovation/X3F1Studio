@@ -678,7 +678,8 @@ module.exports = React.createClass({
 			$enumValueSelect.material_select();
 			return;
 		}
-		gapi.drive.realtime.load(enumId, function(doc) {
+		
+		GDriveUtils.loadDriveFileDoc(enumId, function(doc) {
 			var enumValues = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.ENUM).fields.asArray();
 			if (enumValues.length) {
 				$enumValueSelect.prop('disabled', false);
@@ -811,7 +812,7 @@ module.exports = React.createClass({
 			$enumValueSelect.material_select();
 			return;
 		}
-		gapi.drive.realtime.load(enumId, function(doc) {
+		GDriveUtils.loadDriveFileDoc(enumId, function(doc) {
 			var enumValues = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.ENUM).fields.asArray();
 			if (enumValues.length) {
 				$enumValueSelect.prop('disabled', false);
