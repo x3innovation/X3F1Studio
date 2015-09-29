@@ -44,7 +44,7 @@ module.exports = React.createClass({
 		{
 			for (var i in eventsList)
 			{
-				googleDriveUtils.loadDriveFileDoc(eventsList[i].id, onEventObjectLoaded, null);
+				googleDriveUtils.loadDriveFileDoc(eventsList[i].id, GDriveConstants.ObjectType.EVENT,  onEventObjectLoaded);
 			}
 		}
 

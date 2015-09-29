@@ -7,7 +7,7 @@ var Form = require('./form.jsx');
 var FormHeaderBar = require('./form-header-bar.jsx');
 var PersistentEvents = require('./persistent-events.jsx');
 var Queries = require('./queries.jsx');
-var BusinessRequest = require('./business-request.jsx');
+var EventBusinessRequest = require('./event-business-request.jsx');
 
 var FormHeaderBarController = require('./form-header-bar-controller.js');
 var FieldSelectorController = require('./field-selector-controller.js');
@@ -91,7 +91,7 @@ module.exports = React.createClass({
 						<br />
 						<div className = 'form-wrapper-row row'>
 							<div className = 'col s12'>
-								<BusinessRequest projectFolderFileId={this.props.projectFolderFileId} />
+								<EventBusinessRequest projectFolderFileId={this.props.projectFolderFileId} />
 							</div>
 						</div>
 					</div>

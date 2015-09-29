@@ -4,6 +4,8 @@ var DefaultCons = require('../constants/default-value-constants.js');
 var AnnouncementType = require('../constants/announcement-type.js');
 var DefaultFields = DefaultCons.DefaultFieldAttributes;
 var ObjectType = GCons.ObjectType;
+var Configs = require('../app-config.js');
+var latestVersionConverter = new LatestVersionConverter(Configs.App.VERSION);
 
 function GoogleDriveService()
 {
@@ -14,6 +16,7 @@ function GoogleDriveService()
 	customObjectKeys[ObjectType.ENUM] = GCons.CustomObjectKey.ENUM;
 	customObjectKeys[ObjectType.EVENT] = GCons.CustomObjectKey.EVENT;
 	customObjectKeys[ObjectType.SNIPPET] = GCons.CustomObjectKey.SNIPPET;
+	var versionNumber;
 
 	var sortCompareByFileTitle = function(a,b) {
 		var titleA = a.title.toLowerCase(), titleB = b.title.toLowerCase();
@@ -352,7 +355,7 @@ function GoogleDriveService()
 	        var field = model.create(GCons.CustomObjectKey.PROJECT_METADATA);
 	        field.announcement = model.createList();
 	        field.nextId = 0;
-	        field.version = 1;
+	        field.version = Configs.App.VERSION;
 	        model.getRoot().set(GCons.CustomObjectKey.PROJECT_METADATA, field);
 	    };
 	}
@@ -404,19 +407,38 @@ function GoogleDriveService()
 					customObject.fields = gFileModel.createList();
 					customObject.id = _this.setAndGetNextMetadataModelId(gMetadataModel);
 					break;
+				case ObjectType.PROJECT:
+					var gRoot = docModel.getRoot();
+					docModel.beginCompoundOperation();
+					gRoot.set(GCons.Project.KEY_TITLE, docModel.createString(DefaultValueConstants.NewFileValues.PROJECT_TITLE));
+					gRoot.set(GCons.Project.KEY_DESCRIPTION, docModel.createString(DefaultValueConstants.NewFileValues.PROJECT_DESCRIPTION));
+					docModel.endCompoundOperation();
+					break;
 				default: break;
 			}
 		}
 
 		function onDocumentLoaded(doc)
 		{
-			var customObjectKey = customObjectKeys[fileType];
-			var customObject = doc.getModel().getRoot().get(customObjectKey);
-			if (!customObject.creatingUser) {
-				setCreator(customObject);
+			if (fileType === ObjectType.PROJECT)
+			{
+				callback(doc);
 			}
-			
-			callback(doc, doc.getModel(), customObject);
+			else
+			{
+				if (!latestVersionConverter.isLatestObject(doc))
+				{
+					latestVersionConverter.convertObjectToLatest(doc);
+				}
+
+				var customObjectKey = customObjectKeys[fileType];
+				var customObject = doc.getModel().getRoot().get(customObjectKey);
+				if (!customObject.creatingUser) {
+					setCreator(customObject);
+				}
+				
+				callback(doc, doc.getModel(), customObject);
+			}
 		}
 
 		function setCreator(customObject)
@@ -433,3 +455,28 @@ function GoogleDriveService()
 }
 
 module.exports = new GoogleDriveService();
+
+function LatestVersionConverter(latestVersion)
+{
+	// PRIVATE
+	var latestVersion = latestVersion;
+	var converters = [];
+
+	// PUBLIC
+	this.isLatestObject = function(doc)
+	{
+		var currentVersion = doc.getModel().getRoot().get(GCons.Object.VERSION);
+
+		if (currentVersion == null)
+		{
+			doc.getModel().getRoot().set(GCons.Object.VERSION, 1);
+		}
+
+		return doc.version === latestVersion;
+	}
+
+	this.convertObjectToLatest = function(doc)
+	{
+
+	}
+}

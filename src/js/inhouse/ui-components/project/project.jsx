@@ -106,7 +106,7 @@ module.exports = React.createClass({
 	initialize : function()
 	{
 		// load google drive project metadata file
-		googleDriveUtils.loadDriveFileDoc(this.getParams().projectFileId, this.onProjectFileLoaded, this.onProjectModelInitialize);
+		googleDriveUtils.loadDriveFileDoc(this.getParams().projectFileId, GDriveCons.ObjectType.PROJECT, this.onProjectFileLoaded);
 
 		this.getProjectObjects();
 	},

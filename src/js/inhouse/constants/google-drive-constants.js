@@ -19,7 +19,8 @@ module.exports = {
 		SNIPPET : 'f1-objectType-snippet',
 		EVENT : 'f1-objectType-event',
 		FLOW : 'f1-objectType-flow',
-		PROJECT_METADATA : 'f1-objectType-projectMetadata'
+		PROJECT_METADATA : 'f1-objectType-projectMetadata',
+		PROJECT : 'f1-objectType-project'
 	},
 
 	CustomObjectKey : {
@@ -34,6 +35,10 @@ module.exports = {
 	Project : {
 		KEY_TITLE : 'title',
 		KEY_DESCRIPTION : 'description',
+	},
+
+	Object : {
+		VERSION : 'version'
 	},
 
 	ProjectMetadata : {

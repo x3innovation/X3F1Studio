@@ -22,7 +22,7 @@ module.exports = React.createClass({
 
 	componentDidMount : function()
 	{
-		GDriveUtils.loadDriveFileDoc(this.props.fileId, this.onFileLoaded, null);
+		GDriveUtils.loadDriveFileDoc(this.props.fileId, GDriveConstants.ObjectType.PROJECT, this.onFileLoaded);
 		this.titleChangeTimeout = null;
 
 		this.model = this.props.model;

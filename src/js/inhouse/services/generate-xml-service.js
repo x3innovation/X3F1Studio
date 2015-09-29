@@ -163,7 +163,7 @@ function GenerateXMLService() {
 			callback(enumJsonNode);
 		}
 		for (var i = 0; i<enumCount; i++) {
-			googleDriveUtils.loadDriveFileDoc(enums[i].id, onEnumLoad);
+			googleDriveUtils.loadDriveFileDoc(enums[i].id, GDriveConstants.ObjectType.ENUM, onEnumLoad);
 		}
 	};
 
@@ -453,11 +453,11 @@ function GenerateXMLService() {
 
 		for (var i = 0; i<dataCount; i++) {
 			if (datas[i].description === GDriveConstants.ObjectType.PERSISTENT_DATA){
-				googleDriveUtils.loadDriveFileDoc(datas[i].id, onPersistentDataLoad);
+				googleDriveUtils.loadDriveFileDoc(datas[i].id, GDriveConstants.ObjectType.PERSISTENT_DATA, onPersistentDataLoad);
 			} else if (datas[i].description === GDriveConstants.ObjectType.SNIPPET){
-				googleDriveUtils.loadDriveFileDoc(datas[i].id, onSnippetLoad);
+				googleDriveUtils.loadDriveFileDoc(datas[i].id, GDriveConstants.ObjectType.SNIPPET, onSnippetLoad);
 			} else if (datas[i].description === GDriveConstants.ObjectType.EVENT){
-				googleDriveUtils.loadDriveFileDoc(datas[i].id, onEventLoad);
+				googleDriveUtils.loadDriveFileDoc(datas[i].id, GDriveConstants.ObjectType.EVENT, onEventLoad);
 			}
 		}
 	};
