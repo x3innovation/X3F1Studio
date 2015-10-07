@@ -1,58 +1,99 @@
-var googleDriveUtils = require('../../utils/google-drive-utils.js');
-var GDriveConstants = require('../../constants/google-drive-constants.js');
-
 module.exports = React.createClass({
 	mixins: [Navigation, State],
 	/* ******************************************
 				LIFE CYCLE FUNCTIONS
 	****************************************** */
-	componentWillMount: function() 
-	{
-		this.projectFolderFileId = this.props.projectFolderFileId;
+	componentWillMount: function(){
+		this.controller = this.props.controller;
 	},
 
-	componentDidMount: function() 
-	{
+	componentDidMount: function(){
+		// load previously selected business responses
+		if (this.controller.isBusinessRequest())
+		{
+			$('#business-request-checkbox').trigger('click');
+		}
+	},
 
+	componentDidUpdate: function(){
+		var _this = this;
+		var $businessResponseEvents = $('#business-response-events');
+		if ($businessResponseEvents.length)
+		{
+			$businessResponseEvents.tagit({
+				availableTags: this.responseEligibleEventsTitles,
+				showAutocompleteOnFocus: true,
+				autocomplete: {
+					messages: {
+						noResults: '',
+						results: function(){}
+					}
+				},
+				beforeTagAdded: function(event, ui){
+					var $newTag = ui.tag;
+					var tagLabel = $newTag.find('.tagit-label').text();
+					if (_this.responseEligibleEventsTitles.indexOf(tagLabel) < 0){
+						return false;
+					}
+					else{
+						_this.controller.addBusinessResponse(tagLabel);
+					}
+				},
+				beforeTagRemoved: function(event, ui){
+					var $newTag = ui.tag;
+					var tagLabel = $newTag.find('.tagit-label').text();
+					_this.controller.removeBusinessResponse(tagLabel);
+				}
+			});
+
+			// add existing tags
+			var businessResponses = _this.controller.getBusinessResponses();
+			if (businessResponses.length > 0)
+			{
+				for (var i in businessResponses)
+				{
+					$businessResponseEvents.tagit('createTag', businessResponses[i]);
+				}
+			}
+			setTimeout(function(){
+				$('.tagit-autocomplete').css('display', 'none');
+			}, 0);
+
+			$('.ui-helper-hidden-accessible').remove();
+		}
+	},
+
+	componentWillUnmount: function(){
+		this.controller.dispose();
 	},
 
 	/* ******************************************
 				NON LIFE CYCLE FUNCTIONS
 	****************************************** */
-	onCheck: function(e)
-	{
-		googleDriveUtils.getProjectObjects(this.projectFolderFileId, 
-			"", 
-			{event: true}, 
-			onEventObjectsListLoaded);
+	onCheck: function(e){
+		var _this = this;
+		if (e.currentTarget.checked){
+			_this.controller.setAsBusinessRequest();
+			_this.controller.getResponseEligibleEventsTitles(onTitlesLoaded);
 
-		if (e.currentTarget.checked)
-		{
-			this.responsePanel = 	<div>
-										<label>Business Response: </label>
-										,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3,Object1, Object2, Object3 
-									</div>
-		}
-		else
-		{
-			this.responsePanel = null;
-		}
-
-		this.forceUpdate();
-
-		function onEventObjectsListLoaded(eventsList)
-		{
-			for (var i in eventsList)
-			{
-				googleDriveUtils.loadDriveFileDoc(eventsList[i].id, GDriveConstants.ObjectType.EVENT,  onEventObjectLoaded);
+			function onTitlesLoaded(responseEligibleEventsTitles){
+				_this.responseEligibleEventsTitles = responseEligibleEventsTitles;
+				_this.responsePanel = 	<div>
+											<label>Business Response: </label><br />
+											<div id="business-request-input-wrapper">
+												<ul id="business-response-events">
+												</ul>
+											</div>
+										</div>
+				_this.forceUpdate();
 			}
 		}
-
-		function onEventObjectLoaded(doc)
-		{
-			customModel = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.EVENT);
-			customModel.isBusinessRequest = gapi.drive.realtime.custom.collaborativeField(GDriveConstants.EVENT.KEY_IS_BUSINESS_REQUEST);
-			console.log(customModel.isBusinessRequest);
+		else{
+			_this.controller.setAsNonBusinessRequest();
+			_this.controller.removeAllBusinessResponses();
+			$('#business-response-events').data('ui-tagit').destroy();
+			_this.responsePanel = null;
+			_this.forceUpdate();
 		}
 	},
 

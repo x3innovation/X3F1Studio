@@ -150,11 +150,6 @@ module.exports = React.createClass({
 
 	onFileLoaded : function(doc)
 	{
-		if (this.props.fileId === '0BxsmJNIHghjeU2YzS1p0UG1Lcmc')
-		{
-			console.log('new persistent data file loaded');
-		}
-
 		if (!this.isUnmounted)
 		{
 			this.gDoc = doc;

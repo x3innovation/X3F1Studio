@@ -17,8 +17,9 @@ module.exports = React.createClass({
 
 		this.controller = new HeaderController(this.props.objectFileId, 
 			this.props.objectFileType,
-			this.props.gMetadataModel, 
-			this.props.gFileCustomModel);
+			this.props.gMetadataModel,
+			this.props.gMetadataCustomObject, 
+			this.props.gFileCustomObject);
 	},
 
 	componentDidMount: function() {
@@ -75,7 +76,16 @@ module.exports = React.createClass({
 
 	onTitleChange: function(e)
 	{
-		this.controller.setTitle(e.target.value);
+		var _this = this;
+		var newTitle = e.target.value;
+
+		if (this.setTitleInterval){
+			clearTimeout(this.setTitleInterval);
+		}
+
+		this.setTitleInterval = setTimeout(function(){
+			_this.controller.setTitle(newTitle);
+		}, 500);
 	},
 
 	onDescriptionChange: function(e)
@@ -102,7 +112,7 @@ module.exports = React.createClass({
 					</div>
 					<div id = 'header-description-wrapper' className = 'col offset-s1 s10'>
 						<textarea rows = '1' className='center' id = 'header-description' spellCheck = 'false'
-							onKeyPress = {this.keyPressHandler} placeholder = 'enter description' />
+							onKeyPress = {this.keyPressHandler} onChange={this.onDescriptionChange} placeholder = 'enter description' />
 					</div>
 					<div id = 'header-creator-info' className = 'col s12'/>
 				</div>

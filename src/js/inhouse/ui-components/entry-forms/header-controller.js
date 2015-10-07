@@ -1,4 +1,4 @@
-function HeaderController(objectFileId, objectFileType, gMetadataModel, gFileCustomModel)
+function HeaderController(objectFileId, objectFileType, gMetadataModel, gMetadataCustomObject, gFileCustomObject)
 {
 	// //////// private members
 	var googleApiInterface = require('../../remote-server-interfaces/google-api-interface.js');
@@ -6,17 +6,41 @@ function HeaderController(objectFileId, objectFileType, gMetadataModel, gFileCus
 	var objectFileId = objectFileId;
 	var objectFileType = objectFileType;
 	var gMetadataModel = gMetadataModel;
-	var gFileCustomModel = gFileCustomModel;
+	var gMetadataCustomObject = gMetadataCustomObject;
+	var gFileCustomObject = gFileCustomObject;
 
 	// //////// public members
 	this.getTitle = function()
 	{
-		return gFileCustomModel.title.getText();
+		return gFileCustomObject.title.getText();
 	}
 
 	this.setTitle = function(title)
 	{
-		gFileCustomModel.title.setText(title);
+		gFileCustomObject.title.setText(title);
+
+		// update event title in metadata businessRequest and nonBusinessRequest
+		for (var i=0; i<gMetadataCustomObject.businessRequestEvents.length; ++i){
+			var businessRequestEvent = gMetadataCustomObject.businessRequestEvents.get(i);
+			if (businessRequestEvent.gFileId === objectFileId){
+				var newEvent = {
+					gFileId: objectFileId,
+					eventObjectTitle: title
+				}
+				gMetadataCustomObject.businessRequestEvents.set(i, newEvent);
+			}
+		}
+
+		for (var i=0; i<gMetadataCustomObject.nonBusinessRequestEvents.length; ++i){
+			var businessRequestEvent = gMetadataCustomObject.nonBusinessRequestEvents.get(i);
+			if (businessRequestEvent.gFileId === objectFileId){
+				var newEvent = {
+					gFileId: objectFileId,
+					eventObjectTitle: title
+				}
+				gMetadataCustomObject.nonBusinessRequestEvents.set(i, newEvent);
+			}
+		}
 		
 		// change the physical google drive file name to reflect the change
 		googleApiInterface.saveTitle(objectFileId, title);
@@ -27,41 +51,41 @@ function HeaderController(objectFileId, objectFileType, gMetadataModel, gFileCus
 			fileId: objectFileId,
 			fileNewName: title
 		};
-		gMetadataModel.announcement.clear();
-	    gMetadataModel.announcement.push(renameAnnouncement);
+		gMetadataCustomObject.announcement.clear();
+	    gMetadataCustomObject.announcement.push(renameAnnouncement);
 	}
 
 	this.addTitleUpdateListener = function(listener)
 	{
-		gFileCustomModel.title.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, listener);
-		gFileCustomModel.title.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, listener);
+		gFileCustomObject.title.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, listener);
+		gFileCustomObject.title.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, listener);
 	}
 
 	this.getDescription = function()
 	{
-		return gFileCustomModel.description.getText();
+		return gFileCustomObject.description.getText();
 	}
 
 	this.setDescription = function(description)
 	{
-		gFileCustomModel.description.setText(description);
+		gFileCustomObject.description.setText(description);
 	}
 
 	this.addDescriptionUpdateListener = function(listener)
 	{
-		gFileCustomModel.description.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, listener);
-		gFileCustomModel.description.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, listener);
+		gFileCustomObject.description.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, listener);
+		gFileCustomObject.description.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, listener);
 	}
 
 	this.getId = function()
 	{
-		return gFileCustomModel.id;
+		return gFileCustomObject.id;
 	}
 
 	this.dispose = function()
 	{
-		gFileCustomModel.title.removeAllEventListeners()
-		gFileCustomModel.description.removeAllEventListeners();
+		gFileCustomObject.title.removeAllEventListeners()
+		gFileCustomObject.description.removeAllEventListeners();
 	}
 }
 

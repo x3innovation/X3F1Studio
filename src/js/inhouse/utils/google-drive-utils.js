@@ -1,21 +1,22 @@
 var googleApiInterface = require('../remote-server-interfaces/google-api-interface.js');
 var GCons = require('../constants/google-drive-constants.js');
-var DefaultCons = require('../constants/default-value-constants.js');
+var DefaultValueConstants = require('../constants/default-value-constants.js');
 var AnnouncementType = require('../constants/announcement-type.js');
-var DefaultFields = DefaultCons.DefaultFieldAttributes;
+var DefaultFields = DefaultValueConstants.DefaultFieldAttributes;
 var ObjectType = GCons.ObjectType;
 var Configs = require('../app-config.js');
 var latestVersionConverter = new LatestVersionConverter(Configs.App.VERSION);
+var customObjectKeys = {};
+customObjectKeys[ObjectType.PERSISTENT_DATA] = GCons.CustomObjectKey.PERSISTENT_DATA;
+customObjectKeys[ObjectType.ENUM] = GCons.CustomObjectKey.ENUM;
+customObjectKeys[ObjectType.EVENT] = GCons.CustomObjectKey.EVENT;
+customObjectKeys[ObjectType.SNIPPET] = GCons.CustomObjectKey.SNIPPET;
+customObjectKeys[ObjectType.PROJECT_METADATA] = GCons.CustomObjectKey.PROJECT_METADATA;
 
-function GoogleDriveService()
+function GoogleDriveUtils()
 {
 	// //////// private members
 	var _this = this;
-	var customObjectKeys = {};
-	customObjectKeys[ObjectType.PERSISTENT_DATA] = GCons.CustomObjectKey.PERSISTENT_DATA;
-	customObjectKeys[ObjectType.ENUM] = GCons.CustomObjectKey.ENUM;
-	customObjectKeys[ObjectType.EVENT] = GCons.CustomObjectKey.EVENT;
-	customObjectKeys[ObjectType.SNIPPET] = GCons.CustomObjectKey.SNIPPET;
 	var versionNumber;
 
 	var sortCompareByFileTitle = function(a,b) {
@@ -34,15 +35,15 @@ function GoogleDriveService()
 		}
 	};
 
-	var updateMetadataModel = function(metadataModel) {
-		if (metadataModel.version == null) {
-		    metadataModel.version = 1;
+	var updateMetadataModel = function(gMetadataObject) {
+		if (gMetadataObject.version == null) {
+		    gMetadataObject.version = 1;
 		}
-		if (metadataModel.nextId == null) {
-		    metadataModel.nextId = 10;
+		if (gMetadataObject.nextId == null) {
+		    gMetadataObject.nextId = 10;
 		}
-		if (metadataModel.announcement == null) {
-		    metadataModel.announcement = doc.getModel().createList();
+		if (gMetadataObject.announcement == null) {
+		    gMetadataObject.announcement = doc.getModel().createList();
 		}
 	};
 
@@ -98,13 +99,13 @@ function GoogleDriveService()
 		return gMetadataModel.nextId;
 	};
 
-	this.announce = function(metadataModel, announcement) {
-	    metadataModel.announcement.clear();
-	    metadataModel.announcement.push(announcement);
+	this.announce = function(gMetadataCustomObject, announcement) {
+	    gMetadataCustomObject.announcement.clear();
+	    gMetadataCustomObject.announcement.push(announcement);
 	};
 
-	this.registerAnnouncement = function(metadataModel, callback) {
-	    metadataModel.announcement.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, callback);
+	this.registerAnnouncement = function(gMetadataCustomObject, callback) {
+	    gMetadataCustomObject.announcement.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, callback);
 	};
 
 	this.getProjectObjects = function( projectFolderFileId, titleSearchString, objectsToGet, callback)
@@ -229,7 +230,7 @@ function GoogleDriveService()
 			googleApiInterface.createNewFile(fileCreationParams, callback);
 		};
 		var folderCreationParams = {
-			title: DefaultCons.NewFileValues.PROJECT_TITLE,
+			title: DefaultValueConstants.NewFileValues.PROJECT_TITLE,
 			mimeType: GCons.MimeType.FOLDER
 		};
 		googleApiInterface.createNewFolder(folderCreationParams, createNewF1Metadata);
@@ -242,19 +243,19 @@ function GoogleDriveService()
 		};
 		switch (objectType) {
 			case (GCons.ObjectType.PERSISTENT_DATA):
-				fileCreationParams.title = DefaultCons.NewFileValues.PERSISTENT_DATA_TITLE;
+				fileCreationParams.title = DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE;
 				fileCreationParams.mimeType = GCons.MimeType.DMX;
 				break;
 			case (GCons.ObjectType.EVENT):
-				fileCreationParams.title = DefaultCons.NewFileValues.EVENT_TITLE;
+				fileCreationParams.title = DefaultValueConstants.NewFileValues.EVENT_TITLE;
 				fileCreationParams.mimeType = GCons.MimeType.DMX;
 				break;
 			case (GCons.ObjectType.SNIPPET):
-				fileCreationParams.title = DefaultCons.NewFileValues.SNIPPET_TITLE;
+				fileCreationParams.title = DefaultValueConstants.NewFileValues.SNIPPET_TITLE;
 				fileCreationParams.mimeType = GCons.MimeType.DMX;
 				break;
 			case (GCons.ObjectType.ENUM):
-				fileCreationParams.title = DefaultCons.NewFileValues.PERSISTENT_DATA_TITLE;
+				fileCreationParams.title = DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE;
 				fileCreationParams.mimeType = GCons.MimeType.DMXE;
 				break;
 			case (GCons.ObjectType.FLOW):
@@ -265,21 +266,31 @@ function GoogleDriveService()
 		}
 
 		var _this = this;
-		var callbackWrapper = function(file) {
-			var addFileAnnouncement = {
-				action: AnnouncementType.ADD_FILE,
-				fileType: objectType,
-				fileId: file.id,
-				fileName: fileCreationParams.title
-			};
+		var onFileCreationCompleted = function(file) {
+			_this.loadMetadataDoc(parentFolderId, function(metadataDoc, metadataCustomObject){
+				// if the file was event object, update the metadata
+				if (objectType === GCons.ObjectType.EVENT)
+				{
+					var metadataEvent = _this.createMetadataBusinessRequestEvent(file.id, fileCreationParams.title);
+					metadataCustomObject.nonBusinessRequestEvents.push(metadataEvent);
+				}
 
-			_this.getMetadataModel(parentFolderId, function(metadataModel) {
-				_this.announce(metadataModel, addFileAnnouncement);
+				// announce file created
+				var addFileAnnouncement = {
+					action: AnnouncementType.ADD_FILE,
+					fileType: objectType,
+					fileId: file.id,
+					fileName: fileCreationParams.title
+				};
+				_this.announce(gMetadataObject, addFileAnnouncement);
+
+				metadataDoc.close();
 			});
+			
 			callback(file);
 		};
 		
-		googleApiInterface.createNewFile(fileCreationParams, callbackWrapper);
+		googleApiInterface.createNewFile(fileCreationParams, onFileCreationCompleted);
 	};
 
 	this.createNewField = function(newFieldName, gModel) {
@@ -339,29 +350,44 @@ function GoogleDriveService()
 		googleApiInterface.getFileMetadata(fileId, callback);
 	}
 
-	this.loadMetadataDoc = function(projectFileId, callback)
+	this.loadMetadataDoc = function(fileId, projectFolderFileId, callback)
 	{
-		gapi.drive.realtime.load(projectFileId, onMetadataFileLoaded, initializeMetadataModel);
+		gapi.drive.realtime.load(fileId, onMetadataFileLoaded, initializeMetadataModel);
 
 		function onMetadataFileLoaded(doc) {
-	        var metadataModel = doc.getModel().getRoot().get(GCons.CustomObjectKey.PROJECT_METADATA);
-	        if (metadataModel == null) {
+	        var metadataCustomObject = doc.getModel().getRoot().get(GCons.CustomObjectKey.PROJECT_METADATA);
+	        if (metadataCustomObject == null) {
 	        	initializeMetadataModel(doc.getModel());
 	        }
-	        callback(doc, metadataModel);
+
+	        if (!latestVersionConverter.isLatestObject(doc))
+			{
+				latestVersionConverter.convertObjectToLatest(doc, 
+					ObjectType.PROJECT_METADATA, 
+					projectFolderFileId,
+					onVersionConversionCompleted);
+			}
+
+			function onVersionConversionCompleted(){
+				callback(doc, metadataCustomObject);
+			}
 	    }
 
 	    function initializeMetadataModel(model) {
-	        var field = model.create(GCons.CustomObjectKey.PROJECT_METADATA);
-	        field.announcement = model.createList();
-	        field.nextId = 0;
-	        field.version = Configs.App.VERSION;
-	        model.getRoot().set(GCons.CustomObjectKey.PROJECT_METADATA, field);
+	    	// project metadata model related metadata
+	        var metadataCustomObject = model.create(GCons.CustomObjectKey.PROJECT_METADATA);
+	        metadataCustomObject.announcement = model.createList();
+	        metadataCustomObject.nextId = 0;
+	        metadataCustomObject.version = Configs.App.VERSION;
+	        metadataCustomObject.businessRequestEvents = model.createList();
+	        metadataCustomObject.nonBusinessRequestEvents = model.createList();
+	        model.getRoot().set(GCons.CustomObjectKey.PROJECT_METADATA, metadataCustomObject);
 	    };
 	}
 
-	this.loadDriveFileDoc = function(fileId, fileType, callback)
+	this.loadDriveFileDoc = function(fileId, fileType, callback, metadataCustomObject)
 	{
+		var _this = this;
 		gapi.drive.realtime.load(fileId, onDocumentLoaded, initializeDocument);
 
 		function initializeDocument(docModel)
@@ -372,40 +398,48 @@ function GoogleDriveService()
 			// initialize custom object depending on filetype
 			switch (fileType) {
 				case ObjectType.PERSISTENT_DATA:
-					customObject.title = gFileModel.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE);
-					customObject.description = gFileModel.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_DESCRIPTION);
-					customObject.fields = gFileModel.createList();
-					customObject.queries = gFileModel.createList();
-					customObject.id = _this.setAndGetNextMetadataModelId(gMetadataModel);
-					customObject.UpdatePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(gMetadataModel);
-					customObject.CreatePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(gMetadataModel);
-					customObject.RemovePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(gMetadataModel);
-					customObject.UpdatedPersistenceEventTypeId = _this.setAndGetNextMetadataModelId(gMetadataModel);
-					customObject.CreatedPersistenceEventTypeId = _this.setAndGetNextMetadataModelId(gMetadataModel);
-					customObject.RemovedPersistenceEventTypeId = _this.setAndGetNextMetadataModelId(gMetadataModel);
-					customObject.RejectedUpdatePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(gMetadataModel);
-					customObject.RejectedCreatePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(gMetadataModel);
-					customObject.RejectedRemovePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(gMetadataModel);
+					customObject.title = docModel.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE);
+					customObject.description = docModel.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_DESCRIPTION);
+					customObject.fields = docModel.createList();
+					customObject.queries = docModel.createList();
+					customObject.id = _this.setAndGetNextMetadataModelId(metadataCustomObject);
+					customObject.UpdatePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(metadataCustomObject);
+					customObject.CreatePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(metadataCustomObject);
+					customObject.RemovePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(metadataCustomObject);
+					customObject.UpdatedPersistenceEventTypeId = _this.setAndGetNextMetadataModelId(metadataCustomObject);
+					customObject.CreatedPersistenceEventTypeId = _this.setAndGetNextMetadataModelId(metadataCustomObject);
+					customObject.RemovedPersistenceEventTypeId = _this.setAndGetNextMetadataModelId(metadataCustomObject);
+					customObject.RejectedUpdatePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(metadataCustomObject);
+					customObject.RejectedCreatePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(metadataCustomObject);
+					customObject.RejectedRemovePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(metadataCustomObject);
+					customObject.isUpdateBusinessRequest = false;
+					customObject.isCreateBusinessRequest = false;
+					customObject.isRemoveBusinessRequest = false;
+					docModel.getRoot().set(customObjectKey, customObject);
 					break;
 				case ObjectType.EVENT:
-					customObject.title = gFileModel.createString(DefaultValueConstants.NewFileValues.EVENT_TITLE);
-					customObject.description = gFileModel.createString(DefaultValueConstants.NewFileValues.EVENT_DESCRIPTION);
-					customObject.fields = gFileModel.createList();
-					customObject.queries = gFileModel.createList();
-					customObject.id = _this.setAndGetNextMetadataModelId(gMetadataModel);
+					customObject.title = docModel.createString(DefaultValueConstants.NewFileValues.EVENT_TITLE);
+					customObject.description = docModel.createString(DefaultValueConstants.NewFileValues.EVENT_DESCRIPTION);
+					customObject.fields = docModel.createList();
+					customObject.queries = docModel.createList();
+					customObject.id = _this.setAndGetNextMetadataModelId(metadataCustomObject);
 					customObject.isBusinessRequest = false;
+					customObject.correspondingBusinessResponses = docModel.createList();
+					docModel.getRoot().set(customObjectKey, customObject);
 					break;
 				case ObjectType.SNIPPET:
-					customObject.title = gFileModel.createString(DefaultValueConstants.NewFileValues.SNIPPET_TITLE);
-					customObject.description = gFileModel.createString(DefaultValueConstants.NewFileValues.SNIPPET_DESCRIPTION);
-					customObject.fields = gFileModel.createList();
-					customObject.id = _this.setAndGetNextMetadataModelId(gMetadataModel);
+					customObject.title = docModel.createString(DefaultValueConstants.NewFileValues.SNIPPET_TITLE);
+					customObject.description = docModel.createString(DefaultValueConstants.NewFileValues.SNIPPET_DESCRIPTION);
+					customObject.fields = docModel.createList();
+					customObject.id = _this.setAndGetNextMetadataModelId(metadataCustomObject);
+					docModel.getRoot().set(customObjectKey, customObject);
 					break;
 				case ObjectType.ENUM:
-					customObject.title = gFileModel.createString(DefaultValueConstants.NewFileValues.ENUM_TITLE);
-					customObject.description = gFileModel.createString(DefaultValueConstants.NewFileValues.ENUM_DESCRIPTION);
-					customObject.fields = gFileModel.createList();
-					customObject.id = _this.setAndGetNextMetadataModelId(gMetadataModel);
+					customObject.title = docModel.createString(DefaultValueConstants.NewFileValues.ENUM_TITLE);
+					customObject.description = docModel.createString(DefaultValueConstants.NewFileValues.ENUM_DESCRIPTION);
+					customObject.fields = docModel.createList();
+					customObject.id = _this.setAndGetNextMetadataModelId(metadataCustomObject);
+					docModel.getRoot().set(customObjectKey, customObject);
 					break;
 				case ObjectType.PROJECT:
 					var gRoot = docModel.getRoot();
@@ -428,43 +462,217 @@ function GoogleDriveService()
 			{
 				if (!latestVersionConverter.isLatestObject(doc))
 				{
-					latestVersionConverter.convertObjectToLatest(doc);
+					latestVersionConverter.convertObjectToLatest(doc, fileType, null, onVersionConversionCompleted);
 				}
 
-				var customObjectKey = customObjectKeys[fileType];
-				var customObject = doc.getModel().getRoot().get(customObjectKey);
-				if (!customObject.creatingUser) {
-					setCreator(customObject);
+				function onVersionConversionCompleted(){
+					var customObjectKey = customObjectKeys[fileType];
+					var customObject = doc.getModel().getRoot().get(customObjectKey);
+					if (!customObject.creatingUser) {
+						setCreator(customObject, function(){
+							callback(doc, doc.getModel(), customObject);
+						});
+					}
+					else
+					{
+						callback(doc, doc.getModel(), customObject);
+					}
 				}
-				
-				callback(doc, doc.getModel(), customObject);
 			}
 		}
 
-		function setCreator(customObject)
+		function setCreator(customObject, callback)
 		{
-			googleApiInterface.getFileMetadata(objectFileId, function(respData) {
+			googleApiInterface.getFileMetadata(fileId, function(respData) {
 				customObject.createdDate = respData.createdDate;
 				customObject.creatingUser = {
 					name: respData.owners[0].displayName,
 					userId: respData.owners[0].permissionId
 				};
+
+				callback();
 			});
+		}
+	}
+
+	this.createMetadataEvent = function(gFileId, eventTitle){
+		var metadataEvent = {};
+		metadataEvent.gFileId = gFileId;
+		metadataEvent.eventObjectTitle = eventTitle;
+		return metadataEvent;
+	}
+
+	this.getGoogleFileIdForEventName = function(gMetadataCustomObject, eventName){
+		var eventFound = false;
+		var gFileId;
+
+		// find out the google file id for this event name
+		for (var i=0; i<gMetadataCustomObject.businessRequestEvents.length; ++i){
+			var businessRequestEvent = gMetadataCustomObject.businessRequestEvents.get(i);
+			if (businessRequestEvent.eventObjectTitle === eventName){
+				eventFound = true;
+				gFileId = businessRequestEvent.gFileId;
+				break;
+			}
+		}
+		if (!eventFound){
+			for (var i=0; i<gMetadataCustomObject.nonBusinessRequestEvents.length; ++i){
+				var nonBusinessRequestEvent = gMetadataCustomObject.nonBusinessRequestEvents.get(i);
+				if (nonBusinessRequestEvent.eventObjectTitle === eventName){
+					gFileId = nonBusinessRequestEvent.gFileId;
+					break;
+				}
+			}
+		}
+
+		return gFileId;
+	}
+
+	this.getEventNameForGoogleFileIds = function(gMetadataCustomObject, googleFileIds){
+		var titles = [];
+		for (var i in googleFileIds){
+			var gFileId = googleFileIds[i];
+			var title = getTitleForGoogleFileId(gFileId);
+			titles.push(title);
+		}
+
+		return titles;
+
+		function getTitleForGoogleFileId(gFileId){
+			var eventFound = false;
+			var title;
+
+			// find out the google file id for this event name
+			for (var i=0; i<gMetadataCustomObject.businessRequestEvents.length; ++i){
+				var businessRequestEvent = gMetadataCustomObject.businessRequestEvents.get(i);
+				if (businessRequestEvent.gFileId === gFileId){
+					eventFound = true;
+					title = businessRequestEvent.eventObjectTitle;
+					break;
+				}
+			}
+			if (!eventFound){
+				for (var i=0; i<gMetadataCustomObject.nonBusinessRequestEvents.length; ++i){
+					var nonBusinessRequestEvent = gMetadataCustomObject.nonBusinessRequestEvents.get(i);
+					if (nonBusinessRequestEvent.gFileId === gFileId){
+						title = nonBusinessRequestEvent.eventObjectTitle;
+						break;
+					}
+				}
+			}
+
+			return title;
 		}
 	}
 }
 
-module.exports = new GoogleDriveService();
+var googleDriveUtils = new GoogleDriveUtils();
+
+module.exports = googleDriveUtils;
 
 function LatestVersionConverter(latestVersion)
 {
 	// PRIVATE
 	var latestVersion = latestVersion;
-	var converters = [];
+	var versionConverters = [];
+	versionConverters.push(from0to1);
+	versionConverters.push(from1to2);
+
+	function from0to1(doc, objectType, projectFolderFileId, callback, isLastConversion){
+		if(isLastConversion){
+			callback();
+		}
+	}
+
+	function from1to2(doc, objectType, projectFolderFileId, callback, isLastConversion){
+		var customObjectKey = customObjectKeys[objectType];
+
+		switch (objectType)
+		{
+			case ObjectType.EVENT:
+				var customObject = doc.getModel().getRoot().get(customObjectKey);
+
+				// get rid of all these null checks once version 2 becomes official
+				if (customObject.isBusinessRequest == null){
+					customObject.isBusinessRequest = false;
+				}
+				if (customObject.correspondingBusinessResponses == null){
+					customObject.correspondingBusinessResponses = doc.getModel().createList();
+				}
+
+				if (isLastConversion){
+					callback();
+				}
+				break;
+			case ObjectType.PROJECT_METADATA:
+				var customObject = doc.getModel().getRoot().get(customObjectKey);
+				
+				if (customObject.businessRequestEvents == null){
+					customObject.businessRequestEvents = doc.getModel().createList();
+				}
+
+				if (customObject.nonBusinessRequestEvents == null){
+					customObject.nonBusinessRequestEvents = doc.getModel().createList();
+					initializeNonBusinessRequestEvents(doc.getModel(), customObject, projectFolderFileId, callback);
+				}
+				else{
+					if (isLastConversion){
+						callback();
+					}
+				}
+
+				break;
+			case ObjectType.PERSISTENT_DATA:
+				var customObject = doc.getModel().getRoot().get(customObjectKey);
+				if (customObject.isUpdateBusinessRequest == null){
+					customObject.isUpdateBusinessRequest = false;
+				}
+				if (customObject.isCreateBusinessRequest == null){
+					customObject.isCreateBusinessRequest = false;
+				}
+				if (customObject.isRemoveBusinessRequest == null){
+					customObject.isRemoveBusinessRequest = false;
+				}
+
+				if (isLastConversion){
+					callback();
+				}
+				break;
+			default:
+				if (isLastConversion){
+					callback();
+				}
+				break;
+		}
+	}
+
+	function initializeNonBusinessRequestEvents(gMetadataModel, customObject, projectFolderFileId, callback){
+		var objectsToGet = {
+			persistentData: false,
+			enum: false,
+			snippet: false,
+			event: true,
+			flow: false
+		};
+		googleDriveUtils.getProjectObjects(projectFolderFileId, '', objectsToGet, onEventsLoaded);
+
+		function onEventsLoaded(events){
+			for (var i in events)
+			{
+				var eventObject = events[i];
+				// var metadataEventObject = gMetadataModel.create(GCons.CustomObjectKey.ProjectMetadata.EVENT_OBJECT);
+				var metadataEventObject = {};
+				metadataEventObject.gFileId = eventObject.id;
+				metadataEventObject.eventObjectTitle = eventObject.title;
+				customObject.nonBusinessRequestEvents.push(metadataEventObject);
+			}
+
+			callback();
+		}
+	}
 
 	// PUBLIC
-	this.isLatestObject = function(doc)
-	{
+	this.isLatestObject = function(doc){
 		var currentVersion = doc.getModel().getRoot().get(GCons.Object.VERSION);
 
 		if (currentVersion == null)
@@ -475,8 +683,17 @@ function LatestVersionConverter(latestVersion)
 		return doc.version === latestVersion;
 	}
 
-	this.convertObjectToLatest = function(doc)
-	{
+	this.convertObjectToLatest = function(doc, objectType, projectFolderFileId, callback){
+		var currentVersion = doc.getModel().getRoot().get(GCons.Object.VERSION);
+		for (var i=currentVersion; i<versionConverters.length; i++){
+			var versionConverter = versionConverters[i];
 
+			if (i === versionConverters.length-1){
+				versionConverter(doc, objectType, projectFolderFileId, callback, true);
+			}
+			else{
+				versionConverter(doc, objectType, projectFolderFileId, null, false);
+			}
+		}
 	}
 }

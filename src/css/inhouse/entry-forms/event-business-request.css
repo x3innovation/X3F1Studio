@@ -1,0 +1,17 @@
+#business-request-input-wrapper{
+	overflow: hidden;
+}
+
+#business-request-input-wrapper .tagit-close{
+	margin-left: 5px;
+	cursor: pointer;
+}
+
+.tagit-autocomplete .ui-menu-item{
+	cursor: pointer;
+}
+
+.tagit-autocomplete .ui-menu-item:hover{
+	color: gray;
+	cursor: pointer;
+}

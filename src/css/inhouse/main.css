@@ -88,3 +88,7 @@ th, td {
     opacity: 0;
     visibility: hidden;
 }
+
+.ui-helper-hidden-accessible{
+    display: none;
+}

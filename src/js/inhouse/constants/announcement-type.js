@@ -5,5 +5,7 @@ module.exports = {
 
 	ADD_ENUM: 'addEnum',
 	RENAME_ENUM: 'renameEnum',
-	DELETE_ENUM: 'deleteEnum'
+	DELETE_ENUM: 'deleteEnum',
+
+	UPDATED_PERSISTENT_DATA_BUSINESS_REQUEST: 'updatedPersistentDataBusinessRequest'
 };

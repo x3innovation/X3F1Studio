@@ -42,7 +42,7 @@ module.exports = function(grunt) {
 			'moment-2.10.6.js',
 			'jquery.dataTables-1.10.7.js',
 			'jquery.datetimepicker-2.4.5-with-momentjs-support.js',
-			'jquery-1.10.7.js'
+			'jquery-tag-it-2.0.js'
 		];
 
 		for (var i = 0; i<vendorLibs.length; ++i)
@@ -86,6 +86,7 @@ module.exports = function(grunt) {
 			'entry-forms/header.css',
 			'entry-forms/persistent-events.css',
 			'entry-forms/queries.css',
+			'entry-forms/event-business-request.css',
 			'project/project.css'
 		];
 

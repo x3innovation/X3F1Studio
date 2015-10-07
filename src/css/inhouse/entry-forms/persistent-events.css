@@ -4,8 +4,13 @@ input[type='text'].event-display {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-bottom: 0px;
 }
 
 .event-cell {
     margin-bottom: 1rem;
+}
+
+.business-request-container{
+	margin-bottom: 20px;
 }

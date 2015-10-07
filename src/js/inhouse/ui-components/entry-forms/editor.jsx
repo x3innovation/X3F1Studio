@@ -22,7 +22,10 @@ module.exports = React.createClass({
 		var projectFileId = this.getParams().projectFileId;
 		this.projectFolderFileId = this.getParams().projectFolderFileId;
 		this.objectFileId = this.getParams().fileId;
-		this.controller = new Controller(this.objectFileType, projectFileId, this.objectFileId);
+		this.controller = new Controller(this.objectFileType, 
+			projectFileId, 
+			this.objectFileId,
+			this.projectFolderFileId);
 
 		if (UserStore.isLoggedIn) {
 			// if user is already logged in, just initialize
@@ -52,19 +55,21 @@ module.exports = React.createClass({
 		var _this = this;
 		this.controller.initialize(onInitializeFinished);
 
-		function onInitializeFinished(gMetadataModel, gFileCustomModel, gFileModel)
+		function onInitializeFinished(gMetadataModel, gMetadataCustomObject, gFileCustomObject, gFileModel)
 		{
 			_this.editor = 	<div>
 								<Header gMetadataModel={gMetadataModel}
-									gFileCustomModel={gFileCustomModel}
+									gFileCustomObject={gFileCustomObject}
 									objectFileId={_this.objectFileId}
-									objectFileType={_this.objectFileType} />
-								<Body gFileCustomModel={gFileCustomModel} 
+									objectFileType={_this.objectFileType}
+									gMetadataCustomObject = {gMetadataCustomObject} />
+								<Body gFileCustomObject={gFileCustomObject} 
 									objectFileType={_this.objectFileType}
 									gMetadataModel={gMetadataModel}
 									projectFolderFileId={_this.projectFolderFileId}
 									objectFileId={_this.objectFileId}
-									gFileModel = {gFileModel} />
+									gFileModel = {gFileModel}
+									gMetadataCustomObject = {gMetadataCustomObject} />
 							</div>
 
 			_this.forceUpdate();

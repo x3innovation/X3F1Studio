@@ -1,8 +1,6 @@
 var GDriveConstants = require('../constants/google-drive-constants.js');
 var googleDriveUtils = require('../utils/google-drive-utils.js');
 
-var ParseQueryService = require('./parse-query-service.js');
-
 function GenerateXMLService() {
 
 	// private functions
@@ -37,7 +35,7 @@ function GenerateXMLService() {
 		return string;
 	};
 
-	var generateJSONDataAndConvertToXML = function(classifiedObjects, projectFile, callback) {
+	var generateJSONDataAndConvertToXML = function(classifiedObjects, projectFile, gMetadataCustomObject, callback) {
 		var title = projectFile.title;
 		var description = projectFile.description;
 		var spacelessName = replaceAll(title, ' ', '');
@@ -82,7 +80,7 @@ function GenerateXMLService() {
 
 		loadAllEnums(classifiedObjects.enums, function (enumJsonNode) {
 			applicationJson.Enum = enumJsonNode;
-			loadAllDatas(classifiedObjects.datas, function (dataJsonNode) {
+			loadAllDatas(classifiedObjects.datas, gMetadataCustomObject, function (dataJsonNode) {
 				applicationJson.Data = dataJsonNode.Data;
 				applicationJson.UpdatePersistenceEvent = dataJsonNode.UpdatePersistenceEvent;
 				applicationJson.CreatePersistenceEvent = dataJsonNode.CreatePersistenceEvent;
@@ -93,9 +91,7 @@ function GenerateXMLService() {
 				applicationJson.RejectedUpdatePersistenceEvent = dataJsonNode.RejectedUpdatePersistenceEvent;
 				applicationJson.RejectedCreatePersistenceEvent = dataJsonNode.RejectedCreatePersistenceEvent;
 				applicationJson.RejectedRemovePersistenceEvent = dataJsonNode.RejectedRemovePersistenceEvent;
-				ParseQueryService.parseQueries(applicationJson.Data, function() {
-					callback(convertToXml(jsonRootObj));
-				});
+				callback(convertToXml(jsonRootObj));
 			});
 		});
 	};
@@ -167,7 +163,7 @@ function GenerateXMLService() {
 		}
 	};
 
-	loadAllDatas = function(datas, callback) {
+	loadAllDatas = function(datas, gMetadataCustomObject, callback) {
 		var dataJsonNode = {
 			Data: [],
 			UpdatePersistenceEvent: [],
@@ -403,6 +399,7 @@ function GenerateXMLService() {
 			node = setJsonFields(node, gModel);
 			node = setJsonEvents(node, gModel);
 			node = setJsonQueries(node, gModel);
+			node = setJsonBusinessRequest(node, gModel);
 
 			dataJsonNode.Data.push(node.Data);
 			dataJsonNode.UpdatePersistenceEvent.push(node.UpdatePersistenceEvent);
@@ -418,6 +415,39 @@ function GenerateXMLService() {
 			if (dataJsonNode.Data.length === dataCount && typeof callback === 'function') {
 				callback(dataJsonNode);
 			}
+
+			// inner function for persistent data
+			function setJsonBusinessRequest(node, gModel){
+				if (hasBusinessRequest(gModel)){
+					node.Data.BusinessRequests = {};
+					node.Data.BusinessRequests.BusinessRequest = [];
+
+					if (gModel.isUpdateBusinessRequest){
+						node.Data.BusinessRequests.BusinessRequest.push('Update');
+					}
+
+					if (gModel.isCreateBusinessRequest){
+						node.Data.BusinessRequests.BusinessRequest.push('Create');
+					}
+
+					if (gModel.isRemoveBusinessRequest){
+						node.Data.BusinessRequests.BusinessRequest.push('Remove');
+					}
+				}
+
+				return node;
+
+				function hasBusinessRequest(gModel){
+					return gModel.isUpdateBusinessRequest 
+						|| gModel.isCreateBusinessRequest
+						|| gModel.isRemoveBusinessRequest;
+				}
+			};
+
+			// closing the doc too soon throws an exception from Google
+			setTimeout(function(){
+				doc.close();
+			}, 3000);
 		};
 
 		var onEventLoad = function(doc) {
@@ -426,12 +456,35 @@ function GenerateXMLService() {
 			var node = createDataNode(gModel, dataType);
 			node = setJsonFields(node, gModel);
 			node = setJsonQueries(node, gModel);
+			node = setJsonBusinessRequest(node, gModel);
 
 			dataJsonNode.Data.push(node.Data);
 
 			if (dataJsonNode.Data.length === dataCount && typeof callback === 'function') {
 				callback(dataJsonNode);
 			}
+
+			// inner function for event
+			function setJsonBusinessRequest(node, gModel){
+				if (gModel.isBusinessRequest){
+					node.Data.BusinessResponses = {};
+					node.Data.BusinessResponses.BusinessResponse = [];
+				
+					var gFileIds = gModel.correspondingBusinessResponses.asArray();
+					var eventNames = googleDriveUtils.getEventNameForGoogleFileIds(gMetadataCustomObject, gFileIds);
+
+					for (var i in eventNames){
+						node.Data.BusinessResponses.BusinessResponse.push(eventNames[i]);
+					}
+				}
+
+				return node;
+			};
+
+			// closing the doc too soon throws an exception from Google
+			setTimeout(function(){
+				doc.close();
+			}, 3000);
 		};
 
 		var onSnippetLoad = function(doc) {
@@ -445,6 +498,11 @@ function GenerateXMLService() {
 			if (dataJsonNode.Data.length === dataCount && typeof callback === 'function') {
 				callback(dataJsonNode);
 			}
+
+			// closing the doc too soon throws an exception from Google
+			setTimeout(function(){
+				doc.close();
+			}, 3000);
 		};
 
 		if (dataCount === 0 && typeof callback === 'function') {
@@ -463,9 +521,12 @@ function GenerateXMLService() {
 	};
 
 	// public function
-	this.generateProjectXML = function(projectObjects, projectFile, callback) {
+	this.generateProjectXML = function(projectObjects, projectFile, gMetadataCustomObject, callback) {
 		var classifiedObjects = classifyProjectObjects(projectObjects);
-		generateJSONDataAndConvertToXML(classifiedObjects, projectFile, callback);
+		generateJSONDataAndConvertToXML(classifiedObjects, 
+			projectFile,
+			gMetadataCustomObject, 
+			callback);
 	};
 }
 

@@ -1,6 +1,7 @@
-function EditorController(fileType, projectFileId, objectFileId)
+function EditorController(fileType, projectFileId, objectFileId, projectFolderFileId)
 {
 	// //////// private members
+	var projectFolderFileId = projectFolderFileId;
 	var projectFileId = projectFileId;
 	var objectFileId = objectFileId;
 	var gDriveInterface = require('../../remote-server-interfaces/google-api-interface.js');
@@ -28,37 +29,30 @@ function EditorController(fileType, projectFileId, objectFileId)
 
 	var gMetadataDoc;
 	var gMetadataModel;
+	var gMetadataCustomObject;
 	var gDoc;
 	var gFileModel;
-	var gFileCustomModel;
+	var gFileCustomObject;
 
 	// //////// public members
 	this.initialize = function(onInitializeFinished)
 	{
-		gDriveUtils.loadMetadataDoc(projectFileId, onMetadataLoaded);
-		gDriveUtils.loadDriveFileDoc(objectFileId, fileType, onObjectFileLoaded);
+		gDriveUtils.loadMetadataDoc(projectFileId, projectFolderFileId, onMetadataLoaded);
 
 		function onMetadataLoaded(metadataDoc, metadataCustomObject)
 		{
 			gMetadataDoc = metadataDoc;
-			gMetadataModel = metadataCustomObject;
-			onLoaded();
+			gMetadataModel = metadataDoc.getModel();
+			gMetadataCustomObject = metadataCustomObject;
+			gDriveUtils.loadDriveFileDoc(objectFileId, fileType, onObjectFileLoaded, metadataCustomObject);
 		}
 
 		function onObjectFileLoaded(objectDoc, objectModel, objectCustomObject)
 		{
 			gDoc = objectDoc;
 			gFileModel = objectModel;
-			gFileCustomModel = objectCustomObject;
-			onLoaded();
-		}
-
-		function onLoaded()
-		{
-			if (gMetadataDoc && gDoc)
-			{
-				onInitializeFinished(gMetadataModel, gFileCustomModel, gFileModel);
-			}
+			gFileCustomObject = objectCustomObject;
+			onInitializeFinished(gMetadataModel, gMetadataCustomObject, gFileCustomObject, gFileModel);
 		}
 	}
 

@@ -29,7 +29,10 @@ module.exports = {
 		SNIPPET : 'snippet-data-custom-object',
 		EVENT : 'event-data-custom-object',
 		FLOW : 'flow-data-custom-object',
-		PROJECT_METADATA : 'project-metadata-custom-object'
+		PROJECT_METADATA : 'project-metadata-custom-object',
+		ProjectMetadata : {
+			EVENT_OBJECT : 'project-metadata-event-object'
+		}
 	},
 
 	Project : {
@@ -44,7 +47,13 @@ module.exports = {
 	ProjectMetadata : {
 		KEY_VERSION : 'version',
 		KEY_ANNOUNCEMENT : 'announcement',
-		KEY_NEXT_ID : 'nextId'
+		KEY_NEXT_ID : 'nextId',
+		KEY_BUSINESS_REQUEST_EVENTS : 'businessRequestEvents',
+		KEY_NON_BUSINESS_REQUEST_EVENTS : 'nonBusinessRequestEvents',
+		BusinessRequestEvent : {
+			KEY_GOOGLE_FILE_ID : 'businessRequestGoogleFileId',
+			KEY_EVENT_OBJECT_TITLE : 'businessRequestEventObjectTitle'
+		}
 	},
 
 	PersistentData : {
@@ -69,7 +78,10 @@ module.exports = {
 		KEY_REJECT_REMOVE_PD_EVENT_TYPE_ID : 'RejectRemovePersistenceEventTypeId',
 		KEY_REJECTED_UPDATE_PD_EVENT_TYPE_ID : 'RejectedUpdatePersistenceEventTypeId',
 		KEY_REJECTED_CREATE_PD_EVENT_TYPE_ID : 'RejectedCreatePersistenceEventTypeId',
-		KEY_REJECTED_REMOVE_PD_EVENT_TYPE_ID : 'RejectedRemovePersistenceEventTypeId'
+		KEY_REJECTED_REMOVE_PD_EVENT_TYPE_ID : 'RejectedRemovePersistenceEventTypeId',
+		KEY_IS_UPDATE_BUSINESS_REQUEST : 'isUpdateBusinessRequest',
+		KEY_IS_CREATE_BUSINESS_REQUEST : 'isCreateBusinessRequest',
+		KEY_IS_REMOVE_BUSINESS_REQUEST : 'isRemoveBusinessRequest'
 	},
 
 	Event : {
@@ -83,7 +95,8 @@ module.exports = {
 		KEY_FIELDS : 'fields',
 		KEY_QUERIES : 'queries',
 		KEY_APP_STATE_ID : 'appStateId',
-		KEY_IS_BUSINESS_REQUEST : 'isBusinessRequest'
+		KEY_IS_BUSINESS_REQUEST : 'isBusinessRequest',
+		KEY_CORRESPONDING_BUSINESS_RESPONSES : 'correspondingBusinessResponses'
 	},
 
 	Snippet : {

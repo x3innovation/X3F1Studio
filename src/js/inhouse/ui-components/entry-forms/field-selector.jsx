@@ -166,24 +166,12 @@ module.exports = React.createClass({
 	},
 
 	addField: function(newFieldName) {
-		if (!this.gFields) { return false; }
-
-		this.gFileModel.beginCompoundOperation();
-		var gField = GDriveService.createNewField(newFieldName, this.gFileModel);
-		this.gFileModel.endCompoundOperation();
-		this.selectedFieldId = gField.id;
-		this.gFields.push(gField);
+		var newField = this.controller.addField(newFieldName);
+		this.selectedFieldId = newField.id;
 	},
 
 	removeField: function(removedFieldId) {
-		if (!this.gFields) { return false; }
-		
-		for (var i = 0, len = this.gFields.length; i<len; i++) {
-			if ('' + this.gFields.get(i).id === removedFieldId) {
-				this.gFields.remove(i);
-				return true;
-			}
-		}
+		this.controller.removeField(removedFieldId);
 	},
 
 	onAddBtnClick: function() {

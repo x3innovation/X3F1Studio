@@ -1,4 +1,5 @@
 var GDriveConstant = require('../constants/google-drive-constants.js');
+var customObjects = require('./custom-objects.js');
 
 function GoogleApiInterface()
 {
@@ -6,237 +7,6 @@ function GoogleApiInterface()
 	var shareClient;
 	var user;
 	var tokenRefreshInterval;
-
-	var _this = this;
-	function registerCustomDataTypes()
-	{
-		registerLegacyDMXDataModel();
-		registerLegacyDMXEDataModel();
-		registerLegacyFMXDataModel();
-
-		_this.ProjectMetadataModel = registerProjectMetadataModel();
-		_this.PersistentDataModel = registerPersistentDataModel();
-		_this.EventModel = registerEventDataModel();
-		_this.SnippetModel = registerSnippetDataModel();
-		_this.EnumModel = registerEnumDataModel();
-		_this.FlowModel = registerFlowDataModel();
-	}
-
-	function registerProjectMetadataModel() {
-		var Cons = GDriveConstant.ProjectMetadata;
-
-		this.model = function(){};
-		model.prototype.initialize = function(){
-			this.version = 1;
-			this.nextId = 0;
-		};
-
-		var custom = gapi.drive.realtime.custom;
-		custom.registerType(model, GDriveConstant.CustomObjectKey.PROJECT_METADATA);
-		model.prototype.version = custom.collaborativeField(Cons.KEY_VERSION);
-		model.prototype.nextId = custom.collaborativeField(Cons.KEY_NEXT_ID);
-		model.prototype.announcement = custom.collaborativeField(Cons.KEY_ANNOUNCEMENT);
-		custom.setInitializer(model, model.prototype.initialize);
-
-		return model;
-	}
-
-	function registerPersistentDataModel()
-	{
-		var Cons = GDriveConstant.PersistentData;
-
-		this.model = function(){};
-		model.prototype.initialize = function(){};
-
-		var custom = gapi.drive.realtime.custom;
-		custom.registerType(model, GDriveConstant.CustomObjectKey.PERSISTENT_DATA);
-		model.prototype.introducedVersion = custom.collaborativeField(Cons.KEY_INTRODUCED_VERSION);
-		model.prototype.deprecatedVersion = custom.collaborativeField(Cons.KEY_DEPRECATED_VERSION);
-		model.prototype.creatingUser = custom.collaborativeField(Cons.KEY_CREATING_USER);
-		model.prototype.createdDate = custom.collaborativeField(Cons.KEY_CREATED_DATE);
-		model.prototype.id = custom.collaborativeField(Cons.KEY_ID);
-		model.prototype.title = custom.collaborativeField(Cons.KEY_TITLE);
-		model.prototype.description = custom.collaborativeField(Cons.KEY_DESCRIPTION);
-		model.prototype.fields = custom.collaborativeField(Cons.KEY_FIELDS);
-		model.prototype.queries = custom.collaborativeField(Cons.KEY_QUERIES);
-		model.prototype.appStateId = custom.collaborativeField(Cons.KEY_APP_STATE_ID);
-		model.prototype.UpdatePersistenceEventTypeId = custom.collaborativeField(Cons.KEY_UPDATE_PD_EVENT_TYPE_ID);
-		model.prototype.CreatePersistenceEventTypeId = custom.collaborativeField(Cons.KEY_CREATE_PD_EVENT_TYPE_ID);
-		model.prototype.RemovePersistenceEventTypeId = custom.collaborativeField(Cons.KEY_REMOVE_PD_EVENT_TYPE_ID);
-		model.prototype.UpdatedPersistenceEventTypeId = custom.collaborativeField(Cons.KEY_UPDATED_PD_EVENT_TYPE_ID);
-		model.prototype.CreatedPersistenceEventTypeId = custom.collaborativeField(Cons.KEY_CREATED_PD_EVENT_TYPE_ID);
-		model.prototype.RemovedPersistenceEventTypeId = custom.collaborativeField(Cons.KEY_REMOVED_PD_EVENT_TYPE_ID);
-		model.prototype.RejectUpdatePersistenceEventTypeId = custom.collaborativeField(Cons.KEY_REJECT_UPDATE_PD_EVENT_TYPE_ID);
-		model.prototype.RejectCreatePersistenceEventTypeId = custom.collaborativeField(Cons.KEY_REJECT_CREATE_PD_EVENT_TYPE_ID);
-		model.prototype.RejectRemovePersistenceEventTypeId = custom.collaborativeField(Cons.KEY_REJECT_REMOVE_PD_EVENT_TYPE_ID);
-		model.prototype.RejectedUpdatePersistenceEventTypeId = custom.collaborativeField(Cons.KEY_REJECTED_UPDATE_PD_EVENT_TYPE_ID);
-		model.prototype.RejectedCreatePersistenceEventTypeId = custom.collaborativeField(Cons.KEY_REJECTED_CREATE_PD_EVENT_TYPE_ID);
-		model.prototype.RejectedRemovePersistenceEventTypeId = custom.collaborativeField(Cons.KEY_REJECTED_REMOVE_PD_EVENT_TYPE_ID);
-		custom.setInitializer(model, model.prototype.initialize);
-
-		return model;
-	}
-
-	function registerEventDataModel()
-	{
-		var Cons = GDriveConstant.Event;
-
-		var model = function(){};
-		model.prototype.initialize = function(){};
-
-		var custom = gapi.drive.realtime.custom;
-		custom.registerType(model, GDriveConstant.CustomObjectKey.EVENT);
-		model.prototype.introducedVersion = custom.collaborativeField(Cons.KEY_INTRODUCED_VERSION);
-		model.prototype.deprecatedVersion = custom.collaborativeField(Cons.KEY_DEPRECATED_VERSION);
-		model.prototype.creatingUser = custom.collaborativeField(Cons.KEY_CREATING_USER);
-		model.prototype.createdDate = custom.collaborativeField(Cons.KEY_CREATED_DATE);
-		model.prototype.id = custom.collaborativeField(Cons.KEY_ID);
-		model.prototype.title = custom.collaborativeField(Cons.KEY_TITLE);
-		model.prototype.description = custom.collaborativeField(Cons.KEY_DESCRIPTION);
-		model.prototype.fields = custom.collaborativeField(Cons.KEY_FIELDS);
-		model.prototype.queries = custom.collaborativeField(Cons.KEY_QUERIES);
-		model.prototype.appStateId = custom.collaborativeField(Cons.KEY_APP_STATE_ID);
-		model.prototype.isBusinessRequest = custom.collaborativeField(Cons.KEY_IS_BUSINESS_REQUEST);
-		custom.setInitializer(model, model.prototype.initialize);
-
-		return model;
-	}
-
-	function registerSnippetDataModel()
-	{
-		var Cons = GDriveConstant.Snippet;
-
-		var model = function(){};
-		model.prototype.initialize = function(){};
-
-		var custom = gapi.drive.realtime.custom;
-		custom.registerType(model, GDriveConstant.CustomObjectKey.SNIPPET);
-		model.prototype.introducedVersion = custom.collaborativeField(Cons.KEY_INTRODUCED_VERSION);
-		model.prototype.deprecatedVersion = custom.collaborativeField(Cons.KEY_DEPRECATED_VERSION);
-		model.prototype.creatingUser = custom.collaborativeField(Cons.KEY_CREATING_USER);
-		model.prototype.createdDate = custom.collaborativeField(Cons.KEY_CREATED_DATE);
-		model.prototype.id = custom.collaborativeField(Cons.KEY_ID);
-		model.prototype.title = custom.collaborativeField(Cons.KEY_TITLE);
-		model.prototype.description = custom.collaborativeField(Cons.KEY_DESCRIPTION);
-		model.prototype.fields = custom.collaborativeField(Cons.KEY_FIELDS);
-		model.prototype.appStateId = custom.collaborativeField(Cons.KEY_APP_STATE_ID);
-		custom.setInitializer(model, model.prototype.initialize);
-
-		return model;
-	}
-
-	function registerEnumDataModel()
-	{
-		var Cons = GDriveConstant.Enum;
-
-		var model = function(){};
-		model.prototype.initialize = function(){};
-
-		var custom = gapi.drive.realtime.custom;
-		custom.registerType(model, GDriveConstant.CustomObjectKey.ENUM);
-		model.prototype.introducedVersion = custom.collaborativeField(Cons.KEY_INTRODUCED_VERSION);
-		model.prototype.deprecatedVersion = custom.collaborativeField(Cons.KEY_DEPRECATED_VERSION);
-		model.prototype.creatingUser = custom.collaborativeField(Cons.KEY_CREATING_USER);
-		model.prototype.createdDate = custom.collaborativeField(Cons.KEY_CREATED_DATE);
-		model.prototype.id = custom.collaborativeField(Cons.KEY_ID);
-		model.prototype.title = custom.collaborativeField(Cons.KEY_TITLE);
-		model.prototype.description = custom.collaborativeField(Cons.KEY_DESCRIPTION);
-		model.prototype.fields = custom.collaborativeField(Cons.KEY_FIELDS);
-		custom.setInitializer(model, model.prototype.initialize);
-
-		return model;
-	}
-
-	function registerFlowDataModel()
-	{
-		var Cons = GDriveConstant.Flow;
-
-		var model = function(){};
-		model.prototype.initialize = function(){};
-
-		var custom = gapi.drive.realtime.custom;
-		custom.registerType(model, GDriveConstant.CustomObjectKey.FLOW);
-		model.prototype.introducedVersion = custom.collaborativeField(Cons.KEY_INTRODUCED_VERSION);
-		model.prototype.deprecatedVersion = custom.collaborativeField(Cons.KEY_DEPRECATED_VERSION);
-		model.prototype.creatingUser = custom.collaborativeField(Cons.KEY_CREATING_USER);
-		model.prototype.createdDate = custom.collaborativeField(Cons.KEY_CREATED_DATE);
-		model.prototype.id = custom.collaborativeField(Cons.KEY_ID);
-		model.prototype.title = custom.collaborativeField(Cons.KEY_TITLE);
-		model.prototype.description = custom.collaborativeField(Cons.KEY_DESCRIPTION);
-		model.prototype.tasks = custom.collaborativeField(Cons.KEY_TASKS);
-		model.prototype.startTriggerNodes = custom.collaborativeField(Cons.KEY_START_TRIGGER_NODES);
-		model.prototype.flows = custom.collaborativeField(Cons.KEY_FLOWS);
-		model.prototype.eventFlows = custom.collaborativeField(Cons.KEY_EVENT_FLOWS);
-		model.prototype.engineFlows = custom.collaborativeField(Cons.KEY_ENGINE_FLOWS);
-		custom.setInitializer(model, model.prototype.initialize);
-
-		return model;
-	}
-
-	function registerLegacyDMXDataModel()
-	{
-		var model = function(){};
-		model.prototype.initialize = function(){};
-
-		var custom = gapi.drive.realtime.custom;
-		custom.registerType(model, 'data');
-		model.prototype.version = custom.collaborativeField('version');
-		model.prototype.id = custom.collaborativeField('id');
-		model.prototype.name = custom.collaborativeField('name');
-		model.prototype.type = custom.collaborativeField('type');
-		model.prototype.description = custom.collaborativeField('description');
-		model.prototype.attributes = custom.collaborativeField('attributes');
-		model.prototype.queries = custom.collaborativeField('queries');
-		model.prototype.appStateId = custom.collaborativeField('appStateId');
-		model.prototype.comments = custom.collaborativeField('comments');
-		model.prototype.UpdatePersistenceEventTypeId = custom.collaborativeField('UpdatePersistenceEventTypeId');
-		model.prototype.CreatePersistenceEventTypeId = custom.collaborativeField('CreatePersistenceEventTypeId');
-		model.prototype.RemovePersistenceEventTypeId = custom.collaborativeField('RemovePersistenceEventTypeId');
-		model.prototype.UpdatedPersistenceEventTypeId = custom.collaborativeField('UpdatedPersistenceEventTypeId');
-		model.prototype.CreatedPersistenceEventTypeId = custom.collaborativeField('CreatedPersistenceEventTypeId');
-		model.prototype.RemovedPersistenceEventTypeId = custom.collaborativeField('RemovedPersistenceEventTypeId');
-		model.prototype.RejectUpdatePersistenceEventTypeId = custom.collaborativeField('RejectUpdatePersistenceEventTypeId');
-		model.prototype.RejectCreatePersistenceEventTypeId = custom.collaborativeField('RejectCreatePersistenceEventTypeId');
-		model.prototype.RejectRemovePersistenceEventTypeId = custom.collaborativeField('RejectRemovePersistenceEventTypeId');
-		model.prototype.RejectedUpdatePersistenceEventTypeId = custom.collaborativeField('RejectedUpdatePersistenceEventTypeId');
-		model.prototype.RejectedCreatePersistenceEventTypeId = custom.collaborativeField('RejectedCreatePersistenceEventTypeId');
-		model.prototype.RejectedRemovePersistenceEventTypeId = custom.collaborativeField('RejectedRemovePersistenceEventTypeId');
-		custom.setInitializer(model, model.prototype.initialize);
-	}
-
-	function registerLegacyDMXEDataModel()
-	{
-		var model = function(){};
-		model.prototype.initialize = function(){};
-
-		var custom = gapi.drive.realtime.custom;
-		custom.registerType(model, 'enum');
-		model.prototype.version = custom.collaborativeField('version');
-		model.prototype.id = custom.collaborativeField('id');
-		model.prototype.name = custom.collaborativeField('name');
-		model.prototype.description = custom.collaborativeField('description');
-		model.prototype.attributes = custom.collaborativeField('attributes');
-		custom.setInitializer(model, model.prototype.initialize);
-	}
-
-	function registerLegacyFMXDataModel()
-	{
-		var model = function(){};
-		model.prototype.initialize = function(){};
-
-		var custom = gapi.drive.realtime.custom;
-		custom.registerType(model, 'flow');
-		model.prototype.version = custom.collaborativeField('version');
-		model.prototype.id = custom.collaborativeField('id');
-		model.prototype.name = custom.collaborativeField('name');
-		model.prototype.description = custom.collaborativeField('description');
-		model.prototype.tasks = custom.collaborativeField('tasks');
-		model.prototype.startTriggerNodes = custom.collaborativeField('startTriggerNodes');
-		model.prototype.flows = custom.collaborativeField('flows');
-		model.prototype.eventFlows = custom.collaborativeField('eventFlows');
-		model.prototype.engineFlows = custom.collaborativeField('engineFlows');
-		custom.setInitializer(model, model.prototype.initialize);
-	}
 
 	// //////// public members
 	this.userAuthorize = function(immediate, successCallback, failCallback)
@@ -268,7 +38,7 @@ function GoogleApiInterface()
 
 				// loading Google Drive sdk asynchronously
 				gapi.client.load('drive', 'v2', function(){
-					registerCustomDataTypes();
+					customObjects.registerCustomDataTypes();
 					successCallback();
 				});
 			}
@@ -326,7 +96,7 @@ function GoogleApiInterface()
 			}
 		});
 
-		saveTitleRequest.execute();
+		saveTitleRequest.execute(function(){});
 	};
 
 	this.setMimeType = function(fileId, mimeType)

@@ -7,33 +7,21 @@ module.exports = React.createClass({
 	componentWillMount: function()
 	{
 		this.controller = this.props.controller;
-	},
-
-	componentDidMount: function()
-	{
-		this.controller.addModelUpdateListener(this.updateUi);
-		this.updateUi();
-	},
-
-	/* ******************************************
-				NON LIFE CYCLE FUNCTIONS
-	****************************************** */
-	updateUi: function() {
 		var title = this.controller.getTitle();
 		var persistenceEvents = this.controller.getPersistenceEvents();
 		this.events = [
 			{id: persistenceEvents.UpdatePersistenceEventTypeId,
 			 label: 'Update',
 			 name: 'Update' + title ,
-			 isBusinessRequest: true}, 
+			 isBusinessRequestRow: true}, 
 			{id: persistenceEvents.CreatePersistenceEventTypeId,
 			 label: 'Create',
 			 name: 'Create' + title,
-			 isBusinessRequest: true }, 
+			 isBusinessRequestRow: true }, 
 			{id: persistenceEvents.RemovePersistenceEventTypeId,
 			 label: 'Remove',
 			 name: 'Remove' + title,
-			 isBusinessRequest: true },
+			 isBusinessRequestRow: true },
 			{id: persistenceEvents.UpdatedPersistenceEventTypeId,
 			 label: 'Updated',
 			 name: title + 'Updated' },
@@ -53,19 +41,74 @@ module.exports = React.createClass({
 			 label: 'Remove Rejected',
 			 name: 'Remove' + title + 'Rejected' }
 		];
-		this.forceUpdate();
+	},
+
+	componentDidMount: function()
+	{
+		this.controller.addModelUpdateListener(this.updateUi);
+		this.controller.addBusinessRequestUpdateListener(this.updateUi);
+		this.updateUi();
+	},
+
+	/* ******************************************
+				NON LIFE CYCLE FUNCTIONS
+	****************************************** */
+	updateUi: function() {
+		// update business request checkboxes
+		var $checkBox;
+		$checkbox = $(".business-request-checkbox[data-type='Update']");
+		if (this.controller.getUpdateBusinessRequest()){
+			$checkbox.prop('checked', true);
+		}
+		else{
+			$checkbox.prop('checked', false);
+		}
+
+		$checkbox = $(".business-request-checkbox[data-type='Create']");
+		if (this.controller.getCreateBusinessRequest()){
+			$checkbox.prop('checked', true);
+		}
+		else{
+			$checkbox.prop('checked', false);
+		}
+
+		$checkbox = $(".business-request-checkbox[data-type='Remove']");
+		if (this.controller.getRemoveBusinessRequest()){
+			$checkbox.prop('checked', true);
+		}
+		else{
+			$checkbox.prop('checked', false);
+		}
+	},
+
+	onBusinessRequestClicked : function(e){
+		var $checkBox = $(e.currentTarget);
+		if ($checkBox.attr('data-type') === 'Update'){
+			this.controller.setUpdateBusinessRequest($checkBox.prop('checked'));
+		}
+		else if ($checkBox.attr('data-type') === 'Create'){
+			this.controller.setCreateBusinessRequest($checkBox.prop('checked'));
+		}
+		else if ($checkBox.attr('data-type') === 'Remove'){
+			this.controller.setRemoveBusinessRequest($checkBox.prop('checked'));
+		}
 	},
 
 	render: function() {
+		var _this = this;
 		var events = this.events || [];
 
 		var eventContents = events.map(function(event, index) {
 			var checkBox;
-			if (event.isBusinessRequest)
+			if (event.isBusinessRequestRow)
 			{
 				var checkBoxId = event.id + '-id';
-				checkBox = 	<div className='row'>
-								<input type='checkbox' id={checkBoxId} className='filled-in' />
+				checkBox = 	<div className='row business-request-container'>
+								<input type='checkbox' 
+									id={checkBoxId} 
+									className='filled-in business-request-checkbox' 
+									data-type={event.label}
+									onChange={_this.onBusinessRequestClicked} />
 								<label htmlFor={checkBoxId}>Business Request</label>
 							</div>
 
@@ -73,10 +116,12 @@ module.exports = React.createClass({
 
 			return (
 				<div key = {event.id} className = 'col s4'>
-					{checkBox}
 					<div className = 'row'>
 						<div className = 'col s2 input-field'>
-							<input type = 'text' className = 'event-display' readOnly value = {event.id} id = {'event-' + event.id + '-name'} />
+							<input type = 'text' 
+								className = 'event-display' 
+								readOnly value = {event.id} 
+								id = {'event-' + event.id + '-name'} />
 							<label htmlFor = {event.id + '-event-id'} className = 'event-label active'>Type Id</label>
 						</div>
 						<div className = 'col s10 input-field'>
@@ -84,6 +129,7 @@ module.exports = React.createClass({
 							<label htmlFor = {'event-' + event.id + '-name'} className = 'event-label active'>{event.label}</label>
 						</div>
 					</div>
+					{checkBox}
 				</div>
 			);
 		});

@@ -15,6 +15,7 @@ var FormController = require('./form-controller.js');
 var PersistentEventsController = require('./persistent-events-controller.js');
 var QueriesController = require('./queries-controller.js');
 var EnumElementsController = require('./enum-elements-controller.js');
+var EventBusinessRequestController = require('./event-business-request-controller.js');
 
 module.exports = React.createClass({
 	/* ******************************************
@@ -22,19 +23,29 @@ module.exports = React.createClass({
 	****************************************** */
 	componentWillMount: function()
 	{
-		this.formHeaderBarController = new FormHeaderBarController(this.props.gFileCustomModel);
-		this.fieldSelectorController = new FieldSelectorController(this.props.gFileCustomModel);
-		this.formController = new FormController(this.props.gFileCustomModel,
-			this.props.gMetadataModel,
+		this.formHeaderBarController = new FormHeaderBarController(this.props.gFileCustomObject);
+		this.fieldSelectorController = new FieldSelectorController(this.props.gFileCustomObject,
+			this.props.gFileModel);
+		this.formController = new FormController(this.props.gFileCustomObject,
+			this.props.gMetadataCustomObject,
 			this.props.projectFolderFileId,
 			this.props.objectFileId,
 			this.props.gFileModel);
-		this.persistentEventsController = new PersistentEventsController(this.props.gFileCustomModel);
-		this.queriesController = new QueriesController(this.props.gFileCustomModel,
-			this.props.gMetadataModel,
+		this.persistentEventsController = new PersistentEventsController(this.props.gMetadataCustomObject,
+			this.props.gFileCustomObject,
+			this.props.objectFileId);
+		this.queriesController = new QueriesController(this.props.gFileCustomObject,
+			this.props.gMetadataCustomObject,
 			this.props.gFileModel);
-		this.enumElementsController = new EnumElementsController(this.props.gFileCustomModel,
-			this.props.gMetadataModel);
+		this.enumElementsController = new EnumElementsController(this.props.gFileCustomObject,
+			this.props.gMetadataCustomObject);
+		this.eventBusinessRequestController = new EventBusinessRequestController(
+			this.props.gMetadataModel,
+			this.props.gMetadataCustomObject,
+			this.props.gFileCustomObject,
+			this.props.projectFolderFileId,
+			this.props.objectFileId
+			)
 	},
 
 	/* ******************************************
@@ -91,7 +102,7 @@ module.exports = React.createClass({
 						<br />
 						<div className = 'form-wrapper-row row'>
 							<div className = 'col s12'>
-								<EventBusinessRequest projectFolderFileId={this.props.projectFolderFileId} />
+								<EventBusinessRequest controller={this.eventBusinessRequestController} />
 							</div>
 						</div>
 					</div>

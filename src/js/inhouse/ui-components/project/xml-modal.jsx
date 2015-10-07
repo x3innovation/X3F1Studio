@@ -1,4 +1,5 @@
 var GDriveConstants = require('../../constants/google-drive-constants.js');
+var googleDriveUtils = require('../../utils/google-drive-utils.js');
 var EventType = require('../../constants/event-type.js');
 
 var Configs = require('../../app-config.js');
@@ -19,13 +20,33 @@ module.exports = React.createClass({
 				NON LIFE CYCLE FUNCTIONS
 	****************************************** */
 	onGenerateXMLBtnClick: function(e) {
+		var _this = this;
+
 		if ($('#generate-xml-btn').hasClass('disabled')) {
 			return;
 		}
-		generateXMLService.generateProjectXML(this.props.projectObjects, this.props.projectFile, this.onXMLGenerated);
+
+		googleDriveUtils.loadMetadataDoc(_this.props.projectFileId,
+			_this.props.projectFolderFileId,
+			function(gMetadataDoc, gMetadataCustomObject){
+				generateXMLService.generateProjectXML(
+					_this.props.projectObjects, 
+					_this.props.projectFile,
+					gMetadataCustomObject,
+					_this.onXMLGenerated
+					);
+
+				_this.gMetadataDoc = gMetadataDoc;
+			});
 	},
 
 	onXMLGenerated: function(xmlData) {
+		// closing the doc too soon throws an exception from Google
+		var _this = this;
+		setTimeout(function(){
+			_this.gMetadataDoc.close();
+		}, 3000);
+
 		var $xmlDisplay = $('#xml-display');
 		var prettyXML = vkbeautify.xml(xmlData);
 

@@ -11,42 +11,43 @@ var XMLModal = require('./xml-modal.jsx');
 module.exports = React.createClass({
 	mixins: [Navigation, UserLoginFailRedirectHome, State],
 
-	projectsReceived : false,
-
-	model : {
-		buttons : {
-			all : {
-				color : Configs.App.ALL_COLOR,
-				isSearchOn : true
-			},
-			persistentData : {
-				color : Configs.App.PERSISTENT_DATA_COLOR,
-				isSearchOn : true
-			},
-			enum : {
-				color : Configs.App.ENUM_COLOR,
-				isSearchOn : true
-			},
-			snippet : {
-				color : Configs.App.SNIPPET_COLOR,
-				isSearchOn : true
-			},
-			event : {
-				color : Configs.App.EVENT_COLOR,
-				isSearchOn : true
-			},
-			flow : {
-				color : Configs.App.FLOW_COLOR,
-				isSearchOn : true
-			}
-		}
-	},
-
 	/* ******************************************
 				LIFE CYCLE FUNCTIONS
 	****************************************** */
 	componentWillMount : function()
 	{
+		this.projectsReceived = false;
+
+		// initialize buttons
+		this.model = {
+			buttons : {
+				all : {
+					color : Configs.App.ALL_COLOR,
+					isSearchOn : true
+				},
+				persistentData : {
+					color : Configs.App.PERSISTENT_DATA_COLOR,
+					isSearchOn : true
+				},
+				enum : {
+					color : Configs.App.ENUM_COLOR,
+					isSearchOn : true
+				},
+				snippet : {
+					color : Configs.App.SNIPPET_COLOR,
+					isSearchOn : true
+				},
+				event : {
+					color : Configs.App.EVENT_COLOR,
+					isSearchOn : true
+				},
+				flow : {
+					color : Configs.App.FLOW_COLOR,
+					isSearchOn : true
+				}
+			}
+		};
+
 		// load project objects on user logged in
 		Bullet.on(EventType.App.USER_LOGGED_IN, 'project.jsx>>user-logged-in', this.initialize);
 	},
@@ -363,7 +364,10 @@ module.exports = React.createClass({
 						})
 					}
 					<div className = 'col s12' />
-					<XMLModal projectObjects = {projectObjects} projectFile = {projectFile} />
+					<XMLModal projectObjects = {projectObjects} 
+						projectFile = {projectFile} 
+						projectFileId = {projectFileId}
+						projectFolderFileId = {projectFolderFileId} />
 				</div>;
 		}
 

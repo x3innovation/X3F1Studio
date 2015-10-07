@@ -2,6 +2,7 @@ var EventType = require('../../constants/event-type.js');
 var GDriveConstants = require('../../constants/google-drive-constants.js');
 var Configs = require('../../app-config.js');
 var GDriveUtils = require('../../utils/google-drive-utils.js');
+var AnnouncementType = require('../../constants/announcement-type.js');
 
 module.exports = React.createClass({
 	/* ******************************************
@@ -221,41 +222,53 @@ module.exports = React.createClass({
 	},
 
 	saveUiToGoogle: function() {
-		var fieldIndex;
-		for (var i = 0, len = this.gFields.length; i<len; i++) {
-			if (this.gFields.get(i).id === this.fieldData.id) {
-				fieldIndex = i;
-				break;
+		if (this.enforceValidation())
+		{
+			var fieldIndex;
+			for (var i = 0, len = this.gFields.length; i<len; i++) {
+				if (this.gFields.get(i).id === this.fieldData.id) {
+					fieldIndex = i;
+					break;
+				}
 			}
+
+			var getById = document.getElementById.bind(document);
+			this.gFileModel.beginCompoundOperation();
+
+			this.fieldData.set('type', getById('field-type-select').value);
+			this.fieldData.set('refId', getById('ref-name-select').value);
+			var newRefType = '';
+			if (getById('ref-soft-radio').checked) {
+				newRefType = 'soft';
+			} else if (getById('ref-hard-radio').checked) {
+				newRefType = 'hard';
+			}
+
+			this.fieldData.set('refType', newRefType);
+			this.fieldData.set('enumId', getById('enum-name-select').value);
+			this.fieldData.set('enumValue', getById('enum-value-select').value);
+
+			this.fieldData.get('minValue').setText(getById('min-value-field').value);
+			this.fieldData.get('maxValue').setText(getById('max-value-field').value);
+			this.fieldData.get('minStrLen').setText(getById('min-str-len-field').value);
+			this.fieldData.get('maxStrLen').setText(getById('max-str-len-field').value);
+
+			this.fieldData.get('defDate').setText(getById('def-date-field').value);
+			this.fieldData.get('minDate').setText(getById('min-date-field').value);
+			this.fieldData.get('maxDate').setText(getById('max-date-field').value);
+
+			if (!$('#array-len-wrapper').hasClass('hide')){
+				this.fieldData.get('arrayLen').setText(getById('array-len-field').value);
+			}
+
+			this.fieldData.set('defValueBool', getById('def-value-checkbox').checked);
+			this.fieldData.set('optional', getById('optional-checkbox').checked);
+			this.fieldData.set('array', getById('array-checkbox').checked);
+			this.fieldData.set('contextId', getById('context-id-checkbox').checked);
+			this.gFields.set(fieldIndex, this.fieldData);
+
+			this.gFileModel.endCompoundOperation();
 		}
-
-		var getById = document.getElementById.bind(document);
-		this.gFileModel.beginCompoundOperation();
-
-		this.fieldData.set('type', getById('field-type-select').value);
-		this.fieldData.set('refId', getById('ref-name-select').value);
-		var newRefType = '';
-		if (getById('ref-soft-radio').checked) {
-			newRefType = 'soft';
-		} else if (getById('ref-hard-radio').checked) {
-			newRefType = 'hard';
-		}
-
-		this.fieldData.set('refType', newRefType);
-		this.fieldData.set('enumId', getById('enum-name-select').value);
-		this.fieldData.set('enumValue', getById('enum-value-select').value);
-
-		this.fieldData.get('defDate').setText(getById('def-date-field').value);
-		this.fieldData.get('minDate').setText(getById('min-date-field').value);
-		this.fieldData.get('maxDate').setText(getById('max-date-field').value);
-
-		this.fieldData.set('defValueBool', getById('def-value-checkbox').checked);
-		this.fieldData.set('optional', getById('optional-checkbox').checked);
-		this.fieldData.set('array', getById('array-checkbox').checked);
-		this.fieldData.set('contextId', getById('context-id-checkbox').checked);
-		this.gFields.set(fieldIndex, this.fieldData);
-
-		this.gFileModel.endCompoundOperation();
 	},
 
 	displayCorrectUiComponents: function(fieldType) {
@@ -288,12 +301,18 @@ module.exports = React.createClass({
 	enforceValidation: function(fieldType) {
 		if (!this.gFileCustomModel || !this.fieldData) { return; } //if field not selected, validation doesn't make sense
 
+		var allFieldsValid = true;
 		var validateField = this.validateField;
 		fieldType = (typeof fieldType) !== 'undefined' ? fieldType : this.fieldData.get('type');
 
 		$('.validated-input:visible').each(function(index, element) {
-			validateField(element, fieldType);
+			var isValid = validateField(element, fieldType);
+			if (!isValid){
+				allFieldsValid = isValid;
+			}
 		});
+
+		return allFieldsValid;
 	},
 
 	validateField: function(targetField, fieldType) {
@@ -496,13 +515,13 @@ module.exports = React.createClass({
 			this.fieldData.set('maxStrLen', this.fieldData.get('strLen'));
 		}
 		if (!this.fieldData.has('minStrLen')) {
-			this.fieldData.set('minStrLen', this.gFileCustomModel.createString(''));
+			this.fieldData.set('minStrLen', this.gFileModel.createString(''));
 		}
 
 		if (!this.fieldData.has('defDate')) {
-			this.fieldData.set('defDate', this.gFileCustomModel.createString(''));
-			this.fieldData.set('minDate', this.gFileCustomModel.createString(''));
-			this.fieldData.set('maxDate', this.gFileCustomModel.createString(''));
+			this.fieldData.set('defDate', this.gFileModel.createString(''));
+			this.fieldData.set('minDate', this.gFileModel.createString(''));
+			this.fieldData.set('maxDate', this.gFileModel.createString(''));
 		}
 		this.gFileModel.endCompoundOperation();
 	},
@@ -958,22 +977,27 @@ module.exports = React.createClass({
 					</div>
 					<div className='type-specific-field string-specific-field'>
 						<div className='input-field col s4'>
-							<input type='text' id='min-str-len-field' className='labelled-input number-input integer-input validated-input' />
+							<input type='text' id='min-str-len-field' 
+								className='labelled-input number-input integer-input validated-input' 
+								onChange={this.saveUiToGoogle} />
 							<label htmlFor='min-str-len-field' className='error-tooltipped'>min string length</label>
 						</div>
 						<div className='input-field col s4'>
-							<input type='text' id='max-str-len-field' className='labelled-input number-input integer-input validated-input' required />
+							<input type='text' id='max-str-len-field' 
+								className='labelled-input number-input integer-input validated-input' 
+								onChange={this.saveUiToGoogle}
+								defaultValue="" required />
 							<label htmlFor='max-str-len-field' className='error-tooltipped'>max string length*</label>
 						</div>
 					</div>
 					<div className='type-specific-field double-specific-field float-specific-field byte-specific-field
 					     integer-specific-field long-specific-field short-specific-field'>
 						<div className='input-field col s4'>
-							<input type='text' id='min-value-field' className='labelled-input number-input validated-input' />
+							<input type='text' id='min-value-field' className='labelled-input number-input validated-input' onChange={this.saveUiToGoogle} />
 							<label htmlFor='min-value-field' className='error-tooltipped'>min value</label>
 						</div>
 						<div className='input-field col s4'>
-							<input type='text' id='max-value-field' className='labelled-input number-input validated-input' />
+							<input type='text' id='max-value-field' className='labelled-input number-input validated-input' onChange={this.saveUiToGoogle} />
 							<label htmlFor='max-value-field' className='error-tooltipped'>max value</label>
 						</div>
 					</div>
@@ -990,7 +1014,7 @@ module.exports = React.createClass({
 
 					<div id='array-len-wrapper' className='input-field col type-specific-field s4 right'>
 						<input type='text' id='array-len-field' className='labelled-input validated-input number-input integer-input' 
-							   onInput={inputHandler} required />
+							   onInput={inputHandler} onChange={this.saveUiToGoogle} required />
 						<label htmlFor='array-len-field' className='error-tooltipped'>array length *</label>
 					</div>
 				</div>

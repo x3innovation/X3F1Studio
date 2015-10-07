@@ -1,10 +1,10 @@
-function FormController(gFileModel, gMetadataModel, projectFolderFileId, objectFileId, gModel)
+function FormController(getFileCustomModel, gMetadataModel, projectFolderFileId, objectFileId, gModel)
 {
 	// //////// private members
 	var gDriveUtils = require('../../utils/google-drive-utils.js');
 	var AnnouncementType = require('../../constants/announcement-type.js');
 	var GDriveConstants = require('../../constants/google-drive-constants.js');
-	var gFileModel = gFileModel;
+	var getFileCustomModel = getFileCustomModel;
 	var gMetadataModel = gMetadataModel;
 	var projectFolderFileId = projectFolderFileId;
 	var objectFileId = objectFileId;
@@ -13,7 +13,7 @@ function FormController(gFileModel, gMetadataModel, projectFolderFileId, objectF
 	// //////// public members
 	this.addFieldsUpdateListener = function(listener)
 	{
-		gFileModel.fields.addEventListener(gapi.drive.realtime.EventType.VALUES_SET, listener);
+		getFileCustomModel.fields.addEventListener(gapi.drive.realtime.EventType.VALUES_SET, listener);
 	}
 
 	this.loadProjectObjects = function(callback)
@@ -73,22 +73,17 @@ function FormController(gFileModel, gMetadataModel, projectFolderFileId, objectF
 
 	this.getFields = function()
 	{
-		return gFileModel.fields;
+		return getFileCustomModel.fields;
 	}
 
 	this.getFileCustomModel = function()
 	{
-		return gFileModel;
+		return getFileCustomModel;
 	}
 
 	this.getFileModel = function()
 	{
 		return gModel;
-	}
-
-	this.dispose = function()
-	{
-		
 	}
 }
 
