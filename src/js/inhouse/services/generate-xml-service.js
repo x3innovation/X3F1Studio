@@ -196,7 +196,8 @@ function GenerateXMLService() {
 					}, { 
 					_name: 'type',
 					_svalue: dataType 
-				}]
+				}],
+
 			};
 			if (dataType === 'persisted') {
 				node.Data._identifiable = 'true';
@@ -212,14 +213,26 @@ function GenerateXMLService() {
 				_name: 'Update' + spacelessName,
 				_typeId: gModel.UpdatePersistenceEventTypeId,
 				_persistedData: spacelessName };
+			if (gModel.isUpdateBusinessRequest){
+				node.UpdatePersistenceEvent._businessRequest = true;
+			}
+
 			node.CreatePersistenceEvent = {
 				_name: 'Create' + spacelessName,
 				_typeId: gModel.CreatePersistenceEventTypeId,
 				_persistedData: spacelessName };
+			if (gModel.isCreateBusinessRequest){
+				node.CreatePersistenceEvent._businessRequest = true;
+			}
+
 			node.RemovePersistenceEvent = {
 				_name: 'Remove' + spacelessName,
 				_typeId: gModel.RemovePersistenceEventTypeId,
 				_persistedData: spacelessName };
+			if (gModel.isRemoveBusinessRequest){
+				node.RemovePersistenceEvent._businessRequest = true;
+			}
+
 			node.UpdatedPersistenceEvent = {
 				_name: spacelessName + 'Updated',
 				_typeId: gModel.UpdatedPersistenceEventTypeId,
@@ -399,7 +412,6 @@ function GenerateXMLService() {
 			node = setJsonFields(node, gModel);
 			node = setJsonEvents(node, gModel);
 			node = setJsonQueries(node, gModel);
-			node = setJsonBusinessRequest(node, gModel);
 
 			dataJsonNode.Data.push(node.Data);
 			dataJsonNode.UpdatePersistenceEvent.push(node.UpdatePersistenceEvent);
@@ -415,34 +427,6 @@ function GenerateXMLService() {
 			if (dataJsonNode.Data.length === dataCount && typeof callback === 'function') {
 				callback(dataJsonNode);
 			}
-
-			// inner function for persistent data
-			function setJsonBusinessRequest(node, gModel){
-				if (hasBusinessRequest(gModel)){
-					node.Data.BusinessRequests = {};
-					node.Data.BusinessRequests.BusinessRequest = [];
-
-					if (gModel.isUpdateBusinessRequest){
-						node.Data.BusinessRequests.BusinessRequest.push('Update');
-					}
-
-					if (gModel.isCreateBusinessRequest){
-						node.Data.BusinessRequests.BusinessRequest.push('Create');
-					}
-
-					if (gModel.isRemoveBusinessRequest){
-						node.Data.BusinessRequests.BusinessRequest.push('Remove');
-					}
-				}
-
-				return node;
-
-				function hasBusinessRequest(gModel){
-					return gModel.isUpdateBusinessRequest 
-						|| gModel.isCreateBusinessRequest
-						|| gModel.isRemoveBusinessRequest;
-				}
-			};
 
 			// closing the doc too soon throws an exception from Google
 			setTimeout(function(){
