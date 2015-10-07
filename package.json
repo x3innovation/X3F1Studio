@@ -1,5 +1,5 @@
 {
-  "name": “F1Studio”,
+  "name": "F1Studio",
   "version": "0.0.1",
   "devDependencies": {
     "browserify": "8.1.x",
