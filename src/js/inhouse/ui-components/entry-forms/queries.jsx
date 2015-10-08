@@ -17,10 +17,18 @@ module.exports = React.createClass({
 		this.controller = this.props.controller;
 	},
 
-	componentDidMount: function()
-	{
+	componentDidMount: function(){
 		this.controller.addQueriesUpdateListener(this.updateUi);
 		this.updateUi();
+	},
+
+	componentDidUpdate: function(){
+		// update the business request checkboxes
+		var queries = this.controller.getQueries();
+		for (var i in queries){
+			$checkbox = $('.business-request-checkbox[data-query-id="'+queries[i].id+'"]');
+			$checkbox.prop('checked', queries[i].isBusinessRequest);
+		}
 	},
 
 	/* ******************************************
@@ -82,34 +90,56 @@ module.exports = React.createClass({
 		this.controller.deleteQuery(queryId);
 	},
 
+	onBusinessRequestClicked: function(e){
+		$checkbox = $(e.target);
+		var queryId = $checkbox.attr('data-query-id');
+		var isBusinessRequest = $checkbox.prop('checked');
+		this.controller.setBusinessRequest(queryId, isBusinessRequest);
+	},
+
 	render: function() {
 		var queries = this.controller.getQueries();
 		var queryContents = queries.map(function(query) {
+
+			var businessRequestCheckboxId = query.id + '-checkbox';
+
 			return (
 				<div className = 'query-row row' key = {query.id} data-query-id = {query.id}>
-					<div className = 'col s1 input-field query-id-wrapper'>
-						<input type = 'text' id = {'query-' + query.id + '-id-field'} readOnly className = 'query-id-field' value = {query.id} />
-						<label htmlFor = {'query-' + query.id + '-id-field'} className = 'query-label active'>query id</label>
+					<div className='row'>
+						<div className = 'col s1 input-field query-id-wrapper'>
+							<input type = 'text' id = {'query-' + query.id + '-id-field'} readOnly className = 'query-id-field' value = {query.id} />
+							<label htmlFor = {'query-' + query.id + '-id-field'} className = 'query-label active'>query id</label>
+						</div>
+						<div className = 'col s3 input-field query-name-wrapper'>
+							<input type = 'text' id = {'query-' + query.id + '-name-field'} className = 'query-name-field query-input'
+							 	onKeyUp = {this.keyUpHandler} defaultValue = {query.name} spellCheck = 'false' />
+							<label htmlFor = {'query-' + query.id + '-name-field'} className = 'query-label'>query name</label>
+						</div>
+						<div className = 'col s7 input-field query-description-wrapper'>
+							<textarea id = {'query-' + query.id + '-description-field'} className = 'query-description-field materialize-textarea query-input'
+								onKeyUp = {this.keyUpHandler} defaultValue = {query.description} spellCheck = 'false' />
+							<label htmlFor = {'query-' + query.id + '-description-field'} className = 'query-label'>query</label>
+						</div>
+						<div className = 'col s1 query-btns-wrapper'>
+							<a id = {'query-' + query.id + '-delete-btn'} onClick = {this.onDeleteQueryBtnClick} data-query-id = {query.id}
+							   className = 'query-delete-btn small-btn btn-floating waves-effect waves-light materialize-red'>
+								<i className = 'mdi-content-clear' />
+							</a>
+						</div>
 					</div>
-					<div className = 'col s3 input-field query-name-wrapper'>
-						<input type = 'text' id = {'query-' + query.id + '-name-field'} className = 'query-name-field query-input'
-						 	onKeyUp = {this.keyUpHandler} defaultValue = {query.name} spellCheck = 'false' />
-						<label htmlFor = {'query-' + query.id + '-name-field'} className = 'query-label'>query name</label>
-					</div>
-					<div className = 'col s7 input-field query-description-wrapper'>
-						<textarea id = {'query-' + query.id + '-description-field'} className = 'query-description-field materialize-textarea query-input'
-							onKeyUp = {this.keyUpHandler} defaultValue = {query.description} spellCheck = 'false' />
-						<label htmlFor = {'query-' + query.id + '-description-field'} className = 'query-label'>query</label>
-					</div>
-					<div className = 'col s1 query-btns-wrapper'>
-						<a id = {'query-' + query.id + '-delete-btn'} onClick = {this.onDeleteQueryBtnClick} data-query-id = {query.id}
-						   className = 'query-delete-btn small-btn btn-floating waves-effect waves-light materialize-red'>
-							<i className = 'mdi-content-clear' />
-						</a>
+					<div className='row business-request-container'>
+						<input type='checkbox' 
+							id={businessRequestCheckboxId} 
+							className='filled-in business-request-checkbox'
+							data-query-id={query.id}
+							defaultChecked={query.isBusinessRequest}
+							onChange={this.onBusinessRequestClicked} />
+						<label htmlFor={businessRequestCheckboxId}>Business Request</label>
 					</div>
 				</div>
 			);
 		}, this);
+
 		return (
 			<div id = 'query-container' className = 'row'>
 				<div className = 'row'>

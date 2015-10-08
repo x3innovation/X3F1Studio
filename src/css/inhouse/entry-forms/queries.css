@@ -8,19 +8,19 @@
     position: relative;
 }
 
-.query-delete-btn-wrapper {
-    margin-top: 1rem;
+.query-btns-wrapper {
+    position: relative;
 }
 
 .query-delete-btn {
-    position: relative;
-    margin-top: 10%;
-    margin-left: 50%;
-    -webkit-transform: translate(-50%, -50%);
-    -moz-transform: translate(-50%, -50%);
-    -ms-transform: translate(-50%, -50%);
-    -o-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
+    position: absolute;
+    top: 2rem;
+    left: 50%;
+    transform: translate(-50%, 0);
+    -webkit-transform: translate(-50%, 0);
+    -moz-transform: translate(-50%, 0);
+    -ms-transform: translate(-50%, 0);
+    -o-transform: translate(-50%, 0);
 }
 
 input[type='text'].query-id-field {
@@ -30,4 +30,12 @@ input[type='text'].query-id-field {
 textarea.query-description-field {
     padding: 0;
     padding-top: 11px;
+}
+
+.query-row .business-request-container{
+    margin-left: 1rem;
+}
+
+.query-row {
+    margin-bottom: 2rem;
 }

@@ -1,15 +1,16 @@
-function QueriesController(gFileCustomModel, gMetadataModel, gFileModel)
+function QueriesController(gFileCustomModel, gMetadataCustomObject, gFileModel)
 {
 	// //////// private members
 	var googleDriveUtils = require('../../utils/google-drive-utils.js');
 	var DefaultValueConstants = require('../../constants/default-value-constants.js');
 	var gFileCustomModel = gFileCustomModel;
-	var gMetadataModel = gMetadataModel;
+	var gMetadataCustomObject = gMetadataCustomObject;
 	var gFileModel = gFileModel;
 
 	// //////// public members
 	this.addQueriesUpdateListener = function(listener)
 	{
+		queryUpdateListener = listener;
 		gFileCustomModel.queries.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, listener);
 		gFileCustomModel.queries.addEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, listener);
 		gFileCustomModel.queries.addEventListener(gapi.drive.realtime.EventType.VALUES_SET, listener);
@@ -22,14 +23,15 @@ function QueriesController(gFileCustomModel, gMetadataModel, gFileModel)
 
 	this.createNewQuery = function()
 	{
-		var requestId = googleDriveUtils.setAndGetNextMetadataModelId(gMetadataModel);
-		var responseId = googleDriveUtils.setAndGetNextMetadataModelId(gMetadataModel);
+		var requestId = googleDriveUtils.setAndGetNextMetadataModelId(gMetadataCustomObject);
+		var responseId = googleDriveUtils.setAndGetNextMetadataModelId(gMetadataCustomObject);
 		var newQuery = {
 			requestId: requestId,
 			responseId: responseId,
 			id: requestId,
 			name: DefaultValueConstants.DefaultQueryAttributes.QUERY_NAME,
-			description: DefaultValueConstants.DefaultQueryAttributes.QUERY_DESCRIPTION
+			description: DefaultValueConstants.DefaultQueryAttributes.QUERY_DESCRIPTION,
+			isBusinessRequest: false
 		}
 		gFileCustomModel.queries.push(newQuery);
 	}
@@ -63,9 +65,15 @@ function QueriesController(gFileCustomModel, gMetadataModel, gFileModel)
 		gFileModel.endCompoundOperation();
 	}
 
-	this.dispose = function()
-	{
-		
+	this.setBusinessRequest = function(queryId, isBusinessRequest){
+		for (var i=0; i<gFileCustomModel.queries.length; ++i){
+			var query = gFileCustomModel.queries.get(i);
+			if (query.id == queryId){
+				var clone = $.extend({}, query);
+				clone.isBusinessRequest = isBusinessRequest;
+				gFileCustomModel.queries.set(i, clone);
+			}
+		}
 	}
 }
 

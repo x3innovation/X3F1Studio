@@ -279,6 +279,7 @@ function GenerateXMLService() {
 				node.Data.Query.push({
 					_name: queryName,
 					_query: queryBody,
+					_businessRequest: gQuery.isBusinessRequest,
 					Parameter: [],
 					QueryRequestEvent: {
 						_name: queryName+'Request',

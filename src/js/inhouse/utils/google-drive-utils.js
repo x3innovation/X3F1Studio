@@ -84,19 +84,19 @@ function GoogleDriveUtils()
 		googleApiInterface.saveTitle(fileId, title);
 	};
 
-	this.setAndGetNextMetadataModelId = function(gMetadataModel, step) {
+	this.setAndGetNextMetadataModelId = function(gMetadataCustomObject, step) {
 		if (step == null)
 		{
 			step = 1;
 		}
 
-	    if (gMetadataModel.nextId == null)
+	    if (gMetadataCustomObject.nextId == null)
 		{
-			gMetadataModel.nextId = 0;
+			gMetadataCustomObject.nextId = 0;
 		}
 		
-		gMetadataModel.nextId = gMetadataModel.nextId + step;
-		return gMetadataModel.nextId;
+		gMetadataCustomObject.nextId = gMetadataCustomObject.nextId + step;
+		return gMetadataCustomObject.nextId;
 	};
 
 	this.announce = function(gMetadataCustomObject, announcement) {
