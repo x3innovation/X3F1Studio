@@ -73,6 +73,7 @@ module.exports = React.createClass({
 							</div>
 
 			_this.forceUpdate();
+			$('#to-project-btn').css('display', 'initial');
 		}
 	},
 
@@ -90,7 +91,10 @@ module.exports = React.createClass({
 	render: function() {
 		return (
 			<div id = 'form-container' className = 'persistent-data-form container'>
-				<i id = "to-project-btn" className = 'medium mdi-navigation-arrow-back' onClick = {this.onToProjectBtnClick} />
+				<i id = "to-project-btn"
+				   className = 'medium mdi-navigation-arrow-back'
+				   style = {{display: 'none'}}
+				   onClick = {this.onToProjectBtnClick} />
 				{this.editor}
 			</div>
 		);
