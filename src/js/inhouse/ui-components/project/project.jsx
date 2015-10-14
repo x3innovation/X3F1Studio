@@ -149,6 +149,8 @@ module.exports = React.createClass({
 		titleModel.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, onTitleChange);
 		titleModel.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, onTitleChange);
 		this.saveTitleToFileItself();
+
+		$('#to-projects-btn').css('display', 'initial');
 	},
 
 	onProjectModelInitialize: function(model) {

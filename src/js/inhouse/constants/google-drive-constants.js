@@ -29,6 +29,7 @@ module.exports = {
 		SNIPPET : 'snippet-data-custom-object',
 		EVENT : 'event-data-custom-object',
 		FLOW : 'flow-data-custom-object',
+		PROJECT : 'project-custom-object',
 		PROJECT_METADATA : 'project-metadata-custom-object',
 		ProjectMetadata : {
 			EVENT_OBJECT : 'project-metadata-event-object'

@@ -12,6 +12,7 @@ customObjectKeys[ObjectType.ENUM] = GCons.CustomObjectKey.ENUM;
 customObjectKeys[ObjectType.EVENT] = GCons.CustomObjectKey.EVENT;
 customObjectKeys[ObjectType.SNIPPET] = GCons.CustomObjectKey.SNIPPET;
 customObjectKeys[ObjectType.PROJECT_METADATA] = GCons.CustomObjectKey.PROJECT_METADATA;
+customObjectKeys[ObjectType.PROJECT] = GCons.CustomObjectKey.PROJECT;
 
 function GoogleDriveUtils()
 {
@@ -442,11 +443,9 @@ function GoogleDriveUtils()
 					docModel.getRoot().set(customObjectKey, customObject);
 					break;
 				case ObjectType.PROJECT:
-					var gRoot = docModel.getRoot();
-					docModel.beginCompoundOperation();
-					gRoot.set(GCons.Project.KEY_TITLE, docModel.createString(DefaultValueConstants.NewFileValues.PROJECT_TITLE));
-					gRoot.set(GCons.Project.KEY_DESCRIPTION, docModel.createString(DefaultValueConstants.NewFileValues.PROJECT_DESCRIPTION));
-					docModel.endCompoundOperation();
+					customObject.title = docModel.createString(DefaultValueConstants.NewFileValues.PROJECT_TITLE);
+					customObject.description = docModel.createString(DefaultValueConstants.NewFileValues.PROJECT_DESCRIPTION);
+					docModel.getRoot().set(customObjectKey, customObject);
 					break;
 				default: break;
 			}
