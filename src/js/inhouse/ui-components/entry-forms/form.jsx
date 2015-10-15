@@ -602,19 +602,10 @@ module.exports = React.createClass({
 		this.saveUiToGoogle();
 	},
 
-	onEnumTypeChanged: function(newEnumName) {
-		var newEnumId = '';
-		var _this = this;
-
+	onEnumTypeChanged: function(newEnumName, newEnumId) {
 		this.gFileModel.beginCompoundOperation();
-		$('#enum-name-dropdown').find('span').each(function(index, element) {
-			if (element.text === newEnumName) {
-				newEnumId = element.dataset.fileId;
-				_this.fieldData.set('enumId', newEnumId);
-				_this.setEnumValues(newEnumId);
-				return false;
-			}
-		});
+		this.fieldData.set('enumId', newEnumId);
+		this.setEnumValues(newEnumId);
 		this.fieldData.set('enumName', newEnumName);
 		this.gFileModel.endCompoundOperation();
 
@@ -666,7 +657,9 @@ module.exports = React.createClass({
 			else { $enumNameSelect.val('default'); }
 			
 			$enumNameSelect.material_select(function() {
-				_this.onEnumTypeChanged($('#enum-name-dropdown').find('.select-dropdown').val());
+				var selectedEnumObjectName = $('#enum-name-dropdown').find('.select-dropdown').val();
+				var selectedEnumFileId = $('#enum-name-select').val();
+				_this.onEnumTypeChanged(selectedEnumObjectName, selectedEnumFileId);
 			});
 
 			//set the same data attributes in the materialized select
@@ -684,36 +677,6 @@ module.exports = React.createClass({
 				_this.onEnumTypeChanged($('#enum-name-dropdown').find('.select-dropdown').val());
 			});
 		}
-	},
-
-	setEnumValues: function(enumId) {
-		var _this = this;
-		var $enumValueSelect = $('#enum-value-select');
-		$enumValueSelect.html('<option value="default" disabled>loading enum values...</option>');
-		$enumValueSelect.material_select();
-		if (!enumId || enumId === 'default') {
-			$enumValueSelect.html('<option value="default" disabled>select default value</option>');
-			$enumValueSelect.prop('disabled', true);
-			$enumValueSelect.material_select();
-			return;
-		}
-		
-		GDriveUtils.loadDriveFileDoc(enumId, GDriveConstants.ObjectType.ENUM, function(doc) {
-			var enumValues = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.ENUM).fields.asArray();
-			if (enumValues.length) {
-				$enumValueSelect.prop('disabled', false);
-				var enumValueOptions = '<option value = "default">no default value</option>';
-				for (var i = 0, len = enumValues.length; i<len; i++) {
-					enumValueOptions += '<option data-enum-index = "'+enumValues[i].index+'" value = "'+enumValues[i].name+'">'+enumValues[i].name+'</option>';
-				}
-				$enumValueSelect.html(enumValueOptions);
-			} else {
-				$enumValueSelect.html('<option value = "default">no enums defined</option>');
-				$enumValueSelect.prop('disabled', true);
-			}
-			$enumValueSelect.material_select(_this.saveUiToGoogle);
-			_this.updateEnumValueSelect();
-		});
 	},
 
 	addToRefs: function(announcement) {

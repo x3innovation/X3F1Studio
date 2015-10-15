@@ -256,7 +256,7 @@ function GoogleDriveUtils()
 				fileCreationParams.mimeType = GCons.MimeType.DMX;
 				break;
 			case (GCons.ObjectType.ENUM):
-				fileCreationParams.title = DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE;
+				fileCreationParams.title = DefaultValueConstants.NewFileValues.ENUM_TITLE;
 				fileCreationParams.mimeType = GCons.MimeType.DMXE;
 				break;
 			case (GCons.ObjectType.FLOW):
