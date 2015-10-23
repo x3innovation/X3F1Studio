@@ -441,6 +441,113 @@ module.exports = React.createClass({
 			}
 		}
 
+		
+		//Validating: Short 
+		if (!errorMessage && fieldType === 'short' && fieldId === 'min-value-field' && $('#min-value-field').val()){			
+			if( parseInt($('#min-value-field').val(),10 ) <  parseInt(Configs.DataTypeDef.FIELD_SHORT_MIN_VALUE) ){
+				errorMessage += 'The minimum value should be greater than ' + parseInt(Configs.DataTypeDef.FIELD_SHORT_MIN_VALUE);
+				$('#min-value-field').addClass('invalid-input');
+			}
+			if( parseInt($('#min-value-field').val(),10 ) >  parseInt(Configs.DataTypeDef.FIELD_SHORT_MAX_VALUE) ){
+				errorMessage += 'The minimum value can not be greater than ' + Configs.DataTypeDef.FIELD_SHORT_MAX_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+		}	
+		if(!errorMessage && fieldType === 'short' && fieldId === 'max-value-field' && $('#max-value-field').val()){
+			if( parseInt($('#max-value-field').val(),10 ) >  parseInt(Configs.DataTypeDef.FIELD_SHORT_MAX_VALUE) ){
+				errorMessage += 'The maximum value can not be greater than ' + Configs.DataTypeDef.FIELD_SHORT_MAX_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+			if( parseInt($('#max-value-field').val(),10 ) <  parseInt(Configs.DataTypeDef.FIELD_SHORT_MIN_VALUE) ){
+				errorMessage += 'The maximum value can not be less than ' + Configs.DataTypeDef.FIELD_SHORT_MIN_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+		}	
+		//Validating: Integer
+		if (!errorMessage && fieldType === 'integer' && fieldId === 'min-value-field' && $('#min-value-field').val()){			
+			if( parseInt($('#min-value-field').val(),10 ) <  parseInt(Configs.DataTypeDef.FIELD_INT_MIN_VALUE) ){
+				errorMessage += 'The minimum value should be greater than ' + Configs.DataTypeDef.FIELD_INT_MIN_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+			if( parseInt($('#min-value-field').val(),10 ) >  parseInt(Configs.DataTypeDef.FIELD_INT_MAX_VALUE) ){
+				errorMessage += 'The minimum value can not be greater than ' + Configs.DataTypeDef.FIELD_INT_MAX_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+		}	
+		if(!errorMessage && fieldType === 'integer' && fieldId === 'max-value-field' && $('#max-value-field').val()){
+			if( parseInt($('#max-value-field').val(),10 ) >  parseInt(Configs.DataTypeDef.FIELD_INT_MAX_VALUE) ){
+				errorMessage += 'The maximum value can not be greater than ' + Configs.DataTypeDef.FIELD_INT_MAX_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+			if( parseInt($('#max-value-field').val(),10 ) <  parseInt(Configs.DataTypeDef.FIELD_INT_MIN_VALUE) ){
+				errorMessage += 'The maximum value should greater than ' + Configs.DataTypeDef.FIELD_INT_MIN_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+		}	
+		//Validating: Long
+		if (!errorMessage && fieldType === 'long' && fieldId === 'min-value-field' && $('#min-value-field').val()){			
+			if( parseInt($('#min-value-field').val(),20 ) <  parseInt(Configs.DataTypeDef.FIELD_LONG_MIN_VALUE) ){
+				errorMessage += 'The minimum value should be greater than ' + Configs.DataTypeDef.FIELD_LONG_MIN_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+			if( parseInt($('#min-value-field').val(),20 ) >  parseInt(Configs.DataTypeDef.FIELD_LONG_MAX_VALUE) ){
+				errorMessage += 'The minimum value can not be greater than ' + Configs.DataTypeDef.FIELD_LONG_MAX_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+		}	
+		if(!errorMessage && fieldType === 'long' && fieldId === 'max-value-field' && $('#max-value-field').val()){
+			if( parseInt($('#max-value-field').val(),20 ) >  parseInt(Configs.DataTypeDef.FIELD_LONG_MAX_VALUE) ){
+				errorMessage += 'The maximum value can not be greater than ' + Configs.DataTypeDef.FIELD_LONG_MAX_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+			if( parseInt($('#max-value-field').val(),20 ) <  parseInt(Configs.DataTypeDef.FIELD_LONG_MIN_VALUE) ){
+				errorMessage += 'The maximum value should greater than ' + Configs.DataTypeDef.FIELD_LONG_MIN_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+		}	
+		//Validating: Byte
+		if (!errorMessage && fieldType === 'byte' && fieldId === 'min-value-field' && $('#min-value-field').val()){			
+			if( parseInt($('#min-value-field').val(),10 ) <  parseInt(Configs.DataTypeDef.FIELD_BYTE_MIN_VALUE) ){
+				errorMessage += 'The minimum value should be greater than ' + Configs.DataTypeDef.FIELD_BYTE_MIN_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+			if( parseInt($('#min-value-field').val(),10 ) >  parseInt(Configs.DataTypeDef.FIELD_BYTE_MAX_VALUE) ){
+				errorMessage += 'The minimum value can not be greater than ' + Configs.DataTypeDef.FIELD_BYTE_MAX_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+		}	
+		if(!errorMessage && fieldType === 'byte' && fieldId === 'max-value-field' && $('#max-value-field').val()){
+			if( parseInt($('#max-value-field').val(),10 ) >  parseInt(Configs.DataTypeDef.FIELD_BYTE_MAX_VALUE) ){
+				errorMessage += 'The maximum value can not be greater than ' + Configs.DataTypeDef.FIELD_BYTE_MAX_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+			if( parseInt($('#max-value-field').val(),10 ) <  parseInt(Configs.DataTypeDef.FIELD_BYTE_MIN_VALUE) ){
+				errorMessage += 'The maximum value should greater than ' + Configs.DataTypeDef.FIELD_BYTE_MIN_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+		}	
+		//Validating: Double
+		if (!errorMessage && fieldType === 'double' && fieldId === 'min-value-field' && $('#min-value-field').val()){			
+			if( parseFloat($('#min-value-field').val()) <  parseFloat(Configs.DataTypeDef.FIELD_DOUBLE_MIN_VALUE) ){
+				errorMessage += 'The minimum value should be greater than ' + Configs.DataTypeDef.FIELD_DOUBLE_MIN_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+			if( parseFloat($('#min-value-field').val()) >  parseFloat(Configs.DataTypeDef.FIELD_DOUBLE_MAX_VALUE) ){
+				errorMessage += 'The minimum value can not be greater than ' + Configs.DataTypeDef.FIELD_DOUBLE_MAX_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+		}	
+		if(!errorMessage && fieldType === 'double' && fieldId === 'max-value-field' && $('#max-value-field').val()){
+			if( parseFloat($('#max-value-field').val() ) >  parseFloat(Configs.DataTypeDef.FIELD_DOUBLE_MAX_VALUE) ){
+				errorMessage += 'The maximum value can not be greater than ' + Configs.DataTypeDef.FIELD_DOUBLE_MAX_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+			if( parseFloat($('#max-value-field').val() ) <  parseFloat(Configs.DataTypeDef.FIELD_DOUBLE_MIN_VALUE) ){
+				errorMessage += 'The maximum value should greater than ' + Configs.DataTypeDef.FIELD_DOUBLE_MIN_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+		}	
+
 		//can't store strings or sequences of non-positive length
 		if (!errorMessage && 
 		    (targetField.id === 'array-len-field'    || 
