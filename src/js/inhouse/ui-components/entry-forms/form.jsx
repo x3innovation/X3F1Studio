@@ -547,7 +547,27 @@ module.exports = React.createClass({
 				$('#max-value-field').addClass('invalid-input');
 			}
 		}	
-
+		//Validating: Float
+		if (!errorMessage && fieldType === 'float' && fieldId === 'min-value-field' && $('#min-value-field').val()){			
+			if( parseFloat($('#min-value-field').val()) <  parseFloat(Configs.DataTypeDef.FIELD_FLOAT_MIN_VALUE) ){
+				errorMessage += 'The minimum value should be greater than ' + Configs.DataTypeDef.FIELD_FLOAT_MIN_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+			if( parseFloat($('#min-value-field').val()) >  parseFloat(Configs.DataTypeDef.FIELD_FLOAT_MAX_VALUE) ){
+				errorMessage += 'The minimum value can not be greater than ' + Configs.DataTypeDef.FIELD_FLOAT_MAX_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+		}	
+		if(!errorMessage && fieldType === 'float' && fieldId === 'max-value-field' && $('#max-value-field').val()){
+			if( parseFloat($('#max-value-field').val() ) >  parseFloat(Configs.DataTypeDef.FIELD_FLOAT_MAX_VALUE) ){
+				errorMessage += 'The maximum value can not be greater than ' + Configs.DataTypeDef.FIELD_FLOAT_MAX_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+			if( parseFloat($('#max-value-field').val() ) <  parseFloat(Configs.DataTypeDef.FIELD_FLOAT_MIN_VALUE) ){
+				errorMessage += 'The maximum value should greater than ' + Configs.DataTypeDef.FIELD_FLOAT_MIN_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+		}	
 		//can't store strings or sequences of non-positive length
 		if (!errorMessage && 
 		    (targetField.id === 'array-len-field'    || 
