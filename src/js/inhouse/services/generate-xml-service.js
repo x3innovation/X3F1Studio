@@ -344,22 +344,99 @@ function GenerateXMLService() {
 						break;
 					case 'datetime':
 						node.Data.Field[i]._type = 'dateTime';
-					case 'date':
-					case 'time':
-						var defDate = gField.get('defDate').toString();
-						if (defDate) {
-							node.Data.Field[i]._default = defDate;
+						defDate = gField.get('defDateTimeDate').toString();
+						var defTime = gField.get('defDateTimeTime').toString();
+						if (defDate && defTime) {
+							var defDateTime = defDate + 'T' + defTime + 'Z';
+							var datetime = new Date(defDateTime);
+							node.Data.Field[i]._default = datetime.toISOString();	// by default use UTC, iso 8601
 						} else {
 							delete node.Data.Field[i]._default;
 						}
-						var minDate = gField.get('minDate').toString();
+
+						var minDate = gField.get('minDateTimeDate').toString();
+						var minTime = gField.get('minDateTimeTime').toString();
+						if (minDate && minTime) {
+							var minDateTime = minDate + 'T' + minTime + 'Z';
+							datetime = new Date(minDateTime);
+							node.Data.Field[i]._min = datetime.toISOString();	// by default use UTC, iso 8601
+						} else {
+							delete node.Data.Field[i]._min;
+						}
+
+						var maxDate = gField.get('maxDateTimeDate').toString();
+						var maxTime = gField.get('maxDateTimeTime').toString();
+						if (maxDate && maxTime) {
+							maxDateTime = maxDate + 'T' + maxTime + 'Z';
+							datetime = new Date(maxDateTime);
+							node.Data.Field[i]._max = datetime.toISOString();	// by default use UTC, iso 8601
+						} else {
+							delete node.Data.Field[i]._max;
+						}
+
+						break;
+					case 'date':
+						var defDate = gField.get('defDate').toString();
+						if (defDate) {
+							var date = new Date(defDate);
+							date.setUTCHours(0, 0, 0, 0);
+							var isoDate = date.toISOString();	// by default use UTC, iso 8601
+							node.Data.Field[i]._default = isoDate;
+						} else {
+							delete node.Data.Field[i]._default;
+						}
+
+						minDate = gField.get('minDate').toString();
 						if (minDate) {
-							node.Data.Field[i]._min = minDate;
+							date = new Date(minDate);
+							date.setUTCHours(0, 0, 0, 0);
+							isoDate = date.toISOString();	// by default use UTC, iso 8601
+							node.Data.Field[i]._min = isoDate;
 						}
-						var maxDate = gField.get('maxDate').toString();
+						else{
+							delete node.Data.Field[i]._min;
+						}
+
+						maxDate = gField.get('maxDate').toString();
 						if (maxDate) {
-							node.Data.Field[i]._max = maxDate;
+							date = new Date(maxDate);
+							date.setUTCHours(0, 0, 0, 0);
+							isoDate = date.toISOString();		// by default use UTC, iso 8601
+							node.Data.Field[i]._max = isoDate;
 						}
+						else{
+							delete node.Data.Field[i]._max;
+						}
+
+						break;
+					case 'time':
+						defTime = gField.get('defDate').toString();
+						if (defTime) {
+							defDateTime = "2000-01-01T"+ defTime + "Z";		// some arbitrary date
+							datetime = new Date(defDateTime);
+							node.Data.Field[i]._default = datetime.toISOString();	// by default use UTC, iso 8601
+						} else {
+							delete node.Data.Field[i]._default;
+						}
+
+						minTime = gField.get('minDate').toString();
+						if (minTime) {
+							minDateTime = "2000-01-01T"+ minTime + "Z";		// some arbitrary date
+							datetime = new Date(minDateTime);
+							node.Data.Field[i]._min = datetime.toISOString();	// by default use UTC, iso 8601
+						} else {
+							delete node.Data.Field[i]._min;
+						}
+
+						maxTime = gField.get('maxDate').toString();
+						if (maxTime) {
+							maxDateTime = "2000-01-01T"+ maxTime + "Z";		// some arbitrary date
+							datetime = new Date(maxDateTime);
+							node.Data.Field[i]._max = datetime.toISOString();	// by default use UTC, iso 8601
+						} else {
+							delete node.Data.Field[i]._max;
+						}
+
 						break;
 					case 'boolean':
 						node.Data.Field[i]._default = gField.get('defValueBool').toString();

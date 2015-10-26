@@ -316,8 +316,16 @@ function GoogleDriveUtils()
 		gField.set('minValue', gModel.createString(DefaultFields.FIELD_MIN_VALUE));
 		gField.set('maxValue', gModel.createString(DefaultFields.FIELD_MAX_VALUE));
 		gField.set('defDate', gModel.createString(DefaultFields.FIELD_DEF_DATE_VALUE));
+        gField.set('minDateTimeDate', gModel.createString(DefaultFields.FIELD_MIN_DATETIME_DATE_VALUE));
+        gField.set('minDateTimeTime', gModel.createString(DefaultFields.FIELD_MIN_DATETIME_TIME_VALUE));
+        gField.set('maxDateTimeDate', gModel.createString(DefaultFields.FIELD_MAX_DATETIME_DATE_VALUE));
+        gField.set('maxDateTimeTime', gModel.createString(DefaultFields.FIELD_MAX_DATETIME_TIME_VALUE));
+        gField.set('defDateTimeDate', gModel.createString(DefaultFields.FIELD_DEF_DATETIME_DATE_VALUE));
+        gField.set('defDateTimeTime', gModel.createString(DefaultFields.FIELD_DEF_DATETIME_TIME_VALUE));
 		gField.set('minDate', gModel.createString(DefaultFields.FIELD_MIN_DATE_VALUE));
 		gField.set('maxDate', gModel.createString(DefaultFields.FIELD_MAX_DATE_VALUE));
+        gField.set('minTime', gModel.createString(DefaultFields.FIELD_MIN_TIME_VALUE));
+        gField.set('maxTime', gModel.createString(DefaultFields.FIELD_MAX_TIME_VALUE));
 		gField.set('minStrLen', gModel.createString(DefaultFields.FIELD_MIN_STR_LEN));
 		gField.set('maxStrLen', gModel.createString(DefaultFields.FIELD_MAX_STR_LEN));
 		gField.set('arrayLen', gModel.createString(DefaultFields.FIELD_ARRAY_LEN));
