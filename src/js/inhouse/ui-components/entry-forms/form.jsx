@@ -253,6 +253,7 @@ module.exports = React.createClass({
 			this.fieldData.get('minStrLen').setText(getById('min-str-len-field').value);
 			this.fieldData.get('maxStrLen').setText(getById('max-str-len-field').value);
 
+			this.fieldData.get('defValue').setText(getById('def-value-field').value);
 			this.fieldData.get('defDate').setText(getById('def-date-field').value);
 			this.fieldData.get('minDate').setText(getById('min-date-field').value);
 			this.fieldData.get('maxDate').setText(getById('max-date-field').value);
@@ -891,7 +892,7 @@ module.exports = React.createClass({
 					<div className='col s4 input-field type-specific-field
 					 	double-specific-field float-specific-field byte-specific-field integer-specific-field
 					 	long-specific-field short-specific-field string-specific-field ref-specific-field'>
-						<input type='text' id='def-value-field' className='labelled-input validated-input' spellCheck='false' />
+						<input type='text' id='def-value-field' className='labelled-input validated-input' spellCheck='false' onChange={this.saveUiToGoogle}/>
 						<label htmlFor='def-value-field' className='error-tooltipped'>default value</label>
 					</div>
 					<div className='col s4 input-field type-specific-field date-specific-field datetime-specific-field time-specific-field'>
