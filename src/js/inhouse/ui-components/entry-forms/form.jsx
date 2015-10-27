@@ -304,7 +304,7 @@ module.exports = React.createClass({
 			if (!$('#array-len-wrapper').hasClass('hide')){
 				this.fieldData.get('arrayLen').setText(getById('array-len-field').value);
 			}
-
+						
 			this.fieldData.set('defValueBool', getById('def-value-checkbox').checked);
 			this.fieldData.set('optional', getById('optional-checkbox').checked);
 			this.fieldData.set('array', getById('array-checkbox').checked);
@@ -431,6 +431,16 @@ module.exports = React.createClass({
 			}
 			if (!fieldVal.match(/^[A-Za-z][A-Za-z0-9]*$/)) {
 				errorMessage += 'Names should start with a letter and contain only alphanumeric characters. ';
+			}
+		}
+
+		//Validating: Char
+		if (!errorMessage && fieldId === 'char-def-value-field') {		
+			if (fieldVal.length > 1) { 
+				errorMessage += 'Chars can only be 1 character long.';
+			}
+			if (!fieldVal.match(/[a-zA-Z0-9:]/g)) {
+				errorMessage += 'Chars can contain only alphanumeric characters.';
 			}
 		}
 
@@ -913,6 +923,7 @@ module.exports = React.createClass({
 							<option value='short'>short</option>
 							<option value='integer'>integer</option>
 							<option value='long'>long</option>
+							<option value='char'>char</option> 
 							<option value='string'>string</option>
 							<option value='boolean'>boolean</option>
 							<option value='ref'>ref</option>
@@ -935,7 +946,7 @@ module.exports = React.createClass({
 					<div className='col s4 input-field type-specific-field
 					 	double-specific-field float-specific-field byte-specific-field integer-specific-field
 					 	long-specific-field short-specific-field string-specific-field ref-specific-field'>
-						<input type='text' id='def-value-field' className='labelled-input validated-input' spellCheck='false' />
+						<input type='text' id='def-value-field' className='labelled-input validated-input' spellCheck='false'/>
 						<label htmlFor='def-value-field' className='error-tooltipped'>default value</label>
 					</div>
 					<div className='col s4 input-field type-specific-field date-specific-field datetime-specific-field time-specific-field'>
@@ -982,6 +993,12 @@ module.exports = React.createClass({
 								<option value='default' disabled>loading enum values...</option>
 							</select>
 							<label htmlFor='enum-value-select' >default enum value</label>
+						</div>
+					</div>
+					<div className='type-specific-field char-specific-field'>
+						<div className='input-field col s4'>
+							<input type='text' id='char-def-value-field' className='labelled-input validated-input' spellCheck='false' onChange={this.saveUiToGoogle}/>
+							<label htmlFor='char-def-value-field' className='error-tooltipped'>default value</label>
 						</div>
 					</div>
 					<div className='type-specific-field string-specific-field'>
