@@ -368,7 +368,7 @@ function GenerateXMLService() {
 						var minTime = gField.get('minDateTimeTime');
 						if (minDate && minTime) {
 							minDate = minDate.toString();
-							minTime = minDate.toString();
+							minTime = minTime.toString();
 							var minDateTime = minDate + 'T' + minTime + 'Z';
 							datetime = new Date(minDateTime);
 							node.Data.Field[i]._min = datetime.toISOString();	// by default use UTC, iso 8601
@@ -381,7 +381,7 @@ function GenerateXMLService() {
 						var maxTime = gField.get('maxDateTimeTime');
 						if (maxDate && maxTime) {
 							maxDate = maxDate.toString();
-							maxTime = maxDate.toString();
+							maxTime = maxTime.toString();
 							maxDateTime = maxDate + 'T' + maxTime + 'Z';
 							datetime = new Date(maxDateTime);
 							node.Data.Field[i]._max = datetime.toISOString();	// by default use UTC, iso 8601
