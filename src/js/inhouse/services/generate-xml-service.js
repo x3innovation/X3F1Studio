@@ -276,17 +276,20 @@ function GenerateXMLService() {
 				var title = replaceAll(gModel.title.toString(), ' ', '');
 				var queryName = replaceAll(gQuery.name, ' ', '');
 				queryBody = gQuery.description;
-				node.Data.Query.push({
+				var query = {
 					_name: queryName,
 					_query: queryBody,
-					_businessRequest: gQuery.isBusinessRequest,
 					Parameter: [],
 					QueryRequestEvent: {
 						_name: queryName+'Request',
 						_typeId: gQuery.requestId,
 						Value: []
 					}
-				});
+				};
+				if (gQuery.isBusinessRequest != null){
+					query._businessRequest = gQuery.isBusinessRequest
+				}
+				node.Data.Query.push(query);
 				node.Data.Query[i].QueryResponseEvent = {
 					_name: queryName+'Response',
 					_typeId: gQuery.responseId
