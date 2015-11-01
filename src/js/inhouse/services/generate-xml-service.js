@@ -467,6 +467,9 @@ function GenerateXMLService() {
 					case 'boolean':
 						node.Data.Field[i]._default = gField.get('defValueBool').toString();
 						break;
+					case 'char':
+						node.Data.Field[i]._default = gField.get('defValueChar').toString();
+						break;
 					case 'string':
 						var maxStrLen = gField.has('maxStrLen') ? 
 							gField.get('maxStrLen').toString() : gField.get('strLen').toString();

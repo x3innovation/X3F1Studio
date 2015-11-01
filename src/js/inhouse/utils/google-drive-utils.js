@@ -298,6 +298,7 @@ function GoogleDriveUtils()
 		var newField = {
 			type: DefaultFields.FIELD_TYPE,
 			defValueBool: DefaultFields.FIELD_DEF_BOOL_VALUE,
+			defValueChar: DefaultFields.FIELD_DEF_CHAR_VALUE,
 			optional: DefaultFields.FIELD_OPTIONAL,
 			array: DefaultFields.FIELD_ARRAY,
 			refId: DefaultFields.FIELD_REF_ID,

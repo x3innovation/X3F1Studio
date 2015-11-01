@@ -32,6 +32,7 @@ module.exports = {
 		FIELD_DEF_VALUE : '',
 		FIELD_DEF_DATE_VALUE : '',
 		FIELD_DEF_BOOL_VALUE : false,
+		FIELD_DEF_CHAR_VALUE : '',
 		FIELD_MIN_VALUE : '',
 		FIELD_MAX_VALUE : '',
 		FIELD_MIN_DATETIME_DATE_VALUE : '',

@@ -232,6 +232,7 @@ module.exports = React.createClass({
 		getById('min-date-field').value = this.fieldData.get('minDate').toString();
 		getById('max-date-field').value = this.fieldData.get('maxDate').toString();
 
+		getById('char-def-value-field').value = this.fieldData.get('defValueChar');
 		getById('ref-soft-radio').checked = this.fieldData.get('refType') === 'soft';
 		getById('ref-hard-radio').checked = this.fieldData.get('refType') === 'hard';
 		getById('def-value-checkbox').checked = this.fieldData.get('defValueBool');
@@ -304,7 +305,8 @@ module.exports = React.createClass({
 			if (!$('#array-len-wrapper').hasClass('hide')){
 				this.fieldData.get('arrayLen').setText(getById('array-len-field').value);
 			}
-						
+
+			this.fieldData.set('defValueChar', getById('char-def-value-field').value);			
 			this.fieldData.set('defValueBool', getById('def-value-checkbox').checked);
 			this.fieldData.set('optional', getById('optional-checkbox').checked);
 			this.fieldData.set('array', getById('array-checkbox').checked);
@@ -577,6 +579,7 @@ module.exports = React.createClass({
 			this.fieldData.set('minDate', this.gFileModel.createString(''));
 			this.fieldData.set('maxDate', this.gFileModel.createString(''));
 		}
+
 		this.gFileModel.endCompoundOperation();
 	},
 
