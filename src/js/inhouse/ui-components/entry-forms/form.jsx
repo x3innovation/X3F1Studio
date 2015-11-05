@@ -485,8 +485,13 @@ module.exports = React.createClass({
 				errorMessage += 'Default ' +fieldType+ ' should not be before defined minimum ' +fieldType+ '. ';
 			}
 		}
-
-		
+		//Validating: ref-soft & ref-hard radio buttons 	
+		if (!errorMessage && fieldType === 'ref' && (fieldId ==='ref-soft-radio' || fieldId ==='ref-hard-radio' ) ) {
+			
+			if(!($('#ref-soft-radio').prop("checked") ) && !($('#ref-hard-radio').prop("checked"))){
+				errorMessage += 'Some type of reference needs to be selected';
+			}
+		}
 		//Validating: Short 
 		if (!errorMessage && fieldType === 'short' && fieldId === 'min-value-field' && $('#min-value-field').val()){			
 			if( parseInt($('#min-value-field').val(),10 ) <  parseInt(Configs.DataTypeDef.FIELD_SHORT_MIN_VALUE) ){
@@ -1093,13 +1098,13 @@ module.exports = React.createClass({
 							<option value='default' disabled>loading refs...</option>
 						</select>
 						<label htmlFor='ref-name-select' >ref</label>
-					</div>
+					</div>					
 					<div className='col s4'>
 						<br />
 						<input name="ref-group" className='with-gap' type="radio" id="ref-soft-radio" onChange={this.saveUiToGoogle} />
 						<label htmlFor="ref-soft-radio" className='ref-radio-label'>soft</label>
-						<input name="ref-group" className='with-gap' type="radio" id="ref-hard-radio" onChange={this.saveUiToGoogle} />
-						<label htmlFor="ref-hard-radio" className='ref-radio-label'>hard</label>
+						<input name="ref-group" className='with-gap validated-input' type="radio" id="ref-hard-radio" onChange={this.saveUiToGoogle} />
+						<label htmlFor="ref-hard-radio" className='ref-radio-label error-tooltipped' >hard</label>
 					</div>
 				</div>
 
