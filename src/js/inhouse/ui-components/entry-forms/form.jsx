@@ -485,11 +485,13 @@ module.exports = React.createClass({
 				errorMessage += 'Default ' +fieldType+ ' should not be before defined minimum ' +fieldType+ '. ';
 			}
 		}
-		//Validating: ref-soft & ref-hard radio buttons 	
-		if (!errorMessage && fieldType === 'ref' && (fieldId ==='ref-soft-radio' || fieldId ==='ref-hard-radio' ) ) {
-			
-			if(!($('#ref-soft-radio').prop("checked") ) && !($('#ref-hard-radio').prop("checked"))){
-				errorMessage += 'Some type of reference needs to be selected';
+		//Validating: ref-soft & ref-hard radio buttons 
+		if( typeof($("#ref-name-select")[0]) != 'undefined' && $("#ref-name-select")[0].selectedIndex != 0){
+				if (!errorMessage && fieldType === 'ref' && (fieldId ==='ref-soft-radio' || fieldId ==='ref-hard-radio' )) {
+				
+				if(!($('#ref-soft-radio').prop("checked") ) && !($('#ref-hard-radio').prop("checked"))){
+					errorMessage += 'Some type of reference needs to be selected';
+				}
 			}
 		}
 		//Validating: Short 
@@ -1091,7 +1093,7 @@ module.exports = React.createClass({
 						<label htmlFor='array-checkbox' >array</label>
 					</div>
 				</div>
-
+				
 				<div className='row type-specific-field ref-specific-field'>
 					<div id='ref-name-dropdown' className='input-field col s4'>
 						<select id='ref-name-select' className='ref-name-selector form-select' value='default'>
