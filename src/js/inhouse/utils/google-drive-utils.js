@@ -266,7 +266,6 @@ function GoogleDriveUtils()
 				break;
 		}
 
-		var _this = this;
 		var onFileCreationCompleted = function(file) {
 			_this.loadMetadataDoc(parentFolderId, function(metadataDoc, metadataCustomObject){
 				// if the file was event object, update the metadata
@@ -396,7 +395,6 @@ function GoogleDriveUtils()
 
 	this.loadDriveFileDoc = function(fileId, fileType, callback, metadataCustomObject)
 	{
-		var _this = this;
 		gapi.drive.realtime.load(fileId, onDocumentLoaded, initializeDocument);
 
 		function initializeDocument(docModel)
@@ -435,6 +433,9 @@ function GoogleDriveUtils()
 					customObject.isBusinessRequest = false;
 					customObject.correspondingBusinessResponses = docModel.createList();
 					docModel.getRoot().set(customObjectKey, customObject);
+
+					var metadataEventModel = _this.createMetadataEvent(fileId, DefaultValueConstants.NewFileValues.EVENT_TITLE);
+					metadataCustomObject.nonBusinessRequestEvents.push(metadataEventModel);
 					break;
 				case ObjectType.SNIPPET:
 					customObject.title = docModel.createString(DefaultValueConstants.NewFileValues.SNIPPET_TITLE);
