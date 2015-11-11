@@ -485,7 +485,22 @@ module.exports = React.createClass({
 				errorMessage += 'Default ' +fieldType+ ' should not be before defined minimum ' +fieldType+ '. ';
 			}
 		}
-
+		//Validating: ref-soft & ref-hard radio buttons 
+		if(fieldType === 'ref'){
+			if( typeof($("#ref-name-select")[0]) != 'undefined' && $("#ref-name-select")[0].selectedIndex != 0){
+				if (!errorMessage  && (fieldId ==='ref-soft-radio' || fieldId ==='ref-hard-radio' )) {
+					$('#ref-soft-radio').attr('disabled', false);
+					$('#ref-hard-radio').attr('disabled', false);
+					if(!($('#ref-soft-radio').prop("checked") ) && !($('#ref-hard-radio').prop("checked"))){
+						errorMessage += 'Some type of reference needs to be selected';
+					}
+				}
+			}
+			else{
+				$('#ref-soft-radio').attr('disabled', true);
+				$('#ref-hard-radio').attr('disabled', true);
+			}
+		}
 		
 		//Validating: Short 
 		if (!errorMessage && fieldType === 'short' && fieldId === 'min-value-field' && $('#min-value-field').val()){			
@@ -1086,20 +1101,20 @@ module.exports = React.createClass({
 						<label htmlFor='array-checkbox' >array</label>
 					</div>
 				</div>
-
+				
 				<div className='row type-specific-field ref-specific-field'>
 					<div id='ref-name-dropdown' className='input-field col s4'>
 						<select id='ref-name-select' className='ref-name-selector form-select' value='default'>
 							<option value='default' disabled>loading refs...</option>
 						</select>
 						<label htmlFor='ref-name-select' >ref</label>
-					</div>
+					</div>					
 					<div className='col s4'>
 						<br />
-						<input name="ref-group" className='with-gap' type="radio" id="ref-soft-radio" onChange={this.saveUiToGoogle} />
+						<input name="ref-group" className='with-gap' type="radio" id="ref-soft-radio" disabled onChange={this.saveUiToGoogle} />
 						<label htmlFor="ref-soft-radio" className='ref-radio-label'>soft</label>
-						<input name="ref-group" className='with-gap' type="radio" id="ref-hard-radio" onChange={this.saveUiToGoogle} />
-						<label htmlFor="ref-hard-radio" className='ref-radio-label'>hard</label>
+						<input name="ref-group" className='with-gap validated-input' type="radio" id="ref-hard-radio"  disabled onChange={this.saveUiToGoogle} />
+						<label htmlFor="ref-hard-radio" className='ref-radio-label error-tooltipped' >hard</label>
 					</div>
 				</div>
 
