@@ -434,7 +434,7 @@ function GoogleDriveUtils()
 					customObject.correspondingBusinessResponses = docModel.createList();
 					docModel.getRoot().set(customObjectKey, customObject);
 
-					var metadataEventModel = _this.createMetadataEvent(fileId, DefaultValueConstants.NewFileValues.EVENT_TITLE);
+					var metadataEventModel = _this.createMetadataEvent(fileId, DefaultValueConstants.NewFileValues.EVENT_TITLE, customObject.id);
 					metadataCustomObject.nonBusinessRequestEvents.push(metadataEventModel);
 					break;
 				case ObjectType.SNIPPET:
@@ -503,10 +503,11 @@ function GoogleDriveUtils()
 		}
 	}
 
-	this.createMetadataEvent = function(gFileId, eventTitle){
+	this.createMetadataEvent = function(gFileId, eventTitle, typeId){
 		var metadataEvent = {};
 		metadataEvent.gFileId = gFileId;
 		metadataEvent.eventObjectTitle = eventTitle;
+		metadataEvent.eventTypeId = typeId;
 		return metadataEvent;
 	}
 
@@ -570,6 +571,43 @@ function GoogleDriveUtils()
 			}
 
 			return title;
+		}
+	}
+
+	this.getEventTypeIdForGoogleFileIds = function(gMetadataCustomObject, googleFileIds) {
+		var typeIds = [];
+		for (var i in googleFileIds){
+			var gFileId = googleFileIds[i];
+			var typeId = getTypeIdForGoogleFileId(gFileId);
+			typeIds.push(typeId);
+		}
+
+		return typeIds;
+
+		function getTypeIdForGoogleFileId(gFileId){
+			var eventFound = false;
+			var typeId;
+
+			// find out the google file id for this event name
+			for (var i=0; i<gMetadataCustomObject.businessRequestEvents.length; ++i){
+				var businessRequestEvent = gMetadataCustomObject.businessRequestEvents.get(i);
+				if (businessRequestEvent.gFileId === gFileId){
+					eventFound = true;
+					typeId = businessRequestEvent.eventTypeId;
+					break;
+				}
+			}
+			if (!eventFound){
+				for (var i=0; i<gMetadataCustomObject.nonBusinessRequestEvents.length; ++i){
+					var nonBusinessRequestEvent = gMetadataCustomObject.nonBusinessRequestEvents.get(i);
+					if (nonBusinessRequestEvent.gFileId === gFileId){
+						typeId = nonBusinessRequestEvent.eventTypeId;
+						break;
+					}
+				}
+			}
+
+			return typeId;
 		}
 	}
 }

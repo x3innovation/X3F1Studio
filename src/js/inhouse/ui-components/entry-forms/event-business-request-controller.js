@@ -49,7 +49,7 @@ function EventBusinessRequestController(gMetadataModel, gMetadataCustomObject, g
 		gFileCustomObject.isBusinessRequest = true;
 
 		// create new metadata business request event custom object
-		var metadataEventModel = googleDriveUtils.createMetadataEvent(gFileId, gFileCustomObject.title.text);
+		var metadataEventModel = googleDriveUtils.createMetadataEvent(gFileId, gFileCustomObject.title.text, gFileCustomObject.id);
 
 		// add to business requests in metadata
 		gMetadataCustomObject.businessRequestEvents.push(metadataEventModel);
@@ -70,7 +70,7 @@ function EventBusinessRequestController(gMetadataModel, gMetadataCustomObject, g
 		gFileCustomObject.correspondingBusinessResponses.clear();
 
 		// create new metadata business request event custom object
-		var metadataEventModel = googleDriveUtils.createMetadataEvent(gFileId, gFileCustomObject.title.text);
+		var metadataEventModel = googleDriveUtils.createMetadataEvent(gFileId, gFileCustomObject.title.text, gFileCustomObject.id);
 
 		// add to business requests in metadata
 		gMetadataCustomObject.nonBusinessRequestEvents.push(metadataEventModel);

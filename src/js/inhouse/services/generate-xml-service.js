@@ -563,9 +563,10 @@ function GenerateXMLService() {
 				
 					var gFileIds = gModel.correspondingBusinessResponses.asArray();
 					var eventNames = googleDriveUtils.getEventNameForGoogleFileIds(gMetadataCustomObject, gFileIds);
+					var typeIds = googleDriveUtils.getEventTypeIdForGoogleFileIds(gMetadataCustomObject, gFileIds);
 
 					for (var i in eventNames){
-						node.Data.BusinessResponses.BusinessResponse.push(eventNames[i]);
+						node.Data.BusinessResponses.BusinessResponse.push(typeIds[i]);
 					}
 				}
 
