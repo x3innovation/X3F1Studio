@@ -184,12 +184,14 @@ function GenerateXMLService() {
 			var spacelessName = replaceAll(name, ' ', '');
 			var description = gModel.description.toString();
 			var typeId = gModel.id;
+			var isBusinessRequest = gModel.isBusinessRequest;
 
 			node.Data = {
 				_name: spacelessName,
 				_typeId: typeId,
 				_identifiable: 'false',
 				_type: dataType,
+				_isBusinessRequest: isBusinessRequest,
 				Annotation: [{
 					_name: 'description',
 					_svalue: description 
