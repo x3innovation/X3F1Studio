@@ -51,6 +51,7 @@ module.exports = {
 		KEY_NEXT_ID : 'nextId',
 		KEY_BUSINESS_REQUEST_EVENTS : 'businessRequestEvents',
 		KEY_NON_BUSINESS_REQUEST_EVENTS : 'nonBusinessRequestEvents',
+		KEY_PROJECT_OBJECT_TITLES: 'projectObjectTitles',
 		BusinessRequestEvent : {
 			KEY_GOOGLE_FILE_ID : 'businessRequestGoogleFileId',
 			KEY_EVENT_OBJECT_TITLE : 'businessRequestEventObjectTitle'

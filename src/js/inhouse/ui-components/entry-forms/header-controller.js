@@ -41,6 +41,15 @@ function HeaderController(objectFileId, objectFileType, gMetadataModel, gMetadat
 				gMetadataCustomObject.nonBusinessRequestEvents.set(i, newEvent);
 			}
 		}
+
+		// update project object titles
+		var fileIds = gMetadataCustomObject.projectObjectTitles.keys();
+		for (var i=0; i<fileIds.length; i++){
+			var fileId = fileIds[i];
+			if (fileId === objectFileId){
+				gMetadataCustomObject.projectObjectTitles.set(fileId, title);
+			}
+		}
 		
 		// change the physical google drive file name to reflect the change
 		googleApiInterface.saveTitle(objectFileId, title);

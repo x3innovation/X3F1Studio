@@ -23,6 +23,7 @@ function GoogleApiInterface()
 		model.prototype.announcement = custom.collaborativeField(Cons.KEY_ANNOUNCEMENT);
 		model.prototype.businessRequestEvents = custom.collaborativeField(Cons.KEY_BUSINESS_REQUEST_EVENTS);
 		model.prototype.nonBusinessRequestEvents = custom.collaborativeField(Cons.KEY_NON_BUSINESS_REQUEST_EVENTS);
+		model.prototype.projectObjectTitles = custom.collaborativeField(Cons.KEY_PROJECT_OBJECT_TITLES);
 		custom.setInitializer(model, model.prototype.initialize);
 	}
 

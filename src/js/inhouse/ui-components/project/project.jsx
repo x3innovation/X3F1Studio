@@ -308,7 +308,7 @@ module.exports = React.createClass({
 		var _this = this;
 		this.createObjectTimeout = setTimeout(function() {
 			var routerParams = _this.getParams();
-			googleDriveUtils.createNewF1Object(fileType, routerParams.projectFolderFileId, function(file) {
+			googleDriveUtils.createNewF1Object(fileType, routerParams.projectFileId, routerParams.projectFolderFileId, function(file) {
 				var params = {
 					projectFolderFileId: routerParams.projectFolderFileId,
 					projectFileId: routerParams.projectFileId,
