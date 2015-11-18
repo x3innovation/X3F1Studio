@@ -26,7 +26,6 @@ module.exports = {
 		FIELD_DOUBLE_MAX_VALUE : '1.79769313486232e307', 
 		FIELD_FLOAT_MIN_VALUE : '-3.402823e38',
 		FIELD_FLOAT_MAX_VALUE : '3.402823e37'
-	}
-
-
+	},
+	GoogleDocCloseInterval: 3000	// in ms
 };

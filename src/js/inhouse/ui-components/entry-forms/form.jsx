@@ -996,6 +996,11 @@ module.exports = React.createClass({
 			}
 			$enumValueSelect.material_select(_this.saveUiToGoogle);
 			_this.updateEnumValueSelectOptions();
+
+			// closing the doc too soon throws an exception from Google
+			setTimeout(function(){
+				doc.close();
+			}, Configs.GoogleDocCloseInterval);
 		});
 	},
 

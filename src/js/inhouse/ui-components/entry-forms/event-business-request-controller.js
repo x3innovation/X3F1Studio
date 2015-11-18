@@ -22,11 +22,6 @@ function EventBusinessRequestController(gMetadataModel, gMetadataCustomObject, g
 		}
 	}
 
-	function cacheGoogleDoc(doc){
-		var driveFileId = doc.__rtinternal.e.f;
-		loadedGoogleDocs[driveFileId] = doc;
-	}
-
 	// //////// public members
 	this.getResponseEligibleEventsTitles = function(callback){
 		var titles = [];

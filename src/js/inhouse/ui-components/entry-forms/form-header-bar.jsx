@@ -26,7 +26,7 @@ module.exports = React.createClass({
 	          NON LIFE CYCLE FUNCTIONS
 	****************************************** */
 
-	initialize: function(doc) {
+	initialize: function() {
 		this.fields = this.controller.getFields();
 		this.controller.addObjectChangedListener(this.updateUi);
 		this.updateUi();

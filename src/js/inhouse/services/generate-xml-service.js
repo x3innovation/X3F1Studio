@@ -1,5 +1,6 @@
 var GDriveConstants = require('../constants/google-drive-constants.js');
 var googleDriveUtils = require('../utils/google-drive-utils.js');
+var Configs = require('../app-config.js');
 
 function GenerateXMLService() {
 
@@ -153,6 +154,11 @@ function GenerateXMLService() {
 			if (enumJsonNode.length === enumCount && typeof callback === 'function') {
 				callback(enumJsonNode);
 			}
+
+			// closing the doc too soon throws an exception from Google
+			setTimeout(function(){
+				doc.close();
+			}, Configs.GoogleDocCloseInterval);
 		};
 
 		if (enumCount === 0 && typeof callback === 'function') {
@@ -460,6 +466,11 @@ function GenerateXMLService() {
 								onFieldsDetailsLoadCallbacks[i]();
 							}
 						}
+
+						// closing the doc too soon throws an exception from Google
+						setTimeout(function(){
+							doc.close();
+						}, Configs.GoogleDocCloseInterval);
 					}
 				}
 			}
@@ -757,7 +768,7 @@ function GenerateXMLService() {
 				// closing the doc too soon throws an exception from Google
 				setTimeout(function(){
 					doc.close();
-				}, 3000);
+				}, Configs.GoogleDocCloseInterval);
 			}
 		};
 
@@ -781,7 +792,7 @@ function GenerateXMLService() {
 				// closing the doc too soon throws an exception from Google
 				setTimeout(function(){
 					doc.close();
-				}, 3000);
+				}, Configs.GoogleDocCloseInterval);
 			}
 
 			function setJsonBusinessRequest(node, gModel){
@@ -816,7 +827,7 @@ function GenerateXMLService() {
 			// closing the doc too soon throws an exception from Google
 			setTimeout(function(){
 				doc.close();
-			}, 3000);
+			}, Configs.GoogleDocCloseInterval);
 		};
 
 		if (dataCount === 0 && typeof callback === 'function') {
