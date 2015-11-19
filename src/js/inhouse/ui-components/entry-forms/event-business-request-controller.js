@@ -3,6 +3,7 @@ function EventBusinessRequestController(gMetadataModel, gMetadataCustomObject, g
 	// //////// private members
 	var googleDriveUtils = require('../../utils/google-drive-utils.js');
 	var GDriveConstants = require('../../constants/google-drive-constants.js');
+	var Configs = require('../../app-config.js');
 
 	var gMetadataModel = gMetadataModel;
 	var gMetadataCustomObject = gMetadataCustomObject;
@@ -20,11 +21,6 @@ function EventBusinessRequestController(gMetadataModel, gMetadataCustomObject, g
 		else{
 			googleDriveUtils.loadDriveFileDoc(fileId, objectType, callback);
 		}
-	}
-
-	function cacheGoogleDoc(doc){
-		var driveFileId = doc.__rtinternal.e.f;
-		loadedGoogleDocs[driveFileId] = doc;
 	}
 
 	// //////// public members
@@ -63,6 +59,38 @@ function EventBusinessRequestController(gMetadataModel, gMetadataCustomObject, g
 				break;
 			}
 		}
+
+		// remove from correspondingBusinessResponses in all other business request events
+		for (var i =0 ; i<gMetadataCustomObject.businessResponseEvents.length; ++i){
+			var eventModel = gMetadataCustomObject.businessResponseEvents.get(i);
+			gapi.drive.realtime.load(eventModel.gFileId, onBusinessRequestDocLoaded, null);
+		}
+
+		function onBusinessRequestDocLoaded(doc){
+			var customObjectKey = GDriveConstants.CustomObjectKey.EVENT;
+			var customObject = doc.getModel().getRoot().get(customObjectKey);
+
+			// find current event and remove from business response
+			var index = customObject.correspondingBusinessResponses.indexOf(gFileId);
+			if (index >= 0){			
+				customObject.correspondingBusinessResponses.remove(index);
+			}
+
+			// closing the doc too soon throws an exception from Google
+			setTimeout(function(){
+				doc.close();
+			}, Configs.GoogleDocCloseInterval);
+		}
+
+		// reset business response for counter in metadata
+		for (var i =0 ; i<gMetadataCustomObject.businessResponseEvents.length; ++i){
+			var eventModel = gMetadataCustomObject.businessResponseEvents.get(i);
+			if (eventModel.gFileId === gFileId)
+			{
+				eventModel.responseForCounter = 0;
+				break;
+			}
+		}
 	}
 
 	this.setAsNonBusinessRequest = function(){
@@ -92,12 +120,43 @@ function EventBusinessRequestController(gMetadataModel, gMetadataCustomObject, g
 		if (index < 0){			
 			gFileCustomObject.correspondingBusinessResponses.push(gFileId);
 		}
+
+		// increment business response for counter in metadata
+		for (var i =0 ; i<gMetadataCustomObject.businessResponseEvents.length; ++i){
+			var eventModel = gMetadataCustomObject.businessResponseEvents.get(i);
+			if (eventModel.gFileId === gFileId)
+			{
+				var metadataEventModel = {};
+				metadataEventModel.gFileId = eventModel.gFileId;
+				metadataEventModel.eventObjectTitle = eventModel.eventObjectTitle;
+				metadataEventModel.responseForCounter = eventModel.responseForCounter + 1;
+				gMetadataCustomObject.businessResponseEvents.set(i, metadataEventModel);
+				break;
+			}
+		}
 	}
 
 	this.removeBusinessResponse = function(eventName){
 		var gFileId = googleDriveUtils.getGoogleFileIdForEventName(gMetadataCustomObject, eventName);
 		var index = gFileCustomObject.correspondingBusinessResponses.indexOf(gFileId);
 		gFileCustomObject.correspondingBusinessResponses.remove(index);
+
+		// decrement business response for counter in metadata
+		for (var i =0 ; i<gMetadataCustomObject.businessResponseEvents.length; ++i){
+			var eventModel = gMetadataCustomObject.businessResponseEvents.get(i);
+			if (eventModel.gFileId === gFileId)
+			{
+				var metadataEventModel = {};
+				metadataEventModel.gFileId = eventModel.gFileId;
+				metadataEventModel.eventObjectTitle = eventModel.eventObjectTitle;
+				metadataEventModel.responseForCounter = eventModel.responseForCounter - 1;
+				if (metadataEventModel.responseForCounter < 0){
+					metadataEventModel.responseForCounter = 0;
+				}
+				gMetadataCustomObject.businessResponseEvents.set(i, metadataEventModel);
+				break;
+			}
+		}
 	}
 
 	this.getBusinessResponses = function(){

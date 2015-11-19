@@ -51,10 +51,8 @@ module.exports = {
 		KEY_NEXT_ID : 'nextId',
 		KEY_BUSINESS_REQUEST_EVENTS : 'businessRequestEvents',
 		KEY_NON_BUSINESS_REQUEST_EVENTS : 'nonBusinessRequestEvents',
-		BusinessRequestEvent : {
-			KEY_GOOGLE_FILE_ID : 'businessRequestGoogleFileId',
-			KEY_EVENT_OBJECT_TITLE : 'businessRequestEventObjectTitle'
-		}
+		KEY_PROJECT_OBJECT_TITLES: 'projectObjectTitles',
+		KEY_BUSINESS_RESPONSE_EVENTS : 'businessResponseEvents'
 	},
 
 	PersistentData : {

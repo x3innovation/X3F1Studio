@@ -1,5 +1,6 @@
 var GDriveConstants = require('../constants/google-drive-constants.js');
 var googleDriveUtils = require('../utils/google-drive-utils.js');
+var Configs = require('../app-config.js');
 
 function GenerateXMLService() {
 
@@ -153,6 +154,11 @@ function GenerateXMLService() {
 			if (enumJsonNode.length === enumCount && typeof callback === 'function') {
 				callback(enumJsonNode);
 			}
+
+			// closing the doc too soon throws an exception from Google
+			setTimeout(function(){
+				doc.close();
+			}, Configs.GoogleDocCloseInterval);
 		};
 
 		if (enumCount === 0 && typeof callback === 'function') {
@@ -177,6 +183,8 @@ function GenerateXMLService() {
 			RejectedRemovePersistenceEvent: [],
 		};
 		var dataCount = datas.length;
+		var fieldsDetails = {};
+		var onFieldsDetailsLoadCallbacks = [];
 
 		var createDataNode = function(gModel, dataType) {
 			var node = {};
@@ -198,9 +206,28 @@ function GenerateXMLService() {
 					}, { 
 					_name: 'type',
 					_svalue: dataType 
-				}],
-
+				}]
 			};
+
+			// if this is business request
+			for (var i=0; i<gMetadataCustomObject.businessRequestEvents.length; i++){
+				var metadataEventModel = gMetadataCustomObject.businessRequestEvents.get(i);
+				if (metadataEventModel.eventObjectTitle === gModel.title.toString()){
+					node.Data._businessRequest = true;
+					break;
+				}
+			}
+
+			// if this is business response
+			for (var i=0; i<gMetadataCustomObject.businessResponseEvents.length; i++){
+				var metadataEventModel = gMetadataCustomObject.businessResponseEvents.get(i);
+				if (metadataEventModel.eventObjectTitle === gModel.title.toString() &&
+					metadataEventModel.responseForCounter > 0){
+					node.Data._businessResponse = true;
+					break;
+				}
+			}
+
 			if (dataType === 'persisted') {
 				node.Data._identifiable = 'true';
 				node.Data._stateChecked = 'false';
@@ -262,7 +289,7 @@ function GenerateXMLService() {
 			return node;
 		};
 
-		var setJsonQueries = function(node, gModel) {
+		var setJsonQueries = function(node, gModel, objectType, onJsonQueriesSet) {
 			var gQueries = gModel.queries;
 			if (gQueries.length) { node.Data.Query = []; }		
 
@@ -273,38 +300,272 @@ function GenerateXMLService() {
 				refType = 'embedded';
 			}
 
+			// load all fieldsDetails for eligibleFields' project objects
+			// first find out all eligible fields for each token and which project object they are located in
+			var gQuery;
+			var queryBodies = [];
 			for (var i = 0, len = gQueries.length; i<len; i++) {
-				var gQuery = gQueries.get(i);
-				var title = replaceAll(gModel.title.toString(), ' ', '');
-				var queryName = replaceAll(gQuery.name, ' ', '');
-				queryBody = gQuery.description;
-				var query = {
-					_name: queryName,
-					_query: queryBody,
-					Parameter: [],
-					QueryRequestEvent: {
-						_name: queryName+'Request',
-						_typeId: gQuery.requestId,
-						Value: []
-					}
-				};
-				if (gQuery.isBusinessRequest != null){
-					query._businessRequest = gQuery.isBusinessRequest
-				}
-				node.Data.Query.push(query);
-				node.Data.Query[i].QueryResponseEvent = {
-					_name: queryName+'Response',
-					_typeId: gQuery.responseId
-				};
-				node.Data.Query[i].QueryResponseEvent.Value = [{
-					_name: 'ResponseData',
-					_type: 'ref',
-					_refType: refType,
-					_ref: title,
-					_optional: 'false'
-				}];
+				gQuery = gQueries.get(i);
+				queryBodies.push(gQuery.description);
 			}
-			return node;
+
+			// find out all eligible fields for all tokens in all query bodies
+			var queriesTokenEligibleFields = {};
+			eligibleFieldsForTokenizedQueryBodies(queryBodies);
+
+			onFieldsDetailsLoadCallbacks.push(onAllFieldsDetailsLoaded);
+			loadFieldsDetails();
+
+			// inner functions
+			function onAllFieldsDetailsLoaded(){
+				for (var i = 0, len = gQueries.length; i<len; i++) {
+					var gQuery = gQueries.get(i);
+					var title = replaceAll(gModel.title.toString(), ' ', '');
+					var queryName = replaceAll(gQuery.name, ' ', '');
+					queryBody = gQuery.description;
+					var query = {
+						_name: queryName,
+						_query: queryBody,
+						Parameter: null,
+						QueryRequestEvent: {
+							_name: queryName+'Request',
+							_typeId: gQuery.requestId,
+						}
+					};
+					var parameter = getParameters(queryBody);
+					if (parameter.length > 0){
+						query.Parameter = parameter;
+					}
+					else{
+						delete query.Parameter;
+					}
+
+					if (gQuery.isBusinessRequest != null){
+						query._businessRequest = gQuery.isBusinessRequest
+					}
+
+					node.Data.Query.push(query);
+					node.Data.Query[i].QueryResponseEvent = {
+						_name: queryName+'Response',
+						_typeId: gQuery.responseId
+					};
+				}
+
+				onJsonQueriesSet(node);
+			}
+
+			function eligibleFieldsForTokenizedQueryBodies(queryBodies){
+				for (var i in queryBodies){
+					var parameterTokens = getParameterTokens(queryBodies[i]);
+					var tokenEligibleFields = {};
+					for (var parameterToken in parameterTokens){
+						var eligibleFields = getEligibleFieldsForToken(queryBodies[i], parameterToken);
+						tokenEligibleFields[parameterToken] = eligibleFields;
+					}
+					if (Object.keys(tokenEligibleFields).length > 0){
+						queriesTokenEligibleFields[queryBodies[i]] = tokenEligibleFields;
+					}
+				}
+
+				// inner functions
+				function getParameterTokens(queryBody){
+					var parameterOpeningBracketFound = false;
+					var parameterName = "";
+					var parameters = {};
+					for (var i=0; i<queryBody.length; i++){
+						if (queryBody[i] === '['){
+							parameterOpeningBracketFound = true;
+							parameterName = "";
+						}
+						else if (queryBody[i] === ']'){
+							// invalid case
+							if (!parameterOpeningBracketFound){
+								console.log('Query format is invalid: ' + queryBody);
+								break;
+							}
+
+							// valid case
+							else if (parameterOpeningBracketFound){
+								parameterOpeningBracketFound = false;
+								parameters[parameterName] = {};
+							}
+						}
+						// if we are between parameter brackets [ and ]
+						else if (parameterOpeningBracketFound){
+							parameterName += queryBody[i];
+						}
+					}
+					
+					return parameters;
+				}
+
+				function getEligibleFieldsForToken(queryBody, parameterToken){
+					var tokenString = '[' + parameterToken + ']';
+					var eligibleFields = {};
+					traverseBackUntilTitleFound(queryBody, tokenString);
+					return eligibleFields;
+
+					function traverseBackUntilTitleFound(searchFromString, tokenString){
+						var firstOccurrenceIndex = searchFromString.indexOf(tokenString);
+						var isPeriodSpotted = false;
+						for (var i=firstOccurrenceIndex-1; i>=0; i--){
+							if (!isPeriodSpotted && searchFromString[i] === '.'){
+								isPeriodSpotted = true;
+							}
+							else if (isPeriodSpotted && searchFromString[i] === ' '){
+								// interested projectObject.fieldName has reached
+								var substringFromSpace = searchFromString.substring(i+1);
+								var endOfFieldSpaceIndex = substringFromSpace.indexOf(' ');
+								var projectObjectAndFieldName = substringFromSpace.substring(0, endOfFieldSpaceIndex);	// projectObject.fieldName
+								var projectObjectAndFieldNameTokenized = projectObjectAndFieldName.split('.');
+								var projectObjectTitle = projectObjectAndFieldNameTokenized[0];
+								var fieldName = projectObjectAndFieldNameTokenized[1];
+								if (eligibleFields[projectObjectTitle]){
+									if (eligibleFields[projectObjectTitle].indexOf(fieldName) < 0){
+										eligibleFields[projectObjectTitle].push(fieldName);
+									}
+								}
+								else{
+									eligibleFields[projectObjectTitle] = [];
+									eligibleFields[projectObjectTitle].push(fieldName);
+								}
+								var nextSearchFromString = searchFromString.substring(firstOccurrenceIndex + tokenString.length);
+								traverseBackUntilTitleFound(nextSearchFromString, tokenString);
+								break;
+							}							
+						}
+					}
+				}
+			}
+
+			function loadFieldsDetails(){
+				var loadProjectObjectCounter = 0;
+
+				for (var queryBody in queriesTokenEligibleFields){
+					var tokenEligibleFields = queriesTokenEligibleFields[queryBody];
+					for (var token in tokenEligibleFields){
+						for (var projectObjectTitle in tokenEligibleFields[token]){
+							if (!fieldsDetails[projectObjectTitle]){
+								fieldsDetails[projectObjectTitle] = {};
+								loadProjectObjectForFieldsDetails(projectObjectTitle, onAllFieldsDetailsLoaded);
+							}
+						}
+					}
+				}
+
+				// inner functions
+				function loadProjectObjectForFieldsDetails(projectObjectTitle, onAllFieldsDetailsLoaded){
+					var fileIds = gMetadataCustomObject.projectObjectTitles.keys();
+					for (var i=0; i<fileIds.length; i++){
+						var fileId = fileIds[i];
+						if (gMetadataCustomObject.projectObjectTitles.get(fileId) === projectObjectTitle){
+							break;
+						}
+					}
+
+					var executionContext = {
+						projectObjectTitle: projectObjectTitle
+					};
+					googleDriveUtils.loadDriveFileDoc(fileId, objectType, onObjectFileLoaded.bind(executionContext));
+
+					function onObjectFileLoaded(doc){
+						var projectObjectTitle = this.projectObjectTitle;
+						var gCustomObject = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.PERSISTENT_DATA);
+						var loadedObjectFields = gCustomObject.fields;
+						for (var i=0; i<loadedObjectFields.length; i++){
+							var loadedObjectField = loadedObjectFields.get(i);
+							var fieldName = loadedObjectField.get('name').text;
+							fieldsDetails[projectObjectTitle][fieldName] = {};
+							fieldsDetails[projectObjectTitle][fieldName].type = loadedObjectField.get('type');
+							fieldsDetails[projectObjectTitle][fieldName].maxLength = parseInt(loadedObjectField.get('maxStrLen').text);
+						}
+
+						// check if all fieldsDetails are loaded and execute all callbacks waiting
+						var areAllFieldsDetailsLoaded = true;
+						for (var projectObjectTitle in fieldsDetails){
+							if (Object.keys(fieldsDetails[projectObjectTitle]).length === 0){
+								areAllFieldsDetailsLoaded = false;
+							}
+						}
+
+						if (areAllFieldsDetailsLoaded){
+							for (var i in onFieldsDetailsLoadCallbacks){
+								onFieldsDetailsLoadCallbacks[i]();
+							}
+						}
+
+						// closing the doc too soon throws an exception from Google
+						setTimeout(function(){
+							doc.close();
+						}, Configs.GoogleDocCloseInterval);
+					}
+				}
+			}
+
+			function getParameters(queryBody){
+				var parameters = [];
+				var tokenEligibleFields = queriesTokenEligibleFields[queryBody];
+				for (var token in tokenEligibleFields){
+					var attributes = getParameterAttributes(tokenEligibleFields[token], token)
+					parameters.push(attributes);
+				}
+				return parameters;
+				
+				// innder functions
+				function getParameterAttributes(eligibleFields, parameterToken){
+					var attributes = {};
+					var fieldType = null;
+					var maxLength = 0;
+					
+					// update fieldType and maxLength variables
+					for (var projectObjectTitle in eligibleFields){
+						for (var i in eligibleFields[projectObjectTitle]){
+							var eligibleFieldName = eligibleFields[projectObjectTitle][i];
+							updateDetailsFromFieldsDetails(projectObjectTitle, eligibleFieldName);
+						}
+					}
+
+					attributes._name = parameterToken;
+
+					if (fieldType === 'ref'){
+						attributes._type = 'uuid';
+					}
+					else{
+						attributes._type = fieldType;
+					}
+
+					if (maxLength > 0){
+						attributes._length = maxLength;
+					}
+					attributes._optional = 'false';
+					attributes.Annotation = {};
+					attributes.Annotation._name = 'description';
+					attributes.Annotation._svalue = fieldType + ' value';
+					return attributes;
+
+					// inner functions
+					function updateDetailsFromFieldsDetails(projectObjectTitle, eligibleFieldName){
+						if (fieldsDetails[projectObjectTitle][eligibleFieldName]){
+							var fieldDetails = fieldsDetails[projectObjectTitle][eligibleFieldName];
+							if (fieldType === null && fieldType != fieldDetails.type){
+								fieldType = fieldDetails.type.toLowerCase();
+								if (fieldType === 'string' && maxLength < fieldDetails.maxLength){
+									maxLength = fieldDetails.maxLength;
+								}
+							}
+							else if (fieldType !== null && fieldType != fieldDetails.type){
+								console.log('ERROR: Field type is not consistent in the query');
+							}
+						}
+						else if (eligibleFieldName.toLowerCase() === 'uuid'){
+							fieldType = 'uuid';
+						}
+						else{
+							console.log('ERROR: Invalid field name used in the query');
+						}
+					}
+				}				
+			}
 		};
 
 		var setJsonFields = function(node, gModel) {
@@ -520,27 +781,29 @@ function GenerateXMLService() {
 			var node = createDataNode(gModel, dataType);
 			node = setJsonFields(node, gModel);
 			node = setJsonEvents(node, gModel);
-			node = setJsonQueries(node, gModel);
+			setJsonQueries(node, gModel, GDriveConstants.ObjectType.PERSISTENT_DATA, onJsonQueriesSet);
 
-			dataJsonNode.Data.push(node.Data);
-			dataJsonNode.UpdatePersistenceEvent.push(node.UpdatePersistenceEvent);
-			dataJsonNode.CreatePersistenceEvent.push(node.CreatePersistenceEvent);
-			dataJsonNode.RemovePersistenceEvent.push(node.RemovePersistenceEvent);
-			dataJsonNode.UpdatedPersistenceEvent.push(node.UpdatedPersistenceEvent);
-			dataJsonNode.CreatedPersistenceEvent.push(node.CreatedPersistenceEvent);
-			dataJsonNode.RemovedPersistenceEvent.push(node.RemovedPersistenceEvent);
-			dataJsonNode.RejectedUpdatePersistenceEvent.push(node.RejectedUpdatePersistenceEvent);
-			dataJsonNode.RejectedCreatePersistenceEvent.push(node.RejectedCreatePersistenceEvent);
-			dataJsonNode.RejectedRemovePersistenceEvent.push(node.RejectedRemovePersistenceEvent);
+			function onJsonQueriesSet(node){
+				dataJsonNode.Data.push(node.Data);
+				dataJsonNode.UpdatePersistenceEvent.push(node.UpdatePersistenceEvent);
+				dataJsonNode.CreatePersistenceEvent.push(node.CreatePersistenceEvent);
+				dataJsonNode.RemovePersistenceEvent.push(node.RemovePersistenceEvent);
+				dataJsonNode.UpdatedPersistenceEvent.push(node.UpdatedPersistenceEvent);
+				dataJsonNode.CreatedPersistenceEvent.push(node.CreatedPersistenceEvent);
+				dataJsonNode.RemovedPersistenceEvent.push(node.RemovedPersistenceEvent);
+				dataJsonNode.RejectedUpdatePersistenceEvent.push(node.RejectedUpdatePersistenceEvent);
+				dataJsonNode.RejectedCreatePersistenceEvent.push(node.RejectedCreatePersistenceEvent);
+				dataJsonNode.RejectedRemovePersistenceEvent.push(node.RejectedRemovePersistenceEvent);
 
-			if (dataJsonNode.Data.length === dataCount && typeof callback === 'function') {
-				callback(dataJsonNode);
+				if (dataJsonNode.Data.length === dataCount && typeof callback === 'function') {
+					callback(dataJsonNode);
+				}
+
+				// closing the doc too soon throws an exception from Google
+				setTimeout(function(){
+					doc.close();
+				}, Configs.GoogleDocCloseInterval);
 			}
-
-			// closing the doc too soon throws an exception from Google
-			setTimeout(function(){
-				doc.close();
-			}, 3000);
 		};
 
 		var onEventLoad = function(doc) {
@@ -548,16 +811,24 @@ function GenerateXMLService() {
 			var gModel = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.EVENT);
 			var node = createDataNode(gModel, dataType);
 			node = setJsonFields(node, gModel);
-			node = setJsonQueries(node, gModel);
-			node = setJsonBusinessRequest(node, gModel);
-
-			dataJsonNode.Data.push(node.Data);
-
-			if (dataJsonNode.Data.length === dataCount && typeof callback === 'function') {
-				callback(dataJsonNode);
-			}
+			setJsonQueries(node, gModel, GDriveConstants.ObjectType.EVENT, onJsonQueriesSet);
+			
 
 			// inner function for event
+			function onJsonQueriesSet(node){
+				node = setJsonBusinessRequest(node, gModel);
+				dataJsonNode.Data.push(node.Data);
+
+				if (dataJsonNode.Data.length === dataCount && typeof callback === 'function') {
+					callback(dataJsonNode);
+				}
+
+				// closing the doc too soon throws an exception from Google
+				setTimeout(function(){
+					doc.close();
+				}, Configs.GoogleDocCloseInterval);
+			}
+
 			function setJsonBusinessRequest(node, gModel){
 				if (gModel.isBusinessRequest){
 					node.Data.BusinessResponses = {};
@@ -574,11 +845,6 @@ function GenerateXMLService() {
 
 				return node;
 			};
-
-			// closing the doc too soon throws an exception from Google
-			setTimeout(function(){
-				doc.close();
-			}, 3000);
 		};
 
 		var onSnippetLoad = function(doc) {
@@ -596,7 +862,7 @@ function GenerateXMLService() {
 			// closing the doc too soon throws an exception from Google
 			setTimeout(function(){
 				doc.close();
-			}, 3000);
+			}, Configs.GoogleDocCloseInterval);
 		};
 
 		if (dataCount === 0 && typeof callback === 'function') {
