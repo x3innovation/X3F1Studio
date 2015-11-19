@@ -192,21 +192,42 @@ function GenerateXMLService() {
 			var spacelessName = replaceAll(name, ' ', '');
 			var description = gModel.description.toString();
 			var typeId = gModel.id;
+			var isBusinessRequest = gModel.isBusinessRequest;
 
 			node.Data = {
 				_name: spacelessName,
 				_typeId: typeId,
 				_identifiable: 'false',
 				_type: dataType,
+				_isBusinessRequest: isBusinessRequest,
 				Annotation: [{
 					_name: 'description',
 					_svalue: description 
 					}, { 
 					_name: 'type',
 					_svalue: dataType 
-				}],
-
+				}]
 			};
+
+			// if this is business request
+			for (var i=0; i<gMetadataCustomObject.businessRequestEvents.length; i++){
+				var metadataEventModel = gMetadataCustomObject.businessRequestEvents.get(i);
+				if (metadataEventModel.eventObjectTitle === gModel.title.toString()){
+					node.Data._businessRequest = true;
+					break;
+				}
+			}
+
+			// if this is business response
+			for (var i=0; i<gMetadataCustomObject.businessResponseEvents.length; i++){
+				var metadataEventModel = gMetadataCustomObject.businessResponseEvents.get(i);
+				if (metadataEventModel.eventObjectTitle === gModel.title.toString() &&
+					metadataEventModel.responseForCounter > 0){
+					node.Data._businessResponse = true;
+					break;
+				}
+			}
+
 			if (dataType === 'persisted') {
 				node.Data._identifiable = 'true';
 				node.Data._stateChecked = 'false';
@@ -305,6 +326,7 @@ function GenerateXMLService() {
 					var query = {
 						_name: queryName,
 						_query: queryBody,
+						Parameter: null,
 						QueryRequestEvent: {
 							_name: queryName+'Request',
 							_typeId: gQuery.requestId,
@@ -314,9 +336,14 @@ function GenerateXMLService() {
 					if (parameter.length > 0){
 						query.Parameter = parameter;
 					}
+					else{
+						delete query.Parameter;
+					}
+
 					if (gQuery.isBusinessRequest != null){
 						query._businessRequest = gQuery.isBusinessRequest
 					}
+
 					node.Data.Query.push(query);
 					node.Data.Query[i].QueryResponseEvent = {
 						_name: queryName+'Response',
@@ -499,7 +526,14 @@ function GenerateXMLService() {
 					}
 
 					attributes._name = parameterToken;
-					attributes._type = fieldType;
+
+					if (fieldType === 'ref'){
+						attributes._type = 'uuid';
+					}
+					else{
+						attributes._type = fieldType;
+					}
+
 					if (maxLength > 0){
 						attributes._length = maxLength;
 					}
@@ -523,8 +557,8 @@ function GenerateXMLService() {
 								console.log('ERROR: Field type is not consistent in the query');
 							}
 						}
-						else if (eligibleFieldName === 'UUID'){
-							fieldType = 'UUID';
+						else if (eligibleFieldName.toLowerCase() === 'uuid'){
+							fieldType = 'uuid';
 						}
 						else{
 							console.log('ERROR: Invalid field name used in the query');
@@ -802,9 +836,10 @@ function GenerateXMLService() {
 				
 					var gFileIds = gModel.correspondingBusinessResponses.asArray();
 					var eventNames = googleDriveUtils.getEventNameForGoogleFileIds(gMetadataCustomObject, gFileIds);
+					var typeIds = googleDriveUtils.getEventTypeIdForGoogleFileIds(gMetadataCustomObject, gFileIds);
 
 					for (var i in eventNames){
-						node.Data.BusinessResponses.BusinessResponse.push(eventNames[i]);
+						node.Data.BusinessResponses.BusinessResponse.push(typeIds[i]);
 					}
 				}
 

@@ -389,6 +389,7 @@ function GoogleDriveUtils()
 	        metadataCustomObject.version = Configs.App.VERSION;
 	        metadataCustomObject.businessRequestEvents = model.createList();
 	        metadataCustomObject.nonBusinessRequestEvents = model.createList();
+	        metadataCustomObject.businessResponseEvents = model.createList();
 	        model.getRoot().set(GCons.CustomObjectKey.PROJECT_METADATA, metadataCustomObject);
 	    };
 	}
@@ -436,7 +437,7 @@ function GoogleDriveUtils()
 					customObject.correspondingBusinessResponses = docModel.createList();
 					docModel.getRoot().set(customObjectKey, customObject);
 
-					var metadataEventModel = _this.createMetadataEvent(fileId, DefaultValueConstants.NewFileValues.EVENT_TITLE);
+					var metadataEventModel = _this.createMetadataEvent(fileId, DefaultValueConstants.NewFileValues.EVENT_TITLE, customObject.id);
 					metadataCustomObject.nonBusinessRequestEvents.push(metadataEventModel);
 					metadataCustomObject.projectObjectTitles.set(fileId, DefaultValueConstants.NewFileValues.EVENT_TITLE);
 					break;
@@ -510,10 +511,11 @@ function GoogleDriveUtils()
 		}
 	}
 
-	this.createMetadataEvent = function(gFileId, eventTitle){
+	this.createMetadataEvent = function(gFileId, eventTitle, typeId){
 		var metadataEvent = {};
 		metadataEvent.gFileId = gFileId;
 		metadataEvent.eventObjectTitle = eventTitle;
+		metadataEvent.eventTypeId = typeId;
 		return metadataEvent;
 	}
 
@@ -579,6 +581,43 @@ function GoogleDriveUtils()
 			return title;
 		}
 	}
+
+	this.getEventTypeIdForGoogleFileIds = function(gMetadataCustomObject, googleFileIds) {
+		var typeIds = [];
+		for (var i in googleFileIds){
+			var gFileId = googleFileIds[i];
+			var typeId = getTypeIdForGoogleFileId(gFileId);
+			typeIds.push(typeId);
+		}
+
+		return typeIds;
+
+		function getTypeIdForGoogleFileId(gFileId){
+			var eventFound = false;
+			var typeId;
+
+			// find out the google file id for this event name
+			for (var i=0; i<gMetadataCustomObject.businessRequestEvents.length; ++i){
+				var businessRequestEvent = gMetadataCustomObject.businessRequestEvents.get(i);
+				if (businessRequestEvent.gFileId === gFileId){
+					eventFound = true;
+					typeId = businessRequestEvent.eventTypeId;
+					break;
+				}
+			}
+			if (!eventFound){
+				for (var i=0; i<gMetadataCustomObject.nonBusinessRequestEvents.length; ++i){
+					var nonBusinessRequestEvent = gMetadataCustomObject.nonBusinessRequestEvents.get(i);
+					if (nonBusinessRequestEvent.gFileId === gFileId){
+						typeId = nonBusinessRequestEvent.eventTypeId;
+						break;
+					}
+				}
+			}
+
+			return typeId;
+		}
+	}
 }
 
 var googleDriveUtils = new GoogleDriveUtils();
@@ -639,6 +678,12 @@ function LatestVersionConverter(latestVersion)
 					initializeProjectObjectTitles(customObject, projectFolderFileId, onEachInitializationFinished);
 				}
 
+				if (customObject.businessResponseEvents == null){
+					initializationCounter++;
+					customObject.businessResponseEvents = doc.getModel().createList();
+					initializeBusinessResponseEvents(customObject, projectFolderFileId, onEachInitializationFinished);
+				}
+
 				if (initializationCounter === 0 && isLastConversion){
 					callback();
 				}
@@ -693,6 +738,31 @@ function LatestVersionConverter(latestVersion)
 				metadataEventObject.gFileId = eventObject.id;
 				metadataEventObject.eventObjectTitle = eventObject.title;
 				customObject.nonBusinessRequestEvents.push(metadataEventObject);
+			}
+
+			callback();
+		}
+	}
+
+	function initializeBusinessResponseEvents(customObject, projectFolderFileId, callback){
+		var objectsToGet = {
+			persistentData: false,
+			enum: false,
+			snippet: false,
+			event: true,
+			flow: false
+		};
+		googleDriveUtils.getProjectObjects(projectFolderFileId, '', objectsToGet, onEventsLoaded);
+
+		function onEventsLoaded(events){
+			for (var i in events)
+			{
+				var eventObject = events[i];
+				var metadataEventObject = {};
+				metadataEventObject.gFileId = eventObject.id;
+				metadataEventObject.eventObjectTitle = eventObject.title;
+				metadataEventObject.responseForCounter = 0;
+				customObject.businessResponseEvents.push(metadataEventObject);
 			}
 
 			callback();

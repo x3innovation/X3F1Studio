@@ -26,7 +26,7 @@ function HeaderController(objectFileId, objectFileType, gMetadataModel, gMetadat
 				var newEvent = {
 					gFileId: objectFileId,
 					eventObjectTitle: title
-				}
+				};
 				gMetadataCustomObject.businessRequestEvents.set(i, newEvent);
 			}
 		}
@@ -37,8 +37,21 @@ function HeaderController(objectFileId, objectFileType, gMetadataModel, gMetadat
 				var newEvent = {
 					gFileId: objectFileId,
 					eventObjectTitle: title
-				}
+				};
 				gMetadataCustomObject.nonBusinessRequestEvents.set(i, newEvent);
+			}
+		}
+
+		// update event title in metadata businessResponse
+		for (var i=0; i<gMetadataCustomObject.businessResponseEvents.length; ++i){
+			var businessResponseEvent = gMetadataCustomObject.businessResponseEvents.get(i);
+			if (businessResponseEvent.gFileId === objectFileId){
+				var newEvent = {
+					gFileId: objectFileId,
+					eventObjectTitle: title,
+					responseForCounter: businessResponseEvent.responseForCounter
+				};
+				gMetadataCustomObject.businessResponseEvents.set(i, newEvent);
 			}
 		}
 

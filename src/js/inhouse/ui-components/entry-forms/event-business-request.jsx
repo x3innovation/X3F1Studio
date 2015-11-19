@@ -5,6 +5,7 @@ module.exports = React.createClass({
 	****************************************** */
 	componentWillMount: function(){
 		this.controller = this.props.controller;
+		this.isPostInitialization = false;
 	},
 
 	componentDidMount: function(){
@@ -12,6 +13,9 @@ module.exports = React.createClass({
 		if (this.controller.isBusinessRequest())
 		{
 			$('#business-request-checkbox').trigger('click');
+		}
+		else{
+			this.isPostInitialization = true;
 		}
 	},
 
@@ -36,7 +40,9 @@ module.exports = React.createClass({
 						return false;
 					}
 					else{
-						_this.controller.addBusinessResponse(tagLabel);
+						if (_this.isPostInitialization){
+							_this.controller.addBusinessResponse(tagLabel);
+						}
 					}
 				},
 				beforeTagRemoved: function(event, ui){
@@ -61,6 +67,8 @@ module.exports = React.createClass({
 
 			$('.ui-helper-hidden-accessible').remove();
 		}
+
+		_this.isPostInitialization = true;
 	},
 
 	componentWillUnmount: function(){
@@ -73,7 +81,9 @@ module.exports = React.createClass({
 	onCheck: function(e){
 		var _this = this;
 		if (e.currentTarget.checked){
-			_this.controller.setAsBusinessRequest();
+			if (_this.isPostInitialization){
+				_this.controller.setAsBusinessRequest();
+			}
 			_this.controller.getResponseEligibleEventsTitles(onTitlesLoaded);
 
 			function onTitlesLoaded(responseEligibleEventsTitles){
