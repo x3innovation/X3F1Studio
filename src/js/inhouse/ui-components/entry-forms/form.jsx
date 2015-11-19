@@ -3,6 +3,7 @@ var GDriveConstants = require('../../constants/google-drive-constants.js');
 var Configs = require('../../app-config.js');
 var GDriveUtils = require('../../utils/google-drive-utils.js');
 var AnnouncementType = require('../../constants/announcement-type.js');
+var moment = require('moment-timezone');
 
 module.exports = React.createClass({
 	/* ******************************************
@@ -226,7 +227,10 @@ module.exports = React.createClass({
 		getById('array-len-field').value = this.fieldData.get('arrayLen').text;
 
 		getById('field-type-select').value = this.fieldData.get('type');
+		getById('timezone-select').value = this.fieldData.get('timezone');
+
 		getById('enum-value-select').value = this.fieldData.get('enumValue');
+		
 
 		getById('def-date-field').value = this.fieldData.get('defDate').toString();
 		getById('min-date-field').value = this.fieldData.get('minDate').toString();
@@ -253,7 +257,7 @@ module.exports = React.createClass({
 			}
 
 			var getById = document.getElementById.bind(document);
-			this.gFileModel.beginCompoundOperation();
+			this.gFileModel.beginCompoundOperation();			
 
 			var type = getById('field-type-select').value;
 			this.fieldData.set('type', type);
@@ -301,7 +305,8 @@ module.exports = React.createClass({
 			this.fieldData.get('minDate').setText(getById('min-date-field').value);
 			this.fieldData.get('maxDate').setText(getById('max-date-field').value);
 			this.fieldData.get('defDate').setText(getById('def-date-field').value);
-
+			
+			this.fieldData.set('timezone', getById('timezone-select').value);
 			if (!$('#array-len-wrapper').hasClass('hide')){
 				this.fieldData.get('arrayLen').setText(getById('array-len-field').value);
 			}
@@ -767,6 +772,24 @@ module.exports = React.createClass({
 		});
 		this.updateRefNameSelectOptions();
 		this.updateEnumNameSelectOptions();
+		
+		this.appendTimezoneOptions();
+		$('#timezone-select').material_select(function() {
+			_this.onTimeZoneChanged($('#timezone-select').val());
+		});
+	},
+	appendTimezoneOptions: function() {
+		var timezones = moment.tz.names();			
+		$.each(timezones, function (i, item) {
+		    $('#timezone-select').append($('<option>', { 		        
+		        text:  item	+ moment.tz(item).format("  z Z")
+		    }));
+		});		
+	},
+
+	onTimeZoneChanged: function(timezone) {
+		this.fieldData.set('timezone', timezone);
+		this.saveUiToGoogle();
 	},
 
 	onFieldTypeChanged: function(newFieldType) {
@@ -1171,15 +1194,23 @@ module.exports = React.createClass({
 							<input type='hidden' id='max-datetime-date' />
 							<input type='hidden' id='max-datetime-time' />
 						</div>
+						<div id='timezone-dropdown' className='input-field col s4  type-specific-field date-specific-field datetime-specific-field time-specific-field'>
+							<select id='timezone-select' className='timezone-selector form-select' >														
+								<option value='default' disabled>loading timezones...</option>							
+							</select>
+							
+							<label htmlFor='timezone-select' >Timezone</label>
+						</div>
 					</div>
-
+					
+						
+				
 					<div id='array-len-wrapper' className='input-field col type-specific-field s4 right'>
 						<input type='text' id='array-len-field' className='labelled-input validated-input number-input integer-input' 
 							   onInput={inputHandler} onChange={this.saveUiToGoogle} required />
 						<label htmlFor='array-len-field' className='error-tooltipped'>array length *</label>
 					</div>
-				</div>
-
+				</div>				
 				<div className='row'>
 					<div className='col s12'>
 						<br />

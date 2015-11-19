@@ -321,6 +321,7 @@ function GoogleDriveUtils()
         gField.set('maxDateTimeTime', gModel.createString(DefaultFields.FIELD_MAX_DATETIME_TIME_VALUE));
         gField.set('defDateTimeDate', gModel.createString(DefaultFields.FIELD_DEF_DATETIME_DATE_VALUE));
         gField.set('defDateTimeTime', gModel.createString(DefaultFields.FIELD_DEF_DATETIME_TIME_VALUE));
+        gField.set('timezone',  gModel.createString(DefaultFields.FIELD_DEF_TIMEZONE));
 		gField.set('minDate', gModel.createString(DefaultFields.FIELD_MIN_DATE_VALUE));
 		gField.set('maxDate', gModel.createString(DefaultFields.FIELD_MAX_DATE_VALUE));
         gField.set('minTime', gModel.createString(DefaultFields.FIELD_MIN_TIME_VALUE));
@@ -341,7 +342,8 @@ function GoogleDriveUtils()
 		fieldData.set('enumName', DefaultFields.FIELD_ENUM_NAME);
 		fieldData.set('enumValue', DefaultFields.FIELD_ENUM_VALUE);
 		fieldData.set('defValueBool', DefaultFields.FIELD_DEF_BOOL_VALUE);
-
+		
+		fieldData.set('timezone', DefaultFields.FIELD_DEF_TIMEZONE);
 		fieldData.get('defValue').setText(DefaultFields.FIELD_DEF_VALUE);
 		fieldData.get('minValue').setText(DefaultFields.FIELD_MIN_VALUE);
 		fieldData.get('maxValue').setText(DefaultFields.FIELD_MAX_VALUE);
