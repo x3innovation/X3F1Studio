@@ -582,36 +582,24 @@ function GoogleDriveUtils()
 		}
 	}
 
-	this.getEventTypeIdForGoogleFileIds = function(gMetadataCustomObject, googleFileIds) {
+	this.getEventTypeIdForBusinessResponseGoogleFileIds = function(gMetadataCustomObject, googleFileIds) {
 		var typeIds = [];
 		for (var i in googleFileIds){
 			var gFileId = googleFileIds[i];
-			var typeId = getTypeIdForGoogleFileId(gFileId);
+			var typeId = getEventTypeIdForBusinessResponseGoogleFileId(gFileId);
 			typeIds.push(typeId);
 		}
 
 		return typeIds;
 
-		function getTypeIdForGoogleFileId(gFileId){
-			var eventFound = false;
+		function getEventTypeIdForBusinessResponseGoogleFileId(gFileId){
 			var typeId;
 
-			// find out the google file id for this event name
-			for (var i=0; i<gMetadataCustomObject.businessRequestEvents.length; ++i){
-				var businessRequestEvent = gMetadataCustomObject.businessRequestEvents.get(i);
-				if (businessRequestEvent.gFileId === gFileId){
-					eventFound = true;
-					typeId = businessRequestEvent.eventTypeId;
-					break;
-				}
-			}
-			if (!eventFound){
-				for (var i=0; i<gMetadataCustomObject.nonBusinessRequestEvents.length; ++i){
-					var nonBusinessRequestEvent = gMetadataCustomObject.nonBusinessRequestEvents.get(i);
-					if (nonBusinessRequestEvent.gFileId === gFileId){
-						typeId = nonBusinessRequestEvent.eventTypeId;
-						break;
-					}
+			// find out the google file id for the business response google file id
+			for (var i=0; i<gMetadataCustomObject.businessResponseEvents.length; ++i){
+				var businessResponseEvent = gMetadataCustomObject.businessResponseEvents.get(i);
+				if (businessResponseEvent.gFileId === gFileId){
+					typeId = businessResponseEvent.eventTypeId;
 				}
 			}
 

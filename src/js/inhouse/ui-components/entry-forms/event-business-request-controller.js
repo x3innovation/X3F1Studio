@@ -87,7 +87,9 @@ function EventBusinessRequestController(gMetadataModel, gMetadataCustomObject, g
 			var eventModel = gMetadataCustomObject.businessResponseEvents.get(i);
 			if (eventModel.gFileId === gFileId)
 			{
-				eventModel.responseForCounter = 0;
+				var metadataEventModel = googleDriveUtils.createMetadataEvent(gFileId, eventModel.eventObjectTitle, gFileCustomObject.id);
+				metadataEventModel.responseForCounter = 0;
+				gMetadataCustomObject.businessResponseEvents.set(i, metadataEventModel);
 				break;
 			}
 		}
@@ -126,13 +128,22 @@ function EventBusinessRequestController(gMetadataModel, gMetadataCustomObject, g
 			var eventModel = gMetadataCustomObject.businessResponseEvents.get(i);
 			if (eventModel.gFileId === gFileId)
 			{
-				var metadataEventModel = {};
-				metadataEventModel.gFileId = eventModel.gFileId;
-				metadataEventModel.eventObjectTitle = eventModel.eventObjectTitle;
-				metadataEventModel.responseForCounter = eventModel.responseForCounter + 1;
-				gMetadataCustomObject.businessResponseEvents.set(i, metadataEventModel);
+				gapi.drive.realtime.load(gFileId, onBusinessResponseDocLoaded, null);
 				break;
 			}
+		}
+
+		function onBusinessResponseDocLoaded(doc){
+			var customObjectKey = GDriveConstants.CustomObjectKey.EVENT;
+			var customObject = doc.getModel().getRoot().get(customObjectKey);
+			var metadataEventModel = googleDriveUtils.createMetadataEvent(gFileId, eventModel.eventObjectTitle, customObject.id);
+			metadataEventModel.responseForCounter = eventModel.responseForCounter + 1;
+			gMetadataCustomObject.businessResponseEvents.set(i, metadataEventModel);
+
+			// closing the doc too soon throws an exception from Google
+			setTimeout(function(){
+				doc.close();
+			}, Configs.GoogleDocCloseInterval);
 		}
 	}
 
@@ -146,9 +157,7 @@ function EventBusinessRequestController(gMetadataModel, gMetadataCustomObject, g
 			var eventModel = gMetadataCustomObject.businessResponseEvents.get(i);
 			if (eventModel.gFileId === gFileId)
 			{
-				var metadataEventModel = {};
-				metadataEventModel.gFileId = eventModel.gFileId;
-				metadataEventModel.eventObjectTitle = eventModel.eventObjectTitle;
+				var metadataEventModel = googleDriveUtils.createMetadataEvent(gFileId, eventModel.eventObjectTitle, eventModel.eventTypeId);
 				metadataEventModel.responseForCounter = eventModel.responseForCounter - 1;
 				if (metadataEventModel.responseForCounter < 0){
 					metadataEventModel.responseForCounter = 0;

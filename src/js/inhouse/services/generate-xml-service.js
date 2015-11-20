@@ -199,7 +199,6 @@ function GenerateXMLService() {
 				_typeId: typeId,
 				_identifiable: 'false',
 				_type: dataType,
-				_isBusinessRequest: isBusinessRequest,
 				Annotation: [{
 					_name: 'description',
 					_svalue: description 
@@ -210,12 +209,8 @@ function GenerateXMLService() {
 			};
 
 			// if this is business request
-			for (var i=0; i<gMetadataCustomObject.businessRequestEvents.length; i++){
-				var metadataEventModel = gMetadataCustomObject.businessRequestEvents.get(i);
-				if (metadataEventModel.eventObjectTitle === gModel.title.toString()){
-					node.Data._businessRequest = true;
-					break;
-				}
+			if (isBusinessRequest){
+				node.Data._businessRequest = true;
 			}
 
 			// if this is business response
@@ -811,8 +806,7 @@ function GenerateXMLService() {
 			var gModel = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.EVENT);
 			var node = createDataNode(gModel, dataType);
 			node = setJsonFields(node, gModel);
-			setJsonQueries(node, gModel, GDriveConstants.ObjectType.EVENT, onJsonQueriesSet);
-			
+			onJsonQueriesSet(node);
 
 			// inner function for event
 			function onJsonQueriesSet(node){
@@ -836,7 +830,7 @@ function GenerateXMLService() {
 				
 					var gFileIds = gModel.correspondingBusinessResponses.asArray();
 					var eventNames = googleDriveUtils.getEventNameForGoogleFileIds(gMetadataCustomObject, gFileIds);
-					var typeIds = googleDriveUtils.getEventTypeIdForGoogleFileIds(gMetadataCustomObject, gFileIds);
+					var typeIds = googleDriveUtils.getEventTypeIdForBusinessResponseGoogleFileIds(gMetadataCustomObject, gFileIds);
 
 					for (var i in eventNames){
 						node.Data.BusinessResponses.BusinessResponse.push(typeIds[i]);
