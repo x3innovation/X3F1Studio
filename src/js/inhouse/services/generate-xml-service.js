@@ -92,6 +92,7 @@ function GenerateXMLService() {
 				applicationJson.RejectedUpdatePersistenceEvent = dataJsonNode.RejectedUpdatePersistenceEvent;
 				applicationJson.RejectedCreatePersistenceEvent = dataJsonNode.RejectedCreatePersistenceEvent;
 				applicationJson.RejectedRemovePersistenceEvent = dataJsonNode.RejectedRemovePersistenceEvent;
+
 				callback(convertToXml(jsonRootObj));
 			});
 		});
@@ -183,7 +184,10 @@ function GenerateXMLService() {
 			RejectedRemovePersistenceEvent: [],
 		};
 		var dataCount = datas.length;
+
 		var fieldsDetails = {};
+        var fieldsDetailsProjectObjectToLoadCounter = 0;
+        var fieldsDetailsProjectObjectLoadedCounter = 0;
 		var onFieldsDetailsLoadCallbacks = [];
 
 		var createDataNode = function(gModel, dataType) {
@@ -227,6 +231,7 @@ function GenerateXMLService() {
 				node.Data._identifiable = 'true';
 				node.Data._stateChecked = 'false';
 			}
+
 			return node;
 		};
 
@@ -309,7 +314,12 @@ function GenerateXMLService() {
 			eligibleFieldsForTokenizedQueryBodies(queryBodies);
 
 			onFieldsDetailsLoadCallbacks.push(onAllFieldsDetailsLoaded);
-			loadFieldsDetails();
+            if (Object.keys(queriesTokenEligibleFields).length > 0){
+                loadFieldsDetails();
+            }
+            else{
+                onAllFieldsDetailsLoaded();
+            }
 
 			// inner functions
 			function onAllFieldsDetailsLoaded(){
@@ -345,7 +355,6 @@ function GenerateXMLService() {
 						_typeId: gQuery.responseId
 					};
 				}
-
 				onJsonQueriesSet(node);
 			}
 
@@ -434,22 +443,21 @@ function GenerateXMLService() {
 			}
 
 			function loadFieldsDetails(){
-				var loadProjectObjectCounter = 0;
-
 				for (var queryBody in queriesTokenEligibleFields){
 					var tokenEligibleFields = queriesTokenEligibleFields[queryBody];
 					for (var token in tokenEligibleFields){
 						for (var projectObjectTitle in tokenEligibleFields[token]){
 							if (!fieldsDetails[projectObjectTitle]){
 								fieldsDetails[projectObjectTitle] = {};
-								loadProjectObjectForFieldsDetails(projectObjectTitle, onAllFieldsDetailsLoaded);
+                                fieldsDetailsProjectObjectToLoadCounter++;
+								loadProjectObjectForFieldsDetails(projectObjectTitle);
 							}
 						}
 					}
 				}
 
 				// inner functions
-				function loadProjectObjectForFieldsDetails(projectObjectTitle, onAllFieldsDetailsLoaded){
+				function loadProjectObjectForFieldsDetails(projectObjectTitle){
 					var fileIds = gMetadataCustomObject.projectObjectTitles.keys();
 					for (var i=0; i<fileIds.length; i++){
 						var fileId = fileIds[i];
@@ -464,26 +472,38 @@ function GenerateXMLService() {
 					googleDriveUtils.loadDriveFileDoc(fileId, objectType, onObjectFileLoaded.bind(executionContext));
 
 					function onObjectFileLoaded(doc){
+                        fieldsDetailsProjectObjectLoadedCounter++;
 						var projectObjectTitle = this.projectObjectTitle;
 						var gCustomObject = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.PERSISTENT_DATA);
 						var loadedObjectFields = gCustomObject.fields;
+
 						for (var i=0; i<loadedObjectFields.length; i++){
 							var loadedObjectField = loadedObjectFields.get(i);
 							var fieldName = loadedObjectField.get('name').text;
 							fieldsDetails[projectObjectTitle][fieldName] = {};
 							fieldsDetails[projectObjectTitle][fieldName].type = loadedObjectField.get('type');
-							fieldsDetails[projectObjectTitle][fieldName].maxLength = parseInt(loadedObjectField.get('maxStrLen').text);
+                            fieldsDetails[projectObjectTitle][fieldName].minStrLen = loadedObjectField.get('minStrLen');
+                            fieldsDetails[projectObjectTitle][fieldName].maxStrLen = loadedObjectField.get('maxStrLen');
+                            fieldsDetails[projectObjectTitle][fieldName].minValue = loadedObjectField.get('minValue').text || '';
+                            fieldsDetails[projectObjectTitle][fieldName].maxValue = loadedObjectField.get('maxValue').text || '';
+                            if (loadedObjectField.get('minDateTimeDate')) {
+                                fieldsDetails[projectObjectTitle][fieldName].minDateTimeDate = loadedObjectField.get('minDateTimeDate').text || '';
+                            }
+                            if (loadedObjectField.get('maxDateTimeDate')) {
+                                fieldsDetails[projectObjectTitle][fieldName].maxDateTimeDate = loadedObjectField.get('maxDateTimeDate').text || '';
+                            }
+                            if (loadedObjectField.get('minDateTimeTime')) {
+                                fieldsDetails[projectObjectTitle][fieldName].minDateTimeTime = loadedObjectField.get('minDateTimeTime').text || '';
+                            }
+                            if (loadedObjectField.get('maxDateTimeTime')) {
+                                fieldsDetails[projectObjectTitle][fieldName].maxDateTimeTime = loadedObjectField.get('maxDateTimeTime').text || '';
+                            }
+							fieldsDetails[projectObjectTitle][fieldName].minDate = loadedObjectField.get('minDate').text || '';
+							fieldsDetails[projectObjectTitle][fieldName].maxDate = loadedObjectField.get('maxDate').text || '';
 						}
 
-						// check if all fieldsDetails are loaded and execute all callbacks waiting
-						var areAllFieldsDetailsLoaded = true;
-						for (var projectObjectTitle in fieldsDetails){
-							if (Object.keys(fieldsDetails[projectObjectTitle]).length === 0){
-								areAllFieldsDetailsLoaded = false;
-							}
-						}
-
-						if (areAllFieldsDetailsLoaded){
+                        // check if all fieldsDetails are loaded and execute all callbacks waiting
+						if (fieldsDetailsProjectObjectToLoadCounter === fieldsDetailsProjectObjectLoadedCounter){
 							for (var i in onFieldsDetailsLoadCallbacks){
 								onFieldsDetailsLoadCallbacks[i]();
 							}
@@ -510,9 +530,11 @@ function GenerateXMLService() {
 				function getParameterAttributes(eligibleFields, parameterToken){
 					var attributes = {};
 					var fieldType = null;
-					var maxLength = 0;
+					var length = null;
+					var min = null;
+					var max = null;
 					
-					// update fieldType and maxLength variables
+					// update fieldType and length variables
 					for (var projectObjectTitle in eligibleFields){
 						for (var i in eligibleFields[projectObjectTitle]){
 							var eligibleFieldName = eligibleFields[projectObjectTitle][i];
@@ -529,9 +551,18 @@ function GenerateXMLService() {
 						attributes._type = fieldType;
 					}
 
-					if (maxLength > 0){
-						attributes._length = maxLength;
+					if (length){
+						attributes._length = length;
 					}
+
+                    if (min){
+                        attributes._min = min;
+                    }
+
+                    if (max){
+                        attributes._max = max;
+                    }
+
 					attributes._optional = 'false';
 					attributes.Annotation = {};
 					attributes.Annotation._name = 'description';
@@ -542,11 +573,30 @@ function GenerateXMLService() {
 					function updateDetailsFromFieldsDetails(projectObjectTitle, eligibleFieldName){
 						if (fieldsDetails[projectObjectTitle][eligibleFieldName]){
 							var fieldDetails = fieldsDetails[projectObjectTitle][eligibleFieldName];
-							if (fieldType === null && fieldType != fieldDetails.type){
+							if (fieldType === null){
 								fieldType = fieldDetails.type.toLowerCase();
-								if (fieldType === 'string' && maxLength < fieldDetails.maxLength){
-									maxLength = fieldDetails.maxLength;
-								}
+
+                                // initialize
+								if (fieldType === 'string'){
+                                    length = fieldDetails.maxStrLen;
+                                }
+                                else if (fieldType === 'double' ||
+                                    fieldType === 'float' ||
+                                    fieldType === 'short' ||
+                                    fieldType === 'integer' ||
+                                    fieldType === 'long'){
+                                    min = fieldDetails.minValue;
+                                    max = fieldDetails.maxValue;
+                                }
+                                else if (fieldType === 'date' ||
+                                    fieldType === 'time'){
+                                    min = fieldDetails.minDate;
+                                    max = fieldDetails.maxDate;
+                                }
+                                else if (fieldType === 'datetime'){
+                                    min = toUtcIsoString(fieldDetails.minDateTimeDate, fieldDetails.minDateTimeTime);
+                                    max = toUtcIsoString(fieldDetails.maxDateTimeDate, fieldDetails.maxDateTimeTime);
+                                }
 							}
 							else if (fieldType !== null && fieldType != fieldDetails.type){
 								console.log('ERROR: Field type is not consistent in the query');
@@ -613,36 +663,33 @@ function GenerateXMLService() {
 							defDate = gField.get('defDateTimeDate').toString();
 							defTime = gField.get('defDateTimeTime').toString();
 							if (defDate && defTime) {
-								var defDateTime = defDate + 'T' + defTime + 'Z';
-								var datetime = new Date(defDateTime);
-								node.Data.Field[i]._default = datetime.toISOString();	// by default use UTC, iso 8601
+								node.Data.Field[i]._default = toUtcIsoString(defDate.toString(),
+                                    defTime.toString());	// by default use UTC, iso 8601
 							} else {
 								delete node.Data.Field[i]._default;
 							}
 						}
 
 						// min date time
-						var minDate = gField.get('minDateTimeDate');
-						var minTime = gField.get('minDateTimeTime');
-						if (minDate && minTime) {
-							minDate = minDate.toString();
-							minTime = minTime.toString();
-							var minDateTime = minDate + 'T' + minTime + 'Z';
-							datetime = new Date(minDateTime);
-							node.Data.Field[i]._min = datetime.toISOString();	// by default use UTC, iso 8601
-						} else {
-							delete node.Data.Field[i]._min;
-						}
+                        var minDate = gField.get('minDateTimeDate');
+                        var minTime = gField.get('minDateTimeTime');
+                        if (minDate && minTime){
+                            minDate = minDate.text;
+                            minTime = minTime.text;
+                            if (minDate && minTime) {
+                                node.Data.Field[i]._min = toUtcIsoString(minDate, minTime);	// by default use UTC, iso 8601
+                            } else {
+                                delete node.Data.Field[i]._min;
+                            }
+                        }
 
 						// max date time
-						var maxDate = gField.get('maxDateTimeDate');
-						var maxTime = gField.get('maxDateTimeTime');
+                        var maxDate = gField.get('maxDateTimeDate');
+                        var maxTime = gField.get('maxDateTimeTime');
 						if (maxDate && maxTime) {
-							maxDate = maxDate.toString();
-							maxTime = maxTime.toString();
-							maxDateTime = maxDate + 'T' + maxTime + 'Z';
-							datetime = new Date(maxDateTime);
-							node.Data.Field[i]._max = datetime.toISOString();	// by default use UTC, iso 8601
+                            maxDate = maxDate.text;
+                            maxTime = maxTime.text;
+							node.Data.Field[i]._max = toUtcIsoString(maxDate, maxTime);	// by default use UTC, iso 8601
 						} else {
 							delete node.Data.Field[i]._max;
 						}
@@ -654,9 +701,7 @@ function GenerateXMLService() {
 						if (defDate) {
 							var defDate = gField.get('defDate').toString();
 							if (defDate) {
-								var date = new Date(defDate);
-								date.setUTCHours(0, 0, 0, 0);
-								var isoDate = date.toISOString();	// by default use UTC, iso 8601
+								var isoDate = toUtcIsoString(defDate, '00:00:00');
 								node.Data.Field[i]._default = isoDate;
 							} else {
 								delete node.Data.Field[i]._default;
@@ -667,9 +712,7 @@ function GenerateXMLService() {
 						minDate = gField.get('minDate');
 						if (minDate) {
 							minDate = minDate.toString();
-							date = new Date(minDate);
-							date.setUTCHours(0, 0, 0, 0);
-							isoDate = date.toISOString();	// by default use UTC, iso 8601
+                            var isoDate = toUtcIsoString(minDate, '00:00:00');
 							node.Data.Field[i]._min = isoDate;
 						}
 						else{
@@ -680,9 +723,7 @@ function GenerateXMLService() {
 						maxDate = gField.get('maxDate');
 						if (maxDate) {
 							maxDate = maxDate.toString();
-							date = new Date(maxDate);
-							date.setUTCHours(0, 0, 0, 0);
-							isoDate = date.toISOString();		// by default use UTC, iso 8601
+                            var isoDate = toUtcIsoString(maxDate, '00:00:00');
 							node.Data.Field[i]._max = isoDate;
 						}
 						else{
@@ -695,9 +736,7 @@ function GenerateXMLService() {
 						defTime = gField.get('defDate');
 						if (defTime) {
 							defTime = defTime.toString();
-							defDateTime = "2000-01-01T"+ defTime + "Z";		// some arbitrary date
-							datetime = new Date(defDateTime);
-							node.Data.Field[i]._default = datetime.toISOString();	// by default use UTC, iso 8601
+							node.Data.Field[i]._default = toUtcIsoString('2000-01-01', defTime);
 						} else {
 							delete node.Data.Field[i]._default;
 						}
@@ -706,9 +745,7 @@ function GenerateXMLService() {
 						minTime = gField.get('minDate');
 						if (minTime) {
 							minTime = minTime.toString();
-							minDateTime = "2000-01-01T"+ minTime + "Z";		// some arbitrary date
-							datetime = new Date(minDateTime);
-							node.Data.Field[i]._min = datetime.toISOString();	// by default use UTC, iso 8601
+							node.Data.Field[i]._min = toUtcIsoString('2000-01-01', minTime);
 						} else {
 							delete node.Data.Field[i]._min;
 						}
@@ -717,9 +754,7 @@ function GenerateXMLService() {
 						maxTime = gField.get('maxDate');
 						if (maxTime) {
 							maxTime = maxTime.toString();
-							maxDateTime = "2000-01-01T"+ maxTime + "Z";		// some arbitrary date
-							datetime = new Date(maxDateTime);
-							node.Data.Field[i]._max = datetime.toISOString();	// by default use UTC, iso 8601
+							node.Data.Field[i]._max = toUtcIsoString('2000-01-01', maxTime);
 						} else {
 							delete node.Data.Field[i]._max;
 						}
@@ -774,11 +809,19 @@ function GenerateXMLService() {
 			var gModel = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.PERSISTENT_DATA);
 			var dataType = 'persisted';
 			var node = createDataNode(gModel, dataType);
+
 			node = setJsonFields(node, gModel);
 			node = setJsonEvents(node, gModel);
-			setJsonQueries(node, gModel, GDriveConstants.ObjectType.PERSISTENT_DATA, onJsonQueriesSet);
 
-			function onJsonQueriesSet(node){
+            var gQueries = gModel.queries;
+            if (gQueries.length > 0) {
+                setJsonQueries(node, gModel, GDriveConstants.ObjectType.PERSISTENT_DATA, setPersistenceEvents);
+            }
+            else{
+                setPersistenceEvents(node);
+            }
+
+			function setPersistenceEvents(node){
 				dataJsonNode.Data.push(node.Data);
 				dataJsonNode.UpdatePersistenceEvent.push(node.UpdatePersistenceEvent);
 				dataJsonNode.CreatePersistenceEvent.push(node.CreatePersistenceEvent);
@@ -873,6 +916,14 @@ function GenerateXMLService() {
 			}
 		}
 	};
+
+    function toUtcIsoString(date, time){
+        // example date: 2015-11-25
+        // example time: 13:50:00
+        var dateTimeStr = date + 'T' + time + 'Z';
+        var dateTimeDate = new Date(dateTimeStr);
+        return dateTimeDate.toISOString();
+    }
 
 	// public function
 	this.generateProjectXML = function(projectObjects, projectFile, gMetadataCustomObject, callback) {
