@@ -389,10 +389,19 @@ module.exports = React.createClass({
 	},
 
 	setErrorMessage: function(targetField, fieldType) {
+		//This is to find selects that are required to be validated since React sets a wrapper around them  
 		var $targetField = $(targetField);
 		var fieldVal = $targetField.val();
-		var errorMessage = '';
 		var fieldId = targetField.id;
+
+		if($targetField.hasClass('select-wrapper')){			
+			$targetField  = $targetField.find('select');
+			fieldVal = $targetField.val();
+			fieldId = $targetField.attr('id');
+		}
+
+		var errorMessage = '';
+		
 
 		if (!errorMessage && !fieldVal) {
 			if ($targetField.prop('required')) {
@@ -489,6 +498,11 @@ module.exports = React.createClass({
 			 	 parseDate(fieldVal).isBefore(parseDate($('#min-date-field').val()))) {
 				errorMessage += 'Default ' +fieldType+ ' should not be before defined minimum ' +fieldType+ '. ';
 			}
+		}
+		//Timezones dropdown shouldn't be selected if there are no other date fields it applies to
+		if (!errorMessage && fieldId === 'timezone-select') {
+			if($('#def-value-field').val() === '' && $('#min-date-field').val() === '' && $('#max-date-field').val() === '' && fieldVal !== '')
+				errorMessage += "Please set a date field first";
 		}
 		//Validating: ref-soft & ref-hard radio buttons 
 		if(fieldType === 'ref'){
@@ -779,7 +793,11 @@ module.exports = React.createClass({
 		});
 	},
 	appendTimezoneOptions: function() {
-		var timezones = moment.tz.names();			
+		var timezones = moment.tz.names();
+		//Default option
+	 	$('#timezone-select').append($('<option>', { 		        
+	       text: ''
+	    }));			
 		$.each(timezones, function (i, item) {
 		    $('#timezone-select').append($('<option>', { 		        
 		        text:  item	+ moment.tz(item).format("  z Z")
@@ -1194,12 +1212,12 @@ module.exports = React.createClass({
 							<input type='hidden' id='max-datetime-date' />
 							<input type='hidden' id='max-datetime-time' />
 						</div>
-						<div id='timezone-dropdown' className='input-field col s4  type-specific-field date-specific-field datetime-specific-field time-specific-field'>
-							<select id='timezone-select' className='timezone-selector form-select' >														
+						<div className='input-field col s4'>
+							<select id='timezone-select' className=' type-specific-field date-specific-field datetime-specific-field time-specific-field validated-input  form-select' >														
 								<option value='default' disabled>loading timezones...</option>							
-							</select>
-							
-							<label htmlFor='timezone-select' >Timezone</label>
+							</select>							
+							<label htmlFor='timezone-select' className='error-tooltipped' >Timezones</label>
+
 						</div>
 					</div>
 					
