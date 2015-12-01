@@ -3,6 +3,7 @@ function HeaderController(objectFileId, objectFileType, gMetadataModel, gMetadat
 	// //////// private members
 	var googleApiInterface = require('../../remote-server-interfaces/google-api-interface.js');
 	var AnnouncementType = require('../../constants/announcement-type.js');
+	var googleDriveUtils = require('../../utils/google-drive-utils.js');
 	var objectFileId = objectFileId;
 	var objectFileType = objectFileType;
 	var gMetadataModel = gMetadataModel;
@@ -23,10 +24,7 @@ function HeaderController(objectFileId, objectFileType, gMetadataModel, gMetadat
 		for (var i=0; i<gMetadataCustomObject.businessRequestEvents.length; ++i){
 			var businessRequestEvent = gMetadataCustomObject.businessRequestEvents.get(i);
 			if (businessRequestEvent.gFileId === objectFileId){
-				var newEvent = {
-					gFileId: objectFileId,
-					eventObjectTitle: title
-				}
+				var newEvent = googleDriveUtils.createMetadataEvent(objectFileId, title, gFileCustomObject.id);
 				gMetadataCustomObject.businessRequestEvents.set(i, newEvent);
 			}
 		}
@@ -34,11 +32,18 @@ function HeaderController(objectFileId, objectFileType, gMetadataModel, gMetadat
 		for (var i=0; i<gMetadataCustomObject.nonBusinessRequestEvents.length; ++i){
 			var businessRequestEvent = gMetadataCustomObject.nonBusinessRequestEvents.get(i);
 			if (businessRequestEvent.gFileId === objectFileId){
-				var newEvent = {
-					gFileId: objectFileId,
-					eventObjectTitle: title
-				}
+				var newEvent = googleDriveUtils.createMetadataEvent(objectFileId, title, gFileCustomObject.id);
 				gMetadataCustomObject.nonBusinessRequestEvents.set(i, newEvent);
+			}
+		}
+
+		// update event title in metadata businessResponse
+		for (var i=0; i<gMetadataCustomObject.businessResponseEvents.length; ++i){
+			var businessResponseEvent = gMetadataCustomObject.businessResponseEvents.get(i);
+			if (businessResponseEvent.gFileId === objectFileId){
+				var newEvent = googleDriveUtils.createMetadataEvent(objectFileId, title, gFileCustomObject.id);
+				newEvent.responseForCounter = businessResponseEvent.responseForCounter;
+				gMetadataCustomObject.businessResponseEvents.set(i, newEvent);
 			}
 		}
 

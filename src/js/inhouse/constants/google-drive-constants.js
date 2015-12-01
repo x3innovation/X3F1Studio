@@ -52,10 +52,7 @@ module.exports = {
 		KEY_BUSINESS_REQUEST_EVENTS : 'businessRequestEvents',
 		KEY_NON_BUSINESS_REQUEST_EVENTS : 'nonBusinessRequestEvents',
 		KEY_PROJECT_OBJECT_TITLES: 'projectObjectTitles',
-		BusinessRequestEvent : {
-			KEY_GOOGLE_FILE_ID : 'businessRequestGoogleFileId',
-			KEY_EVENT_OBJECT_TITLE : 'businessRequestEventObjectTitle'
-		}
+		KEY_BUSINESS_RESPONSE_EVENTS : 'businessResponseEvents'
 	},
 
 	PersistentData : {
