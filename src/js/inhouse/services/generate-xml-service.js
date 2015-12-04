@@ -1,7 +1,6 @@
 var GDriveConstants = require('../constants/google-drive-constants.js');
 var googleDriveUtils = require('../utils/google-drive-utils.js');
 var Configs = require('../app-config.js');
-var uniqueIdGenerator = require('../utils/unique-id-generator.js');
 
 function GenerateXMLService() {
 
