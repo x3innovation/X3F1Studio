@@ -41,10 +41,6 @@ module.exports = React.createClass({
 			$headerDescription.val(_this.controller.getDescription());
 		});
 
-		$('#header-ID').val(this.controller.getId());
-		if ($('#header-ID').val().length) {
-			$('#header-ID-label').removeClass('hide').addClass('active');
-		}
 		$('#header-wrapper').removeClass('hide');
 
 		$headerTitle.focus(function() {
@@ -99,11 +95,7 @@ module.exports = React.createClass({
 		return (
 			<div className = 'row'>
 				<div id = 'header-wrapper' className = 'hide center'>
-					<div id = 'header-ID-wrapper' className = 'input-field col s1'>
-						<input readOnly type = 'text' id = 'header-ID'/>
-						<label htmlFor = 'header-ID' className = 'hide active' id = 'header-ID-label'>Type ID</label>
-					</div>
-					<div id = 'header-title-wrapper' className = 'col s10'>
+					<div id = 'header-title-wrapper' className = 'col offset-s1 s10'>
 						<input type = 'text' id = 'header-title' className ='center' spellCheck = 'false' 
 							onKeyPress = {this.keyPressHandler} onChange={this.onTitleChange} placeholder = 'enter title' />
 						<a id="clear-title-btn" onClick = {this.onClearTitleBtnClick}

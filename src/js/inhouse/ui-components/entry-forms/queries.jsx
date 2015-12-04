@@ -106,11 +106,7 @@ module.exports = React.createClass({
 			return (
 				<div className = 'query-row row' key = {query.id} data-query-id = {query.id}>
 					<div className='row'>
-						<div className = 'col s1 input-field query-id-wrapper'>
-							<input type = 'text' id = {'query-' + query.id + '-id-field'} readOnly className = 'query-id-field' value = {query.id} />
-							<label htmlFor = {'query-' + query.id + '-id-field'} className = 'query-label active'>query id</label>
-						</div>
-						<div className = 'col s3 input-field query-name-wrapper'>
+						<div className = 'col s3 offset-s1 input-field query-name-wrapper'>
 							<input type = 'text' id = {'query-' + query.id + '-name-field'} className = 'query-name-field query-input'
 							 	onKeyUp = {this.keyUpHandler} defaultValue = {query.name} spellCheck = 'false' />
 							<label htmlFor = {'query-' + query.id + '-name-field'} className = 'query-label'>query name</label>

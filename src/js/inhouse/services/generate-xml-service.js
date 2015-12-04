@@ -1,6 +1,7 @@
 var GDriveConstants = require('../constants/google-drive-constants.js');
 var googleDriveUtils = require('../utils/google-drive-utils.js');
 var Configs = require('../app-config.js');
+var uniqueIdGenerator = require('../utils/unique-id-generator.js');
 
 function GenerateXMLService() {
 
@@ -196,7 +197,7 @@ function GenerateXMLService() {
 			var spacelessName = replaceAll(name, ' ', '');
 			var description = gModel.description.toString();
 			var typeId = gModel.id;
-			var isBusinessRequest = gModel.isBusinessRequest;
+            var isBusinessRequest = gModel.isBusinessRequest;
 
 			node.Data = {
 				_name: spacelessName,
@@ -847,6 +848,7 @@ function GenerateXMLService() {
 		var onEventLoad = function(doc) {
 			var dataType = 'event';
 			var gModel = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.EVENT);
+
 			var node = createDataNode(gModel, dataType);
 			node = setJsonFields(node, gModel);
 			onJsonQueriesSet(node);

@@ -61,8 +61,8 @@ function EventBusinessRequestController(gMetadataModel, gMetadataCustomObject, g
 		}
 
 		// remove from correspondingBusinessResponses in all other business request events
-		for (var i =0 ; i<gMetadataCustomObject.businessResponseEvents.length; ++i){
-			var eventModel = gMetadataCustomObject.businessResponseEvents.get(i);
+		for (var i =0 ; i<gMetadataCustomObject.businessRequestEvents.length; ++i){
+			var eventModel = gMetadataCustomObject.businessRequestEvents.get(i);
 			gapi.drive.realtime.load(eventModel.gFileId, onBusinessRequestDocLoaded, null);
 		}
 

@@ -117,13 +117,6 @@ module.exports = React.createClass({
 			return (
 				<div key = {event.id} className = 'col s4'>
 					<div className = 'row'>
-						<div className = 'col s2 input-field'>
-							<input type = 'text' 
-								className = 'event-display' 
-								readOnly value = {event.id} 
-								id = {'event-' + event.id + '-name'} />
-							<label htmlFor = {event.id + '-event-id'} className = 'event-label active'>Type Id</label>
-						</div>
 						<div className = 'col s10 input-field'>
 							<input type = 'text' className = 'event-display' readOnly value = {event.name} id = {'event-' + event.id + '-name'} />
 							<label htmlFor = {'event-' + event.id + '-name'} className = 'event-label active'>{event.label}</label>

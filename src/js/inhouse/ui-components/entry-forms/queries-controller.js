@@ -23,8 +23,8 @@ function QueriesController(gFileCustomModel, gMetadataCustomObject, gFileModel)
 
 	this.createNewQuery = function()
 	{
-		var requestId = googleDriveUtils.setAndGetNextMetadataModelId(gMetadataCustomObject);
-		var responseId = googleDriveUtils.setAndGetNextMetadataModelId(gMetadataCustomObject);
+		var requestId = googleDriveUtils.getNewTypeId(gMetadataCustomObject);
+		var responseId = googleDriveUtils.getNewTypeId(gMetadataCustomObject);
 		var newQuery = {
 			requestId: requestId,
 			responseId: responseId,

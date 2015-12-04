@@ -2,6 +2,7 @@ var googleApiInterface = require('../remote-server-interfaces/google-api-interfa
 var GCons = require('../constants/google-drive-constants.js');
 var DefaultValueConstants = require('../constants/default-value-constants.js');
 var AnnouncementType = require('../constants/announcement-type.js');
+var uniqueIdGenerator = require('../utils/unique-id-generator.js');
 var DefaultFields = DefaultValueConstants.DefaultFieldAttributes;
 var ObjectType = GCons.ObjectType;
 var Configs = require('../app-config.js');
@@ -85,19 +86,8 @@ function GoogleDriveUtils()
 		googleApiInterface.saveTitle(fileId, title);
 	};
 
-	this.setAndGetNextMetadataModelId = function(gMetadataCustomObject, step) {
-		if (step == null)
-		{
-			step = 1;
-		}
-
-	    if (gMetadataCustomObject.nextId == null)
-		{
-			gMetadataCustomObject.nextId = 0;
-		}
-		
-		gMetadataCustomObject.nextId = gMetadataCustomObject.nextId + step;
-		return gMetadataCustomObject.nextId;
+	this.getNewTypeId = function(gMetadataCustomObject, step) {
+		return uniqueIdGenerator.getUuid();
 	};
 
 	this.announce = function(gMetadataCustomObject, announcement) {
@@ -268,13 +258,6 @@ function GoogleDriveUtils()
 
 		var onFileCreationCompleted = function(file) {
 			_this.loadMetadataDoc(metadataFileId, parentFolderId, function(metadataDoc, metadataCustomObject){
-				// if the file was event object, update the metadata
-				if (objectType === GCons.ObjectType.EVENT)
-				{
-					var metadataEvent = _this.createMetadataBusinessRequestEvent(file.id, fileCreationParams.title);
-					metadataCustomObject.nonBusinessRequestEvents.push(metadataEvent);
-				}
-
 				// announce file created
 				var addFileAnnouncement = {
 					action: AnnouncementType.ADD_FILE,
@@ -365,7 +348,7 @@ function GoogleDriveUtils()
 		function onMetadataFileLoaded(doc) {
 	        var metadataCustomObject = doc.getModel().getRoot().get(GCons.CustomObjectKey.PROJECT_METADATA);
 	        if (metadataCustomObject == null) {
-	        	initializeMetadataModel(doc.getModel());
+                metadataCustomObject = initializeMetadataModel(doc.getModel());
 	        }
 
 	        if (!latestVersionConverter.isLatestObject(doc))
@@ -391,6 +374,7 @@ function GoogleDriveUtils()
 	        metadataCustomObject.nonBusinessRequestEvents = model.createList();
 	        metadataCustomObject.businessResponseEvents = model.createList();
 	        model.getRoot().set(GCons.CustomObjectKey.PROJECT_METADATA, metadataCustomObject);
+            return metadataCustomObject;
 	    };
 	}
 
@@ -410,16 +394,16 @@ function GoogleDriveUtils()
 					customObject.description = docModel.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_DESCRIPTION);
 					customObject.fields = docModel.createList();
 					customObject.queries = docModel.createList();
-					customObject.id = _this.setAndGetNextMetadataModelId(metadataCustomObject);
-					customObject.UpdatePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(metadataCustomObject);
-					customObject.CreatePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(metadataCustomObject);
-					customObject.RemovePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(metadataCustomObject);
-					customObject.UpdatedPersistenceEventTypeId = _this.setAndGetNextMetadataModelId(metadataCustomObject);
-					customObject.CreatedPersistenceEventTypeId = _this.setAndGetNextMetadataModelId(metadataCustomObject);
-					customObject.RemovedPersistenceEventTypeId = _this.setAndGetNextMetadataModelId(metadataCustomObject);
-					customObject.RejectedUpdatePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(metadataCustomObject);
-					customObject.RejectedCreatePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(metadataCustomObject);
-					customObject.RejectedRemovePersistenceEventTypeId = _this.setAndGetNextMetadataModelId(metadataCustomObject);
+					customObject.id = _this.getNewTypeId(metadataCustomObject);
+					customObject.UpdatePersistenceEventTypeId = _this.getNewTypeId(metadataCustomObject);
+					customObject.CreatePersistenceEventTypeId = _this.getNewTypeId(metadataCustomObject);
+					customObject.RemovePersistenceEventTypeId = _this.getNewTypeId(metadataCustomObject);
+					customObject.UpdatedPersistenceEventTypeId = _this.getNewTypeId(metadataCustomObject);
+					customObject.CreatedPersistenceEventTypeId = _this.getNewTypeId(metadataCustomObject);
+					customObject.RemovedPersistenceEventTypeId = _this.getNewTypeId(metadataCustomObject);
+					customObject.RejectedUpdatePersistenceEventTypeId = _this.getNewTypeId(metadataCustomObject);
+					customObject.RejectedCreatePersistenceEventTypeId = _this.getNewTypeId(metadataCustomObject);
+					customObject.RejectedRemovePersistenceEventTypeId = _this.getNewTypeId(metadataCustomObject);
 					customObject.isUpdateBusinessRequest = false;
 					customObject.isCreateBusinessRequest = false;
 					customObject.isRemoveBusinessRequest = false;
@@ -432,7 +416,7 @@ function GoogleDriveUtils()
 					customObject.description = docModel.createString(DefaultValueConstants.NewFileValues.EVENT_DESCRIPTION);
 					customObject.fields = docModel.createList();
 					customObject.queries = docModel.createList();
-					customObject.id = _this.setAndGetNextMetadataModelId(metadataCustomObject);
+					customObject.id = _this.getNewTypeId(metadataCustomObject);
 					customObject.isBusinessRequest = false;
 					customObject.correspondingBusinessResponses = docModel.createList();
 					docModel.getRoot().set(customObjectKey, customObject);
@@ -445,7 +429,7 @@ function GoogleDriveUtils()
 					customObject.title = docModel.createString(DefaultValueConstants.NewFileValues.SNIPPET_TITLE);
 					customObject.description = docModel.createString(DefaultValueConstants.NewFileValues.SNIPPET_DESCRIPTION);
 					customObject.fields = docModel.createList();
-					customObject.id = _this.setAndGetNextMetadataModelId(metadataCustomObject);
+					customObject.id = _this.getNewTypeId(metadataCustomObject);
 					docModel.getRoot().set(customObjectKey, customObject);
 
 					metadataCustomObject.projectObjectTitles.set(fileId, DefaultValueConstants.NewFileValues.SNIPPET_TITLE);
@@ -454,7 +438,7 @@ function GoogleDriveUtils()
 					customObject.title = docModel.createString(DefaultValueConstants.NewFileValues.ENUM_TITLE);
 					customObject.description = docModel.createString(DefaultValueConstants.NewFileValues.ENUM_DESCRIPTION);
 					customObject.fields = docModel.createList();
-					customObject.id = _this.setAndGetNextMetadataModelId(metadataCustomObject);
+					customObject.id = _this.getNewTypeId(metadataCustomObject);
 					docModel.getRoot().set(customObjectKey, customObject);
 
 					metadataCustomObject.projectObjectTitles.set(fileId, DefaultValueConstants.NewFileValues.ENUM_TITLE);

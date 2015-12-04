@@ -19,7 +19,6 @@ function GoogleApiInterface()
 		var custom = gapi.drive.realtime.custom;
 		custom.registerType(model, GDriveConstant.CustomObjectKey.PROJECT_METADATA);
 		model.prototype.version = custom.collaborativeField(Cons.KEY_VERSION);
-		model.prototype.nextId = custom.collaborativeField(Cons.KEY_NEXT_ID);
 		model.prototype.announcement = custom.collaborativeField(Cons.KEY_ANNOUNCEMENT);
 		model.prototype.businessRequestEvents = custom.collaborativeField(Cons.KEY_BUSINESS_REQUEST_EVENTS);
 		model.prototype.nonBusinessRequestEvents = custom.collaborativeField(Cons.KEY_NON_BUSINESS_REQUEST_EVENTS);
