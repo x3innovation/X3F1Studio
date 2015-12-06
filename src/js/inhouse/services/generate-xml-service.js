@@ -622,6 +622,7 @@ function GenerateXMLService() {
 				node.Data.Field[i] = {
 					_name: gField.get('name').toString(),
 					_type: gField.get('type').toString(),
+					_unique: gField.get('unique').toString(),
 					Annotation: {
 						_name: 'description',
 						_svalue: gField.get('description').toString()

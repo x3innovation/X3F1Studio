@@ -237,6 +237,7 @@ module.exports = React.createClass({
 		getById('def-value-checkbox').checked = this.fieldData.get('defValueBool');
 		getById('optional-checkbox').checked = this.fieldData.get('optional');
 		getById('array-checkbox').checked =  this.fieldData.get('array');
+		getById('unique-checkbox').checked =  this.fieldData.get('unique');
 		getById('context-id-checkbox').checked =  this.fieldData.get('contextId');
 		this.updateAllSelect();
 	},
@@ -309,6 +310,7 @@ module.exports = React.createClass({
 			this.fieldData.set('defValueBool', getById('def-value-checkbox').checked);
 			this.fieldData.set('optional', getById('optional-checkbox').checked);
 			this.fieldData.set('array', getById('array-checkbox').checked);
+			this.fieldData.set('unique', getById('unique-checkbox').checked);
 			this.fieldData.set('contextId', getById('context-id-checkbox').checked);
 			this.gFields.set(fieldIndex, this.fieldData);
 
@@ -1104,6 +1106,9 @@ module.exports = React.createClass({
 						<br />
 						<input type='checkbox' id='array-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
 						<label htmlFor='array-checkbox' >array</label>
+						<br />
+						<input type='checkbox' id='unique-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
+						<label htmlFor='unique-checkbox'>unique</label>
 					</div>
 				</div>
 				

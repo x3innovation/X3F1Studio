@@ -282,6 +282,7 @@ function GoogleDriveUtils()
 			defValueBool: DefaultFields.FIELD_DEF_BOOL_VALUE,
 			optional: DefaultFields.FIELD_OPTIONAL,
 			array: DefaultFields.FIELD_ARRAY,
+			unique: DefaultFields.FIELD_UNIQUE,
 			refId: DefaultFields.FIELD_REF_ID,
 			refName: DefaultFields.FIELD_REF_NAME,
 			refType: DefaultFields.FIELD_REF_TYPE,

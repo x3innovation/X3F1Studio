@@ -55,6 +55,7 @@ module.exports = {
 		FIELD_READ_ONLY : false,
 		FIELD_OPTIONAL : false,
 		FIELD_ARRAY : false,
+		FIELD_UNIQUE : false,
 		FIELD_ARRAY_LEN : '1',
 		FIELD_CONTEXT_ID : false
 	},
