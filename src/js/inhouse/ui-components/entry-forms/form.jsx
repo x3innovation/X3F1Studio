@@ -1019,10 +1019,13 @@ module.exports = React.createClass({
 
 	onNameChange: function(e)
 	{
+		var caretPosition = e.target.selectionEnd;
+
 		if (this.validateField(e.currentTarget, this.fieldData.get('type')))
 		{
 			this.fieldData.get('name').setText(e.currentTarget.value);
 		}
+		$("#name-field")[0].setSelectionRange(caretPosition, caretPosition);
 	},
 
 	onDescriptionChange: function(e)
