@@ -802,7 +802,10 @@ module.exports = React.createClass({
 		    $('#timezone-select').append($('<option>', { 		        
 		        text:  item	+ moment.tz(item).format("  z Z")
 		    }));
-		});		
+		});
+		if(this.fieldData.get('timezone')){
+			$("#timezone-select").val(this.fieldData.get('timezone')) ;
+		}		
 	},
 
 	onTimeZoneChanged: function(timezone) {

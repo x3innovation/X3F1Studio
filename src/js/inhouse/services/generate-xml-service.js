@@ -694,6 +694,10 @@ function GenerateXMLService() {
 							delete node.Data.Field[i]._max;
 						}
 
+						//timezone
+						if(gField.get('timezone') !== null  && gField.get('timezone') !== '' )						
+							node.Data.Field[i]._timezone = gField.get('timezone');
+
 						break;
 					case 'date':
 						// default
@@ -730,6 +734,10 @@ function GenerateXMLService() {
 							delete node.Data.Field[i]._max;
 						}
 
+						//timezone
+						if(gField.get('timezone') !== null && gField.get('timezone') !== ''  )						
+							node.Data.Field[i]._timezone = gField.get('timezone');
+
 						break;
 					case 'time':
 						// default
@@ -758,6 +766,10 @@ function GenerateXMLService() {
 						} else {
 							delete node.Data.Field[i]._max;
 						}
+
+						//timezone
+						if(gField.get('timezone') !== null && gField.get('timezone') !== '' )						
+							node.Data.Field[i]._timezone = gField.get('timezone');
 
 						break;
 					case 'boolean':
