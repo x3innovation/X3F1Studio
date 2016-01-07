@@ -663,7 +663,7 @@ function GenerateXMLService() {
 						if (defDate && defTime) {
 							defDate = gField.get('defDateTimeDate').toString();
 							defTime = gField.get('defDateTimeTime').toString();
-							if (defDate && defTime) {
+							if (defDate && defTime && defDate != '' && defTime != '') {
 								node.Data.Field[i]._default = toUtcIsoString(defDate.toString(),
                                     defTime.toString());	// by default use UTC, iso 8601
 							} else {
@@ -677,7 +677,7 @@ function GenerateXMLService() {
                         if (minDate && minTime){
                             minDate = minDate.text;
                             minTime = minTime.text;
-                            if (minDate && minTime) {
+                            if (minDate && minTime && minDate != '' && minTime != '') {
                                 node.Data.Field[i]._min = toUtcIsoString(minDate, minTime);	// by default use UTC, iso 8601
                             } else {
                                 delete node.Data.Field[i]._min;
@@ -690,9 +690,12 @@ function GenerateXMLService() {
 						if (maxDate && maxTime) {
                             maxDate = maxDate.text;
                             maxTime = maxTime.text;
-							node.Data.Field[i]._max = toUtcIsoString(maxDate, maxTime);	// by default use UTC, iso 8601
-						} else {
-							delete node.Data.Field[i]._max;
+                            if (maxDate && maxTime && maxDate != '' && maxTime != ''){
+                                node.Data.Field[i]._max = toUtcIsoString(maxDate, maxTime);	// by default use UTC, iso 8601
+                            }
+                            else {
+                                delete node.Data.Field[i]._max;
+                            }
 						}
 
 						break;

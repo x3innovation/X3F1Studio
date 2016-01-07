@@ -627,6 +627,8 @@ function LatestVersionConverter(latestVersion)
 					customObject.correspondingBusinessResponses = doc.getModel().createList();
 				}
 
+                addNewFieldParameters();
+
 				if (isLastConversion){
 					callback();
 				}
@@ -681,6 +683,8 @@ function LatestVersionConverter(latestVersion)
 					customObject.isRemoveBusinessRequest = false;
 				}
 
+                addNewFieldParameters();
+
 				if (isLastConversion){
 					callback();
 				}
@@ -691,6 +695,19 @@ function LatestVersionConverter(latestVersion)
 				}
 				break;
 		}
+
+        function addNewFieldParameters(){
+            var customObject = doc.getModel().getRoot().get(customObjectKey);
+            if (customObject.fields){
+                // add 'unique'
+                for (var i=0; i<customObject.fields.length; ++i){
+                    var field = customObject.fields.get(i);
+                    if (!field.get('unique')){
+                        field.set('unique', false);
+                    }
+                }
+            }
+        }
 	}
 
 	function initializeNonBusinessRequestEvents(customObject, projectFolderFileId, callback){

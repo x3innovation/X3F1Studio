@@ -53,7 +53,7 @@ module.exports = React.createClass({
 
 	updateQuery: function($fieldAttr) {
 		var $queryRow = $fieldAttr.closest('.query-row');
-		var queryId = parseInt($queryRow.attr('data-query-id'), 10);
+		var queryId = $queryRow.attr('data-query-id');
 		var name = $queryRow.find('.query-name-field').val();
 		var description = $queryRow.find('.query-description-field').val();
 

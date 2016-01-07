@@ -50,7 +50,7 @@ function QueriesController(gFileCustomModel, gMetadataCustomObject, gFileModel)
 	{
 		gFileModel.beginCompoundOperation();
 		for (var i = 0, len = gFileCustomModel.queries.length; i<len; i++) {
-			if (parseInt(gFileCustomModel.queries.get(i).id, 10) === queryId) {
+			if (gFileCustomModel.queries.get(i).id === queryId) {
 				var newQuery = {
 					requestId: queryId,
 					responseId: queryId + 1,
