@@ -189,8 +189,8 @@ module.exports = React.createClass({
 			if ($('#field-type-select').val() === 'datetime'){
 				var input = $input.val();
 				var inputTokenized = input.split(' ');
-				var date = inputTokenized[0];
-				var time = inputTokenized[1];
+				var date = inputTokenized[0] || "";
+				var time = inputTokenized[1] || "";
 
 				if ($input.attr('id') === 'min-date-field'){
 					$('#min-datetime-date').attr('data-date', date);
