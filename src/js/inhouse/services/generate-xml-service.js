@@ -594,8 +594,12 @@ function GenerateXMLService() {
                                     max = fieldDetails.maxDate;
                                 }
                                 else if (fieldType === 'datetime'){
-                                    min = toUtcIsoString(fieldDetails.minDateTimeDate, fieldDetails.minDateTimeTime);
-                                    max = toUtcIsoString(fieldDetails.maxDateTimeDate, fieldDetails.maxDateTimeTime);
+                                    if (fieldDetails.minDateTimeDate && fieldDetails.minDateTimeDate.length > 0){
+                                        min = toUtcIsoString(fieldDetails.minDateTimeDate, fieldDetails.minDateTimeTime);
+                                    }
+                                    if (fieldDetails.maxDateTimeDate && fieldDetails.maxDateTimeDate.length > 0){
+                                        max = toUtcIsoString(fieldDetails.maxDateTimeDate, fieldDetails.maxDateTimeTime);
+                                    }
                                 }
 							}
 							else if (fieldType !== null && fieldType != fieldDetails.type){
