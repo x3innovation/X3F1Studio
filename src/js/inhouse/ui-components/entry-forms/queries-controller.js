@@ -1,11 +1,13 @@
-function QueriesController(gFileCustomModel, gMetadataCustomObject, gFileModel)
+function QueriesController(gFileCustomModel, gMetadataCustomObject, projectFolderFileId, gFileModel )
 {
 	// //////// private members
 	var googleDriveUtils = require('../../utils/google-drive-utils.js');
 	var DefaultValueConstants = require('../../constants/default-value-constants.js');
+	var GDriveConstants = require('../../constants/google-drive-constants.js');
 	var gFileCustomModel = gFileCustomModel;
 	var gMetadataCustomObject = gMetadataCustomObject;
 	var gFileModel = gFileModel;
+	var pFolderId = projectFolderFileId;
 
 	// //////// public members
 	this.addQueriesUpdateListener = function(listener)
@@ -19,6 +21,46 @@ function QueriesController(gFileCustomModel, gMetadataCustomObject, gFileModel)
 	this.getQueries = function()
 	{
 		return gFileCustomModel.queries.asArray();
+	}
+
+	this.loadProjectObjects = function(callback)
+	{
+		var objectsToGet = { //only need the dmx types
+			persistentData: true,
+			//enum: false,
+			snippet: true/*,
+			event: false,
+			flow: false*/
+		};
+		googleDriveUtils.getProjectObjects(pFolderId, '', objectsToGet, onProjectObjectsLoaded);
+
+		function onProjectObjectsLoaded(projectObjects)
+		{
+			var snippets = [];
+			var pds = [];
+			var projectObject;
+			for (var i = 0, len = projectObjects.length; i<len; i++) {
+				projectObject = {
+					id: projectObjects[i].id,
+					title: projectObjects[i].title,
+					fileType: projectObjects[i].description 
+				};
+				//the drive file description contains the object type
+				switch (projectObjects[i].description) {
+					case GDriveConstants.ObjectType.PERSISTENT_DATA:
+						pds.push(projectObject);
+						break;
+					case GDriveConstants.ObjectType.SNIPPET:
+						snippets.push(projectObject);
+						break;
+					case GDriveConstants.ObjectType.EVENT:
+					case GDriveConstants.ObjectType.ENUM:
+					default: break;
+				}
+			}
+
+			callback(snippets, pds);
+		}
 	}
 
 	this.createNewQuery = function()

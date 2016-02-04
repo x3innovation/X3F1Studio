@@ -15,12 +15,16 @@ module.exports = React.createClass({
 		this.queries = [];
 		this.fieldAttr = {};
 		this.controller = this.props.controller;
+		this.returnTypes = [];
 	},
 
 	componentDidMount: function(){
 		this.controller.addQueriesUpdateListener(this.updateUi);
+		this.initialize();
 		this.updateUi();
 	},
+
+	
 
 	componentDidUpdate: function(){
 		// update the business request checkboxes
@@ -34,6 +38,21 @@ module.exports = React.createClass({
 	/* ******************************************
 				NON LIFE CYCLE FUNCTIONS
 	****************************************** */
+	initialize: function()
+	{
+		var _this = this;
+		
+		this.controller.loadProjectObjects(onProjectObjectsLoaded);
+		
+
+		function onProjectObjectsLoaded(snippets, pds)
+		{
+			_this.snippets = snippets;
+			_this.pds = pds;
+			_this.updateReturnTypeSelectOptions();
+		}
+	},
+
 	updateUi: function() {
 		this.forceUpdate();
 		this.setCursorPos();
@@ -97,6 +116,29 @@ module.exports = React.createClass({
 		this.controller.setBusinessRequest(queryId, isBusinessRequest);
 	},
 
+	updateReturnTypeSelectOptions: function() {
+		var returnTypes = []; /* this.pds.concat(this.snippets);*/
+		if(this.pds !== null)
+			returnTypes = returnTypes.concat(this.pds);
+		if(this.snippets !== null)
+			returnTypes = returnTypes.concat(this.snippets);
+
+
+    	$.each(returnTypes, function (i, item) {
+            $('#retType-select').append($('<option>', {   
+                text:  item.title
+            }));
+        });   
+		
+		$('#retType-select').material_select(function() {
+            _this.onRetTypeChanged($('#retType-select').val());
+        });
+	}, 
+
+	onRetTypeChanged: function(value){
+		console.log(value);
+	},
+
 	render: function() {
 		var queries = this.controller.getQueries();
 		var queryContents = queries.map(function(query) {
@@ -105,6 +147,14 @@ module.exports = React.createClass({
 
 			return (
 				<div className = 'query-row row' key = {query.id} data-query-id = {query.id}>
+					<div className='row'>
+						<div id='retType-dropdown' className = 'col s7 input-field query-return-type'>
+							<select id='retType-select' className='retType-selector form-select' value='default'>
+								<option value='default' disabled>loading...</option>
+							</select>
+							<label htmlFor='retType-select' >Return Type</label>
+						</div>	
+					</div>
 					<div className='row'>
 						<div className = 'col s3 offset-s1 input-field query-name-wrapper'>
 							<input type = 'text' id = {'query-' + query.id + '-name-field'} className = 'query-name-field query-input'
