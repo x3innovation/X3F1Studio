@@ -57,6 +57,7 @@ module.exports = React.createClass({
 		this.forceUpdate();
 		this.setCursorPos();
 		this.realignLabels();
+		//TODO: select the option with the return type per query here...
 	},
 
 	keyUpHandler: function(e) {
@@ -75,8 +76,8 @@ module.exports = React.createClass({
 		var queryId = $queryRow.attr('data-query-id');
 		var name = $queryRow.find('.query-name-field').val();
 		var description = $queryRow.find('.query-description-field').val();
-
-		this.controller.updateQuery(queryId, name, description);
+		var returnType =  $queryRow.find('.retType-selector option:selected').val();
+		this.controller.updateQuery(queryId, name, description, returnType);
 	},
 
 	realignLabels: function() {
@@ -117,26 +118,34 @@ module.exports = React.createClass({
 	},
 
 	updateReturnTypeSelectOptions: function() {
-		var returnTypes = []; /* this.pds.concat(this.snippets);*/
+		var _this = this;		
 		if(this.pds !== null)
-			returnTypes = returnTypes.concat(this.pds);
+			this.returnTypes = this.returnTypes.concat(this.pds);
 		if(this.snippets !== null)
-			returnTypes = returnTypes.concat(this.snippets);
+			this.returnTypes = this.returnTypes.concat(this.snippets);
 
-
-    	$.each(returnTypes, function (i, item) {
-            $('#retType-select').append($('<option>', {   
-                text:  item.title
-            }));
-        });   
-		
-		$('#retType-select').material_select(function() {
-            _this.onRetTypeChanged($('#retType-select').val());
-        });
+		if(this.returnTypes.length > 0){
+			var retTypeDropdowns = $.find('.retType-dropdown');
+			
+			$.each(retTypeDropdowns, function (i, item) {	        	
+	        	_this.setReturnTypeOptions(item);
+    		}); 
+		}
 	}, 
 
-	onRetTypeChanged: function(value){
-		console.log(value);
+	setReturnTypeOptions: function(ddlRetType){
+		var _this = this;
+		$.each(this.returnTypes, function (i, item) {
+        	$('.retType-selector').append($('<option>', {   
+            	text:  item.title
+        	}));
+    	});   
+
+    	var $retType = $('.retType-selector');
+    	//TODO: oncefy otherwise the options will be added always  
+		$retType.material_select(function() {
+			_this.updateQuery($('.retType-selector').find('.select-dropdown'));
+		});
 	},
 
 	render: function() {
@@ -147,14 +156,7 @@ module.exports = React.createClass({
 
 			return (
 				<div className = 'query-row row' key = {query.id} data-query-id = {query.id}>
-					<div className='row'>
-						<div id='retType-dropdown' className = 'col s7 input-field query-return-type'>
-							<select id='retType-select' className='retType-selector form-select' value='default'>
-								<option value='default' disabled>loading...</option>
-							</select>
-							<label htmlFor='retType-select' >Return Type</label>
-						</div>	
-					</div>
+					
 					<div className='row'>
 						<div className = 'col s3 offset-s1 input-field query-name-wrapper'>
 							<input type = 'text' id = {'query-' + query.id + '-name-field'} className = 'query-name-field query-input'
@@ -171,6 +173,14 @@ module.exports = React.createClass({
 							   className = 'query-delete-btn small-btn btn-floating waves-effect waves-light materialize-red'>
 								<i className = 'mdi-content-clear' />
 							</a>
+						</div>
+						<div className = 'col s7 offset-s1 input-field query-return-wrapper'>
+							<div className = 'col s7 input-field retType-dropdown'>
+								<select  id={ query.id + '-retType-select'} className='retType-selector form-select' value='default'>
+									<option value='default' disabled>select a Return Type</option>
+								</select>
+								<label htmlFor='retType-select' >Return Type</label>
+							</div>	
 						</div>
 					</div>
 					<div className='row business-request-container'>

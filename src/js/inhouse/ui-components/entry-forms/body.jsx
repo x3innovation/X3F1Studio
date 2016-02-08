@@ -37,7 +37,6 @@ module.exports = React.createClass({
 		this.queriesController = new QueriesController(this.props.gFileCustomObject,
 			this.props.gMetadataCustomObject,
 			this.props.projectFolderFileId,
-			this.props.gFileCustomObject,
 			this.props.gFileModel);
 		this.enumElementsController = new EnumElementsController(this.props.gFileCustomObject,
 			this.props.gMetadataCustomObject);

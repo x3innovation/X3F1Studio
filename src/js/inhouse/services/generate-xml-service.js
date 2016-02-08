@@ -331,6 +331,7 @@ function GenerateXMLService() {
 					var query = {
 						_name: queryName,
 						_query: queryBody,
+						//TODO: add the return type here 
 						Parameter: null,
 						QueryRequestEvent: {
 							_name: queryName+'Request',

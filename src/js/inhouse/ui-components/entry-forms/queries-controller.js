@@ -45,7 +45,7 @@ function QueriesController(gFileCustomModel, gMetadataCustomObject, projectFolde
 					title: projectObjects[i].title,
 					fileType: projectObjects[i].description 
 				};
-				//the drive file description contains the object type
+				
 				switch (projectObjects[i].description) {
 					case GDriveConstants.ObjectType.PERSISTENT_DATA:
 						pds.push(projectObject);
@@ -73,7 +73,8 @@ function QueriesController(gFileCustomModel, gMetadataCustomObject, projectFolde
 			id: requestId,
 			name: DefaultValueConstants.DefaultQueryAttributes.QUERY_NAME,
 			description: DefaultValueConstants.DefaultQueryAttributes.QUERY_DESCRIPTION,
-			isBusinessRequest: false
+			isBusinessRequest: false, 
+			retType: null
 		}
 		gFileCustomModel.queries.push(newQuery);
 	}
@@ -88,7 +89,7 @@ function QueriesController(gFileCustomModel, gMetadataCustomObject, projectFolde
 		}
 	}
 
-	this.updateQuery = function(queryId, name, description)
+	this.updateQuery = function(queryId, name, description, retType)
 	{
 		gFileModel.beginCompoundOperation();
 		for (var i = 0, len = gFileCustomModel.queries.length; i<len; i++) {
@@ -98,7 +99,8 @@ function QueriesController(gFileCustomModel, gMetadataCustomObject, projectFolde
 					responseId: queryId + 1,
 					id: queryId,
 					name: name,
-					description: description
+					description: description, 
+					returnType: retType
 				};
 				gFileCustomModel.queries.set(i, newQuery);
 				break;
