@@ -1070,6 +1070,8 @@ module.exports = React.createClass({
 							<option value='date'>date</option>
 							<option value='datetime'>datetime</option>
 							<option value='time'>time</option>
+							<option value='UUID'>UUID</option>
+							<option value='epochTime'>epochTime</option>
 						</select>
 						<label htmlFor='field-type-select' >type</label>
 					</div>
