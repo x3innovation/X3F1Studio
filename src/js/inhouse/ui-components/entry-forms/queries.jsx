@@ -22,9 +22,7 @@ module.exports = React.createClass({
 		this.controller.addQueriesUpdateListener(this.updateUi);
 		this.initialize();
 		this.updateUi();
-	},
-
-	
+	},	
 
 	componentDidUpdate: function(){
 		// update the business request checkboxes
@@ -33,6 +31,8 @@ module.exports = React.createClass({
 			$checkbox = $('.business-request-checkbox[data-query-id="'+queries[i].id+'"]');
 			$checkbox.prop('checked', queries[i].isBusinessRequest);
 		}
+		//update the return type dropdowns 
+		this.updateReturnTypeSelectOptions();
 	},
 
 	/* ******************************************
@@ -40,24 +40,31 @@ module.exports = React.createClass({
 	****************************************** */
 	initialize: function()
 	{
-		var _this = this;
-		
-		this.controller.loadProjectObjects(onProjectObjectsLoaded);
-		
+		var _this = this;		
+		this.controller.loadProjectObjects(onProjectObjectsLoaded);	
 
 		function onProjectObjectsLoaded(snippets, pds)
 		{
+			
 			_this.snippets = snippets;
 			_this.pds = pds;
-			_this.updateReturnTypeSelectOptions();
+			_this.addReturnTypes();		
+
+			_this.updateReturnTypeSelectOptions();	
 		}
 	},
+	addReturnTypes: function(){
+		var _this = this;		
+		if(this.pds !== null && typeof (this.pds) !== 'undefined' ) 
+			this.returnTypes = this.returnTypes.concat(this.pds);
+		if(this.snippets !== null && typeof (this.snippets) !== 'undefined')
+			this.returnTypes = this.returnTypes.concat(this.snippets);			
+	}, 
 
 	updateUi: function() {
 		this.forceUpdate();
 		this.setCursorPos();
 		this.realignLabels();
-		//TODO: select the option with the return type per query here...
 	},
 
 	keyUpHandler: function(e) {
@@ -118,33 +125,47 @@ module.exports = React.createClass({
 	},
 
 	updateReturnTypeSelectOptions: function() {
-		var _this = this;		
-		if(this.pds !== null)
-			this.returnTypes = this.returnTypes.concat(this.pds);
-		if(this.snippets !== null)
-			this.returnTypes = this.returnTypes.concat(this.snippets);
-
+		var _this = this;			
+		var existingQueries = _this.controller.getQueries();
 		if(this.returnTypes.length > 0){
-			var retTypeDropdowns = $.find('.retType-dropdown');
-			
-			$.each(retTypeDropdowns, function (i, item) {	        	
-	        	_this.setReturnTypeOptions(item);
+			var retTypeDropdowns = $.find('.retType-selector');
+			$.each(retTypeDropdowns, function (i, item) {	
+				if(typeof(item.options) !== 'undefined' && item.options.length == 1) {
+					_this.setReturnTypeOptions(item);
+				}
+
+				var ddlQueryId = item.id.substring( item.id.indexOf("-")+1, item.id.lastIndexOf("-retType"));
+	            var matchingQuery = $.grep(_this.controller.getQueries(), function(e){ return e.id === ddlQueryId; });
+
+	            if(!($.isEmptyObject(matchingQuery))){	            	
+	            	_this.updateSelectedOption(item, matchingQuery[0].returnType);
+	            }
     		}); 
 		}
 	}, 
 
+	updateSelectedOption: function(ddl, returnType){
+
+		$(ddl).find('option').each(function(){ 
+			if(this.text === returnType){
+        		$(this).attr('selected', true);
+        	}
+		 });  
+
+		$(ddl).material_select();
+	},
+
 	setReturnTypeOptions: function(ddlRetType){
 		var _this = this;
+
 		$.each(this.returnTypes, function (i, item) {
-        	$('.retType-selector').append($('<option>', {   
+        	$(ddlRetType).append($('<option>', {   
             	text:  item.title
         	}));
-    	});   
+    	});    
 
-    	var $retType = $('.retType-selector');
-    	//TODO: oncefy otherwise the options will be added always  
-		$retType.material_select(function() {
-			_this.updateQuery($('.retType-selector').find('.select-dropdown'));
+		$(ddlRetType).material_select(function() {
+			_this.updateQuery($('.retType-dropdown').find('.retType-selector .form-select'));
 		});
 	},
 
@@ -176,10 +197,10 @@ module.exports = React.createClass({
 						</div>
 						<div className = 'col s7 offset-s1 input-field query-return-wrapper'>
 							<div className = 'col s7 input-field retType-dropdown'>
-								<select  id={ query.id + '-retType-select'} className='retType-selector form-select' value='default'>
+								<select  id={'query-' + query.id + '-retType-select'} className='retType-selector form-select' value='default'>
 									<option value='default' disabled>select a Return Type</option>
 								</select>
-								<label htmlFor='retType-select' >Return Type</label>
+								<label htmlFor={'query-' + query.id + '-retType-select'}>Return Type</label>
 							</div>	
 						</div>
 					</div>

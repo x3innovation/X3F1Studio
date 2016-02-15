@@ -327,11 +327,12 @@ function GenerateXMLService() {
 					var gQuery = gQueries.get(i);
 					var title = replaceAll(gModel.title.toString(), ' ', '');
 					var queryName = replaceAll(gQuery.name, ' ', '');
+					var retType = replaceAll(gQuery.returnType, ' ', '');
 					queryBody = gQuery.description;
 					var query = {
 						_name: queryName,
 						_query: queryBody,
-						//TODO: add the return type here 
+						_returnType: retType,
 						Parameter: null,
 						QueryRequestEvent: {
 							_name: queryName+'Request',
