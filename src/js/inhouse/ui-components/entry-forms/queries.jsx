@@ -138,21 +138,22 @@ module.exports = React.createClass({
 	            var matchingQuery = $.grep(_this.controller.getQueries(), function(e){ return e.id === ddlQueryId; });
 
 	            if(!($.isEmptyObject(matchingQuery))){	            	
-	            	_this.updateSelectedOption(item, matchingQuery[0].returnType);
+	            	_this.updateSelectedOption(item, matchingQuery[0].returnType, _this);
 	            }
     		}); 
 		}
 	}, 
 
-	updateSelectedOption: function(ddl, returnType){
-
+	updateSelectedOption: function(ddl, returnType, _this){
 		$(ddl).find('option').each(function(){ 
 			if(this.text === returnType){
         		$(this).attr('selected', true);
         	}
 		 });  
 
-		$(ddl).material_select();
+		$(ddl).material_select(function() {
+			_this.updateQuery($(ddl));
+		});
 	},
 
 	setReturnTypeOptions: function(ddlRetType){
