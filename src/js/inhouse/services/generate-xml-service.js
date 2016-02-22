@@ -327,7 +327,10 @@ function GenerateXMLService() {
 					var gQuery = gQueries.get(i);
 					var title = replaceAll(gModel.title.toString(), ' ', '');
 					var queryName = replaceAll(gQuery.name, ' ', '');
-					var retType = replaceAll(gQuery.returnType, ' ', '');
+					if(typeof(gQuery.returnType) !== 'undefined')
+						var retType = replaceAll(gQuery.returnType, ' ', '');
+					else
+						var retType = null;
 					queryBody = gQuery.description;
 					var query = {
 						_name: queryName,

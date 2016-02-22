@@ -707,6 +707,17 @@ function LatestVersionConverter(latestVersion)
                     }
                 }
             }
+            /*if(customObject.queries){
+            	//add returnType 
+            	for (var i=0; i<customObject.queries.length; ++i){
+                    var query = customObject.queries.get(i);
+                    if (typeof(query.returnType) == 'undefined'){
+                        query.returnType = " ";
+                        //this query is coming straight from the gAPI and at this stage can't change, assingment does not work. 
+                        //
+                    }
+                }
+            }*/
         }
 	}
 
