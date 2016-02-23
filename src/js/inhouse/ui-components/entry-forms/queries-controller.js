@@ -25,17 +25,16 @@ function QueriesController(gFileCustomModel, gMetadataCustomObject, projectFolde
 
 	this.loadProjectObjects = function(callback)
 	{
-		var objectsToGet = { //only need the dmx types
+		var objectsToGet = { 
 			persistentData: true,
-			//enum: false,
-			snippet: true/*,
-			event: false,
-			flow: false*/
+			snippet: true
 		};
+
 		googleDriveUtils.getProjectObjects(pFolderId, '', objectsToGet, onProjectObjectsLoaded);
 
 		function onProjectObjectsLoaded(projectObjects)
 		{
+			///XX
 			var snippets = [];
 			var pds = [];
 			var projectObject;
@@ -48,7 +47,8 @@ function QueriesController(gFileCustomModel, gMetadataCustomObject, projectFolde
 				
 				switch (projectObjects[i].description) {
 					case GDriveConstants.ObjectType.PERSISTENT_DATA:
-						pds.push(projectObject);
+						if(gFileCustomModel.title.text === projectObjects[i].title)
+							pds.push(projectObject);
 						break;
 					case GDriveConstants.ObjectType.SNIPPET:
 						snippets.push(projectObject);

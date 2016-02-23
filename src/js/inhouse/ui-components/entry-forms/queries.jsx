@@ -160,9 +160,17 @@ module.exports = React.createClass({
 		var _this = this;
 
 		$.each(this.returnTypes, function (i, item) {
-        	$(ddlRetType).append($('<option>', {   
-            	text:  item.title
-        	}));
+			if(item.fileType === "f1-objectType-persistentData"){
+				$(ddlRetType).append($('<option>', {   
+	            	text:  item.title, 
+	            	selected: true
+	        	}));
+			}
+			else{
+				$(ddlRetType).append($('<option>', {   
+            		text:  item.title
+        		}));
+			}        	
     	});    
 
 		$(ddlRetType).material_select(function() {
