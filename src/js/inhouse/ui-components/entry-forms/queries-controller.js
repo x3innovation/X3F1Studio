@@ -34,7 +34,6 @@ function QueriesController(gFileCustomModel, gMetadataCustomObject, projectFolde
 
 		function onProjectObjectsLoaded(projectObjects)
 		{
-			///XX
 			var snippets = [];
 			var pds = [];
 			var projectObject;
