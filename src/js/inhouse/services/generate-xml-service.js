@@ -773,6 +773,9 @@ function GenerateXMLService() {
 					case 'boolean':
 						node.Data.Field[i]._default = gField.get('defValueBool').toString();
 						break;
+					case 'UUID':
+						node.Data.Field[i]._generateFlyweightGetter = true;
+						break;
 					case 'string':
 						var maxStrLen = gField.has('maxStrLen') ? 
 							gField.get('maxStrLen').toString() : gField.get('strLen').toString();
