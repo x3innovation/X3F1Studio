@@ -6,6 +6,7 @@ module.exports = {
 		SNIPPET_COLOR : 'purple darken-2',
 		EVENT_COLOR : 'orange',
 		FLOW_COLOR : 'green',
+		APPLICATION_STATE_COLOR: 'cyan darken-4',
 		ALL_COLOR : 'yellow darken-2',
 		VERSION: 2
 	},

@@ -47,6 +47,10 @@ module.exports = React.createClass({
 			FL: {
 				color : Configs.App.FLOW_COLOR,
 				isSearchOn : true
+			}, 
+			AS: {
+				color : Configs.App.APPLICATION_STATE,
+				isSearchOn : true
 			}
 		}
 	},

@@ -7,7 +7,8 @@ module.exports = {
 		PERSISTENT_DATA_FORM_PAGE_TITLE : 'PERSISTENT DATA DETAIL',
 		ENUM_FORM_PAGE_TITLE : 'ENUMERATION DETAIL',
 		EVENT_FORM_PAGE_TITLE : 'EVENT DETAIL',
-		SNIPPET_FORM_PAGE_TITLE : 'SNIPPET DETAIL'
+		SNIPPET_FORM_PAGE_TITLE : 'SNIPPET DETAIL', 
+		APPLICATION_STATE_FORM_PAGE_TITLE : 'APPLICATION STATE DETAIL'
 	},
 
 	NewFileValues : {
@@ -18,11 +19,13 @@ module.exports = {
 		ENUM_TITLE : 'NewEnum',
 		SNIPPET_TITLE : 'NewSnippet',
 		EVENT_TITLE : 'NewEvent',
+		APPLICATION_STATE_TITLE : 'NewApplicationState',
 
 		PERSISTENT_DATA_DESCRIPTION : 'A new persistent data model',
 		ENUM_DESCRIPTION : 'A new enum model',
 		SNIPPET_DESCRIPTION : 'A new snippet model',
-		EVENT_DESCRIPTION : 'A new event model'
+		EVENT_DESCRIPTION : 'A new event model', 
+		APPLICATION_STATE_DESCRIPTION : 'A new application state model'
 	},
 
 	DefaultFieldAttributes : {
