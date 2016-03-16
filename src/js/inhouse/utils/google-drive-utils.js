@@ -154,6 +154,17 @@ function GoogleDriveUtils()
 				isFirstCondition = false;
 			}
 
+            // add application state query
+            if (objectsToGet.applicationState)
+            {
+                if (!isFirstCondition)
+                {
+                    query += " or ";
+                }
+                query += "fullText contains '" + GCons.ObjectType.APPLICATION_STATE + "'";
+                isFirstCondition = false;
+            }
+
 			// add flow query
 			if (objectsToGet.flow)
 			{

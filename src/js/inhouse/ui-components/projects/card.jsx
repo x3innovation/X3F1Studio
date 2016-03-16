@@ -189,6 +189,9 @@ module.exports = React.createClass({
 					case ObjectTypeCons.SNIPPET:
 						objectDict.SN.push(projectObject);
 						break;
+                    case ObjectTypeCons.APPLICATION_STATE:
+                        objectDict.AS.push(projectObject);
+                        break;
 					case ObjectTypeCons.EVENT:
 						objectDict.EV.push(projectObject);
 						break;
@@ -257,6 +260,8 @@ module.exports = React.createClass({
 							 + Configs.App.ENUM_COLOR} onClick = {this.onProjectObjectBtnClick}>EN</a>
 							<a className={"waves-effect waves-light btn project-object-btn col s2 "
 							 + Configs.App.SNIPPET_COLOR} onClick = {this.onProjectObjectBtnClick}>SN</a>
+                            <a className={"waves-effect waves-light btn project-object-btn col s2 "
+                             + Configs.App.APPLICATION_STATE_COLOR} onClick = {this.onProjectObjectBtnClick}>AS</a>
 							<a className={"waves-effect waves-light btn project-object-btn col s2 "
 							 + Configs.App.EVENT_COLOR} onClick = {this.onProjectObjectBtnClick}>EV</a>
 							<a className={"waves-effect waves-light btn project-object-btn col s2 "

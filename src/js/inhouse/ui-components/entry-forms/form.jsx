@@ -84,6 +84,7 @@ module.exports = React.createClass({
 				switch (announcement.fileType) {
 					case GDriveConstants.ObjectType.PERSISTENT_DATA:
 					case GDriveConstants.ObjectType.SNIPPET:
+                    case GDriveConstants.ObjectType.APPLICATION_STATE:
 					case GDriveConstants.ObjectType.EVENT:
 						this.addToRefs(announcement);
 						break;
@@ -96,6 +97,7 @@ module.exports = React.createClass({
 				switch (announcement.fileType) {
 					case GDriveConstants.ObjectType.PERSISTENT_DATA:
 					case GDriveConstants.ObjectType.SNIPPET:
+                    case GDriveConstants.ObjectType.APPLICATION_STATE:
 					case GDriveConstants.ObjectType.EVENT:
 						this.updateRefNames(announcement);
 						break;

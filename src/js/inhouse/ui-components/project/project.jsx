@@ -183,6 +183,7 @@ module.exports = React.createClass({
 				persistentData: true,
 				enum: true,
 				snippet: true,
+                applicationState: true,
 				event: true,
 				flow: true
 			}
@@ -193,6 +194,7 @@ module.exports = React.createClass({
 				persistentData: this.model.buttons.persistentData.isSearchOn,
 				enum: this.model.buttons.enum.isSearchOn,
 				snippet: this.model.buttons.snippet.isSearchOn,
+                applicationState: this.model.buttons.applicationState.isSearchOn,
 				event: this.model.buttons.event.isSearchOn,
 				flow: this.model.buttons.flow.isSearchOn
 			};

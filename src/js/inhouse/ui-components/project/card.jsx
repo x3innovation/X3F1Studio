@@ -244,7 +244,18 @@ module.exports = React.createClass({
 				/* ***TODO*** */
 			}
 			else if (this.props.objectType === GDriveCons.ObjectType.APPLICATION_STATE) {
-				/* ***TODO*** */
+                this.model.fieldNames = [];
+                if (gModel) {
+                    this.model.title = gModel.title.toString();
+                    this.model.description = gModel.description.toString();
+                    fields = gModel.fields;
+                    for (i = 0, len = fields.length; i<len; i++) {
+                        this.model.fieldNames.push(fields.get(i).get('name').toString());
+                    }
+                } else { //gModel was not properly initialized, but still need to load
+                    this.model.title = DefaultValueCons.NewFileValues.APPLICATION_STATE_TITLE;
+                    this.model.description = DefaultValueCons.NewFileValues.APPLICATION_STATE_DESCRIPTION;
+                }
 			}
 
 			this.contentFileLoaded = true;
