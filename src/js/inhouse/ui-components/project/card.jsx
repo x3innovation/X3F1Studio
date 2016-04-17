@@ -51,7 +51,7 @@ module.exports = React.createClass({
 		else if (this.props.objectType === GDriveCons.ObjectType.APPLICATION_STATE)
 		{
 			this.model.objectType = 'AS';
-			this.model.color = '#880E4F';
+			this.model.color = '#ad1457';
 		}
 	},
 
