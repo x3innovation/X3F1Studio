@@ -179,7 +179,11 @@ module.exports = React.createClass({
 			if (fieldVal.length > Configs.EntryForm.FIELD_NAME_LENGTH_MAX) { 
 				errorMessage += 'Names can be '+Configs.EntryForm.FIELD_NAME_LENGTH_MAX+' characters long at most. ';
 			}
-			if (!fieldVal.match(/^[A-Za-z][A-Za-z0-9_]*[A-Za-z0-9]$/)) {
+			
+			if (fieldVal.length == 1 && !fieldVal.match(/^[A-Za-z]$/)){
+				errorMessage += 'Names should start with a letter.';
+			}
+			else if (fieldVal.length >= 2 && !fieldVal.match(/^[A-Za-z][A-Za-z0-9_]*[A-Za-z0-9]$/)) {
 				errorMessage += 'Names should start with a letter and can contain inner underscores.';
 			}
 		}
