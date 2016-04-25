@@ -2,7 +2,6 @@ var googleApiInterface = require('../remote-server-interfaces/google-api-interfa
 var GCons = require('../constants/google-drive-constants.js');
 var DefaultValueConstants = require('../constants/default-value-constants.js');
 var AnnouncementType = require('../constants/announcement-type.js');
-var uniqueIdGenerator = require('../utils/unique-id-generator.js');
 var DefaultFields = DefaultValueConstants.DefaultFieldAttributes;
 var ObjectType = GCons.ObjectType;
 var Configs = require('../app-config.js');
@@ -86,8 +85,8 @@ function GoogleDriveUtils()
 		googleApiInterface.saveTitle(fileId, title);
 	};
 
-	this.getNewTypeId = function(gMetadataCustomObject, step) {
-		return uniqueIdGenerator.getUuid();
+	this.getNewTypeId = function(gMetadataCustomObject, step) {		
+		return UUIDjs.create(4).hex;
 	};
 
 	this.announce = function(gMetadataCustomObject, announcement) {
