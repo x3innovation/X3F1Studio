@@ -611,7 +611,9 @@ function GenerateXMLService() {
 							fieldType = 'uuid';
 						}
 						else{
-							console.log('ERROR: Invalid field name used in the query');
+							console.log('ERROR: field name used in a query does not exist in the entire project'); 
+							console.log('project object title: ' + projectObjectTitle);
+							console.log('field name: ' + eligibleFieldName);
 						}
 					}
 				}				
