@@ -44,6 +44,10 @@ module.exports = React.createClass({
 				flow : {
 					color : Configs.App.FLOW_COLOR,
 					isSearchOn : true
+				}, 
+				applicationState : {
+					color : Configs.App.APPLICATION_STATE_COLOR,
+					isSearchOn : true
 				}
 			}
 		};
@@ -179,6 +183,7 @@ module.exports = React.createClass({
 				persistentData: true,
 				enum: true,
 				snippet: true,
+                applicationState: true,
 				event: true,
 				flow: true
 			}
@@ -189,6 +194,7 @@ module.exports = React.createClass({
 				persistentData: this.model.buttons.persistentData.isSearchOn,
 				enum: this.model.buttons.enum.isSearchOn,
 				snippet: this.model.buttons.snippet.isSearchOn,
+                applicationState: this.model.buttons.applicationState.isSearchOn,
 				event: this.model.buttons.event.isSearchOn,
 				flow: this.model.buttons.flow.isSearchOn
 			};
@@ -299,6 +305,9 @@ module.exports = React.createClass({
 	onAddEventBtnClick: function() {
 		this.createObjectAndTransitionTo(GDriveCons.ObjectType.EVENT);
 	},
+	onAddApplicationStateBtnClick: function() {		
+		this.createObjectAndTransitionTo(GDriveCons.ObjectType.APPLICATION_STATE);
+	},
 	onAddFlowBtnClick: function() {
 		/*does nothing for now*/
 	},
@@ -397,6 +406,7 @@ module.exports = React.createClass({
 						<a className={'waves-effect waves-light btn filter-btn grey'} onClick={this.onFilterBtnClick} data-model-name="snippet">Snippet</a>
 						<a className={'waves-effect waves-light btn filter-btn grey'} onClick={this.onFilterBtnClick} data-model-name="event">Event</a>
 						<a className={'waves-effect waves-light btn filter-btn grey'} onClick={this.onFilterBtnClick} data-model-name="flow">Flow</a>
+						<a className={'waves-effect waves-light btn filter-btn grey'} onClick={this.onFilterBtnClick} data-model-name="applicationState">Application State</a>
 						<a className={'btn-floating disabled waves-effect waves-light ' + Configs.App.ADD_BUTTON_COLOR}
 							href='#add-project-object-modal' id='project-object-add-btn'>
 							<i className='mdi-content-add' />
@@ -418,6 +428,8 @@ module.exports = React.createClass({
 								onClick={this.onAddEventBtnClick}>Event</a>
 							<a className={'modal-close waves-effect waves-light btn ' + Configs.App.FLOW_COLOR}
 								onClick={this.onAddFlowBtnClick}>Flow</a>
+							<a className={'modal-close waves-effect waves-light btn ' + Configs.App.APPLICATION_STATE_COLOR}
+								onClick={this.onAddApplicationStateBtnClick}>Application State</a>
 						</div>
 					</div>
 				</div>

@@ -17,6 +17,7 @@ function EditorController(fileType, projectFileId, objectFileId, projectFolderFi
 	customObjectKeys[ObjectType.ENUM] = GDriveConstants.CustomObjectKey.ENUM;
 	customObjectKeys[ObjectType.EVENT] = GDriveConstants.CustomObjectKey.EVENT;
 	customObjectKeys[ObjectType.SNIPPET] = GDriveConstants.CustomObjectKey.SNIPPET;
+    customObjectKeys[ObjectType.APPLICATION_STATE] = GDriveConstants.CustomObjectKey.APPLICATION_STATE;
 	var customObjectKey = customObjectKeys[fileType];
 
 	var PageTitleConstants = DefaultValueConstants.PageTitleValues;
@@ -25,6 +26,7 @@ function EditorController(fileType, projectFileId, objectFileId, projectFolderFi
 	pageTitles[ObjectType.ENUM] = PageTitleConstants.ENUM_FORM_PAGE_TITLE;
 	pageTitles[ObjectType.EVENT] = PageTitleConstants.EVENT_FORM_PAGE_TITLE;
 	pageTitles[ObjectType.SNIPPET] = PageTitleConstants.SNIPPET_FORM_PAGE_TITLE;
+    pageTitles[ObjectType.APPLICATION_STATE] = PageTitleConstants.APPLICATION_STATE_FORM_PAGE_TITLE;
 	var pageTitle = pageTitles[fileType];
 
 	var gMetadataDoc;

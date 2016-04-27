@@ -15,6 +15,7 @@ function GenerateXMLService() {
 			switch (projectObjects[i].description) {
 				case GDriveConstants.ObjectType.PERSISTENT_DATA:
 				case GDriveConstants.ObjectType.SNIPPET:
+                case GDriveConstants.ObjectType.APPLICATION_STATE:
 				case GDriveConstants.ObjectType.EVENT:
 					classifiedObjects.datas.push(projectObjects[i]);
 					break;
@@ -914,6 +915,25 @@ function GenerateXMLService() {
 			}, Configs.GoogleDocCloseInterval);
 		};
 
+
+        var onApplicationStateLoad = function(doc) {
+            var dataType = 'applicationState';
+            var gModel = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.APPLICATION_STATE);
+            var node = createDataNode(gModel, dataType);
+            node = setJsonFields(node, gModel);
+
+            dataJsonNode.Data.push(node.Data);
+
+            if (dataJsonNode.Data.length === dataCount && typeof callback === 'function') {
+                callback(dataJsonNode);
+            }
+
+            // closing the doc too soon throws an exception from Google
+            setTimeout(function(){
+                doc.close();
+            }, Configs.GoogleDocCloseInterval);
+        };
+
 		if (dataCount === 0 && typeof callback === 'function') {
 			callback(dataJsonNode);
 		}
@@ -925,7 +945,10 @@ function GenerateXMLService() {
 				googleDriveUtils.loadDriveFileDoc(datas[i].id, GDriveConstants.ObjectType.SNIPPET, onSnippetLoad);
 			} else if (datas[i].description === GDriveConstants.ObjectType.EVENT){
 				googleDriveUtils.loadDriveFileDoc(datas[i].id, GDriveConstants.ObjectType.EVENT, onEventLoad);
-			}
+			}else if (datas[i].description === GDriveConstants.ObjectType.APPLICATION_STATE){
+                googleDriveUtils.loadDriveFileDoc(datas[i].id, GDriveConstants.ObjectType.APPLICATION_STATE, onApplicationStateLoad);
+            }
+
 		}
 	};
 
