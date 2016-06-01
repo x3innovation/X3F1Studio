@@ -198,7 +198,6 @@ function GenerateXMLService() {
 			var description = gModel.description.toString();
 			var typeId = gModel.id;
             var isBusinessRequest = gModel.isBusinessRequest;
-
 			node.Data = {
 				_name: spacelessName,
 				_typeId: typeId,
@@ -231,6 +230,10 @@ function GenerateXMLService() {
 			if (dataType === 'persisted') {
 				node.Data._identifiable = 'true';
 				node.Data._stateChecked = 'false';
+			}
+
+			if (dataType === 'persisted' || dataType === 'snippet') {
+				node.Data._extends = gModel.extends !== null ? gModel.extends: '';
 			}
 
 			return node;
