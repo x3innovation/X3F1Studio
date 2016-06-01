@@ -709,11 +709,14 @@ function LatestVersionConverter(latestVersion)
 				}
 
                 addNewFieldParameters();
+                addNewFieldsForPersistedTypes();
 
 				if (isLastConversion){
 					callback();
 				}
 				break;
+			case ObjectType.SNIPPET:
+				addNewFieldsForPersistedTypes();
 			default:
 				if (isLastConversion){
 					callback();
@@ -729,6 +732,19 @@ function LatestVersionConverter(latestVersion)
                     var field = customObject.fields.get(i);
                     if (!field.get('unique')){
                         field.set('unique', false);
+                    }
+                }
+            }
+        }
+
+        function addNewFieldsForPersistedTypes(){
+        	var customObject = doc.getModel().getRoot().get(customObjectKey);
+            if (customObject.fields){
+                // add 'extends'
+                for (var i=0; i<customObject.fields.length; ++i){
+                    var field = customObject.fields.get(i);
+                    if (!field.get('extends')){
+                        field.set('extends', '');
                     }
                 }
             }
