@@ -451,7 +451,14 @@ function GenerateXMLService() {
 							if (!fieldsDetails[projectObjectTitle]){
 								fieldsDetails[projectObjectTitle] = {};
                                 fieldsDetailsProjectObjectToLoadCounter++;
-								loadProjectObjectForFieldsDetails(projectObjectTitle);
+								try{
+									loadProjectObjectForFieldsDetails(projectObjectTitle);
+								}
+								catch(errorMessage){
+									console.error('Failed while processing the query for the project objet: ' + gModel.title.text);
+									console.error('Failed query is: ' + queryBody);
+									console.error('Failed proejct object title is: ' + projectObjectTitle);
+								}
 							}
 						}
 					}
@@ -477,7 +484,7 @@ function GenerateXMLService() {
 						googleDriveUtils.loadDriveFileDoc(fileId, objectType, onObjectFileLoaded.bind(executionContext));
 					}
 					else{
-						throw "ERROR: no file id was found for the project object title " + projectObjectTitle + ". Make sure the SQL query entered follows the current query parsing logic.";
+						throw 'ERROR: no file id was found for the project object title "' + projectObjectTitle + '"';
 					}
 
 					function onObjectFileLoaded(doc){
