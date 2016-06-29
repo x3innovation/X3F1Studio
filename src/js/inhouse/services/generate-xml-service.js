@@ -461,8 +461,9 @@ function GenerateXMLService() {
 				function loadProjectObjectForFieldsDetails(projectObjectTitle){
 					var fileIds = gMetadataCustomObject.projectObjectTitles.keys();
 					for (var i=0; i<fileIds.length; i++){
-						var fileId = fileIds[i];
+						var fileId = null;
 						if (gMetadataCustomObject.projectObjectTitles.get(fileId) === projectObjectTitle){
+							filedId = fileIds[i];
 							break;
 						}
 					}
@@ -470,7 +471,13 @@ function GenerateXMLService() {
 					var executionContext = {
 						projectObjectTitle: projectObjectTitle
 					};
-					googleDriveUtils.loadDriveFileDoc(fileId, objectType, onObjectFileLoaded.bind(executionContext));
+
+					if (fileId != null){
+						googleDriveUtils.loadDriveFileDoc(fileId, objectType, onObjectFileLoaded.bind(executionContext));
+					}
+					else{
+						throw "ERROR: no file id was found for the project object title " + projectObjectTitle + ". Make sure the SQL query entered follows the current query parsing logic.";
+					}
 
 					function onObjectFileLoaded(doc){
                         fieldsDetailsProjectObjectLoadedCounter++;
