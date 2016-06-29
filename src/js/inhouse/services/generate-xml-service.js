@@ -460,10 +460,11 @@ function GenerateXMLService() {
 				// inner functions
 				function loadProjectObjectForFieldsDetails(projectObjectTitle){
 					var fileIds = gMetadataCustomObject.projectObjectTitles.keys();
+					var isProjectObjectFound = false;
 					for (var i=0; i<fileIds.length; i++){
-						var fileId = null;
+						var fileId = fileIds[i];
 						if (gMetadataCustomObject.projectObjectTitles.get(fileId) === projectObjectTitle){
-							filedId = fileIds[i];
+							isProjectObjectFound = true;
 							break;
 						}
 					}
@@ -472,7 +473,7 @@ function GenerateXMLService() {
 						projectObjectTitle: projectObjectTitle
 					};
 
-					if (fileId != null){
+					if (isProjectObjectFound){
 						googleDriveUtils.loadDriveFileDoc(fileId, objectType, onObjectFileLoaded.bind(executionContext));
 					}
 					else{
