@@ -19,10 +19,11 @@ function GoogleApiInterface()
 		var custom = gapi.drive.realtime.custom;
 		custom.registerType(model, GDriveConstant.CustomObjectKey.PROJECT_METADATA);
 		model.prototype.version = custom.collaborativeField(Cons.KEY_VERSION);
-		model.prototype.nextId = custom.collaborativeField(Cons.KEY_NEXT_ID);
 		model.prototype.announcement = custom.collaborativeField(Cons.KEY_ANNOUNCEMENT);
 		model.prototype.businessRequestEvents = custom.collaborativeField(Cons.KEY_BUSINESS_REQUEST_EVENTS);
 		model.prototype.nonBusinessRequestEvents = custom.collaborativeField(Cons.KEY_NON_BUSINESS_REQUEST_EVENTS);
+		model.prototype.businessResponseEvents = custom.collaborativeField(Cons.KEY_BUSINESS_RESPONSE_EVENTS);
+		model.prototype.projectObjectTitles = custom.collaborativeField(Cons.KEY_PROJECT_OBJECT_TITLES);
 		custom.setInitializer(model, model.prototype.initialize);
 	}
 
@@ -108,6 +109,28 @@ function GoogleApiInterface()
 		custom.setInitializer(model, model.prototype.initialize);
 	}
 
+
+	function registerApplicationStateDataCustomObject()
+	{
+		var Cons = GDriveConstant.ApplicationState;
+
+		var model = function(){};
+		model.prototype.initialize = function(){};
+
+		var custom = gapi.drive.realtime.custom;
+		custom.registerType(model, GDriveConstant.CustomObjectKey.APPLICATION_STATE);
+		model.prototype.introducedVersion = custom.collaborativeField(Cons.KEY_INTRODUCED_VERSION);
+		model.prototype.deprecatedVersion = custom.collaborativeField(Cons.KEY_DEPRECATED_VERSION);
+		model.prototype.creatingUser = custom.collaborativeField(Cons.KEY_CREATING_USER);
+		model.prototype.createdDate = custom.collaborativeField(Cons.KEY_CREATED_DATE);
+		model.prototype.id = custom.collaborativeField(Cons.KEY_ID);
+		model.prototype.title = custom.collaborativeField(Cons.KEY_TITLE);
+		model.prototype.description = custom.collaborativeField(Cons.KEY_DESCRIPTION);
+		model.prototype.fields = custom.collaborativeField(Cons.KEY_FIELDS);
+		model.prototype.appStateId = custom.collaborativeField(Cons.KEY_APP_STATE_ID);
+		custom.setInitializer(model, model.prototype.initialize);
+	}
+
 	function registerEnumDataCustomObject()
 	{
 		var Cons = GDriveConstant.Enum;
@@ -172,6 +195,7 @@ function GoogleApiInterface()
 		registerPersistentDataCustomObject();
 		registerEventDataCustomObject();
 		registerSnippetDataCustomObject();
+		registerApplicationStateDataCustomObject();
 		registerEnumDataCustomObject();
 		registerFlowDataCustomObject();
 		registerProjectCustomObject();

@@ -78,7 +78,8 @@ function PersistentEventsController(gMetadataCustomObject, gFileCustomObject, ob
 		
 		function onBusinessRequestUpdate(announcementEvent){
 			var announcement = announcementEvent.values[0];
-			if (announcement.fileId === objectFileId){
+			if (announcement.fileId === objectFileId && 
+				announcement.action === AnnouncementType.RENAME_FILE){
 				gFileCustomObject.isUpdateBusinessRequest = announcement.businessRequests.update;
 				gFileCustomObject.isCreateBusinessRequest = announcement.businessRequests.create;
 				gFileCustomObject.isRemoveBusinessRequest = announcement.businessRequests.remove;

@@ -15,12 +15,14 @@ module.exports = React.createClass({
 		this.queries = [];
 		this.fieldAttr = {};
 		this.controller = this.props.controller;
+		this.returnTypes = [];
 	},
 
 	componentDidMount: function(){
 		this.controller.addQueriesUpdateListener(this.updateUi);
+		this.initialize();
 		this.updateUi();
-	},
+	},	
 
 	componentDidUpdate: function(){
 		// update the business request checkboxes
@@ -29,11 +31,36 @@ module.exports = React.createClass({
 			$checkbox = $('.business-request-checkbox[data-query-id="'+queries[i].id+'"]');
 			$checkbox.prop('checked', queries[i].isBusinessRequest);
 		}
+		//update the return type dropdowns 
+		this.updateReturnTypeSelectOptions();
 	},
 
 	/* ******************************************
 				NON LIFE CYCLE FUNCTIONS
 	****************************************** */
+	initialize: function()
+	{
+		var _this = this;		
+		this.controller.loadProjectObjects(onProjectObjectsLoaded);	
+
+		function onProjectObjectsLoaded(snippets, pds)
+		{
+			
+			_this.snippets = snippets;
+			_this.pds = pds;
+			_this.addReturnTypes();		
+
+			_this.updateReturnTypeSelectOptions();	
+		}
+	},
+	addReturnTypes: function(){
+		var _this = this;		
+		if(this.pds !== null && typeof (this.pds) !== 'undefined' ) 
+			this.returnTypes = this.returnTypes.concat(this.pds);
+		if(this.snippets !== null && typeof (this.snippets) !== 'undefined')
+			this.returnTypes = this.returnTypes.concat(this.snippets);			
+	}, 
+
 	updateUi: function() {
 		this.forceUpdate();
 		this.setCursorPos();
@@ -53,11 +80,11 @@ module.exports = React.createClass({
 
 	updateQuery: function($fieldAttr) {
 		var $queryRow = $fieldAttr.closest('.query-row');
-		var queryId = parseInt($queryRow.attr('data-query-id'), 10);
+		var queryId = $queryRow.attr('data-query-id');
 		var name = $queryRow.find('.query-name-field').val();
 		var description = $queryRow.find('.query-description-field').val();
-
-		this.controller.updateQuery(queryId, name, description);
+		var returnType =  $queryRow.find('.retType-selector option:selected').val();
+		this.controller.updateQuery(queryId, name, description, returnType);
 	},
 
 	realignLabels: function() {
@@ -97,6 +124,60 @@ module.exports = React.createClass({
 		this.controller.setBusinessRequest(queryId, isBusinessRequest);
 	},
 
+	updateReturnTypeSelectOptions: function() {
+		var _this = this;			
+		var existingQueries = _this.controller.getQueries();
+		if(this.returnTypes.length > 0){
+			var retTypeDropdowns = $.find('.retType-selector');
+			$.each(retTypeDropdowns, function (i, item) {	
+				if(typeof(item.options) !== 'undefined' && item.options.length == 1) {
+					_this.setReturnTypeOptions(item);
+				}
+
+				var ddlQueryId = item.id.substring( item.id.indexOf("-")+1, item.id.lastIndexOf("-retType"));
+	            var matchingQuery = $.grep(_this.controller.getQueries(), function(e){ return e.id === ddlQueryId; });
+
+	            if(!($.isEmptyObject(matchingQuery))){	            	
+	            	_this.updateSelectedOption(item, matchingQuery[0].returnType, _this);
+	            }
+    		}); 
+		}
+	}, 
+
+	updateSelectedOption: function(ddl, returnType, _this){
+		$(ddl).find('option').each(function(){ 
+			if(this.text === returnType){
+        		$(this).attr('selected', true);
+        	}
+		 });  
+
+		$(ddl).material_select(function() {
+			_this.updateQuery($(ddl));
+		});
+	},
+
+	setReturnTypeOptions: function(ddlRetType){
+		var _this = this;
+
+		$.each(this.returnTypes, function (i, item) {
+			if(item.fileType === "f1-objectType-persistentData"){
+				$(ddlRetType).append($('<option>', {   
+	            	text:  item.title, 
+	            	selected: true
+	        	}));
+			}
+			else{
+				$(ddlRetType).append($('<option>', {   
+            		text:  item.title
+        		}));
+			}        	
+    	});    
+
+		$(ddlRetType).material_select(function() {
+			_this.updateQuery($('.retType-dropdown').find('.retType-selector .form-select'));
+		});
+	},
+
 	render: function() {
 		var queries = this.controller.getQueries();
 		var queryContents = queries.map(function(query) {
@@ -105,12 +186,9 @@ module.exports = React.createClass({
 
 			return (
 				<div className = 'query-row row' key = {query.id} data-query-id = {query.id}>
+					
 					<div className='row'>
-						<div className = 'col s1 input-field query-id-wrapper'>
-							<input type = 'text' id = {'query-' + query.id + '-id-field'} readOnly className = 'query-id-field' value = {query.id} />
-							<label htmlFor = {'query-' + query.id + '-id-field'} className = 'query-label active'>query id</label>
-						</div>
-						<div className = 'col s3 input-field query-name-wrapper'>
+						<div className = 'col s3 offset-s1 input-field query-name-wrapper'>
 							<input type = 'text' id = {'query-' + query.id + '-name-field'} className = 'query-name-field query-input'
 							 	onKeyUp = {this.keyUpHandler} defaultValue = {query.name} spellCheck = 'false' />
 							<label htmlFor = {'query-' + query.id + '-name-field'} className = 'query-label'>query name</label>
@@ -125,6 +203,14 @@ module.exports = React.createClass({
 							   className = 'query-delete-btn small-btn btn-floating waves-effect waves-light materialize-red'>
 								<i className = 'mdi-content-clear' />
 							</a>
+						</div>
+						<div className = 'col s7 offset-s1 input-field query-return-wrapper'>
+							<div className = 'col s7 input-field retType-dropdown'>
+								<select  id={'query-' + query.id + '-retType-select'} className='retType-selector form-select' value='default'>
+									<option value='default' disabled>select a Return Type</option>
+								</select>
+								<label htmlFor={'query-' + query.id + '-retType-select'}>Return Type</label>
+							</div>	
 						</div>
 					</div>
 					<div className='row business-request-container'>

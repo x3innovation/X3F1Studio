@@ -84,6 +84,7 @@ module.exports = React.createClass({
 				switch (announcement.fileType) {
 					case GDriveConstants.ObjectType.PERSISTENT_DATA:
 					case GDriveConstants.ObjectType.SNIPPET:
+                    case GDriveConstants.ObjectType.APPLICATION_STATE:
 					case GDriveConstants.ObjectType.EVENT:
 						this.addToRefs(announcement);
 						break;
@@ -96,6 +97,7 @@ module.exports = React.createClass({
 				switch (announcement.fileType) {
 					case GDriveConstants.ObjectType.PERSISTENT_DATA:
 					case GDriveConstants.ObjectType.SNIPPET:
+                    case GDriveConstants.ObjectType.APPLICATION_STATE:
 					case GDriveConstants.ObjectType.EVENT:
 						this.updateRefNames(announcement);
 						break;
@@ -189,8 +191,8 @@ module.exports = React.createClass({
 			if ($('#field-type-select').val() === 'datetime'){
 				var input = $input.val();
 				var inputTokenized = input.split(' ');
-				var date = inputTokenized[0];
-				var time = inputTokenized[1];
+				var date = inputTokenized[0] || "";
+				var time = inputTokenized[1] || "";
 
 				if ($input.attr('id') === 'min-date-field'){
 					$('#min-datetime-date').attr('data-date', date);
@@ -238,6 +240,7 @@ module.exports = React.createClass({
 		getById('def-value-checkbox').checked = this.fieldData.get('defValueBool');
 		getById('optional-checkbox').checked = this.fieldData.get('optional');
 		getById('array-checkbox').checked =  this.fieldData.get('array');
+		getById('unique-checkbox').checked =  this.fieldData.get('unique');
 		getById('context-id-checkbox').checked =  this.fieldData.get('contextId');
 		this.updateAllSelect();
 	},
@@ -274,6 +277,7 @@ module.exports = React.createClass({
 			this.fieldData.get('maxValue').setText(getById('max-value-field').value);
 			this.fieldData.get('minStrLen').setText(getById('min-str-len-field').value);
 			this.fieldData.get('maxStrLen').setText(getById('max-str-len-field').value);
+			this.fieldData.get('defValue').setText(getById('def-value-field').value);
 
 			if (type === 'datetime'){
 				var datetimeDate = $('#min-datetime-date').attr('data-date');
@@ -306,10 +310,11 @@ module.exports = React.createClass({
 				this.fieldData.get('arrayLen').setText(getById('array-len-field').value);
 			}
 
-			this.fieldData.set('defValueChar', getById('char-def-value-field').value);			
+			this.fieldData.set('defValueChar', getById('char-def-value-field').value);
 			this.fieldData.set('defValueBool', getById('def-value-checkbox').checked);
 			this.fieldData.set('optional', getById('optional-checkbox').checked);
 			this.fieldData.set('array', getById('array-checkbox').checked);
+			this.fieldData.set('unique', getById('unique-checkbox').checked);
 			this.fieldData.set('contextId', getById('context-id-checkbox').checked);
 			this.gFields.set(fieldIndex, this.fieldData);
 
@@ -437,8 +442,8 @@ module.exports = React.createClass({
 		}
 
 		//Validating: Char
-		if (!errorMessage && fieldId === 'char-def-value-field') {		
-			if (fieldVal.length > 1) { 
+		if (!errorMessage && fieldId === 'char-def-value-field') {
+			if (fieldVal.length > 1) {
 				errorMessage += 'Chars can only be 1 character long.';
 			}
 			if (!fieldVal.match(/[a-zA-Z0-9:]/g)) {
@@ -496,7 +501,149 @@ module.exports = React.createClass({
 				errorMessage += 'Default ' +fieldType+ ' should not be before defined minimum ' +fieldType+ '. ';
 			}
 		}
+		//Validating: ref-soft & ref-hard radio buttons
+		if(fieldType === 'ref') {
+			if (typeof($("#ref-name-select")[0]) != 'undefined' && $("#ref-name-select")[0].selectedIndex != 0) {
+				if (!errorMessage && (fieldId === 'ref-soft-radio' || fieldId === 'ref-hard-radio' )) {
+					$('#ref-soft-radio').attr('disabled', false);
+					$('#ref-hard-radio').attr('disabled', false);
+					if (!($('#ref-soft-radio').prop("checked") ) && !($('#ref-hard-radio').prop("checked"))) {
+						errorMessage += 'Some type of reference needs to be selected';
+					}
+				}
+			}
+			else {
+				$('#ref-soft-radio').attr('disabled', true);
+				$('#ref-hard-radio').attr('disabled', true);
+			}
+		}
 
+		//Validating: Short
+		if (!errorMessage && fieldType === 'short' && fieldId === 'min-value-field' && $('#min-value-field').val()){
+			if( parseInt($('#min-value-field').val(),10 ) <  parseInt(Configs.DataTypeDef.FIELD_SHORT_MIN_VALUE) ){
+				errorMessage += 'The minimum value should be greater than ' + parseInt(Configs.DataTypeDef.FIELD_SHORT_MIN_VALUE);
+				$('#min-value-field').addClass('invalid-input');
+			}
+			if( parseInt($('#min-value-field').val(),10 ) >  parseInt(Configs.DataTypeDef.FIELD_SHORT_MAX_VALUE) ){
+				errorMessage += 'The minimum value can not be greater than ' + Configs.DataTypeDef.FIELD_SHORT_MAX_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+		}
+		if(!errorMessage && fieldType === 'short' && fieldId === 'max-value-field' && $('#max-value-field').val()){
+			if( parseInt($('#max-value-field').val(),10 ) >  parseInt(Configs.DataTypeDef.FIELD_SHORT_MAX_VALUE) ){
+				errorMessage += 'The maximum value can not be greater than ' + Configs.DataTypeDef.FIELD_SHORT_MAX_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+			if( parseInt($('#max-value-field').val(),10 ) <  parseInt(Configs.DataTypeDef.FIELD_SHORT_MIN_VALUE) ){
+				errorMessage += 'The maximum value can not be less than ' + Configs.DataTypeDef.FIELD_SHORT_MIN_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+		}
+		//Validating: Integer
+		if (!errorMessage && fieldType === 'integer' && fieldId === 'min-value-field' && $('#min-value-field').val()){
+			if( parseInt($('#min-value-field').val(),10 ) <  parseInt(Configs.DataTypeDef.FIELD_INT_MIN_VALUE) ){
+				errorMessage += 'The minimum value should be greater than ' + Configs.DataTypeDef.FIELD_INT_MIN_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+			if( parseInt($('#min-value-field').val(),10 ) >  parseInt(Configs.DataTypeDef.FIELD_INT_MAX_VALUE) ){
+				errorMessage += 'The minimum value can not be greater than ' + Configs.DataTypeDef.FIELD_INT_MAX_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+		}
+		if(!errorMessage && fieldType === 'integer' && fieldId === 'max-value-field' && $('#max-value-field').val()){
+			if( parseInt($('#max-value-field').val(),10 ) >  parseInt(Configs.DataTypeDef.FIELD_INT_MAX_VALUE) ){
+				errorMessage += 'The maximum value can not be greater than ' + Configs.DataTypeDef.FIELD_INT_MAX_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+			if( parseInt($('#max-value-field').val(),10 ) <  parseInt(Configs.DataTypeDef.FIELD_INT_MIN_VALUE) ){
+				errorMessage += 'The maximum value should greater than ' + Configs.DataTypeDef.FIELD_INT_MIN_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+		}
+		//Validating: Long
+		if (!errorMessage && fieldType === 'long' && fieldId === 'min-value-field' && $('#min-value-field').val()){
+			if( parseInt($('#min-value-field').val(),20 ) <  parseInt(Configs.DataTypeDef.FIELD_LONG_MIN_VALUE) ){
+				errorMessage += 'The minimum value should be greater than ' + Configs.DataTypeDef.FIELD_LONG_MIN_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+			if( parseInt($('#min-value-field').val(),20 ) >  parseInt(Configs.DataTypeDef.FIELD_LONG_MAX_VALUE) ){
+				errorMessage += 'The minimum value can not be greater than ' + Configs.DataTypeDef.FIELD_LONG_MAX_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+		}
+		if(!errorMessage && fieldType === 'long' && fieldId === 'max-value-field' && $('#max-value-field').val()){
+			if( parseInt($('#max-value-field').val(),20 ) >  parseInt(Configs.DataTypeDef.FIELD_LONG_MAX_VALUE) ){
+				errorMessage += 'The maximum value can not be greater than ' + Configs.DataTypeDef.FIELD_LONG_MAX_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+			if( parseInt($('#max-value-field').val(),20 ) <  parseInt(Configs.DataTypeDef.FIELD_LONG_MIN_VALUE) ){
+				errorMessage += 'The maximum value should greater than ' + Configs.DataTypeDef.FIELD_LONG_MIN_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+		}
+		//Validating: Byte
+		if (!errorMessage && fieldType === 'byte' && fieldId === 'min-value-field' && $('#min-value-field').val()){
+			if( parseInt($('#min-value-field').val(),10 ) <  parseInt(Configs.DataTypeDef.FIELD_BYTE_MIN_VALUE) ){
+				errorMessage += 'The minimum value should be greater than ' + Configs.DataTypeDef.FIELD_BYTE_MIN_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+			if( parseInt($('#min-value-field').val(),10 ) >  parseInt(Configs.DataTypeDef.FIELD_BYTE_MAX_VALUE) ){
+				errorMessage += 'The minimum value can not be greater than ' + Configs.DataTypeDef.FIELD_BYTE_MAX_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+		}
+		if(!errorMessage && fieldType === 'byte' && fieldId === 'max-value-field' && $('#max-value-field').val()){
+			if( parseInt($('#max-value-field').val(),10 ) >  parseInt(Configs.DataTypeDef.FIELD_BYTE_MAX_VALUE) ){
+				errorMessage += 'The maximum value can not be greater than ' + Configs.DataTypeDef.FIELD_BYTE_MAX_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+			if( parseInt($('#max-value-field').val(),10 ) <  parseInt(Configs.DataTypeDef.FIELD_BYTE_MIN_VALUE) ){
+				errorMessage += 'The maximum value should greater than ' + Configs.DataTypeDef.FIELD_BYTE_MIN_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+		}
+		//Validating: Double
+		if (!errorMessage && fieldType === 'double' && fieldId === 'min-value-field' && $('#min-value-field').val()){
+			if( parseFloat($('#min-value-field').val()) <  parseFloat(Configs.DataTypeDef.FIELD_DOUBLE_MIN_VALUE) ){
+				errorMessage += 'The minimum value should be greater than ' + Configs.DataTypeDef.FIELD_DOUBLE_MIN_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+			if( parseFloat($('#min-value-field').val()) >  parseFloat(Configs.DataTypeDef.FIELD_DOUBLE_MAX_VALUE) ){
+				errorMessage += 'The minimum value can not be greater than ' + Configs.DataTypeDef.FIELD_DOUBLE_MAX_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+		}
+		if(!errorMessage && fieldType === 'double' && fieldId === 'max-value-field' && $('#max-value-field').val()){
+			if( parseFloat($('#max-value-field').val() ) >  parseFloat(Configs.DataTypeDef.FIELD_DOUBLE_MAX_VALUE) ){
+				errorMessage += 'The maximum value can not be greater than ' + Configs.DataTypeDef.FIELD_DOUBLE_MAX_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+			if( parseFloat($('#max-value-field').val() ) <  parseFloat(Configs.DataTypeDef.FIELD_DOUBLE_MIN_VALUE) ){
+				errorMessage += 'The maximum value should greater than ' + Configs.DataTypeDef.FIELD_DOUBLE_MIN_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+		}
+		//Validating: Float
+		if (!errorMessage && fieldType === 'float' && fieldId === 'min-value-field' && $('#min-value-field').val()){
+			if( parseFloat($('#min-value-field').val()) <  parseFloat(Configs.DataTypeDef.FIELD_FLOAT_MIN_VALUE) ){
+				errorMessage += 'The minimum value should be greater than ' + Configs.DataTypeDef.FIELD_FLOAT_MIN_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+			if( parseFloat($('#min-value-field').val()) >  parseFloat(Configs.DataTypeDef.FIELD_FLOAT_MAX_VALUE) ){
+				errorMessage += 'The minimum value can not be greater than ' + Configs.DataTypeDef.FIELD_FLOAT_MAX_VALUE;
+				$('#min-value-field').addClass('invalid-input');
+			}
+		}
+		if(!errorMessage && fieldType === 'float' && fieldId === 'max-value-field' && $('#max-value-field').val()){
+			if( parseFloat($('#max-value-field').val() ) >  parseFloat(Configs.DataTypeDef.FIELD_FLOAT_MAX_VALUE) ){
+				errorMessage += 'The maximum value can not be greater than ' + Configs.DataTypeDef.FIELD_FLOAT_MAX_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+			if( parseFloat($('#max-value-field').val() ) <  parseFloat(Configs.DataTypeDef.FIELD_FLOAT_MIN_VALUE) ){
+				errorMessage += 'The maximum value should greater than ' + Configs.DataTypeDef.FIELD_FLOAT_MIN_VALUE;
+				$('#max-value-field').addClass('invalid-input');
+			}
+		}
 		//can't store strings or sequences of non-positive length
 		if (!errorMessage && 
 		    (targetField.id === 'array-len-field'    || 
@@ -866,6 +1013,11 @@ module.exports = React.createClass({
 			}
 			$enumValueSelect.material_select(_this.saveUiToGoogle);
 			_this.updateEnumValueSelectOptions();
+
+			// closing the doc too soon throws an exception from Google
+			setTimeout(function(){
+				doc.close();
+			}, Configs.GoogleDocCloseInterval);
 		});
 	},
 
@@ -882,10 +1034,13 @@ module.exports = React.createClass({
 
 	onNameChange: function(e)
 	{
+		var caretPosition = e.target.selectionEnd;
+
 		if (this.validateField(e.currentTarget, this.fieldData.get('type')))
 		{
 			this.fieldData.get('name').setText(e.currentTarget.value);
 		}
+		$("#name-field")[0].setSelectionRange(caretPosition, caretPosition);
 	},
 
 	onDescriptionChange: function(e)
@@ -926,7 +1081,7 @@ module.exports = React.createClass({
 							<option value='short'>short</option>
 							<option value='integer'>integer</option>
 							<option value='long'>long</option>
-							<option value='char'>char</option> 
+							<option value='char'>char</option>
 							<option value='string'>string</option>
 							<option value='boolean'>boolean</option>
 							<option value='ref'>ref</option>
@@ -934,6 +1089,8 @@ module.exports = React.createClass({
 							<option value='date'>date</option>
 							<option value='datetime'>datetime</option>
 							<option value='time'>time</option>
+							<option value='UUID'>UUID</option>
+							<option value='epochTime'>epochTime</option>
 						</select>
 						<label htmlFor='field-type-select' >type</label>
 					</div>
@@ -949,7 +1106,7 @@ module.exports = React.createClass({
 					<div className='col s4 input-field type-specific-field
 					 	double-specific-field float-specific-field byte-specific-field integer-specific-field
 					 	long-specific-field short-specific-field string-specific-field ref-specific-field'>
-						<input type='text' id='def-value-field' className='labelled-input validated-input' spellCheck='false'/>
+						<input type='text' id='def-value-field' className='labelled-input validated-input' spellCheck='false' onChange={this.saveUiToGoogle}/>
 						<label htmlFor='def-value-field' className='error-tooltipped'>default value</label>
 					</div>
 					<div className='col s4 input-field type-specific-field date-specific-field datetime-specific-field time-specific-field'>
@@ -970,6 +1127,9 @@ module.exports = React.createClass({
 						<br />
 						<input type='checkbox' id='array-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
 						<label htmlFor='array-checkbox' >array</label>
+						<br />
+						<input type='checkbox' id='unique-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
+						<label htmlFor='unique-checkbox'>unique</label>
 					</div>
 				</div>
 
@@ -982,10 +1142,10 @@ module.exports = React.createClass({
 					</div>
 					<div className='col s4'>
 						<br />
-						<input name="ref-group" className='with-gap' type="radio" id="ref-soft-radio" onChange={this.saveUiToGoogle} />
+						<input name="ref-group" className='with-gap' type="radio" id="ref-soft-radio" disabled onChange={this.saveUiToGoogle} />
 						<label htmlFor="ref-soft-radio" className='ref-radio-label'>soft</label>
-						<input name="ref-group" className='with-gap' type="radio" id="ref-hard-radio" onChange={this.saveUiToGoogle} />
-						<label htmlFor="ref-hard-radio" className='ref-radio-label'>hard</label>
+						<input name="ref-group" className='with-gap validated-input' type="radio" id="ref-hard-radio"  disabled onChange={this.saveUiToGoogle} />
+						<label htmlFor="ref-hard-radio" className='ref-radio-label error-tooltipped' >hard</label>
 					</div>
 				</div>
 

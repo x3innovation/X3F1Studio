@@ -50,6 +50,45 @@ module.exports = React.createClass({
 		this.updateUi();
 	},
 
+	componentWillUpdate: function()
+	{
+		this.controller = this.props.controller;
+		var title = this.controller.getTitle();
+		var persistenceEvents = this.controller.getPersistenceEvents();
+		this.events = [
+			{id: persistenceEvents.UpdatePersistenceEventTypeId,
+			 label: 'Update',
+			 name: 'Update ' + title ,
+			 isBusinessRequestRow: true}, 
+			{id: persistenceEvents.CreatePersistenceEventTypeId,
+			 label: 'Create',
+			 name: 'Create ' + title,
+			 isBusinessRequestRow: true }, 
+			{id: persistenceEvents.RemovePersistenceEventTypeId,
+			 label: 'Remove',
+			 name: 'Remove ' + title,
+			 isBusinessRequestRow: true },
+			{id: persistenceEvents.UpdatedPersistenceEventTypeId,
+			 label: 'Updated',
+			 name: title + ' Updated' },
+			{id: persistenceEvents.CreatedPersistenceEventTypeId,
+			 label: 'Created',
+			 name: title + ' Created' },
+			{id: persistenceEvents.RemovedPersistenceEventTypeId,
+			 label: 'Removed',
+			 name: title + ' Removed' },
+			{id: persistenceEvents.RejectedUpdatePersistenceEventTypeId,
+			 label: 'Update Rejected',
+			 name: 'Update ' + title + ' Rejected' },
+			{id: persistenceEvents.RejectedCreatePersistenceEventTypeId,
+			 label: 'Create Rejected',
+			 name: 'Create ' + title + ' Rejected' },
+			{id: persistenceEvents.RejectedRemovePersistenceEventTypeId,
+			 label: 'Remove Rejected',
+			 name: 'Remove ' + title + ' Rejected' }
+		];
+	},
+
 	/* ******************************************
 				NON LIFE CYCLE FUNCTIONS
 	****************************************** */
@@ -79,6 +118,8 @@ module.exports = React.createClass({
 		else{
 			$checkbox.prop('checked', false);
 		}
+		
+		this.forceUpdate();
 	},
 
 	onBusinessRequestClicked : function(e){
@@ -117,13 +158,6 @@ module.exports = React.createClass({
 			return (
 				<div key = {event.id} className = 'col s4'>
 					<div className = 'row'>
-						<div className = 'col s2 input-field'>
-							<input type = 'text' 
-								className = 'event-display' 
-								readOnly value = {event.id} 
-								id = {'event-' + event.id + '-name'} />
-							<label htmlFor = {event.id + '-event-id'} className = 'event-label active'>Type Id</label>
-						</div>
 						<div className = 'col s10 input-field'>
 							<input type = 'text' className = 'event-display' readOnly value = {event.name} id = {'event-' + event.id + '-name'} />
 							<label htmlFor = {'event-' + event.id + '-name'} className = 'event-label active'>{event.label}</label>
