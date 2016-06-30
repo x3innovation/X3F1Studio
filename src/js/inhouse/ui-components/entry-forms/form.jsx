@@ -84,6 +84,7 @@ module.exports = React.createClass({
 				switch (announcement.fileType) {
 					case GDriveConstants.ObjectType.PERSISTENT_DATA:
 					case GDriveConstants.ObjectType.SNIPPET:
+                    case GDriveConstants.ObjectType.APPLICATION_STATE:
 					case GDriveConstants.ObjectType.EVENT:
 						this.addToRefs(announcement);
 						break;
@@ -96,6 +97,7 @@ module.exports = React.createClass({
 				switch (announcement.fileType) {
 					case GDriveConstants.ObjectType.PERSISTENT_DATA:
 					case GDriveConstants.ObjectType.SNIPPET:
+                    case GDriveConstants.ObjectType.APPLICATION_STATE:
 					case GDriveConstants.ObjectType.EVENT:
 						this.updateRefNames(announcement);
 						break;
@@ -232,6 +234,7 @@ module.exports = React.createClass({
 		getById('min-date-field').value = this.fieldData.get('minDate').toString();
 		getById('max-date-field').value = this.fieldData.get('maxDate').toString();
 
+		getById('char-def-value-field').value = this.fieldData.get('defValueChar');
 		getById('ref-soft-radio').checked = this.fieldData.get('refType') === 'soft';
 		getById('ref-hard-radio').checked = this.fieldData.get('refType') === 'hard';
 		getById('def-value-checkbox').checked = this.fieldData.get('defValueBool');
@@ -307,6 +310,7 @@ module.exports = React.createClass({
 				this.fieldData.get('arrayLen').setText(getById('array-len-field').value);
 			}
 
+			this.fieldData.set('defValueChar', getById('char-def-value-field').value);
 			this.fieldData.set('defValueBool', getById('def-value-checkbox').checked);
 			this.fieldData.set('optional', getById('optional-checkbox').checked);
 			this.fieldData.set('array', getById('array-checkbox').checked);
@@ -437,6 +441,16 @@ module.exports = React.createClass({
 			}
 		}
 
+		//Validating: Char
+		if (!errorMessage && fieldId === 'char-def-value-field') {
+			if (fieldVal.length > 1) {
+				errorMessage += 'Chars can only be 1 character long.';
+			}
+			if (!fieldVal.match(/[a-zA-Z0-9:]/g)) {
+				errorMessage += 'Chars can contain only alphanumeric characters.';
+			}
+		}
+
 		//the max field must be >= the min field
 		if (!errorMessage && fieldId === 'max-value-field' && !isNaN($('#min-value-field').val()) &&
 		 	 parseFloat(fieldVal) < parseFloat($('#min-value-field').val())) {
@@ -487,7 +501,7 @@ module.exports = React.createClass({
 				errorMessage += 'Default ' +fieldType+ ' should not be before defined minimum ' +fieldType+ '. ';
 			}
 		}
-		//Validating: ref-soft & ref-hard radio buttons 
+		//Validating: ref-soft & ref-hard radio buttons
 		if(fieldType === 'ref') {
 			if (typeof($("#ref-name-select")[0]) != 'undefined' && $("#ref-name-select")[0].selectedIndex != 0) {
 				if (!errorMessage && (fieldId === 'ref-soft-radio' || fieldId === 'ref-hard-radio' )) {
@@ -503,9 +517,9 @@ module.exports = React.createClass({
 				$('#ref-hard-radio').attr('disabled', true);
 			}
 		}
-		
-		//Validating: Short 
-		if (!errorMessage && fieldType === 'short' && fieldId === 'min-value-field' && $('#min-value-field').val()){			
+
+		//Validating: Short
+		if (!errorMessage && fieldType === 'short' && fieldId === 'min-value-field' && $('#min-value-field').val()){
 			if( parseInt($('#min-value-field').val(),10 ) <  parseInt(Configs.DataTypeDef.FIELD_SHORT_MIN_VALUE) ){
 				errorMessage += 'The minimum value should be greater than ' + parseInt(Configs.DataTypeDef.FIELD_SHORT_MIN_VALUE);
 				$('#min-value-field').addClass('invalid-input');
@@ -526,7 +540,7 @@ module.exports = React.createClass({
 			}
 		}
 		//Validating: Integer
-		if (!errorMessage && fieldType === 'integer' && fieldId === 'min-value-field' && $('#min-value-field').val()){			
+		if (!errorMessage && fieldType === 'integer' && fieldId === 'min-value-field' && $('#min-value-field').val()){
 			if( parseInt($('#min-value-field').val(),10 ) <  parseInt(Configs.DataTypeDef.FIELD_INT_MIN_VALUE) ){
 				errorMessage += 'The minimum value should be greater than ' + Configs.DataTypeDef.FIELD_INT_MIN_VALUE;
 				$('#min-value-field').addClass('invalid-input');
@@ -547,7 +561,7 @@ module.exports = React.createClass({
 			}
 		}
 		//Validating: Long
-		if (!errorMessage && fieldType === 'long' && fieldId === 'min-value-field' && $('#min-value-field').val()){			
+		if (!errorMessage && fieldType === 'long' && fieldId === 'min-value-field' && $('#min-value-field').val()){
 			if( parseInt($('#min-value-field').val(),20 ) <  parseInt(Configs.DataTypeDef.FIELD_LONG_MIN_VALUE) ){
 				errorMessage += 'The minimum value should be greater than ' + Configs.DataTypeDef.FIELD_LONG_MIN_VALUE;
 				$('#min-value-field').addClass('invalid-input');
@@ -568,7 +582,7 @@ module.exports = React.createClass({
 			}
 		}
 		//Validating: Byte
-		if (!errorMessage && fieldType === 'byte' && fieldId === 'min-value-field' && $('#min-value-field').val()){			
+		if (!errorMessage && fieldType === 'byte' && fieldId === 'min-value-field' && $('#min-value-field').val()){
 			if( parseInt($('#min-value-field').val(),10 ) <  parseInt(Configs.DataTypeDef.FIELD_BYTE_MIN_VALUE) ){
 				errorMessage += 'The minimum value should be greater than ' + Configs.DataTypeDef.FIELD_BYTE_MIN_VALUE;
 				$('#min-value-field').addClass('invalid-input');
@@ -589,7 +603,7 @@ module.exports = React.createClass({
 			}
 		}
 		//Validating: Double
-		if (!errorMessage && fieldType === 'double' && fieldId === 'min-value-field' && $('#min-value-field').val()){			
+		if (!errorMessage && fieldType === 'double' && fieldId === 'min-value-field' && $('#min-value-field').val()){
 			if( parseFloat($('#min-value-field').val()) <  parseFloat(Configs.DataTypeDef.FIELD_DOUBLE_MIN_VALUE) ){
 				errorMessage += 'The minimum value should be greater than ' + Configs.DataTypeDef.FIELD_DOUBLE_MIN_VALUE;
 				$('#min-value-field').addClass('invalid-input');
@@ -610,7 +624,7 @@ module.exports = React.createClass({
 			}
 		}
 		//Validating: Float
-		if (!errorMessage && fieldType === 'float' && fieldId === 'min-value-field' && $('#min-value-field').val()){			
+		if (!errorMessage && fieldType === 'float' && fieldId === 'min-value-field' && $('#min-value-field').val()){
 			if( parseFloat($('#min-value-field').val()) <  parseFloat(Configs.DataTypeDef.FIELD_FLOAT_MIN_VALUE) ){
 				errorMessage += 'The minimum value should be greater than ' + Configs.DataTypeDef.FIELD_FLOAT_MIN_VALUE;
 				$('#min-value-field').addClass('invalid-input');
@@ -712,6 +726,7 @@ module.exports = React.createClass({
 			this.fieldData.set('minDate', this.gFileModel.createString(''));
 			this.fieldData.set('maxDate', this.gFileModel.createString(''));
 		}
+
 		this.gFileModel.endCompoundOperation();
 	},
 
@@ -1019,10 +1034,13 @@ module.exports = React.createClass({
 
 	onNameChange: function(e)
 	{
+		var caretPosition = e.target.selectionEnd;
+
 		if (this.validateField(e.currentTarget, this.fieldData.get('type')))
 		{
 			this.fieldData.get('name').setText(e.currentTarget.value);
 		}
+		$("#name-field")[0].setSelectionRange(caretPosition, caretPosition);
 	},
 
 	onDescriptionChange: function(e)
@@ -1063,6 +1081,7 @@ module.exports = React.createClass({
 							<option value='short'>short</option>
 							<option value='integer'>integer</option>
 							<option value='long'>long</option>
+							<option value='char'>char</option>
 							<option value='string'>string</option>
 							<option value='boolean'>boolean</option>
 							<option value='ref'>ref</option>
@@ -1113,14 +1132,14 @@ module.exports = React.createClass({
 						<label htmlFor='unique-checkbox'>unique</label>
 					</div>
 				</div>
-				
+
 				<div className='row type-specific-field ref-specific-field'>
 					<div id='ref-name-dropdown' className='input-field col s4'>
 						<select id='ref-name-select' className='ref-name-selector form-select' value='default'>
 							<option value='default' disabled>loading refs...</option>
 						</select>
 						<label htmlFor='ref-name-select' >ref</label>
-					</div>					
+					</div>
 					<div className='col s4'>
 						<br />
 						<input name="ref-group" className='with-gap' type="radio" id="ref-soft-radio" disabled onChange={this.saveUiToGoogle} />
@@ -1137,6 +1156,12 @@ module.exports = React.createClass({
 								<option value='default' disabled>loading enum values...</option>
 							</select>
 							<label htmlFor='enum-value-select' >default enum value</label>
+						</div>
+					</div>
+					<div className='type-specific-field char-specific-field'>
+						<div className='input-field col s4'>
+							<input type='text' id='char-def-value-field' className='labelled-input validated-input' spellCheck='false' onChange={this.saveUiToGoogle}/>
+							<label htmlFor='char-def-value-field' className='error-tooltipped'>default value</label>
 						</div>
 					</div>
 					<div className='type-specific-field string-specific-field'>
