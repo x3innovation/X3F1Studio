@@ -48,6 +48,11 @@ module.exports = React.createClass({
 			this.model.objectType = 'FL';
 			this.model.color = '#4caf50';
 		}
+		else if (this.props.objectType === GDriveCons.ObjectType.APPLICATION_STATE)
+		{
+			this.model.objectType = 'AS';
+			this.model.color = '#ad1457';
+		}
 	},
 
 	componentDidUpdate : function()
@@ -170,6 +175,9 @@ module.exports = React.createClass({
 				case GDriveCons.ObjectType.FLOW:
 					key = GDriveCons.CustomObjectKey.FLOW;
 					break;
+				case GDriveCons.ObjectType.APPLICATION_STATE:
+					key = GDriveCons.CustomObjectKey.APPLICATION_STATE;
+					break;
 				default:
 					break;
 			}
@@ -235,6 +243,20 @@ module.exports = React.createClass({
 			else if (this.props.objectType === GDriveCons.ObjectType.FLOW) {
 				/* ***TODO*** */
 			}
+			else if (this.props.objectType === GDriveCons.ObjectType.APPLICATION_STATE) {
+                this.model.fieldNames = [];
+                if (gModel) {
+                    this.model.title = gModel.title.toString();
+                    this.model.description = gModel.description.toString();
+                    fields = gModel.fields;
+                    for (i = 0, len = fields.length; i<len; i++) {
+                        this.model.fieldNames.push(fields.get(i).get('name').toString());
+                    }
+                } else { //gModel was not properly initialized, but still need to load
+                    this.model.title = DefaultValueCons.NewFileValues.APPLICATION_STATE_TITLE;
+                    this.model.description = DefaultValueCons.NewFileValues.APPLICATION_STATE_DESCRIPTION;
+                }
+			}
 
 			this.contentFileLoaded = true;
 			$('#' + this.props.fileId).addClass('fadeIn animated');
@@ -250,6 +272,7 @@ module.exports = React.createClass({
 		var contentHeader = '';
 		switch(this.props.objectType) {
 			case GDriveCons.ObjectType.PERSISTENT_DATA:
+			case GDriveCons.ObjectType.APPLICATION_STATE:
 			case GDriveCons.ObjectType.EVENT:
 			case GDriveCons.ObjectType.SNIPPET:
 				contentHeader = 'Fields';
@@ -270,6 +293,7 @@ module.exports = React.createClass({
 		var content = '';
 		switch(this.props.objectType) {
 			case GDriveCons.ObjectType.PERSISTENT_DATA:
+			case GDriveCons.ObjectType.APPLICATION_STATE:
 			case GDriveCons.ObjectType.EVENT:
 			case GDriveCons.ObjectType.SNIPPET:
 				if (this.model.fieldNames != null)

@@ -15,6 +15,7 @@ function GenerateXMLService() {
 			switch (projectObjects[i].description) {
 				case GDriveConstants.ObjectType.PERSISTENT_DATA:
 				case GDriveConstants.ObjectType.SNIPPET:
+                case GDriveConstants.ObjectType.APPLICATION_STATE:
 				case GDriveConstants.ObjectType.EVENT:
 					classifiedObjects.datas.push(projectObjects[i]);
 					break;
@@ -327,10 +328,12 @@ function GenerateXMLService() {
 					var gQuery = gQueries.get(i);
 					var title = replaceAll(gModel.title.toString(), ' ', '');
 					var queryName = replaceAll(gQuery.name, ' ', '');
+					var retType = replaceAll(gQuery.returnType, ' ', '');
 					queryBody = gQuery.description;
 					var query = {
 						_name: queryName,
 						_query: queryBody,
+						_returnType: retType,
 						Parameter: null,
 						QueryRequestEvent: {
 							_name: queryName+'Request',
@@ -450,7 +453,14 @@ function GenerateXMLService() {
 							if (!fieldsDetails[projectObjectTitle]){
 								fieldsDetails[projectObjectTitle] = {};
                                 fieldsDetailsProjectObjectToLoadCounter++;
-								loadProjectObjectForFieldsDetails(projectObjectTitle);
+								try{
+									loadProjectObjectForFieldsDetails(projectObjectTitle);
+								}
+								catch(errorMessage){
+									console.error('Failed while processing the query for the project objet: ' + gModel.title.text);
+									console.error('Failed query is: ' + queryBody);
+									console.error('Failed proejct object title is: ' + projectObjectTitle);
+								}
 							}
 						}
 					}
@@ -459,9 +469,11 @@ function GenerateXMLService() {
 				// inner functions
 				function loadProjectObjectForFieldsDetails(projectObjectTitle){
 					var fileIds = gMetadataCustomObject.projectObjectTitles.keys();
+					var isProjectObjectFound = false;
 					for (var i=0; i<fileIds.length; i++){
 						var fileId = fileIds[i];
 						if (gMetadataCustomObject.projectObjectTitles.get(fileId) === projectObjectTitle){
+							isProjectObjectFound = true;
 							break;
 						}
 					}
@@ -469,7 +481,13 @@ function GenerateXMLService() {
 					var executionContext = {
 						projectObjectTitle: projectObjectTitle
 					};
-					googleDriveUtils.loadDriveFileDoc(fileId, objectType, onObjectFileLoaded.bind(executionContext));
+
+					if (isProjectObjectFound){
+						googleDriveUtils.loadDriveFileDoc(fileId, objectType, onObjectFileLoaded.bind(executionContext));
+					}
+					else{
+						throw 'ERROR: no file id was found for the project object title "' + projectObjectTitle + '"';
+					}
 
 					function onObjectFileLoaded(doc){
                         fieldsDetailsProjectObjectLoadedCounter++;
@@ -594,8 +612,12 @@ function GenerateXMLService() {
                                     max = fieldDetails.maxDate;
                                 }
                                 else if (fieldType === 'datetime'){
-                                    min = toUtcIsoString(fieldDetails.minDateTimeDate, fieldDetails.minDateTimeTime);
-                                    max = toUtcIsoString(fieldDetails.maxDateTimeDate, fieldDetails.maxDateTimeTime);
+                                    if (fieldDetails.minDateTimeDate && fieldDetails.minDateTimeDate.length > 0){
+                                        min = toUtcIsoString(fieldDetails.minDateTimeDate, fieldDetails.minDateTimeTime);
+                                    }
+                                    if (fieldDetails.maxDateTimeDate && fieldDetails.maxDateTimeDate.length > 0){
+                                        max = toUtcIsoString(fieldDetails.maxDateTimeDate, fieldDetails.maxDateTimeTime);
+                                    }
                                 }
 							}
 							else if (fieldType !== null && fieldType != fieldDetails.type){
@@ -606,7 +628,9 @@ function GenerateXMLService() {
 							fieldType = 'uuid';
 						}
 						else{
-							console.log('ERROR: Invalid field name used in the query');
+							console.log('ERROR: field name used in a query does not exist in the entire project'); 
+							console.log('project object title: ' + projectObjectTitle);
+							console.log('field name: ' + eligibleFieldName);
 						}
 					}
 				}				
@@ -663,7 +687,7 @@ function GenerateXMLService() {
 						if (defDate && defTime) {
 							defDate = gField.get('defDateTimeDate').toString();
 							defTime = gField.get('defDateTimeTime').toString();
-							if (defDate && defTime) {
+							if (defDate && defTime && defDate != '' && defTime != '') {
 								node.Data.Field[i]._default = toUtcIsoString(defDate.toString(),
                                     defTime.toString());	// by default use UTC, iso 8601
 							} else {
@@ -677,7 +701,7 @@ function GenerateXMLService() {
                         if (minDate && minTime){
                             minDate = minDate.text;
                             minTime = minTime.text;
-                            if (minDate && minTime) {
+                            if (minDate && minTime && minDate != '' && minTime != '') {
                                 node.Data.Field[i]._min = toUtcIsoString(minDate, minTime);	// by default use UTC, iso 8601
                             } else {
                                 delete node.Data.Field[i]._min;
@@ -690,9 +714,12 @@ function GenerateXMLService() {
 						if (maxDate && maxTime) {
                             maxDate = maxDate.text;
                             maxTime = maxTime.text;
-							node.Data.Field[i]._max = toUtcIsoString(maxDate, maxTime);	// by default use UTC, iso 8601
-						} else {
-							delete node.Data.Field[i]._max;
+                            if (maxDate && maxTime && maxDate != '' && maxTime != ''){
+                                node.Data.Field[i]._max = toUtcIsoString(maxDate, maxTime);	// by default use UTC, iso 8601
+                            }
+                            else {
+                                delete node.Data.Field[i]._max;
+                            }
 						}
 
 						break;
@@ -763,6 +790,9 @@ function GenerateXMLService() {
 						break;
 					case 'boolean':
 						node.Data.Field[i]._default = gField.get('defValueBool').toString();
+						break;
+					case 'UUID':
+						node.Data.Field[i]._generateFlyweightGetter = true;
 						break;
 					case 'string':
 						var maxStrLen = gField.has('maxStrLen') ? 
@@ -904,6 +934,25 @@ function GenerateXMLService() {
 			}, Configs.GoogleDocCloseInterval);
 		};
 
+
+        var onApplicationStateLoad = function(doc) {
+            var dataType = 'applicationState';
+            var gModel = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.APPLICATION_STATE);
+            var node = createDataNode(gModel, dataType);
+            node = setJsonFields(node, gModel);
+
+            dataJsonNode.Data.push(node.Data);
+
+            if (dataJsonNode.Data.length === dataCount && typeof callback === 'function') {
+                callback(dataJsonNode);
+            }
+
+            // closing the doc too soon throws an exception from Google
+            setTimeout(function(){
+                doc.close();
+            }, Configs.GoogleDocCloseInterval);
+        };
+
 		if (dataCount === 0 && typeof callback === 'function') {
 			callback(dataJsonNode);
 		}
@@ -915,7 +964,10 @@ function GenerateXMLService() {
 				googleDriveUtils.loadDriveFileDoc(datas[i].id, GDriveConstants.ObjectType.SNIPPET, onSnippetLoad);
 			} else if (datas[i].description === GDriveConstants.ObjectType.EVENT){
 				googleDriveUtils.loadDriveFileDoc(datas[i].id, GDriveConstants.ObjectType.EVENT, onEventLoad);
-			}
+			}else if (datas[i].description === GDriveConstants.ObjectType.APPLICATION_STATE){
+                googleDriveUtils.loadDriveFileDoc(datas[i].id, GDriveConstants.ObjectType.APPLICATION_STATE, onApplicationStateLoad);
+            }
+
 		}
 	};
 

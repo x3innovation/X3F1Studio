@@ -19,6 +19,7 @@ module.exports = {
 		SNIPPET : 'f1-objectType-snippet',
 		EVENT : 'f1-objectType-event',
 		FLOW : 'f1-objectType-flow',
+		APPLICATION_STATE : 'f1-objectType-applicationState',
 		PROJECT_METADATA : 'f1-objectType-projectMetadata',
 		PROJECT : 'f1-objectType-project'
 	},
@@ -29,6 +30,7 @@ module.exports = {
 		SNIPPET : 'snippet-data-custom-object',
 		EVENT : 'event-data-custom-object',
 		FLOW : 'flow-data-custom-object',
+		APPLICATION_STATE : 'application-state-data-custom-object',
 		PROJECT : 'project-custom-object',
 		PROJECT_METADATA : 'project-metadata-custom-object',
 		ProjectMetadata : {
@@ -99,6 +101,18 @@ module.exports = {
 	},
 
 	Snippet : {
+		KEY_INTRODUCED_VERSION : 'introducedVersion',
+		KEY_DEPRECATED_VERSION : 'deprecatedVersion',
+		KEY_CREATING_USER : 'creatingUser',
+		KEY_CREATED_DATE : 'createdDate',
+		KEY_ID : 'id',
+		KEY_TITLE : 'title',
+		KEY_DESCRIPTION : 'description',
+		KEY_FIELDS : 'fields',
+		KEY_APP_STATE_ID : 'appStateId'
+	},
+
+	ApplicationState : {
 		KEY_INTRODUCED_VERSION : 'introducedVersion',
 		KEY_DEPRECATED_VERSION : 'deprecatedVersion',
 		KEY_CREATING_USER : 'creatingUser',

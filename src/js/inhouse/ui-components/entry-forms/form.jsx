@@ -84,6 +84,7 @@ module.exports = React.createClass({
 				switch (announcement.fileType) {
 					case GDriveConstants.ObjectType.PERSISTENT_DATA:
 					case GDriveConstants.ObjectType.SNIPPET:
+                    case GDriveConstants.ObjectType.APPLICATION_STATE:
 					case GDriveConstants.ObjectType.EVENT:
 						this.addToRefs(announcement);
 						break;
@@ -96,6 +97,7 @@ module.exports = React.createClass({
 				switch (announcement.fileType) {
 					case GDriveConstants.ObjectType.PERSISTENT_DATA:
 					case GDriveConstants.ObjectType.SNIPPET:
+                    case GDriveConstants.ObjectType.APPLICATION_STATE:
 					case GDriveConstants.ObjectType.EVENT:
 						this.updateRefNames(announcement);
 						break;
@@ -189,8 +191,8 @@ module.exports = React.createClass({
 			if ($('#field-type-select').val() === 'datetime'){
 				var input = $input.val();
 				var inputTokenized = input.split(' ');
-				var date = inputTokenized[0];
-				var time = inputTokenized[1];
+				var date = inputTokenized[0] || "";
+				var time = inputTokenized[1] || "";
 
 				if ($input.attr('id') === 'min-date-field'){
 					$('#min-datetime-date').attr('data-date', date);
@@ -1070,6 +1072,8 @@ module.exports = React.createClass({
 							<option value='date'>date</option>
 							<option value='datetime'>datetime</option>
 							<option value='time'>time</option>
+							<option value='UUID'>UUID</option>
+							<option value='epochTime'>epochTime</option>
 						</select>
 						<label htmlFor='field-type-select' >type</label>
 					</div>

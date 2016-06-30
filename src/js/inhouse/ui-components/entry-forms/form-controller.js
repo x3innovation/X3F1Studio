@@ -41,6 +41,7 @@ function FormController(getFileCustomModel, gMetadataModel, projectFolderFileId,
 				//the drive file description contains the object type
 				switch (projectObjects[i].description) {
 					case GDriveConstants.ObjectType.PERSISTENT_DATA:
+                    case GDriveConstants.ObjectType.APPLICATION_STATE:
 					case GDriveConstants.ObjectType.SNIPPET:
 					case GDriveConstants.ObjectType.EVENT:
 						refs.push(projectObject);
