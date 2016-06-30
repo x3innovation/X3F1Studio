@@ -4,7 +4,7 @@ var GDriveConstants = require('../../constants/google-drive-constants.js');
 var GDriveUtils = require('../../utils/google-drive-utils.js');
 
 var HeaderController = require('./header-controller.js');
-
+var titleCaretPos = 0;
 module.exports = React.createClass({
 	mixins: [Navigation, State],
 	/* ******************************************
@@ -32,6 +32,7 @@ module.exports = React.createClass({
 		// register title for external updates
 		this.controller.addTitleUpdateListener(function(e){
 			$headerTitle.val(_this.controller.getTitle());
+			$headerTitle[0].setSelectionRange(titleCaretPos, titleCaretPos);
 		});
 
 		// set initial description value
@@ -74,7 +75,8 @@ module.exports = React.createClass({
 	{
 		var _this = this;
 		var newTitle = e.target.value;
-
+		titleCaretPos = e.target.selectionStart;
+		
 		if (this.setTitleInterval){
 			clearTimeout(this.setTitleInterval);
 		}
