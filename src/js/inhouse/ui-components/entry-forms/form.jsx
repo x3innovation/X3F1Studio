@@ -85,6 +85,7 @@ module.exports = React.createClass({
 				switch (announcement.fileType) {
 					case GDriveConstants.ObjectType.PERSISTENT_DATA:
 					case GDriveConstants.ObjectType.SNIPPET:
+                    case GDriveConstants.ObjectType.APPLICATION_STATE:
 					case GDriveConstants.ObjectType.EVENT:
 						this.addToRefs(announcement);
 						break;
@@ -97,6 +98,7 @@ module.exports = React.createClass({
 				switch (announcement.fileType) {
 					case GDriveConstants.ObjectType.PERSISTENT_DATA:
 					case GDriveConstants.ObjectType.SNIPPET:
+                    case GDriveConstants.ObjectType.APPLICATION_STATE:
 					case GDriveConstants.ObjectType.EVENT:
 						this.updateRefNames(announcement);
 						break;
@@ -190,8 +192,8 @@ module.exports = React.createClass({
 			if ($('#field-type-select').val() === 'datetime'){
 				var input = $input.val();
 				var inputTokenized = input.split(' ');
-				var date = inputTokenized[0];
-				var time = inputTokenized[1];
+				var date = inputTokenized[0] || "";
+				var time = inputTokenized[1] || "";
 
 				if ($input.attr('id') === 'min-date-field'){
 					$('#min-datetime-date').attr('data-date', date);
@@ -230,17 +232,19 @@ module.exports = React.createClass({
 		getById('timezone-select').value = this.fieldData.get('timezone');
 
 		getById('enum-value-select').value = this.fieldData.get('enumValue');
-		
+
 
 		getById('def-date-field').value = this.fieldData.get('defDate').toString();
 		getById('min-date-field').value = this.fieldData.get('minDate').toString();
 		getById('max-date-field').value = this.fieldData.get('maxDate').toString();
 
+		getById('char-def-value-field').value = this.fieldData.get('defValueChar');
 		getById('ref-soft-radio').checked = this.fieldData.get('refType') === 'soft';
 		getById('ref-hard-radio').checked = this.fieldData.get('refType') === 'hard';
 		getById('def-value-checkbox').checked = this.fieldData.get('defValueBool');
 		getById('optional-checkbox').checked = this.fieldData.get('optional');
 		getById('array-checkbox').checked =  this.fieldData.get('array');
+		getById('unique-checkbox').checked =  this.fieldData.get('unique');
 		getById('context-id-checkbox').checked =  this.fieldData.get('contextId');
 		this.updateAllSelect();
 	},
@@ -257,7 +261,7 @@ module.exports = React.createClass({
 			}
 
 			var getById = document.getElementById.bind(document);
-			this.gFileModel.beginCompoundOperation();			
+			this.gFileModel.beginCompoundOperation();
 
 			var type = getById('field-type-select').value;
 			this.fieldData.set('type', type);
@@ -305,15 +309,17 @@ module.exports = React.createClass({
 			this.fieldData.get('minDate').setText(getById('min-date-field').value);
 			this.fieldData.get('maxDate').setText(getById('max-date-field').value);
 			this.fieldData.get('defDate').setText(getById('def-date-field').value);
-			
+
 			this.fieldData.set('timezone', getById('timezone-select').value);
 			if (!$('#array-len-wrapper').hasClass('hide')){
 				this.fieldData.get('arrayLen').setText(getById('array-len-field').value);
 			}
 
+			this.fieldData.set('defValueChar', getById('char-def-value-field').value);
 			this.fieldData.set('defValueBool', getById('def-value-checkbox').checked);
 			this.fieldData.set('optional', getById('optional-checkbox').checked);
 			this.fieldData.set('array', getById('array-checkbox').checked);
+			this.fieldData.set('unique', getById('unique-checkbox').checked);
 			this.fieldData.set('contextId', getById('context-id-checkbox').checked);
 			this.gFields.set(fieldIndex, this.fieldData);
 
@@ -389,20 +395,18 @@ module.exports = React.createClass({
 	},
 
 	setErrorMessage: function(targetField, fieldType) {
-		//This is to find selects that are required to be validated since React sets a wrapper around them  
+		//This is to find selects that are required to be validated since React sets a wrapper around them
 		var $targetField = $(targetField);
 		var fieldVal = $targetField.val();
 		var fieldId = targetField.id;
 
-		if($targetField.hasClass('select-wrapper')){			
+		if($targetField.hasClass('select-wrapper')){
 			$targetField  = $targetField.find('select');
 			fieldVal = $targetField.val();
 			fieldId = $targetField.attr('id');
 		}
 
 		var errorMessage = '';
-		
-
 		if (!errorMessage && !fieldVal) {
 			if ($targetField.prop('required')) {
 				errorMessage += 'This is a required field. ';
@@ -446,6 +450,16 @@ module.exports = React.createClass({
 			}
 			if (!fieldVal.match(/^[A-Za-z][A-Za-z0-9]*$/)) {
 				errorMessage += 'Names should start with a letter and contain only alphanumeric characters. ';
+			}
+		}
+
+		//Validating: Char
+		if (!errorMessage && fieldId === 'char-def-value-field') {
+			if (fieldVal.length > 1) {
+				errorMessage += 'Chars can only be 1 character long.';
+			}
+			if (!fieldVal.match(/[a-zA-Z0-9:]/g)) {
+				errorMessage += 'Chars can contain only alphanumeric characters.';
 			}
 		}
 
@@ -504,7 +518,7 @@ module.exports = React.createClass({
 			if($('#def-value-field').val() === '' && $('#min-date-field').val() === '' && $('#max-date-field').val() === '' && fieldVal !== '')
 				errorMessage += "Please set a date field first";
 		}
-		//Validating: ref-soft & ref-hard radio buttons 
+		//Validating: ref-soft & ref-hard radio buttons
 		if(fieldType === 'ref') {
 			if (typeof($("#ref-name-select")[0]) != 'undefined' && $("#ref-name-select")[0].selectedIndex != 0) {
 				if (!errorMessage && (fieldId === 'ref-soft-radio' || fieldId === 'ref-hard-radio' )) {
@@ -520,9 +534,9 @@ module.exports = React.createClass({
 				$('#ref-hard-radio').attr('disabled', true);
 			}
 		}
-		
-		//Validating: Short 
-		if (!errorMessage && fieldType === 'short' && fieldId === 'min-value-field' && $('#min-value-field').val()){			
+
+		//Validating: Short
+		if (!errorMessage && fieldType === 'short' && fieldId === 'min-value-field' && $('#min-value-field').val()){
 			if( parseInt($('#min-value-field').val(),10 ) <  parseInt(Configs.DataTypeDef.FIELD_SHORT_MIN_VALUE) ){
 				errorMessage += 'The minimum value should be greater than ' + parseInt(Configs.DataTypeDef.FIELD_SHORT_MIN_VALUE);
 				$('#min-value-field').addClass('invalid-input');
@@ -543,7 +557,7 @@ module.exports = React.createClass({
 			}
 		}
 		//Validating: Integer
-		if (!errorMessage && fieldType === 'integer' && fieldId === 'min-value-field' && $('#min-value-field').val()){			
+		if (!errorMessage && fieldType === 'integer' && fieldId === 'min-value-field' && $('#min-value-field').val()){
 			if( parseInt($('#min-value-field').val(),10 ) <  parseInt(Configs.DataTypeDef.FIELD_INT_MIN_VALUE) ){
 				errorMessage += 'The minimum value should be greater than ' + Configs.DataTypeDef.FIELD_INT_MIN_VALUE;
 				$('#min-value-field').addClass('invalid-input');
@@ -564,7 +578,7 @@ module.exports = React.createClass({
 			}
 		}
 		//Validating: Long
-		if (!errorMessage && fieldType === 'long' && fieldId === 'min-value-field' && $('#min-value-field').val()){			
+		if (!errorMessage && fieldType === 'long' && fieldId === 'min-value-field' && $('#min-value-field').val()){
 			if( parseInt($('#min-value-field').val(),20 ) <  parseInt(Configs.DataTypeDef.FIELD_LONG_MIN_VALUE) ){
 				errorMessage += 'The minimum value should be greater than ' + Configs.DataTypeDef.FIELD_LONG_MIN_VALUE;
 				$('#min-value-field').addClass('invalid-input');
@@ -585,7 +599,7 @@ module.exports = React.createClass({
 			}
 		}
 		//Validating: Byte
-		if (!errorMessage && fieldType === 'byte' && fieldId === 'min-value-field' && $('#min-value-field').val()){			
+		if (!errorMessage && fieldType === 'byte' && fieldId === 'min-value-field' && $('#min-value-field').val()){
 			if( parseInt($('#min-value-field').val(),10 ) <  parseInt(Configs.DataTypeDef.FIELD_BYTE_MIN_VALUE) ){
 				errorMessage += 'The minimum value should be greater than ' + Configs.DataTypeDef.FIELD_BYTE_MIN_VALUE;
 				$('#min-value-field').addClass('invalid-input');
@@ -606,7 +620,7 @@ module.exports = React.createClass({
 			}
 		}
 		//Validating: Double
-		if (!errorMessage && fieldType === 'double' && fieldId === 'min-value-field' && $('#min-value-field').val()){			
+		if (!errorMessage && fieldType === 'double' && fieldId === 'min-value-field' && $('#min-value-field').val()){
 			if( parseFloat($('#min-value-field').val()) <  parseFloat(Configs.DataTypeDef.FIELD_DOUBLE_MIN_VALUE) ){
 				errorMessage += 'The minimum value should be greater than ' + Configs.DataTypeDef.FIELD_DOUBLE_MIN_VALUE;
 				$('#min-value-field').addClass('invalid-input');
@@ -627,7 +641,7 @@ module.exports = React.createClass({
 			}
 		}
 		//Validating: Float
-		if (!errorMessage && fieldType === 'float' && fieldId === 'min-value-field' && $('#min-value-field').val()){			
+		if (!errorMessage && fieldType === 'float' && fieldId === 'min-value-field' && $('#min-value-field').val()){
 			if( parseFloat($('#min-value-field').val()) <  parseFloat(Configs.DataTypeDef.FIELD_FLOAT_MIN_VALUE) ){
 				errorMessage += 'The minimum value should be greater than ' + Configs.DataTypeDef.FIELD_FLOAT_MIN_VALUE;
 				$('#min-value-field').addClass('invalid-input');
@@ -729,6 +743,7 @@ module.exports = React.createClass({
 			this.fieldData.set('minDate', this.gFileModel.createString(''));
 			this.fieldData.set('maxDate', this.gFileModel.createString(''));
 		}
+
 		this.gFileModel.endCompoundOperation();
 	},
 
@@ -786,7 +801,7 @@ module.exports = React.createClass({
 		});
 		this.updateRefNameSelectOptions();
 		this.updateEnumNameSelectOptions();
-		
+
 		this.appendTimezoneOptions();
 		$('#timezone-select').material_select(function() {
 			_this.onTimeZoneChanged($('#timezone-select').val());
@@ -795,17 +810,17 @@ module.exports = React.createClass({
 	appendTimezoneOptions: function() {
 		var timezones = moment.tz.names();
 		//Default option
-	 	$('#timezone-select').append($('<option>', { 		        
+	 	$('#timezone-select').append($('<option>', {
 	       text: ''
-	    }));			
+	    }));
 		$.each(timezones, function (i, item) {
-		    $('#timezone-select').append($('<option>', { 		        
+		    $('#timezone-select').append($('<option>', {
 		        text:  item	+ moment.tz(item).format("  z Z")
 		    }));
 		});
 		if(this.fieldData.get('timezone')){
 			$("#timezone-select").val(this.fieldData.get('timezone')) ;
-		}		
+		}
 	},
 
 	onTimeZoneChanged: function(timezone) {
@@ -1061,10 +1076,13 @@ module.exports = React.createClass({
 
 	onNameChange: function(e)
 	{
+		var caretPosition = e.target.selectionEnd;
+
 		if (this.validateField(e.currentTarget, this.fieldData.get('type')))
 		{
 			this.fieldData.get('name').setText(e.currentTarget.value);
 		}
+		$("#name-field")[0].setSelectionRange(caretPosition, caretPosition);
 	},
 
 	onDescriptionChange: function(e)
@@ -1105,6 +1123,7 @@ module.exports = React.createClass({
 							<option value='short'>short</option>
 							<option value='integer'>integer</option>
 							<option value='long'>long</option>
+							<option value='char'>char</option>
 							<option value='string'>string</option>
 							<option value='boolean'>boolean</option>
 							<option value='ref'>ref</option>
@@ -1112,6 +1131,8 @@ module.exports = React.createClass({
 							<option value='date'>date</option>
 							<option value='datetime'>datetime</option>
 							<option value='time'>time</option>
+							<option value='UUID'>UUID</option>
+							<option value='epochTime'>epochTime</option>
 						</select>
 						<label htmlFor='field-type-select' >type</label>
 					</div>
@@ -1148,16 +1169,19 @@ module.exports = React.createClass({
 						<br />
 						<input type='checkbox' id='array-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
 						<label htmlFor='array-checkbox' >array</label>
+						<br />
+						<input type='checkbox' id='unique-checkbox' className='filled-in' onChange={this.saveUiToGoogle} />
+						<label htmlFor='unique-checkbox'>unique</label>
 					</div>
 				</div>
-				
+
 				<div className='row type-specific-field ref-specific-field'>
 					<div id='ref-name-dropdown' className='input-field col s4'>
 						<select id='ref-name-select' className='ref-name-selector form-select' value='default'>
 							<option value='default' disabled>loading refs...</option>
 						</select>
 						<label htmlFor='ref-name-select' >ref</label>
-					</div>					
+					</div>
 					<div className='col s4'>
 						<br />
 						<input name="ref-group" className='with-gap' type="radio" id="ref-soft-radio" disabled onChange={this.saveUiToGoogle} />
@@ -1174,6 +1198,12 @@ module.exports = React.createClass({
 								<option value='default' disabled>loading enum values...</option>
 							</select>
 							<label htmlFor='enum-value-select' >default enum value</label>
+						</div>
+					</div>
+					<div className='type-specific-field char-specific-field'>
+						<div className='input-field col s4'>
+							<input type='text' id='char-def-value-field' className='labelled-input validated-input' spellCheck='false' onChange={this.saveUiToGoogle}/>
+							<label htmlFor='char-def-value-field' className='error-tooltipped'>default value</label>
 						</div>
 					</div>
 					<div className='type-specific-field string-specific-field'>
@@ -1216,22 +1246,19 @@ module.exports = React.createClass({
 							<input type='hidden' id='max-datetime-time' />
 						</div>
 						<div className='input-field col s4'>
-							<select id='timezone-select' className=' type-specific-field date-specific-field datetime-specific-field time-specific-field validated-input  form-select' >														
-								<option value='default' disabled>loading timezones...</option>							
-							</select>							
+							<select id='timezone-select' className=' type-specific-field date-specific-field datetime-specific-field time-specific-field validated-input  form-select' >
+								<option value='default' disabled>loading timezones...</option>
+							</select>
 							<label htmlFor='timezone-select' className='error-tooltipped' >Timezones</label>
 
 						</div>
 					</div>
-					
-						
-				
 					<div id='array-len-wrapper' className='input-field col type-specific-field s4 right'>
 						<input type='text' id='array-len-field' className='labelled-input validated-input number-input integer-input' 
 							   onInput={inputHandler} onChange={this.saveUiToGoogle} required />
 						<label htmlFor='array-len-field' className='error-tooltipped'>array length *</label>
 					</div>
-				</div>				
+				</div>
 				<div className='row'>
 					<div className='col s12'>
 						<br />

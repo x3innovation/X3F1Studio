@@ -7,7 +7,8 @@ module.exports = {
 		PERSISTENT_DATA_FORM_PAGE_TITLE : 'PERSISTENT DATA DETAIL',
 		ENUM_FORM_PAGE_TITLE : 'ENUMERATION DETAIL',
 		EVENT_FORM_PAGE_TITLE : 'EVENT DETAIL',
-		SNIPPET_FORM_PAGE_TITLE : 'SNIPPET DETAIL'
+		SNIPPET_FORM_PAGE_TITLE : 'SNIPPET DETAIL', 
+		APPLICATION_STATE_FORM_PAGE_TITLE : 'APPLICATION STATE DETAIL'
 	},
 
 	NewFileValues : {
@@ -18,11 +19,13 @@ module.exports = {
 		ENUM_TITLE : 'NewEnum',
 		SNIPPET_TITLE : 'NewSnippet',
 		EVENT_TITLE : 'NewEvent',
+		APPLICATION_STATE_TITLE : 'NewApplicationState',
 
 		PERSISTENT_DATA_DESCRIPTION : 'A new persistent data model',
 		ENUM_DESCRIPTION : 'A new enum model',
 		SNIPPET_DESCRIPTION : 'A new snippet model',
-		EVENT_DESCRIPTION : 'A new event model'
+		EVENT_DESCRIPTION : 'A new event model', 
+		APPLICATION_STATE_DESCRIPTION : 'A new application state model'
 	},
 
 	DefaultFieldAttributes : {
@@ -32,6 +35,7 @@ module.exports = {
 		FIELD_DEF_VALUE : '',
 		FIELD_DEF_DATE_VALUE : '',
 		FIELD_DEF_BOOL_VALUE : false,
+		FIELD_DEF_CHAR_VALUE : '',
 		FIELD_MIN_VALUE : '',
 		FIELD_MAX_VALUE : '',
 		FIELD_MIN_DATETIME_DATE_VALUE : '',
@@ -56,6 +60,7 @@ module.exports = {
 		FIELD_READ_ONLY : false,
 		FIELD_OPTIONAL : false,
 		FIELD_ARRAY : false,
+		FIELD_UNIQUE : false,
 		FIELD_ARRAY_LEN : '1',
 		FIELD_CONTEXT_ID : false		
 	},
