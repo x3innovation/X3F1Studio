@@ -12,6 +12,7 @@ customObjectKeys[ObjectType.PERSISTENT_DATA] = GCons.CustomObjectKey.PERSISTENT_
 customObjectKeys[ObjectType.ENUM] = GCons.CustomObjectKey.ENUM;
 customObjectKeys[ObjectType.EVENT] = GCons.CustomObjectKey.EVENT;
 customObjectKeys[ObjectType.SNIPPET] = GCons.CustomObjectKey.SNIPPET;
+customObjectKeys[ObjectType.APPLICATION_STATE] = GCons.CustomObjectKey.APPLICATION_STATE;
 customObjectKeys[ObjectType.PROJECT_METADATA] = GCons.CustomObjectKey.PROJECT_METADATA;
 customObjectKeys[ObjectType.PROJECT] = GCons.CustomObjectKey.PROJECT;
 
@@ -153,6 +154,17 @@ function GoogleDriveUtils()
 				isFirstCondition = false;
 			}
 
+            // add application state query
+            if (objectsToGet.applicationState)
+            {
+                if (!isFirstCondition)
+                {
+                    query += " or ";
+                }
+                query += "fullText contains '" + GCons.ObjectType.APPLICATION_STATE + "'";
+                isFirstCondition = false;
+            }
+
 			// add flow query
 			if (objectsToGet.flow)
 			{
@@ -243,6 +255,10 @@ function GoogleDriveUtils()
 				break;
 			case (GCons.ObjectType.SNIPPET):
 				fileCreationParams.title = DefaultValueConstants.NewFileValues.SNIPPET_TITLE;
+				fileCreationParams.mimeType = GCons.MimeType.DMX;
+				break;
+			case (GCons.ObjectType.APPLICATION_STATE):
+				fileCreationParams.title = DefaultValueConstants.NewFileValues.APPLICATION_STATE_TITLE;
 				fileCreationParams.mimeType = GCons.MimeType.DMX;
 				break;
 			case (GCons.ObjectType.ENUM):
@@ -434,6 +450,15 @@ function GoogleDriveUtils()
 					docModel.getRoot().set(customObjectKey, customObject);
 
 					metadataCustomObject.projectObjectTitles.set(fileId, DefaultValueConstants.NewFileValues.SNIPPET_TITLE);
+					break;
+
+				case ObjectType.APPLICATION_STATE:
+					customObject.title = docModel.createString(DefaultValueConstants.NewFileValues.APPLICATION_STATE_TITLE);
+					customObject.description = docModel.createString(DefaultValueConstants.NewFileValues.APPLICATION_STATE_DESCRIPTION);
+					customObject.fields = docModel.createList();
+					customObject.id = _this.getNewTypeId(metadataCustomObject);
+					docModel.getRoot().set(customObjectKey, customObject);
+					metadataCustomObject.projectObjectTitles.set(fileId, DefaultValueConstants.NewFileValues.APPLICATION_STATE_TITLE);
 					break;
 				case ObjectType.ENUM:
 					customObject.title = docModel.createString(DefaultValueConstants.NewFileValues.ENUM_TITLE);

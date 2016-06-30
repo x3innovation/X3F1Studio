@@ -15,6 +15,7 @@ function GenerateXMLService() {
 			switch (projectObjects[i].description) {
 				case GDriveConstants.ObjectType.PERSISTENT_DATA:
 				case GDriveConstants.ObjectType.SNIPPET:
+                case GDriveConstants.ObjectType.APPLICATION_STATE:
 				case GDriveConstants.ObjectType.EVENT:
 					classifiedObjects.datas.push(projectObjects[i]);
 					break;
@@ -452,7 +453,14 @@ function GenerateXMLService() {
 							if (!fieldsDetails[projectObjectTitle]){
 								fieldsDetails[projectObjectTitle] = {};
                                 fieldsDetailsProjectObjectToLoadCounter++;
-								loadProjectObjectForFieldsDetails(projectObjectTitle);
+								try{
+									loadProjectObjectForFieldsDetails(projectObjectTitle);
+								}
+								catch(errorMessage){
+									console.error('Failed while processing the query for the project objet: ' + gModel.title.text);
+									console.error('Failed query is: ' + queryBody);
+									console.error('Failed proejct object title is: ' + projectObjectTitle);
+								}
 							}
 						}
 					}
@@ -461,9 +469,11 @@ function GenerateXMLService() {
 				// inner functions
 				function loadProjectObjectForFieldsDetails(projectObjectTitle){
 					var fileIds = gMetadataCustomObject.projectObjectTitles.keys();
+					var isProjectObjectFound = false;
 					for (var i=0; i<fileIds.length; i++){
 						var fileId = fileIds[i];
 						if (gMetadataCustomObject.projectObjectTitles.get(fileId) === projectObjectTitle){
+							isProjectObjectFound = true;
 							break;
 						}
 					}
@@ -471,7 +481,13 @@ function GenerateXMLService() {
 					var executionContext = {
 						projectObjectTitle: projectObjectTitle
 					};
-					googleDriveUtils.loadDriveFileDoc(fileId, objectType, onObjectFileLoaded.bind(executionContext));
+
+					if (isProjectObjectFound){
+						googleDriveUtils.loadDriveFileDoc(fileId, objectType, onObjectFileLoaded.bind(executionContext));
+					}
+					else{
+						throw 'ERROR: no file id was found for the project object title "' + projectObjectTitle + '"';
+					}
 
 					function onObjectFileLoaded(doc){
                         fieldsDetailsProjectObjectLoadedCounter++;
@@ -612,7 +628,9 @@ function GenerateXMLService() {
 							fieldType = 'uuid';
 						}
 						else{
-							console.log('ERROR: Invalid field name used in the query');
+							console.log('ERROR: field name used in a query does not exist in the entire project'); 
+							console.log('project object title: ' + projectObjectTitle);
+							console.log('field name: ' + eligibleFieldName);
 						}
 					}
 				}				
@@ -916,6 +934,25 @@ function GenerateXMLService() {
 			}, Configs.GoogleDocCloseInterval);
 		};
 
+
+        var onApplicationStateLoad = function(doc) {
+            var dataType = 'applicationState';
+            var gModel = doc.getModel().getRoot().get(GDriveConstants.CustomObjectKey.APPLICATION_STATE);
+            var node = createDataNode(gModel, dataType);
+            node = setJsonFields(node, gModel);
+
+            dataJsonNode.Data.push(node.Data);
+
+            if (dataJsonNode.Data.length === dataCount && typeof callback === 'function') {
+                callback(dataJsonNode);
+            }
+
+            // closing the doc too soon throws an exception from Google
+            setTimeout(function(){
+                doc.close();
+            }, Configs.GoogleDocCloseInterval);
+        };
+
 		if (dataCount === 0 && typeof callback === 'function') {
 			callback(dataJsonNode);
 		}
@@ -927,7 +964,10 @@ function GenerateXMLService() {
 				googleDriveUtils.loadDriveFileDoc(datas[i].id, GDriveConstants.ObjectType.SNIPPET, onSnippetLoad);
 			} else if (datas[i].description === GDriveConstants.ObjectType.EVENT){
 				googleDriveUtils.loadDriveFileDoc(datas[i].id, GDriveConstants.ObjectType.EVENT, onEventLoad);
-			}
+			}else if (datas[i].description === GDriveConstants.ObjectType.APPLICATION_STATE){
+                googleDriveUtils.loadDriveFileDoc(datas[i].id, GDriveConstants.ObjectType.APPLICATION_STATE, onApplicationStateLoad);
+            }
+
 		}
 	};
 
