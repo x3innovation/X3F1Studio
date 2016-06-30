@@ -36,6 +36,7 @@ module.exports = React.createClass({
 			this.props.objectFileId);
 		this.queriesController = new QueriesController(this.props.gFileCustomObject,
 			this.props.gMetadataCustomObject,
+			this.props.projectFolderFileId,
 			this.props.gFileModel);
 		this.enumElementsController = new EnumElementsController(this.props.gFileCustomObject,
 			this.props.gMetadataCustomObject);
@@ -126,6 +127,24 @@ module.exports = React.createClass({
 					</div>
 				);
 				break;
+
+            case GDriveConstants.ObjectType.APPLICATION_STATE:
+                content = (
+                    <div className = 'body-wrapper row'>
+                        <div className = 'form-wrapper-row row'>
+                            <div className = 'col s12' id = 'form-header-bar-wrapper'>
+                                <FormHeaderBar controller={this.formHeaderBarController} />
+                            </div>
+                            <div className = 'col s4' id = 'field-selector-wrapper'>
+                                <FieldSelector controller={this.fieldSelectorController} />
+                            </div>
+                            <div className = 'col s8' id = 'form-wrapper'>
+                                <Form controller={this.formController} />
+                            </div>
+                        </div>
+                    </div>
+                    );
+                break;
 
 			case GDriveConstants.ObjectType.ENUM: 
 				content = (
