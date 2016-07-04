@@ -2,7 +2,6 @@ var googleApiInterface = require('../remote-server-interfaces/google-api-interfa
 var GCons = require('../constants/google-drive-constants.js');
 var DefaultValueConstants = require('../constants/default-value-constants.js');
 var AnnouncementType = require('../constants/announcement-type.js');
-var uniqueIdGenerator = require('../utils/unique-id-generator.js');
 var DefaultFields = DefaultValueConstants.DefaultFieldAttributes;
 var ObjectType = GCons.ObjectType;
 var Configs = require('../app-config.js');
@@ -87,8 +86,8 @@ function GoogleDriveUtils()
 		googleApiInterface.saveTitle(fileId, title);
 	};
 
-	this.getNewTypeId = function(gMetadataCustomObject, step) {
-		return uniqueIdGenerator.getUuid();
+	this.getNewTypeId = function(gMetadataCustomObject, step) {		
+		return UUIDjs.create(4).hex;
 	};
 
 	this.announce = function(gMetadataCustomObject, announcement) {
@@ -296,6 +295,7 @@ function GoogleDriveUtils()
 		var newField = {
 			type: DefaultFields.FIELD_TYPE,
 			defValueBool: DefaultFields.FIELD_DEF_BOOL_VALUE,
+			defValueChar: DefaultFields.FIELD_DEF_CHAR_VALUE,
 			optional: DefaultFields.FIELD_OPTIONAL,
 			array: DefaultFields.FIELD_ARRAY,
 			unique: DefaultFields.FIELD_UNIQUE,
@@ -321,6 +321,7 @@ function GoogleDriveUtils()
         gField.set('maxDateTimeTime', gModel.createString(DefaultFields.FIELD_MAX_DATETIME_TIME_VALUE));
         gField.set('defDateTimeDate', gModel.createString(DefaultFields.FIELD_DEF_DATETIME_DATE_VALUE));
         gField.set('defDateTimeTime', gModel.createString(DefaultFields.FIELD_DEF_DATETIME_TIME_VALUE));
+        gField.set('timezone',  gModel.createString(DefaultFields.FIELD_DEF_TIMEZONE));
 		gField.set('minDate', gModel.createString(DefaultFields.FIELD_MIN_DATE_VALUE));
 		gField.set('maxDate', gModel.createString(DefaultFields.FIELD_MAX_DATE_VALUE));
         gField.set('minTime', gModel.createString(DefaultFields.FIELD_MIN_TIME_VALUE));
@@ -341,7 +342,8 @@ function GoogleDriveUtils()
 		fieldData.set('enumName', DefaultFields.FIELD_ENUM_NAME);
 		fieldData.set('enumValue', DefaultFields.FIELD_ENUM_VALUE);
 		fieldData.set('defValueBool', DefaultFields.FIELD_DEF_BOOL_VALUE);
-
+		
+		fieldData.set('timezone', DefaultFields.FIELD_DEF_TIMEZONE);
 		fieldData.get('defValue').setText(DefaultFields.FIELD_DEF_VALUE);
 		fieldData.get('minValue').setText(DefaultFields.FIELD_MIN_VALUE);
 		fieldData.get('maxValue').setText(DefaultFields.FIELD_MAX_VALUE);
@@ -732,6 +734,16 @@ function LatestVersionConverter(latestVersion)
                     var field = customObject.fields.get(i);
                     if (!field.get('unique')){
                         field.set('unique', false);
+                    }
+                }
+            }
+            if(customObject.queries){
+            	for (var i=0; i<customObject.queries.length; ++i){
+                    var query = customObject.queries.get(i);
+                    if (typeof(query.returnType) == 'undefined'){
+						var clone = $.extend({}, query);
+						clone.returnType = "";
+						customObject.queries.set(i, clone);
                     }
                 }
             }
