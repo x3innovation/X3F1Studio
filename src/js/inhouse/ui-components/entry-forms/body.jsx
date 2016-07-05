@@ -49,7 +49,7 @@ module.exports = React.createClass({
 			this.props.projectFolderFileId,
 			this.props.objectFileId
 			);
-		this.inheritanceController = new InheritanceController(this.props.gFileCustomObject, this.props.projectFolderFileId)
+		this.inheritanceController = new InheritanceController(this.props.gFileCustomObject, this.props.projectFolderFileId, this.props.objectFileType)
 	},
 
 	/* ******************************************
@@ -122,6 +122,9 @@ module.exports = React.createClass({
 						<div className = 'form-wrapper-row row'>
 							<div className = 'col s12' id = 'form-header-bar-wrapper'>
 								<FormHeaderBar controller={this.formHeaderBarController} />
+							</div>
+							<div className = 'col s12' id = 'inheritance-selector'>
+								<Parents controller={this.inheritanceController} />
 							</div>
 							<div className = 'col s4' id = 'field-selector-wrapper'>
 								<FieldSelector controller={this.fieldSelectorController} />

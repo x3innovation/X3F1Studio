@@ -232,8 +232,8 @@ function GenerateXMLService() {
 				node.Data._stateChecked = 'false';
 			}
 
-			if (dataType === 'persisted' || dataType === 'snippet') {
-				node.Data._extends = gModel.extends !== null ? gModel.extends: '';
+			if ( (dataType === 'persisted' || dataType === 'snippet') && gModel.extends !== null) {
+				node.Data._extends = gModel.extends;
 			}
 
 			return node;

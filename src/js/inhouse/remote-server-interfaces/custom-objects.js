@@ -45,6 +45,7 @@ function GoogleApiInterface()
 		model.prototype.description = custom.collaborativeField(Cons.KEY_DESCRIPTION);
 		model.prototype.fields = custom.collaborativeField(Cons.KEY_FIELDS);
 		model.prototype.extends = custom.collaborativeField(Cons.KEY_EXTENDS);
+		model.prototype.extendsId = custom.collaborativeField(Cons.KEY_EXTENDS_ID);
 		model.prototype.queries = custom.collaborativeField(Cons.KEY_QUERIES);
 		model.prototype.appStateId = custom.collaborativeField(Cons.KEY_APP_STATE_ID);
 		model.prototype.UpdatePersistenceEventTypeId = custom.collaborativeField(Cons.KEY_UPDATE_PD_EVENT_TYPE_ID);
@@ -107,6 +108,7 @@ function GoogleApiInterface()
 		model.prototype.description = custom.collaborativeField(Cons.KEY_DESCRIPTION);
 		model.prototype.fields = custom.collaborativeField(Cons.KEY_FIELDS);
 		model.prototype.extends = custom.collaborativeField(Cons.KEY_EXTENDS);
+		model.prototype.extendsId = custom.collaborativeField(Cons.KEY_EXTENDS_ID);
 		model.prototype.appStateId = custom.collaborativeField(Cons.KEY_APP_STATE_ID);
 		custom.setInitializer(model, model.prototype.initialize);
 	}

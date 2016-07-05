@@ -450,10 +450,8 @@ function GoogleDriveUtils()
 					customObject.fields = docModel.createList();
 					customObject.id = _this.getNewTypeId(metadataCustomObject);
 					docModel.getRoot().set(customObjectKey, customObject);
-
 					metadataCustomObject.projectObjectTitles.set(fileId, DefaultValueConstants.NewFileValues.SNIPPET_TITLE);
 					break;
-
 				case ObjectType.APPLICATION_STATE:
 					customObject.title = docModel.createString(DefaultValueConstants.NewFileValues.APPLICATION_STATE_TITLE);
 					customObject.description = docModel.createString(DefaultValueConstants.NewFileValues.APPLICATION_STATE_DESCRIPTION);

@@ -1,4 +1,4 @@
-function InheritanceController(gFileCustomObject, projectFolderFileId)
+function InheritanceController(gFileCustomObject, projectFolderFileId, fileType)
 {
 	// //////// private members
 	var googleDriveUtils = require('../../utils/google-drive-utils.js');
@@ -6,6 +6,7 @@ function InheritanceController(gFileCustomObject, projectFolderFileId)
 	var GDriveConstants = require('../../constants/google-drive-constants.js');
 	var gFileCustomModel = gFileCustomObject;
 	var pFolderId = projectFolderFileId;
+	var fileType  = fileType;
 
 
 
@@ -22,35 +23,39 @@ function InheritanceController(gFileCustomObject, projectFolderFileId)
 		{		
 			var parents = [];
 			var projectObject;
+			
 			for (var i = 0, len = projectObjects.length; i<len; i++) {
+				
 				projectObject = {
 					id: projectObjects[i].id,
 					title: projectObjects[i].title,
 					fileType: projectObjects[i].description 
 				};
-				
-				switch (projectObjects[i].description) {
-					case GDriveConstants.ObjectType.PERSISTENT_DATA:
-						if(gFileCustomModel.title.text !== projectObjects[i].title)
-							parents.push(projectObject);						
-						break;
-					case GDriveConstants.ObjectType.SNIPPET:
-						//add logic here so that only snippets can make it to the parents list 
-					default: break;
-				}
+
+				if(gFileCustomModel.title.text !== projectObjects[i].title ){
+					if( fileType === 'f1-objectType-persistentData' 
+						|| (fileType === 'f1-objectType-snippet' && projectObject.fileType === 'f1-objectType-snippet')){ // snippet can only inherit from snippet
+						parents.push(projectObject);
+					}
+					
+				}				
 			}
 			callback(parents);
 		}
-	}
-	
+	}	
 	this.getFieldExtend = function()
 	{
-		return gFileCustomObject.extends !== null ? gFileCustomObject.extends : null;
+		var extend = {
+			name: gFileCustomObject.extends, 
+			id: gFileCustomObject.extendsId
+		}
+		return extend;
 	}
 
-	this.setFieldExtend = function(value)
-	{
-		gFileCustomObject.extends = value;
+	this.setFieldExtend = function(id, name)
+	{	
+		gFileCustomObject.extendsId = id;
+		gFileCustomObject.extends = name;
 	}
 }
-module.exports = InheritanceController;
+	module.exports = InheritanceController;
