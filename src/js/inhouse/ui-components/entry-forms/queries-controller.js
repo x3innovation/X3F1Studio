@@ -50,10 +50,17 @@ function QueriesController(gFileCustomModel, gMetadataCustomObject, gFileModel)
 	{
 		gFileModel.beginCompoundOperation();
 		for (var i = 0, len = gFileCustomModel.queries.length; i<len; i++) {
-			if (gFileCustomModel.queries.get(i).id === queryId) {
+			var query = gFileCustomModel.queries.get(i);
+			if (query.id === queryId) {
+				// TODO: (temporary)Fix invalid responseId
+				var responseQueryId = query.responseId;
+				if(query.responseId.length !== 36) {
+					responseQueryId = googleDriveUtils.getNewTypeId(gMetadataCustomObject);
+				}
+
 				var newQuery = {
-					requestId: queryId,
-					responseId: queryId + 1,
+					requestId: query.requestId,
+					responseId: responseQueryId,
 					id: queryId,
 					name: name,
 					description: description
