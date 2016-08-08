@@ -50,6 +50,45 @@ module.exports = React.createClass({
 		this.updateUi();
 	},
 
+	componentWillUpdate: function()
+	{
+		this.controller = this.props.controller;
+		var title = this.controller.getTitle();
+		var persistenceEvents = this.controller.getPersistenceEvents();
+		this.events = [
+			{id: persistenceEvents.UpdatePersistenceEventTypeId,
+			 label: 'Update',
+			 name: 'Update ' + title ,
+			 isBusinessRequestRow: true}, 
+			{id: persistenceEvents.CreatePersistenceEventTypeId,
+			 label: 'Create',
+			 name: 'Create ' + title,
+			 isBusinessRequestRow: true }, 
+			{id: persistenceEvents.RemovePersistenceEventTypeId,
+			 label: 'Remove',
+			 name: 'Remove ' + title,
+			 isBusinessRequestRow: true },
+			{id: persistenceEvents.UpdatedPersistenceEventTypeId,
+			 label: 'Updated',
+			 name: title + ' Updated' },
+			{id: persistenceEvents.CreatedPersistenceEventTypeId,
+			 label: 'Created',
+			 name: title + ' Created' },
+			{id: persistenceEvents.RemovedPersistenceEventTypeId,
+			 label: 'Removed',
+			 name: title + ' Removed' },
+			{id: persistenceEvents.RejectedUpdatePersistenceEventTypeId,
+			 label: 'Update Rejected',
+			 name: 'Update ' + title + ' Rejected' },
+			{id: persistenceEvents.RejectedCreatePersistenceEventTypeId,
+			 label: 'Create Rejected',
+			 name: 'Create ' + title + ' Rejected' },
+			{id: persistenceEvents.RejectedRemovePersistenceEventTypeId,
+			 label: 'Remove Rejected',
+			 name: 'Remove ' + title + ' Rejected' }
+		];
+	},
+
 	/* ******************************************
 				NON LIFE CYCLE FUNCTIONS
 	****************************************** */
@@ -79,6 +118,8 @@ module.exports = React.createClass({
 		else{
 			$checkbox.prop('checked', false);
 		}
+		
+		this.forceUpdate();
 	},
 
 	onBusinessRequestClicked : function(e){

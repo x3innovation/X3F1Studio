@@ -8,6 +8,7 @@ var FormHeaderBar = require('./form-header-bar.jsx');
 var PersistentEvents = require('./persistent-events.jsx');
 var Queries = require('./queries.jsx');
 var EventBusinessRequest = require('./event-business-request.jsx');
+var Parents = require('./inheritance-selector.jsx');
 
 var FormHeaderBarController = require('./form-header-bar-controller.js');
 var FieldSelectorController = require('./field-selector-controller.js');
@@ -16,6 +17,7 @@ var PersistentEventsController = require('./persistent-events-controller.js');
 var QueriesController = require('./queries-controller.js');
 var EnumElementsController = require('./enum-elements-controller.js');
 var EventBusinessRequestController = require('./event-business-request-controller.js');
+var InheritanceController = require('./inheritance-controller.js')
 
 module.exports = React.createClass({
 	/* ******************************************
@@ -36,6 +38,7 @@ module.exports = React.createClass({
 			this.props.objectFileId);
 		this.queriesController = new QueriesController(this.props.gFileCustomObject,
 			this.props.gMetadataCustomObject,
+			this.props.projectFolderFileId,
 			this.props.gFileModel);
 		this.enumElementsController = new EnumElementsController(this.props.gFileCustomObject,
 			this.props.gMetadataCustomObject);
@@ -45,7 +48,8 @@ module.exports = React.createClass({
 			this.props.gFileCustomObject,
 			this.props.projectFolderFileId,
 			this.props.objectFileId
-			)
+			);
+		this.inheritanceController = new InheritanceController(this.props.gFileCustomObject, this.props.projectFolderFileId)
 	},
 
 	/* ******************************************
@@ -61,6 +65,9 @@ module.exports = React.createClass({
 						<div className = 'form-wrapper-row row'>
 							<div className = 'col s12' id = 'form-header-bar-wrapper'>
 								<FormHeaderBar controller={this.formHeaderBarController} />
+							</div>
+							<div className = 'col s12' id = 'inheritance-selector'>
+								<Parents controller={this.inheritanceController} />
 							</div>
 							<div className = 'col s4' id = 'field-selector-wrapper'>
 								<FieldSelector controller={this.fieldSelectorController} />

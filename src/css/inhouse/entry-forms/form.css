@@ -30,6 +30,16 @@ select.form-select{
     margin-right: 1rem;
 }
 
+#parents-dropdown{
+    float: right;
+    margin-bottom: 15px;
+}
+#extend-field{
+    left: -70px;
+    font-size: 1.2rem;
+    top: 8px;
+}
+
 .dropdown-content {
     max-height: 20rem;
     overflow: auto;

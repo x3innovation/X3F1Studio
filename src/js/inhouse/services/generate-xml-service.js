@@ -198,7 +198,6 @@ function GenerateXMLService() {
 			var description = gModel.description.toString();
 			var typeId = gModel.id;
             var isBusinessRequest = gModel.isBusinessRequest;
-
 			node.Data = {
 				_name: spacelessName,
 				_typeId: typeId,
@@ -231,6 +230,10 @@ function GenerateXMLService() {
 			if (dataType === 'persisted') {
 				node.Data._identifiable = 'true';
 				node.Data._stateChecked = 'false';
+			}
+
+			if (dataType === 'persisted' || dataType === 'snippet') {
+				node.Data._extends = gModel.extends !== null ? gModel.extends: '';
 			}
 
 			return node;
@@ -328,10 +331,12 @@ function GenerateXMLService() {
 					var gQuery = gQueries.get(i);
 					var title = replaceAll(gModel.title.toString(), ' ', '');
 					var queryName = replaceAll(gQuery.name, ' ', '');
+					var retType = replaceAll(gQuery.returnType, ' ', '');
 					queryBody = gQuery.description;
 					var query = {
 						_name: queryName,
 						_query: queryBody,
+						_returnType: retType,
 						Parameter: null,
 						QueryRequestEvent: {
 							_name: queryName+'Request',
@@ -400,7 +405,7 @@ function GenerateXMLService() {
 							parameterName += queryBody[i];
 						}
 					}
-					
+
 					return parameters;
 				}
 
@@ -437,7 +442,7 @@ function GenerateXMLService() {
 								var nextSearchFromString = searchFromString.substring(firstOccurrenceIndex + tokenString.length);
 								traverseBackUntilTitleFound(nextSearchFromString, tokenString);
 								break;
-							}							
+							}
 						}
 					}
 				}
@@ -451,7 +456,14 @@ function GenerateXMLService() {
 							if (!fieldsDetails[projectObjectTitle]){
 								fieldsDetails[projectObjectTitle] = {};
                                 fieldsDetailsProjectObjectToLoadCounter++;
-								loadProjectObjectForFieldsDetails(projectObjectTitle);
+								try{
+									loadProjectObjectForFieldsDetails(projectObjectTitle);
+								}
+								catch(errorMessage){
+									console.error('Failed while processing the query for the project objet: ' + gModel.title.text);
+									console.error('Failed query is: ' + queryBody);
+									console.error('Failed proejct object title is: ' + projectObjectTitle);
+								}
 							}
 						}
 					}
@@ -460,9 +472,11 @@ function GenerateXMLService() {
 				// inner functions
 				function loadProjectObjectForFieldsDetails(projectObjectTitle){
 					var fileIds = gMetadataCustomObject.projectObjectTitles.keys();
+					var isProjectObjectFound = false;
 					for (var i=0; i<fileIds.length; i++){
 						var fileId = fileIds[i];
 						if (gMetadataCustomObject.projectObjectTitles.get(fileId) === projectObjectTitle){
+							isProjectObjectFound = true;
 							break;
 						}
 					}
@@ -470,7 +484,13 @@ function GenerateXMLService() {
 					var executionContext = {
 						projectObjectTitle: projectObjectTitle
 					};
-					googleDriveUtils.loadDriveFileDoc(fileId, objectType, onObjectFileLoaded.bind(executionContext));
+
+					if (isProjectObjectFound){
+						googleDriveUtils.loadDriveFileDoc(fileId, objectType, onObjectFileLoaded.bind(executionContext));
+					}
+					else{
+						throw 'ERROR: no file id was found for the project object title "' + projectObjectTitle + '"';
+					}
 
 					function onObjectFileLoaded(doc){
                         fieldsDetailsProjectObjectLoadedCounter++;
@@ -526,7 +546,7 @@ function GenerateXMLService() {
 					parameters.push(attributes);
 				}
 				return parameters;
-				
+
 				// innder functions
 				function getParameterAttributes(eligibleFields, parameterToken){
 					var attributes = {};
@@ -534,7 +554,7 @@ function GenerateXMLService() {
 					var length = null;
 					var min = null;
 					var max = null;
-					
+
 					// update fieldType and length variables
 					for (var projectObjectTitle in eligibleFields){
 						for (var i in eligibleFields[projectObjectTitle]){
@@ -616,7 +636,7 @@ function GenerateXMLService() {
 							console.log('field name: ' + eligibleFieldName);
 						}
 					}
-				}				
+				}
 			}
 		};
 
@@ -628,7 +648,7 @@ function GenerateXMLService() {
 				gField = gFields.get(i);
 				node.Data.Field[i] = {
 					_name: gField.get('name').toString(),
-					_type: gField.get('type').toString(),
+					_type: gField.get('type').toString().toLowerCase(),
 					_unique: gField.get('unique').toString(),
 					Annotation: {
 						_name: 'description',
@@ -705,6 +725,10 @@ function GenerateXMLService() {
                             }
 						}
 
+						//timezone
+						if(gField.get('timezone') !== null  && gField.get('timezone') !== '' )						
+							node.Data.Field[i]._timezone = gField.get('timezone');
+
 						break;
 					case 'date':
 						// default
@@ -741,6 +765,10 @@ function GenerateXMLService() {
 							delete node.Data.Field[i]._max;
 						}
 
+						//timezone
+						if(gField.get('timezone') !== null && gField.get('timezone') !== ''  )						
+							node.Data.Field[i]._timezone = gField.get('timezone');
+
 						break;
 					case 'time':
 						// default
@@ -770,12 +798,19 @@ function GenerateXMLService() {
 							delete node.Data.Field[i]._max;
 						}
 
+						//timezone
+						if(gField.get('timezone') !== null && gField.get('timezone') !== '' )						
+							node.Data.Field[i]._timezone = gField.get('timezone');
+
 						break;
 					case 'boolean':
 						node.Data.Field[i]._default = gField.get('defValueBool').toString();
 						break;
 					case 'UUID':
 						node.Data.Field[i]._generateFlyweightGetter = true;
+						break;
+					case 'char':
+						node.Data.Field[i]._default = gField.get('defValueChar').toString();
 						break;
 					case 'string':
 						var maxStrLen = gField.has('maxStrLen') ? 

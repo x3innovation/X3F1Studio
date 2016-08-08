@@ -66,6 +66,7 @@ module.exports = {
 		KEY_TITLE : 'title',
 		KEY_DESCRIPTION : 'description',
 		KEY_FIELDS : 'fields',
+		KEY_EXTENDS : 'extends',
 		KEY_QUERIES : 'queries',
 		KEY_APP_STATE_ID : 'appStateId',
 		KEY_UPDATE_PD_EVENT_TYPE_ID : 'UpdatePersistenceEventTypeId',
@@ -109,6 +110,7 @@ module.exports = {
 		KEY_TITLE : 'title',
 		KEY_DESCRIPTION : 'description',
 		KEY_FIELDS : 'fields',
+		KEY_EXTENDS : 'extends',
 		KEY_APP_STATE_ID : 'appStateId'
 	},
 

@@ -35,6 +35,7 @@ module.exports = {
 		FIELD_DEF_VALUE : '',
 		FIELD_DEF_DATE_VALUE : '',
 		FIELD_DEF_BOOL_VALUE : false,
+		FIELD_DEF_CHAR_VALUE : '',
 		FIELD_MIN_VALUE : '',
 		FIELD_MAX_VALUE : '',
 		FIELD_MIN_DATETIME_DATE_VALUE : '',
@@ -47,6 +48,7 @@ module.exports = {
 		FIELD_MAX_DATE_VALUE : '',
 		FIELD_MIN_TIME_VALUE : '',
 		FIELD_MAX_TIME_VALUE : '',
+		FIELD_DEF_TIMEZONE : 'UTC',
 		FIELD_MIN_STR_LEN : '',
 		FIELD_MAX_STR_LEN : '',
 		FIELD_REF_ID : 'default',
@@ -60,7 +62,7 @@ module.exports = {
 		FIELD_ARRAY : false,
 		FIELD_UNIQUE : false,
 		FIELD_ARRAY_LEN : '1',
-		FIELD_CONTEXT_ID : false
+		FIELD_CONTEXT_ID : false		
 	},
 
 	DefaultQueryAttributes : {

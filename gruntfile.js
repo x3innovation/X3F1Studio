@@ -42,7 +42,8 @@ module.exports = function(grunt) {
 			'moment-2.10.6.js',
 			'jquery.dataTables-1.10.7.js',
 			'jquery.datetimepicker-2.4.5-with-momentjs-support.js',
-			'jquery-tag-it-2.0.js'
+			'jquery-tag-it-2.0.js', 
+			'uuid.js'
 		];
 
 		for (var i = 0; i<vendorLibs.length; ++i)
