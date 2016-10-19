@@ -336,7 +336,6 @@ function GenerateXMLService() {
 					var query = {
 						_name: queryName,
 						_query: queryBody,
-						_returnType: retType,
 						Parameter: null,
 						QueryRequestEvent: {
 							_name: queryName+'Request',
@@ -356,10 +355,21 @@ function GenerateXMLService() {
 					}
 
 					node.Data.Query.push(query);
-					node.Data.Query[i].QueryResponseEvent = {
-						_name: queryName+'Response',
-						_typeId: gQuery.responseId
-					};
+					if (retType == '') {
+						node.Data.Query[i].QueryResponseEvent = {
+							_name: queryName+'Response',
+							_typeId: gQuery.responseId,
+							_returnTypeName: node.Data._name
+						};
+					}
+					else {
+						node.Data.Query[i].QueryResponseEvent = {
+							_name: queryName+'Response',
+							_typeId: gQuery.responseId,
+							_returnTypeName: retType
+						};
+					}
+					
 				}
 				onJsonQueriesSet(node);
 			}
