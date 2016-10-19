@@ -450,10 +450,8 @@ function GoogleDriveUtils()
 					customObject.fields = docModel.createList();
 					customObject.id = _this.getNewTypeId(metadataCustomObject);
 					docModel.getRoot().set(customObjectKey, customObject);
-
 					metadataCustomObject.projectObjectTitles.set(fileId, DefaultValueConstants.NewFileValues.SNIPPET_TITLE);
 					break;
-
 				case ObjectType.APPLICATION_STATE:
 					customObject.title = docModel.createString(DefaultValueConstants.NewFileValues.APPLICATION_STATE_TITLE);
 					customObject.description = docModel.createString(DefaultValueConstants.NewFileValues.APPLICATION_STATE_DESCRIPTION);
@@ -711,11 +709,14 @@ function LatestVersionConverter(latestVersion)
 				}
 
                 addNewFieldParameters();
+                addNewFieldsForPersistedTypes();
 
 				if (isLastConversion){
 					callback();
 				}
 				break;
+			case ObjectType.SNIPPET:
+				addNewFieldsForPersistedTypes();
 			default:
 				if (isLastConversion){
 					callback();
@@ -741,6 +742,19 @@ function LatestVersionConverter(latestVersion)
 						var clone = $.extend({}, query);
 						clone.returnType = "";
 						customObject.queries.set(i, clone);
+                    }
+                }
+            }
+        }
+
+        function addNewFieldsForPersistedTypes(){
+        	var customObject = doc.getModel().getRoot().get(customObjectKey);
+            if (customObject.fields){
+                // add 'extends'
+                for (var i=0; i<customObject.fields.length; ++i){
+                    var field = customObject.fields.get(i);
+                    if (!field.get('extends')){
+                        field.set('extends', '');
                     }
                 }
             }
