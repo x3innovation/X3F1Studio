@@ -68,8 +68,8 @@ module.exports = React.createClass({
 		return (
 			<div id='parents-container' className = 'row'>
 				<div id='parents-dropdown' className='input-field col s3'>	
-					<select id='parent-select' className='ref-name-selector form-select' value='default'>
-						<option value='null'>Choose your option</option>							
+					<select id='parent-select' className='ref-name-selector form-select'>
+						<option value=''>None</option>							
 					</select>			
 					<label htmlFor='parent-select' id='extend-field'>Extends: </label>										
 				</div>		

@@ -232,7 +232,7 @@ function GenerateXMLService() {
 				node.Data._stateChecked = 'false';
 			}
 
-			if ( (dataType === 'persisted' || dataType === 'snippet') && gModel.extends !== null) {
+			if ( (dataType === 'persisted' || dataType === 'snippet') && (gModel.extends !== null && gModel.extends !== 'None')) {
 				node.Data._extends = gModel.extends;
 			}
 
