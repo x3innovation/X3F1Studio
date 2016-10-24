@@ -658,7 +658,7 @@ function GenerateXMLService() {
 				gField = gFields.get(i);
 				node.Data.Field[i] = {
 					_name: gField.get('name').toString(),
-					_type: gField.get('type').toString().toLowerCase(),
+					_type: gField.get('type').toString(),
 					_unique: gField.get('unique').toString(),
 					Annotation: {
 						_name: 'description',
@@ -818,6 +818,7 @@ function GenerateXMLService() {
 						break;
 					case 'UUID':
 						node.Data.Field[i]._generateFlyweightGetter = true;
+						node.Data.Field[i]._type = 'uuid';
 						break;
 					case 'char':
 						node.Data.Field[i]._default = gField.get('defValueChar').toString();
