@@ -432,7 +432,7 @@ function GenerateXMLService() {
 							if (!isPeriodSpotted && searchFromString[i] === '.'){
 								isPeriodSpotted = true;
 							}
-							else if (isPeriodSpotted && searchFromString[i] === ' '){
+							else if (isPeriodSpotted && (searchFromString[i] === ' ' || searchFromString[i] === '(')){
 								// interested projectObject.fieldName has reached
 								var substringFromSpace = searchFromString.substring(i+1);
 								var endOfFieldSpaceIndex = substringFromSpace.indexOf(' ');
