@@ -37,7 +37,7 @@ function GoogleApiInterface()
 				}, (45 * 60 * 1000)); //refresh token every 45 minutes as suggested by google
 
 				// loading Google Drive sdk asynchronously
-				gapi.client.load('drive', 'v2', function(){
+				gapi.client.load('drive', 'v3', function(){
 					customObjects.registerCustomDataTypes();
 					successCallback();
 				});
@@ -66,13 +66,13 @@ function GoogleApiInterface()
 	this.getProjects = function(callback)
 	{
 		var request = gapi.client.drive.files.list({
-			corpus : 'DEFAULT',
+			corpus : 'user',
 			q : 'mimeType="' + GDriveConstant.MimeType.PROJECT + '" and trashed = false',
-			fields : 'items(id,parents/id,title)'
+			fields : 'files(id,name,kind,mimeType,parents)'
 		});
 
 		request.execute(function(response){
-			callback(response.items);
+			callback(response.files);
 		});
 	};
 
@@ -89,10 +89,10 @@ function GoogleApiInterface()
 
 	this.saveTitle = function(fileId, title)
 	{
-		var saveTitleRequest = gapi.client.drive.files.patch({
+		var saveTitleRequest = gapi.client.drive.files.update({
 			'fileId' : fileId,
 			'resource' : {
-				'title' : title
+				'name' : title
 			}
 		});
 
@@ -101,7 +101,7 @@ function GoogleApiInterface()
 
 	this.setMimeType = function(fileId, mimeType)
 	{
-		var saveTitleRequest = gapi.client.drive.files.patch({
+		var saveTitleRequest = gapi.client.drive.files.update({
 			'fileId' : fileId,
 			'resource' : {
 				'mimeType' : mimeType
@@ -114,26 +114,26 @@ function GoogleApiInterface()
 	this.getFilesByMimeType = function(mimeType, callback)
 	{
 		var request = gapi.client.drive.files.list({
-			corpus : 'DEFAULT',
+			corpus : 'user',
 			q : 'mimeType="' + mimeType + '"',
-			fields : 'items(id,parents/id,title)'
+			fields : 'files(id,parents/id,name)'
 		});
 
 		request.execute(function(response){
-			callback(response.items);
+			callback(response.files);
 		});
 	};
 
 	this.getAllFilesInFolder = function(folderFileId, callback)
 	{
 		var request = gapi.client.drive.files.list({
-			corpus : 'DEFAULT',
+			corpus : 'user',
 			q : '"' + folderFileId + '" in parents',
-			fields : 'items(id)'
+			fields : 'files(id)'
 		});
 
 		request.execute(function(response){
-			callback(response.items);
+			callback(response.files);
 		});
 	};
 
@@ -141,19 +141,19 @@ function GoogleApiInterface()
 	{
 		// among the files in the project folder, find the one with properties key=type value=PROJECT_METADATA
 		var request = gapi.client.drive.files.list({
-			corpus : 'DEFAULT',
+			corpus : 'user',
 			q : query,
-			fields : 'items(id,description,title,properties)'
+			fields : 'files(id,description,name,properties)'
 		});
 
 		request.execute(function(response){
-			callback(response.items);
+			callback(response.files);
 		});
 	};
 
 	this.createNewFolder = function(folderCreationParams, callback) {
 		var request = gapi.client.drive.files.insert({
-			title: folderCreationParams.title,
+			name: folderCreationParams.name,
 			mimeType: folderCreationParams.mimeType,
 		});
 
@@ -168,7 +168,7 @@ function GoogleApiInterface()
 		};
 
 		var request = gapi.client.drive.files.insert({
-			title: fileCreationParams.title,
+			name: fileCreationParams.name,
 			description: fileCreationParams.description,
 			mimeType: fileCreationParams.mimeType,
 			parents: [parentId]	// google requires us to pass an array here

@@ -22,7 +22,7 @@ function GoogleDriveUtils()
 	var versionNumber;
 
 	var sortCompareByFileTitle = function(a,b) {
-		var titleA = a.title.toLowerCase(), titleB = b.title.toLowerCase();
+		var titleA = a.name.toLowerCase(), titleB = b.name.toLowerCase();
 		if (titleA < titleB) //sort string ascending
 		{
 			return -1;
@@ -58,7 +58,7 @@ function GoogleDriveUtils()
 			var filteredProjects = [];
 			if (titleSearchString != null && titleSearchString.length > 0) {
 				for (var i in projects) {
-					var projectTitle = projects[i].title.toLowerCase();
+					var projectTitle = projects[i].name.toLowerCase();
 					if (projectTitle.indexOf(titleSearchString.toLowerCase()) > -1) {
 						filteredProjects.push(projects[i]);
 					}
@@ -208,7 +208,7 @@ function GoogleDriveUtils()
 				var filteredProjectObjects = [];
 				for (var i in projectObjects)
 				{
-					if (projectObjects[i].title.toLowerCase().indexOf(titleSearchString.toLowerCase()) > -1)
+					if (projectObjects[i].name.toLowerCase().indexOf(titleSearchString.toLowerCase()) > -1)
 					{
 						filteredProjectObjects.push(projectObjects[i]);
 					}
@@ -224,7 +224,7 @@ function GoogleDriveUtils()
 	this.createNewProject = function(callback) {
 		var createNewF1Metadata = function (folder) {
 			var fileCreationParams = {
-				title: folder.title,
+				title: folder.name,
 				description: GCons.ObjectType.PROJECT_METADATA,
 				parentId: folder.id,
 				mimeType: GCons.MimeType.PROJECT
@@ -278,7 +278,7 @@ function GoogleDriveUtils()
 					action: AnnouncementType.ADD_FILE,
 					fileType: objectType,
 					fileId: file.id,
-					fileName: fileCreationParams.title
+					fileName: fileCreationParams.name
 				};
 				_this.announce(gMetadataObject, addFileAnnouncement);
 
@@ -409,7 +409,7 @@ function GoogleDriveUtils()
 			// initialize custom object depending on filetype
 			switch (fileType) {
 				case ObjectType.PERSISTENT_DATA:
-					customObject.title = docModel.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE);
+					customObject.name = docModel.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE);
 					customObject.description = docModel.createString(DefaultValueConstants.NewFileValues.PERSISTENT_DATA_DESCRIPTION);
 					customObject.fields = docModel.createList();
 					customObject.queries = docModel.createList();
@@ -431,7 +431,7 @@ function GoogleDriveUtils()
 					metadataCustomObject.projectObjectTitles.set(fileId, DefaultValueConstants.NewFileValues.PERSISTENT_DATA_TITLE);
 					break;
 				case ObjectType.EVENT:
-					customObject.title = docModel.createString(DefaultValueConstants.NewFileValues.EVENT_TITLE);
+					customObject.name = docModel.createString(DefaultValueConstants.NewFileValues.EVENT_TITLE);
 					customObject.description = docModel.createString(DefaultValueConstants.NewFileValues.EVENT_DESCRIPTION);
 					customObject.fields = docModel.createList();
 					customObject.queries = docModel.createList();
@@ -445,7 +445,7 @@ function GoogleDriveUtils()
 					metadataCustomObject.projectObjectTitles.set(fileId, DefaultValueConstants.NewFileValues.EVENT_TITLE);
 					break;
 				case ObjectType.SNIPPET:
-					customObject.title = docModel.createString(DefaultValueConstants.NewFileValues.SNIPPET_TITLE);
+					customObject.name = docModel.createString(DefaultValueConstants.NewFileValues.SNIPPET_TITLE);
 					customObject.description = docModel.createString(DefaultValueConstants.NewFileValues.SNIPPET_DESCRIPTION);
 					customObject.fields = docModel.createList();
 					customObject.id = _this.getNewTypeId(metadataCustomObject);
@@ -453,7 +453,7 @@ function GoogleDriveUtils()
 					metadataCustomObject.projectObjectTitles.set(fileId, DefaultValueConstants.NewFileValues.SNIPPET_TITLE);
 					break;
 				case ObjectType.APPLICATION_STATE:
-					customObject.title = docModel.createString(DefaultValueConstants.NewFileValues.APPLICATION_STATE_TITLE);
+					customObject.name = docModel.createString(DefaultValueConstants.NewFileValues.APPLICATION_STATE_TITLE);
 					customObject.description = docModel.createString(DefaultValueConstants.NewFileValues.APPLICATION_STATE_DESCRIPTION);
 					customObject.fields = docModel.createList();
 					customObject.id = _this.getNewTypeId(metadataCustomObject);
@@ -461,7 +461,7 @@ function GoogleDriveUtils()
 					metadataCustomObject.projectObjectTitles.set(fileId, DefaultValueConstants.NewFileValues.APPLICATION_STATE_TITLE);
 					break;
 				case ObjectType.ENUM:
-					customObject.title = docModel.createString(DefaultValueConstants.NewFileValues.ENUM_TITLE);
+					customObject.name = docModel.createString(DefaultValueConstants.NewFileValues.ENUM_TITLE);
 					customObject.description = docModel.createString(DefaultValueConstants.NewFileValues.ENUM_DESCRIPTION);
 					customObject.fields = docModel.createList();
 					customObject.id = _this.getNewTypeId(metadataCustomObject);
@@ -470,7 +470,7 @@ function GoogleDriveUtils()
 					metadataCustomObject.projectObjectTitles.set(fileId, DefaultValueConstants.NewFileValues.ENUM_TITLE);
 					break;
 				case ObjectType.PROJECT:
-					customObject.title = docModel.createString(DefaultValueConstants.NewFileValues.PROJECT_TITLE);
+					customObject.name = docModel.createString(DefaultValueConstants.NewFileValues.PROJECT_TITLE);
 					customObject.description = docModel.createString(DefaultValueConstants.NewFileValues.PROJECT_DESCRIPTION);
 					docModel.getRoot().set(customObjectKey, customObject);
 					break;
@@ -717,6 +717,7 @@ function LatestVersionConverter(latestVersion)
 				break;
 			case ObjectType.SNIPPET:
 				addNewFieldsForPersistedTypes();
+				// break;
 			default:
 				if (isLastConversion){
 					callback();
@@ -801,7 +802,7 @@ function LatestVersionConverter(latestVersion)
 				var eventObject = events[i];
 				var metadataEventObject = {};
 				metadataEventObject.gFileId = eventObject.id;
-				metadataEventObject.eventObjectTitle = eventObject.title;
+				metadataEventObject.eventObjectTitle = eventObject.name;
 				metadataEventObject.responseForCounter = 0;
 				customObject.businessResponseEvents.push(metadataEventObject);
 			}
@@ -824,7 +825,7 @@ function LatestVersionConverter(latestVersion)
 			for (var i in projectObjects){
 				var projectObject = projectObjects[i];
 				var key = projectObject.id;
-				var value = projectObject.title;
+				var value = projectObject.name;
 				customObject.projectObjectTitles.set(key, value);
 			}
 

@@ -109,9 +109,9 @@ module.exports = React.createClass({
 	        			return (
 	        				<div key={columnIndex} className="col s3 f1-project-card" style={cellStyle}>
 								<Card
-									title={project.title} 
+									title={project.name} 
 								    fileId={project.id}
-									projectFolderFileId={project.parents[0].id}
+									projectFolderFileId={project.parents[0]}
 									model={{}} />
 							</div>
 	        			);
